@@ -1,0 +1,415 @@
+const User = require("../models/User");
+const crypto = require("crypto");
+const Patient = require("../models/Patient");
+const Doctor = require("../models/Doctor");
+const Clinic = require("../models/Clinic");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} = require("../utils/jwt");
+const {
+  storeRefreshToken,
+  getRefreshToken,
+  deleteRefreshToken,
+  storePendingUser,
+  getPendingUser,
+  deletePendingUser,
+  storeResetToken,
+  getResetUserId,
+  deleteResetToken,
+} = require("../services/redisService");
+const { sendEmail } = require("../services/emailService");
+const {
+  getVerificationEmail,
+  getForgotPasswordEmail,
+} = require("../utils/emailTemplates");
+
+// @desc    Register user (Pending)
+// @route   POST /api/auth/register
+// @access  Public
+const registerUser = async (req, res) => {
+  try {
+    const { email, password, role, profileData } = req.body;
+
+    if (!email || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required fields",
+      });
+    }
+
+    // Check if user already exists in DB
+    const existingUser = await User.findOne({ email });
+    if (existingUser && existingUser.roles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Account with this role already exists",
+      });
+    }
+
+    // Instead of creating user, store in Redis and send email
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    // If user exists, we only need to store the email and role for 'adding role' logic later
+    const userData = {
+      email,
+      password,
+      role,
+      profileData,
+      isNew: !existingUser,
+    };
+
+    await storePendingUser(verificationToken, userData);
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Verify your email - Medeaz",
+        html: getVerificationEmail(email, verificationToken),
+      });
+    } catch (err) {
+      console.error("Failed to send verification email", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Email service failed" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Verification email sent. Please check your inbox.",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Verify Email
+// @route   POST /api/auth/verify/:token
+// @access  Public
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const userData = await getPendingUser(token);
+
+    if (!userData) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired token" });
+    }
+
+    const { email, password, role, profileData, isNew } = userData;
+
+    let user;
+    if (isNew) {
+      user = await User.create({
+        email,
+        password,
+        roles: [role],
+        isVerified: true,
+      });
+    } else {
+      user = await User.findOne({ email });
+      if (!user) {
+        // Handle case where user was expected to exist but doesn't (cache/db out of sync)
+        user = await User.create({
+          email,
+          password,
+          roles: [role],
+          isVerified: true,
+        });
+      } else if (!user.roles.includes(role)) {
+        user.roles.push(role);
+        user.isVerified = true;
+        await user.save();
+      }
+    }
+
+    // Create role-specific profile
+    if (role === "patient") {
+      await Patient.findOneAndUpdate(
+        { userId: user._id },
+        { ...profileData, userId: user._id },
+        { upsert: true, returnDocument: "after" },
+      );
+    } else if (role === "doctor") {
+      await Doctor.findOneAndUpdate(
+        { userId: user._id },
+        { ...profileData, userId: user._id },
+        { upsert: true, returnDocument: "after" },
+      );
+    } else if (role === "clinic_admin") {
+      await Clinic.findOneAndUpdate(
+        { userId: user._id },
+        { ...profileData, userId: user._id },
+        { upsert: true, returnDocument: "after" },
+      );
+    }
+
+    await deletePendingUser(token);
+
+    const accessToken = generateAccessToken(user._id, user.roles);
+    const refreshToken = generateRefreshToken(user._id);
+    await storeRefreshToken(user._id, refreshToken);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: user._id,
+        email: user.email,
+        roles: user.roles,
+        isVerified: user.isVerified,
+      },
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Login user
+// @route   POST /api/auth/login
+// @access  Public
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an email and password",
+      });
+    }
+
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user || !(await user.matchPassword(password))) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    const accessToken = generateAccessToken(user._id, user.roles);
+    const refreshToken = generateRefreshToken(user._id);
+
+    await storeRefreshToken(user._id, refreshToken);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: user._id,
+        email: user.email,
+        roles: user.roles,
+        isVerified: user.isVerified,
+      },
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Logout user / clear token
+// @route   POST /api/auth/logout
+// @access  Private
+const logoutUser = async (req, res) => {
+  try {
+    await deleteRefreshToken(req.user._id);
+    res.status(200).json({ success: true, message: "User logged out" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get new access token from refresh token
+// @route   POST /api/auth/refresh
+// @access  Public
+const refreshAccessToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res
+        .status(401)
+        .json({ success: false, message: "No refresh token provided" });
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+
+    if (!decoded) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Refresh token invalid or expired" });
+    }
+
+    const storedToken = await getRefreshToken(decoded.id);
+
+    if (storedToken !== refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token compromised or expired",
+      });
+    }
+
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const newAccessToken = generateAccessToken(user._id, user.roles);
+
+    res.status(200).json({
+      success: true,
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get user profile
+// @route   GET /api/auth/profile
+// @access  Private
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      res.status(200).json({
+        success: true,
+        data: {
+          _id: user._id,
+          email: user.email,
+          roles: user.roles,
+          isVerified: user.isVerified,
+        },
+      });
+    } else {
+      res.status(404).json({ success: false, message: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      user.email = req.body.email || user.email;
+
+      if (req.body.password) {
+        user.password = req.body.password;
+      }
+
+      const updatedUser = await user.save();
+
+      res.status(200).json({
+        success: true,
+        data: {
+          _id: updatedUser._id,
+          email: updatedUser.email,
+          roles: updatedUser.roles,
+          isVerified: updatedUser.isVerified,
+        },
+      });
+    } else {
+      res.status(404).json({ success: false, message: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Forgot Password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No account found with this email" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    await storeResetToken(resetToken, user._id);
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your password - Medeaz",
+        html: getForgotPasswordEmail(resetToken),
+      });
+      res.status(200).json({
+        success: true,
+        message: "Password reset link sent to your email",
+      });
+    } catch (err) {
+      console.error(err);
+      res
+        .status(500)
+        .json({ success: false, message: "Could not send reset email" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Reset Password
+// @route   POST /api/auth/reset-password/:token
+// @access  Public
+const resetPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const { token } = req.params;
+
+    const userId = await getResetUserId(token);
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired reset token" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User no longer exists" });
+    }
+
+    user.password = password;
+    await user.save();
+    await deleteResetToken(token);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = {
+  registerUser,
+  verifyEmail,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  getUserProfile,
+  updateUserProfile,
+  forgotPassword,
+  resetPassword,
+};
