@@ -103,6 +103,7 @@ const verifyEmail = async (req, res) => {
     let user;
     if (isNew) {
       user = await User.create({
+        name: profileData?.name || profileData?.fullName || null,
         email,
         password,
         roles: [role],
@@ -113,6 +114,7 @@ const verifyEmail = async (req, res) => {
       if (!user) {
         // Handle case where user was expected to exist but doesn't (cache/db out of sync)
         user = await User.create({
+          name: profileData?.name || profileData?.fullName || null,
           email,
           password,
           roles: [role],

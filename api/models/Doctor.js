@@ -21,7 +21,26 @@ const doctorSchema = new mongoose.Schema(
       required: [true, "Please provide license number"],
       unique: true,
     },
-    // Other fields (schedule, bio, clinicId) will be asked on dashboard
+    schedule: {
+      monday: [String],
+      tuesday: [String],
+      wednesday: [String],
+      thursday: [String],
+      friday: [String],
+      saturday: [String],
+      sunday: [String],
+    },
+    bio: {
+      type: String,
+    },
+    clinicId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Clinic",
+    },
+    patients: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Patient",
+    }],
   },
   {
     timestamps: true,

@@ -3,6 +3,11 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      trim: true,
+      default: null,
+    },
     email: {
       type: String,
       required: [true, "Please provide an email"],
@@ -11,6 +16,10 @@ const userSchema = new mongoose.Schema(
         /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
         "Please provide a valid email",
       ],
+    },
+    phone: {
+      type: String,
+      default: null,
     },
     password: {
       type: String,

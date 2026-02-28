@@ -10,10 +10,21 @@ interface AuthState {
   accessToken: string | null;
 }
 
-const initialState: AuthState = {
-  user: null,
-  accessToken: null,
+const loadFromStorage = (): AuthState => {
+  if (typeof window === "undefined") return { user: null, accessToken: null };
+  try {
+    const user = localStorage.getItem("user");
+    const accessToken = localStorage.getItem("accessToken");
+    return {
+      user: user ? JSON.parse(user) : null,
+      accessToken: accessToken || null,
+    };
+  } catch {
+    return { user: null, accessToken: null };
+  }
 };
+
+const initialState: AuthState = loadFromStorage();
 
 const authSlice = createSlice({
   name: "auth",
@@ -27,7 +38,7 @@ const authSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       if (typeof window !== "undefined") {
         localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.user?._id || ""); // Using user ID contextually or real refresh token from response
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       }
     },
     logout: (state) => {
@@ -35,7 +46,7 @@ const authSlice = createSlice({
       state.accessToken = null;
       if (typeof window !== "undefined") {
         localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
       }
     },
   },
