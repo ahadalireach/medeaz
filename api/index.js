@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRoutes");
+const routes = require("./routes");
+const errorHandler = require("./middleware/errorHandler");
 
 dotenv.config();
 
@@ -22,11 +23,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/api/auth", authRoutes);
+app.use("/api", routes);
 
 app.get("/", (req, res) => {
   res.send("Medeaz API is running");
 });
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
