@@ -1,102 +1,33 @@
 @import "tailwindcss";
 
+/* Primary (Teal/Green Brand) */
 @theme {
-  /* Colors */
+  /* Map font-sans to the Inter variable loaded in layout.tsx */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+
   --color-primary: #00b495;
   --color-primary-hover: #19bca0;
   --color-primary-light: #4dcbb5;
   --color-primary-muted: #b3e9df;
   --color-primary-bg: #e6f8f4;
 
-  --color-surface: #f9fdfc;
+  /* Neutrals */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-surface: #E5E5E5;
 
+  /* Text */
   --color-text-primary: #48494c;
   --color-text-secondary: #858687;
   --color-text-muted: #9e9fa0;
 
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
-
-  /* Typography */
-  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-size-heading: 46px;
-  --font-size-heading--line-height: 1.2;
-  --font-size-heading--font-weight: 600;
-
-  /* Spacing / Radius */
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 2rem;
-
-  /* Shadows */
-  --shadow-lens: 0 4px 24px -6px rgba(0, 0, 0, 0.08);
-  --shadow-lens-hover: 0 12px 32px -8px rgba(0, 0, 0, 0.12);
-
-  /* Animations */
-  --animate-scroll: scroll 5s linear infinite;
-
-  @keyframes scroll {
-    from {
-      background-position: 0 0;
-    }
-    to {
-      background-position: 160px 0;
-    }
-  }
+  /* Borders */
+  --color-border: #ACACB4;
+  --color-border-light: #B8B8B9;
 }
 
-@layer base {
-  :root {
-    /* Primary (Teal/Green Brand) */
-    --color-primary: #00b495;
-    --color-primary-hover: #19bca0;
-    --color-primary-light: #4dcbb5;
-    --color-primary-muted: #b3e9df;
-    --color-primary-bg: #e6f8f4;
-
-    /* Neutrals */
-    --color-white: #ffffff;
-    --color-black: #2c2d30;
-    --blackberry-black: var(--color-black);
-    --color-surface: #f9fdfc;
-
-    /* Text */
-    --color-text-primary: #48494c;
-    --color-text-secondary: #858687;
-    --color-text-muted: #9e9fa0;
-
-    /* Borders */
-    --color-border: #e2e8f0;
-    --color-border-light: #f1f5f9;
-  }
-
-  html {
-    background-color: var(--color-white);
-    color: var(--color-black);
-    font-size: 16px;
-  }
-
-  body {
-    background-color: var(--color-white);
-    color: var(--color-text-primary);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-image: radial-gradient(
-      circle at 50% -100%,
-      var(--color-primary-bg) 0%,
-      transparent 40%
-    );
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    min-height: 100vh;
-  }
-
-  button,
-  a {
-    cursor: pointer;
-  }
-}
-
-@layer components {
-  /* Any global component utility overrides can go here */
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

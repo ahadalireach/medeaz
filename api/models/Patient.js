@@ -8,15 +8,30 @@ const patientSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    fullName: {
-      type: String,
-      required: [true, "Please provide full name"],
+    dateOfBirth: {
+      type: Date,
     },
-    phone: {
+    gender: {
       type: String,
-      required: [true, "Please provide phone number"],
+      enum: ["male", "female", "other"],
+      default: "other",
     },
-    // Other fields (dob, bloodGroup, allergies) will be asked on dashboard
+    bloodGroup: {
+      type: String,
+      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+    },
+    address: {
+      type: String,
+    },
+    emergencyContact: {
+      name: String,
+      phone: String,
+      relationship: String,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,
