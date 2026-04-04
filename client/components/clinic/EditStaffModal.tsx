@@ -1,0 +1,178 @@
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useEditStaffMutation } from "@/store/api/clinicApi";
+import { toast } from "react-hot-toast";
+import { Modal } from "../ui/Modal";
+import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
+import { User } from "lucide-react";
+import { useTranslations } from "next-intl";
+
+const schema = z.object({
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  role: z.enum(["receptionist", "nurse", "admin"]),
+});
+
+type FormData = z.infer<typeof schema>;
+
+interface EditStaffModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  staff: any;
+}
+
+export default function EditStaffModal({
+  isOpen,
+  onClose,
+  staff,
+}: EditStaffModalProps) {
+  const t = useTranslations();
+  const [editStaff, { isLoading }] = useEditStaffMutation();
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
+
+  useEffect(() => {
+    if (staff && isOpen) {
+      reset({
+        name: staff.name,
+        email: staff.email,
+        phone: staff.phone || "",
+        role: staff.role,
+      });
+      if (staff.photo) {
+        setProfileImage(staff.photo);
+      } else {
+        setProfileImage(null);
+      }
+    }
+  }, [staff, isOpen, reset]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Image size must be less than 2MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      await editStaff({ id: staff._id, ...data, photo: profileImage }).unwrap();
+      toast.success("Staff updated");
+      onClose();
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update staff");
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={t('clinic.staff.editForm.title')}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative group">
+            <div className="h-24 w-24 rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 flex items-center justify-center transition-all group-hover:border-primary/50">
+              {profileImage ? (
+                <img src={profileImage} alt="Preview" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500">
+                  <User size={32} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">{t('clinic.staff.photo')}</span>
+                </div>
+              )}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+            {profileImage && (
+              <button
+                type="button"
+                onClick={() => setProfileImage(null)}
+                className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <p className="text-[10px] text-gray-400 mt-2 font-medium">{t('clinic.staff.uploadPhoto')}</p>
+        </div>
+
+        <Input
+          label={t('clinic.staff.name')}
+          placeholder="John Doe"
+          error={errors.name?.message}
+          {...register("name")}
+        />
+
+        <Input
+          label={t('clinic.staff.email')}
+          type="email"
+          placeholder="staff@example.com"
+          error={errors.email?.message}
+          {...register("email")}
+        />
+
+        <Input
+          label={t('form.phone')}
+          placeholder="+1 234 567 8900"
+          error={errors.phone?.message}
+          {...register("phone")}
+        />
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            {t('clinic.staff.role')}
+          </label>
+          <select
+            {...register("role")}
+            className="w-full px-4 py-2 border border-gray-200 dark:border-[#27272a] rounded-lg bg-white dark:bg-[#1f1f23] text-gray-900 dark:text-[#e4e4e7] placeholder:text-gray-400 dark:placeholder:text-[#52525b] focus:ring-2 focus:ring-primary focus:outline-none"
+          >
+            <option value="receptionist">Receptionist</option>
+            <option value="nurse">Nurse</option>
+            <option value="admin">Admin</option>
+          </select>
+          {errors.role && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.role.message}
+            </p>
+          )}
+        </div>
+
+        <div className="flex gap-3 justify-end pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? t('clinic.staff.editForm.updating') : t('clinic.staff.editForm.submit')}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
