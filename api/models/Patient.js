@@ -8,29 +8,38 @@ const patientSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    dateOfBirth: {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    dob: {
       type: Date,
     },
     gender: {
       type: String,
       enum: ["male", "female", "other"],
-      default: "other",
     },
     bloodGroup: {
       type: String,
-      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+    },
+    allergies: [String],
+    contact: {
+      type: String,
+    },
+    profilePhoto: {
+      type: String,
     },
     address: {
       type: String,
+      default: null,
     },
-    emergencyContact: {
-      name: String,
-      phone: String,
-      relationship: String,
-    },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    totalSpent: {
+      type: Number,
+      default: 0,
     },
   },
   {

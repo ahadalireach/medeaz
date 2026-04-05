@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const medicalRecordSchema = new mongoose.Schema({
   patientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Patient',
     required: true,
     index: true
   },
@@ -11,6 +11,25 @@ const medicalRecordSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
+    index: true
+  },
+  clinicId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Clinic',
+    required: false,
+    index: true
+  },
+  externalDoctorName: {
+    type: String,
+    trim: true
+  },
+  externalClinicName: {
+    type: String,
+    trim: true
+  },
+  familyMemberId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'FamilyMember',
     index: true
   },
   appointmentId: {
@@ -92,7 +111,7 @@ medicalRecordSchema.index({ appointmentId: 1 });
 medicalRecordSchema.index({ prescriptionId: 1 });
 
 // Virtual for BMI calculation
-medicalRecordSchema.virtual('bmi').get(function() {
+medicalRecordSchema.virtual('bmi').get(function () {
   if (this.vitalSigns?.weight && this.vitalSigns?.height) {
     const heightInMeters = this.vitalSigns.height / 100;
     return (this.vitalSigns.weight / (heightInMeters * heightInMeters)).toFixed(2);
