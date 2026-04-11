@@ -136,6 +136,14 @@ export const aiApi = createApi({
         body,
       }),
     }),
+
+    chatWithAI: builder.mutation<any, { message: string; conversationHistory: any[] }>({
+      query: (body) => ({
+        url: '/ai/gemini/chat',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -144,4 +152,5 @@ export const {
   useParsePrescriptionMutation,
   useVoicePrescriptionMutation,
   useGeminiChatMutation,
+  useChatWithAIMutation,
 } = aiApi;

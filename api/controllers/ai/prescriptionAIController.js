@@ -1,5 +1,4 @@
 const geminiService = require('../../services/geminiService');
-const whisperService = require('../../services/whisperService');
 const asyncHandler = require('../../utils/asyncHandler');
 const ApiError = require('../../utils/ApiError');
 const ApiResponse = require('../../utils/ApiResponse');
@@ -42,8 +41,11 @@ exports.voicePrescription = asyncHandler(async (req, res) => {
   const audioFilePath = req.file.path;
 
   try {
-    // Step 1: Transcribe audio using Whisper
-    const transcription = await whisperService.transcribeAudio(audioFilePath, language);
+    // Step 1: Transcribe audio using Gemini
+    const audioBuffer = fs.readFileSync(audioFilePath);
+    const mimeType = req.file.mimetype || 'audio/mpeg';
+
+    const transcription = await geminiService.transcribeAudio(audioBuffer, mimeType, language);
 
     // Step 2: Parse transcription using Gemini
     const parsed = await geminiService.parsePrescription(transcription.text);
@@ -55,15 +57,15 @@ exports.voicePrescription = asyncHandler(async (req, res) => {
       new ApiResponse(200, {
         rawTranscript: transcription.text,
         parsed,
-        language: transcription.language
-      }, 'Voice prescription processed successfully')
+        language
+      }, 'Voice prescription processed successfully by Gemini')
     );
   } catch (error) {
     // Clean up uploaded file on error
     if (fs.existsSync(audioFilePath)) {
       fs.unlinkSync(audioFilePath);
     }
-    throw new ApiError(500, error.message || 'Failed to process voice prescription');
+    throw new ApiError(500, error.message || 'Gemini failed to process voice prescription');
   }
 });
 

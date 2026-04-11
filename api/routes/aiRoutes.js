@@ -27,7 +27,7 @@ router.post(
 );
 
 // ========== Gemini Chat Routes ==========
-router.post('/gemini/chat', geminiController.chat);
+router.post('/gemini/chat', authorize('patient'), geminiController.chat);
 router.post('/gemini/health-advice', authorize('patient'), geminiController.getHealthAdvice);
 
 // ========== Prescription AI Routes (Doctor only) ==========
