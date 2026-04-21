@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* Primary (Teal/Green Brand) */
+@theme {
+  /* Map font-sans to the Inter variable loaded in layout.tsx */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  --color-primary: #00b495;
+  --color-primary-hover: #19bca0;
+  --color-primary-light: #4dcbb5;
+  --color-primary-muted: #b3e9df;
+  --color-primary-bg: #e6f8f4;
+
+  /* Neutrals */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-surface: #E5E5E5;
+
+  /* Text */
+  --color-text-primary: #48494c;
+  --color-text-secondary: #858687;
+  --color-text-muted: #9e9fa0;
+
+  /* Borders */
+  --color-border: #ACACB4;
+  --color-border-light: #B8B8B9;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

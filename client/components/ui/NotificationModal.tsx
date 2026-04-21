@@ -1,0 +1,171 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { X, Bell, Trash2, Clock, CheckCircle2 } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { setNotifications } from "@/store/slices/notificationSlice";
+import { useMarkAsReadMutation, useClearAllNotificationsMutation } from "@/store/api/notificationApi";
+import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
+
+interface NotificationModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export default function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
+    const t = useTranslations();
+    const { notifications, unreadCount } = useSelector((state: any) => state.notifications);
+    const dispatch = useDispatch();
+    const [markAsRead] = useMarkAsReadMutation();
+    const [clearAll] = useClearAllNotificationsMutation();
+
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
+    if (!isOpen || !mounted) return null;
+
+    const handleMarkAsRead = async (id: string) => {
+        try {
+            await markAsRead(id).unwrap();
+            const updated = notifications.map((n: any) =>
+                n._id === id ? { ...n, read: true } : n
+            );
+            dispatch(setNotifications(updated));
+        } catch (error) {
+            toast.error(t('toast.notificationMarkFailed'));
+        }
+    };
+
+    const handleClearAll = async () => {
+        try {
+            await clearAll().unwrap();
+            dispatch(setNotifications([]));
+            toast.success(t('toast.notificationsCleared'));
+            onClose();
+        } catch (error) {
+            toast.error(t('toast.notificationsClearFailed'));
+        }
+    };
+
+    const getTimeLabel = (dateStr: string) => {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        return `${days}d ago`;
+    };
+
+    const modalContent = (
+        <div className="fixed inset-0 z-10000 flex items-center justify-center p-4">
+            <div
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+                onClick={onClose}
+            />
+
+            <div className="relative w-full max-w-md bg-white dark:bg-[#18181b] rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                <div className="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-primary/5">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center relative">
+                            <Bell className="text-primary h-5 w-5" />
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-white dark:border-[#18181b]" />
+                            )}
+                        </div>
+                        <div>
+                            <h2 className="font-bold text-gray-900 dark:text-white uppercase tracking-widest text-[10px]">Notifications</h2>
+                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">
+                                You have {unreadCount} unread
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={handleClearAll}
+                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            title="Clear all"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="max-h-[60vh] overflow-y-auto p-4 space-y-3">
+                    {notifications.length === 0 ? (
+                        <div className="py-20 flex flex-col items-center justify-center text-center opacity-50">
+                            <Bell className="h-12 w-12 text-gray-300 mb-4" />
+                            <p className="text-sm font-bold uppercase tracking-widest text-gray-400">All caught up!</p>
+                        </div>
+                    ) : (
+                        notifications.map((notification: any) => (
+                            <div
+                                key={notification._id}
+                                onClick={() => !notification.read && handleMarkAsRead(notification._id)}
+                                className={`group p-4 rounded-2xl border transition-all cursor-pointer relative ${notification.read
+                                    ? "bg-gray-50/50 dark:bg-white/5 border-transparent opacity-80"
+                                    : "bg-white dark:bg-[#1c1c20] border-primary/20 shadow-sm border-l-4 border-l-primary"
+                                    }`}
+                            >
+                                {!notification.read && (
+                                    <div className="absolute top-4 right-4 h-2 w-2 bg-primary rounded-full" />
+                                )}
+                                <div className="flex gap-4">
+                                    <div className={`h-10 w-10 min-w-10 rounded-xl flex items-center justify-center ${notification.read ? "bg-gray-100 dark:bg-white/5" : "bg-primary/10"
+                                        }`}>
+                                        <CheckCircle2 size={18} className={notification.read ? "text-gray-400" : "text-primary"} />
+                                    </div>
+                                    <div className="space-y-1 pr-4">
+                                        <p className={`text-sm font-bold transition-colors ${notification.read ? "text-gray-600 dark:text-gray-400" : "text-gray-900 dark:text-white"
+                                            }`}>
+                                            {notification.title}
+                                        </p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                                            {notification.message}
+                                        </p>
+                                        <div className="flex items-center gap-1.5 pt-1 text-[10px] text-gray-400 uppercase tracking-widest font-bold">
+                                            <Clock size={10} />
+                                            <span>{getTimeLabel(notification.createdAt)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {notifications.length > 0 && (
+                    <div className="p-4 bg-gray-50/50 dark:bg-white/5 border-t border-black/5 dark:border-white/5 text-center">
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">
+                            End of notifications
+                        </p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
+    return createPortal(modalContent, document.body);
+}

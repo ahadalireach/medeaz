@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# testing
+/coverage
+coverage/
+
+# next.js
+.next/
+client/.next/
+out/
+
+# production
+build/
+dist/
+
+# misc
+.DS_Store
+*.pem
+*.log
+logs/
+
+# environment variables
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test.local
+.env.production
+.env.production.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# ide
+.vscode/
+.idea/
+
+README.md
