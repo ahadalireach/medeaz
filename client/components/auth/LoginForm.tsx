@@ -96,7 +96,11 @@ export function LoginForm() {
     try {
       const res = await login({ email, password }).unwrap();
       dispatch(
-        setCredentials({ user: res.data, accessToken: res.accessToken }),
+        setCredentials({
+          user: res.data,
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+        }),
       );
       const roles: string[] = Array.isArray(res.data?.roles)
         ? res.data.roles

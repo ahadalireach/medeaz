@@ -26,7 +26,11 @@ export default function VerifyPage() {
         try {
           const res: any = await verifyEmail(token).unwrap();
           dispatch(
-            setCredentials({ user: res.data, accessToken: res.accessToken }),
+            setCredentials({
+              user: res.data,
+              accessToken: res.accessToken,
+              refreshToken: res.refreshToken,
+            }),
           );
           const roles: string[] = Array.isArray(res.data?.roles)
             ? res.data.roles

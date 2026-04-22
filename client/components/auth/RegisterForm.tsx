@@ -78,7 +78,11 @@ export function RegisterForm() {
     try {
       const res: any = await register({ email, password, role, profileData }).unwrap();
       if (res?.accessToken && res?.data) {
-        dispatch(setCredentials({ user: res.data, accessToken: res.accessToken }));
+        dispatch(setCredentials({
+          user: res.data,
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+        }));
       }
       setIsSubmitted(true);
       toast.success("Verification email sent!", { id: toastId });
