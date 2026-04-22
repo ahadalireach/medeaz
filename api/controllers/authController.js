@@ -101,10 +101,18 @@ const verifyEmail = async (req, res) => {
 
     const { email, password, role, profileData, isNew } = userData;
 
+    const resolvedName =
+      profileData?.name ||
+      profileData?.fullName ||
+      profileData?.clinicName ||
+      null;
+    const resolvedPhone = profileData?.phone || null;
+
     let user;
     if (isNew) {
       user = await User.create({
-        name: profileData?.name || profileData?.fullName || null,
+        name: resolvedName,
+        phone: resolvedPhone,
         email,
         password,
         roles: [role],
@@ -115,37 +123,61 @@ const verifyEmail = async (req, res) => {
       if (!user) {
         // Handle case where user was expected to exist but doesn't (cache/db out of sync)
         user = await User.create({
-          name: profileData?.name || profileData?.fullName || null,
+          name: resolvedName,
+          phone: resolvedPhone,
           email,
           password,
           roles: [role],
           isVerified: true,
         });
-      } else if (!user.roles.includes(role)) {
-        user.roles.push(role);
+      } else {
+        if (!user.roles.includes(role)) {
+          user.roles.push(role);
+        }
+        if (!user.phone && resolvedPhone) {
+          user.phone = resolvedPhone;
+        }
         user.isVerified = true;
         await user.save();
       }
     }
 
-    // Create role-specific profile
+    // Create role-specific profile — normalize registration fields to each
+    // model's schema so data entered at signup isn't silently dropped.
     if (role === "patient") {
+      const { fullName, phone, ...rest } = profileData || {};
+      const doc = {
+        userId: user._id,
+        email: user.email,
+        ...rest,
+      };
+      if (fullName) doc.name = fullName;
+      if (phone) doc.contact = phone;
+
       await Patient.findOneAndUpdate(
         { userId: user._id },
-        { ...profileData, userId: user._id },
-        { upsert: true, returnDocument: "after" },
+        doc,
+        { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
       );
     } else if (role === "doctor") {
       await Doctor.findOneAndUpdate(
         { userId: user._id },
-        { ...profileData, userId: user._id },
-        { upsert: true, returnDocument: "after" },
+        { ...(profileData || {}), userId: user._id },
+        { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
       );
     } else if (role === "clinic_admin") {
+      const { clinicName, ...rest } = profileData || {};
+      const doc = {
+        adminId: user._id,
+        email: user.email,
+        ...rest,
+      };
+      if (clinicName) doc.name = clinicName;
+
       await Clinic.findOneAndUpdate(
-        { userId: user._id },
-        { ...profileData, userId: user._id },
-        { upsert: true, returnDocument: "after" },
+        { adminId: user._id },
+        doc,
+        { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
       );
     }
 
