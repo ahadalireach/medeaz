@@ -82,7 +82,7 @@ export default function ClinicSidebar() {
   const handleLogout = () => {
     dispatch(logout());
     localStorage.clear();
-    toast.success(t("toast.loggedOut"));
+    toast.success(t("toast.logoutSuccess"));
     router.push("/login");
   };
 
