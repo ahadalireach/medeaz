@@ -162,6 +162,7 @@ const verifyEmail = async (req, res) => {
         email: user.email,
         roles: user.roles,
         isVerified: user.isVerified,
+        verifiedRole: role,
       },
       accessToken,
       refreshToken,

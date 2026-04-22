@@ -28,8 +28,13 @@ export default function VerifyPage() {
           dispatch(
             setCredentials({ user: res.data, accessToken: res.accessToken }),
           );
+          const roles: string[] = Array.isArray(res.data?.roles)
+            ? res.data.roles
+            : [];
+          const role =
+            res.data?.verifiedRole || roles[roles.length - 1] || "patient";
           toast.success("Email verified!");
-          setTimeout(() => router.push("/dashboard"), 1800);
+          setTimeout(() => router.push(`/dashboard/${role}`), 1800);
         } catch (err: any) {
           toast.error(err?.data?.message || "Verification failed");
         }
