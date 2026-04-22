@@ -18,13 +18,13 @@ export default function AboutPage() {
               <Info className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary mb-6 tracking-tight">
-              {isUrdu ? "Medeaz" : "About Medeaz"}
+              {isUrdu ? "Medeaz Records" : "About Medeaz Records"}
               {isUrdu ? " کے بارے میں" : ""}
             </h1>
             <p className="text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
               {isUrdu
-                ? "MedEaz ایک جدید ڈیجیٹل ہیلتھ کیئر پلیٹ فارم ہے جو مریضوں، ڈاکٹروں اور کلینکس کو ایک محفوظ نظام میں جوڑتا ہے۔"
-                : "MedEaz is a modern, intuitive, and highly functional digital healthcare platform designed to bridge the gap between patients, doctors, and clinics."}
+                ? "Medeaz Records ایک وائس سے چلنے والا ڈیجیٹل ہیلتھ کیئر پروڈکٹ ہے جو مریضوں، ڈاکٹروں اور کلینکس کو ایک محفوظ اور مربوط نظام میں جوڑتا ہے۔"
+                : "Medeaz Records is a voice-enabled digital healthcare product built to connect patients, doctors, and clinics on one secure platform."}
             </p>
           </div>
 
@@ -36,8 +36,8 @@ export default function AboutPage() {
               </h3>
               <p className="text-text-secondary leading-relaxed text-sm">
                 {isUrdu
-                  ? "ہماری کوشش ہے کہ صحت کی سہولت ہر فرد کے لیے آسان، قابلِ رسائی اور محفوظ ہو۔"
-                  : "We aim to make healthcare seamless, accessible, and highly secure for everyone. By connecting patients with the best specialists effortlessly, we remove the friction of traditional medical administration."}
+                  ? "ہمارا مقصد یہ ہے کہ ڈاکٹرز کا کاغذی بوجھ کم ہو، ریکارڈ ضائع نہ ہوں، اور مریضوں کو بروقت اور بہتر علاج ملے۔"
+                  : "Our mission is to reduce clinical paperwork, prevent record loss, and improve continuity of care through a unified digital workflow."}
               </p>
             </div>
 
@@ -48,8 +48,8 @@ export default function AboutPage() {
               </h3>
               <p className="text-text-secondary leading-relaxed text-sm">
                 {isUrdu
-                  ? "ہمارا پلیٹ فارم AI رہنمائی، جدید میڈیکل ریکارڈ ٹریکنگ اور مؤثر نسخہ مینجمنٹ فراہم کرتا ہے۔"
-                  : "Our platform offers AI-assisted guidance, advanced medical record tracking, dynamic prescription management, and robust integrations that empower you to take full control of your healthcare journey reliably."}
+                  ? "یہ پلیٹ فارم وائس ٹو پریسکرپشن، ریئل ٹائم اینالیٹکس، ملٹی لِنگول سپورٹ اور خودکار فالو اپس فراہم کرتا ہے۔"
+                  : "The platform combines voice-to-prescription workflows, real-time analytics, multilingual support, and automated reminders for measurable operational impact."}
               </p>
             </div>
           </div>
@@ -57,13 +57,13 @@ export default function AboutPage() {
           <div className="bg-primary/5 rounded-3xl p-8 md:p-12 border border-primary/10 text-center">
             <h2 className="text-3xl font-bold text-text-primary mb-6">
               {isUrdu
-                ? "آج ہی ہمارے نیٹ ورک کا حصہ بنیں"
-                : "Join our network today."}
+                ? "اپنے کلینک یا پریکٹس کو ڈیجیٹل بنائیں"
+                : "Digitize your clinic operations"}
             </h2>
             <p className="text-text-secondary text-lg mb-8 max-w-xl mx-auto">
               {isUrdu
-                ? "چاہے آپ ماہر ڈاکٹر تلاش کر رہے ہوں یا کئی کلینکس مینیج کر رہے ہوں، MedEaz آپ کو ضروری تمام ٹولز فراہم کرتا ہے۔"
-                : "Whether you are discovering specialists or managing multiple clinics at scale, MedEaz provides all the tools you need."}
+                ? "چاہے آپ انفرادی ڈاکٹر ہوں یا ملٹی کلینک نیٹ ورک چلا رہے ہوں، Medeaz Records آپ کو ریکارڈ، پریسکرپشن، کمیونیکیشن اور اینالیٹکس کے ضروری ٹولز دیتا ہے۔"
+                : "Whether you are an individual practitioner or a multi-clinic operator, Medeaz Records gives you the core tools for records, prescriptions, communication, and analytics."}
             </p>
           </div>
         </div>

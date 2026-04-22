@@ -29,8 +29,8 @@ export default function CookiePolicyPage() {
             <div className="prose max-w-none text-text-primary text-lg leading-relaxed">
               <p className="mb-6">
                 {isUrdu
-                  ? "MedEaz میں ہم صرف ضروری کوکیز استعمال کرتے ہیں تاکہ کارکردگی بہتر رہے اور لاگ اِن سیشن محفوظ رہے۔"
-                  : "At MedEaz, we utilize minimal essential cookies to optimize performance and retain authentication tokens across local sessions reliably securely."}
+                  ? "Medeaz Records میں ہم بنیادی طور پر ضروری کوکیز استعمال کرتے ہیں تاکہ لاگ ان سیشن محفوظ رہے اور پلیٹ فارم درست طریقے سے کام کرے۔"
+                  : "Medeaz Records uses primarily essential cookies to keep sessions secure and ensure the platform functions correctly."}
               </p>
 
               <h2 className="text-2xl font-bold text-text-primary mt-10 mb-4 tracking-tight">
@@ -40,8 +40,8 @@ export default function CookiePolicyPage() {
               </h2>
               <p className="mb-4">
                 {isUrdu
-                  ? "کوکیز اور لوکل اسٹوریج کے ذریعے ہم سیشن کو محفوظ رکھتے ہیں اور ڈیش بورڈ تک مسلسل رسائی یقینی بناتے ہیں۔"
-                  : "We actively utilize browser-based cookies, local storage sessions, and strict session algorithms exclusively to protect patient integrity dynamically and guarantee that dashboard access tokens remain persistent and seamlessly resilient under usage loads without compromising UX metrics."}
+                  ? "ہم کوکیز اور لوکل اسٹوریج کا استعمال تصدیق، سیشن مینجمنٹ، زبان کی ترجیح اور سیکیورٹی کے لیے کرتے ہیں۔"
+                  : "We use cookies and local storage for authentication, session continuity, language preference, and core security controls."}
               </p>
 
               <h2 className="text-2xl font-bold text-text-primary mt-10 mb-4 tracking-tight">
@@ -49,8 +49,8 @@ export default function CookiePolicyPage() {
               </h2>
               <p className="mb-4">
                 {isUrdu
-                  ? "ہم غیر ضروری تھرڈ پارٹی ٹریکنگ استعمال نہیں کرتے۔ صرف نظام کے استحکام کے لیے محدود تکنیکی ڈیٹا استعمال کیا جاتا ہے۔"
-                  : "We firmly avoid third-party marketing identifiers or intrusive tracking infrastructure strictly aligned with global healthcare regulations natively. Only essential telemetry for debugging stability runs transparently internally."}
+                  ? "ہم اشتہاری مقاصد کے لیے غیر ضروری تھرڈ پارٹی ٹریکرز استعمال نہیں کرتے۔ صرف محدود تکنیکی ٹیلی میٹری پلیٹ فارم کی کارکردگی اور خرابیوں کے تجزیے کے لیے استعمال ہوتی ہے۔"
+                  : "We do not use unnecessary third-party trackers for advertising. Limited technical telemetry is used only for platform stability and troubleshooting."}
               </p>
             </div>
           </div>

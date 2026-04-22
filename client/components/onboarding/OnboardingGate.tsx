@@ -4,16 +4,36 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocale } from "next-intl";
 import { useDispatch, useSelector } from "react-redux";
-import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, Crown, FilePlus2, HeartPulse, House, Info, UserRound, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  ChevronRight,
+  Crown,
+  FilePlus2,
+  HeartPulse,
+  House,
+  Info,
+  UserRound,
+  Users,
+} from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
-import { useMarkOnboardingCompleteMutation, useMarkProfileCompleteMutation } from "@/store/api/onboardingApi";
+import {
+  useMarkOnboardingCompleteMutation,
+  useMarkProfileCompleteMutation,
+} from "@/store/api/onboardingApi";
 import { useUpdateProfileMutation as usePatientUpdateProfileMutation } from "@/store/api/patientApi";
 import { useUpdateDoctorProfileMutation } from "@/store/api/doctorApi";
 import { useSaveSettingsMutation } from "@/store/api/clinicApi";
-import { setCredentials, setOnboardingComplete, setProfileComplete } from "@/store/slices/authSlice";
+import {
+  setCredentials,
+  setOnboardingComplete,
+  setProfileComplete,
+} from "@/store/slices/authSlice";
 import type { RootState } from "@/store/store";
 import toast from "react-hot-toast";
 
@@ -21,40 +41,47 @@ const wizardContent = {
   en: {
     patient: [
       {
-        title: "Welcome to MedEaz",
-        description: "Your personal health companion. Book appointments, track prescriptions, and manage your family's health in one place.",
+        title: "Welcome to Medeaz",
+        description:
+          "Your personal health companion. Book appointments, track prescriptions, and manage your family's health in one place.",
         icon: HeartPulse,
       },
       {
         title: "Book Appointments Easily",
-        description: "Find clinics, choose your doctor, pick a slot, and confirm in under 2 minutes.",
+        description:
+          "Find clinics, choose your doctor, pick a slot, and confirm in under 2 minutes.",
         icon: CalendarIcon,
       },
       {
         title: "Your Health Timeline",
-        description: "Every prescription, diagnosis, and visit is automatically saved and searchable.",
+        description:
+          "Every prescription, diagnosis, and visit is automatically saved and searchable.",
         icon: FilePlus2,
       },
       {
         title: "Manage Your Family",
-        description: "Add family members and track their health alongside yours from one account.",
+        description:
+          "Add family members and track their health alongside yours from one account.",
         icon: Users,
       },
     ],
     doctor: [
       {
         title: "Welcome, Doctor",
-        description: "MedEaz helps you manage patients, prescriptions, and schedules from a single workspace.",
+        description:
+          "Medeaz helps you manage patients, prescriptions, and schedules from a single workspace.",
         icon: Crown,
       },
       {
         title: "Voice Prescriptions",
-        description: "Speak in English or Urdu and let the AI transcribe and structure the prescription instantly.",
+        description:
+          "Speak in English or Urdu and let the AI transcribe and structure the prescription instantly.",
         icon: MicIcon,
       },
       {
         title: "Set Your Schedule",
-        description: "Define your available slots per day so patients only book within your availability.",
+        description:
+          "Define your available slots per day so patients only book within your availability.",
         icon: CalendarIcon,
       },
       {
@@ -66,22 +93,26 @@ const wizardContent = {
     clinic_admin: [
       {
         title: "Welcome to Your Clinic Dashboard",
-        description: "Manage doctors, staff, appointments, and revenue from one dashboard.",
+        description:
+          "Manage doctors, staff, appointments, and revenue from one dashboard.",
         icon: House,
       },
       {
         title: "Build Your Doctor Network",
-        description: "Add doctors by email so they appear in your clinic roster immediately.",
+        description:
+          "Add doctors by email so they appear in your clinic roster immediately.",
         icon: UserRound,
       },
       {
         title: "Track Your Performance",
-        description: "Review patient flow, revenue reports, and doctor stats in real time.",
+        description:
+          "Review patient flow, revenue reports, and doctor stats in real time.",
         icon: Info,
       },
       {
         title: "Configure Your Clinic",
-        description: "Set your clinic details, working hours, and staff accounts.",
+        description:
+          "Set your clinic details, working hours, and staff accounts.",
         icon: FilePlus2,
       },
     ],
@@ -95,17 +126,20 @@ const wizardContent = {
       },
       {
         title: "آسان اپائنٹمنٹ بک کریں",
-        description: "کلینک تلاش کریں، ڈاکٹر منتخب کریں، وقت چنیں اور جلدی کنفرم کریں۔",
+        description:
+          "کلینک تلاش کریں، ڈاکٹر منتخب کریں، وقت چنیں اور جلدی کنفرم کریں۔",
         icon: CalendarIcon,
       },
       {
         title: "آپ کی صحت کی تاریخ",
-        description: "ہر نسخہ، تشخیص اور وزٹ محفوظ رہتا ہے اور بعد میں تلاش کیا جا سکتا ہے۔",
+        description:
+          "ہر نسخہ، تشخیص اور وزٹ محفوظ رہتا ہے اور بعد میں تلاش کیا جا سکتا ہے۔",
         icon: FilePlus2,
       },
       {
         title: "خاندان کا انتظام کریں",
-        description: "اپنے اہلِ خانہ کو شامل کریں اور ایک اکاؤنٹ سے سب کی صحت دیکھیں۔",
+        description:
+          "اپنے اہلِ خانہ کو شامل کریں اور ایک اکاؤنٹ سے سب کی صحت دیکھیں۔",
         icon: Users,
       },
     ],
@@ -122,7 +156,8 @@ const wizardContent = {
       },
       {
         title: "اپنا شیڈول سیٹ کریں",
-        description: "ہر دن کے دستیاب وقت مقرر کریں تاکہ مریض صرف اسی میں بک کریں۔",
+        description:
+          "ہر دن کے دستیاب وقت مقرر کریں تاکہ مریض صرف اسی میں بک کریں۔",
         icon: CalendarIcon,
       },
       {
@@ -139,7 +174,8 @@ const wizardContent = {
       },
       {
         title: "ڈاکٹر نیٹ ورک بنائیں",
-        description: "ای میل کے ذریعے ڈاکٹر شامل کریں اور فوراً فہرست میں دیکھیں۔",
+        description:
+          "ای میل کے ذریعے ڈاکٹر شامل کریں اور فوراً فہرست میں دیکھیں۔",
         icon: UserRound,
       },
       {
@@ -168,9 +204,9 @@ const fieldLabels = {
     saveSettings: "Save Settings",
     review: "Review & Save",
     editSection: "Edit",
-    patientProfileSaved: "Profile completed! Welcome to MedEaz.",
+    patientProfileSaved: "Profile completed! Welcome to Medeaz.",
     doctorProfileSaved: "Profile saved! You're all set.",
-    clinicProfileSaved: "Clinic profile saved! Welcome to MedEaz.",
+    clinicProfileSaved: "Clinic profile saved! Welcome to Medeaz.",
     profileSaveError: "Failed to save profile. Please try again.",
     fullName: "Full Name",
     dob: "Date of Birth",
@@ -197,7 +233,8 @@ const fieldLabels = {
     email: "Email",
   },
   ur: {
-    completeProfileBanner: "تمام فیچرز استعمال کرنے کے لیے اپنا پروفائل مکمل کریں۔",
+    completeProfileBanner:
+      "تمام فیچرز استعمال کرنے کے لیے اپنا پروفائل مکمل کریں۔",
     completeProfileBtn: "پروفائل مکمل کریں",
     skip: "اسکپ",
     next: "اگلا",
@@ -251,7 +288,13 @@ const specializationOptions = [
   "Other",
 ];
 
-const clinicTypeOptions = ["General", "Specialized", "Diagnostic Center", "Hospital", "Other"];
+const clinicTypeOptions = [
+  "General",
+  "Specialized",
+  "Diagnostic Center",
+  "Hospital",
+  "Other",
+];
 const bloodGroupOptions = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const genderOptions = ["male", "female", "other"];
 
@@ -274,14 +317,44 @@ const defaultWorkingHours: Record<string, WorkingDay> = {
 };
 
 function CalendarIcon(props: React.SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><path d="M8 2v4M16 2v4M3 10h18" /><rect x="3" y="6" width="18" height="16" rx="2" /></svg>;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      {...props}
+    >
+      <path d="M8 2v4M16 2v4M3 10h18" />
+      <rect x="3" y="6" width="18" height="16" rx="2" />
+    </svg>
+  );
 }
 
 function MicIcon(props: React.SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10v1a7 7 0 0 0 14 0v-1" /><path d="M12 19v3" /><path d="M8 22h8" /></svg>;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      {...props}
+    >
+      <rect x="9" y="2" width="6" height="12" rx="3" />
+      <path d="M5 10v1a7 7 0 0 0 14 0v-1" />
+      <path d="M12 19v3" />
+      <path d="M8 22h8" />
+    </svg>
+  );
 }
 
-function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) {
+function ToggleSwitch({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
   return (
     <button
       type="button"
@@ -323,12 +396,23 @@ function TagInput({
 
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary">{label}</label>
+      <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary">
+        {label}
+      </label>
       <div className="flex flex-wrap gap-2 rounded-2xl border border-border-light bg-white p-3">
         {value.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-primary-bg px-3 py-1 text-xs font-bold text-primary">
+          <span
+            key={tag}
+            className="inline-flex items-center gap-2 rounded-full bg-primary-bg px-3 py-1 text-xs font-bold text-primary"
+          >
             {tag}
-            <button type="button" onClick={() => onChange(value.filter((item) => item !== tag))} className="text-primary/70 hover:text-primary">×</button>
+            <button
+              type="button"
+              onClick={() => onChange(value.filter((item) => item !== tag))}
+              className="text-primary/70 hover:text-primary"
+            >
+              ×
+            </button>
           </span>
         ))}
         <input
@@ -362,15 +446,33 @@ function FileField({
 }) {
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary">{label}</label>
+      <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary">
+        {label}
+      </label>
       <div className="flex items-center gap-4 rounded-2xl border border-dashed border-border p-4">
         <div className="h-16 w-16 overflow-hidden rounded-2xl bg-surface flex items-center justify-center">
-          {preview ? <img src={preview} alt={label} className="h-full w-full object-cover" /> : <UserRound className="h-7 w-7 text-text-secondary" />}
+          {preview ? (
+            <img
+              src={preview}
+              alt={label}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <UserRound className="h-7 w-7 text-text-secondary" />
+          )}
         </div>
         <div className="flex-1 space-y-2">
-          <input type="file" accept="image/*" onChange={(event) => onFile(event.target.files?.[0] || null)} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(event) => onFile(event.target.files?.[0] || null)}
+          />
           {preview && (
-            <button type="button" onClick={onClear} className="text-xs font-bold text-primary hover:underline">
+            <button
+              type="button"
+              onClick={onClear}
+              className="text-xs font-bold text-primary hover:underline"
+            >
               Clear
             </button>
           )}
@@ -399,7 +501,11 @@ function OnboardingWizard({
   return createPortal(
     <div className="fixed inset-0 z-600 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
       <div className="relative w-full max-w-xl rounded-3xl border border-white/10 bg-white p-6 shadow-2xl">
-        <button type="button" onClick={onSkip} className="absolute right-4 top-4 text-xs font-bold uppercase tracking-[0.2em] text-text-secondary hover:text-primary">
+        <button
+          type="button"
+          onClick={onSkip}
+          className="absolute right-4 top-4 text-xs font-bold uppercase tracking-[0.2em] text-text-secondary hover:text-primary"
+        >
           {fieldLabels[locale].skip}
         </button>
 
@@ -409,25 +515,47 @@ function OnboardingWizard({
               <StepIcon className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-secondary">{fieldLabels[locale].completeProfileBanner}</p>
-              <h2 className="text-2xl font-black text-text-primary">{active.title}</h2>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-secondary">
+                {fieldLabels[locale].completeProfileBanner}
+              </p>
+              <h2 className="text-2xl font-black text-text-primary">
+                {active.title}
+              </h2>
             </div>
           </div>
         </div>
 
-        <p className="text-sm leading-7 text-text-secondary">{active.description}</p>
+        <p className="text-sm leading-7 text-text-secondary">
+          {active.description}
+        </p>
 
         <div className="mt-8 flex items-center justify-between gap-3">
-          <Button type="button" variant="outline" onClick={() => setStep((value) => Math.max(value - 1, 0))} disabled={step === 0} className="">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setStep((value) => Math.max(value - 1, 0))}
+            disabled={step === 0}
+            className=""
+          >
             {fieldLabels[locale].back}
           </Button>
           <div className="flex items-center gap-2">
             {steps.map((_, index) => (
-              <span key={index} className={cn("h-2 w-2 rounded-full", index === step ? "bg-primary" : "bg-surface-lavender ")} />
+              <span
+                key={index}
+                className={cn(
+                  "h-2 w-2 rounded-full",
+                  index === step ? "bg-primary" : "bg-surface-lavender ",
+                )}
+              />
             ))}
           </div>
           {step < steps.length - 1 ? (
-            <Button type="button" onClick={() => setStep((value) => value + 1)} className="">
+            <Button
+              type="button"
+              onClick={() => setStep((value) => value + 1)}
+              className=""
+            >
               {fieldLabels[locale].next} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
@@ -456,13 +584,21 @@ function ProfileBanner({
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-5 w-5 text-primary" />
-          <p className="text-sm font-medium text-text-primary">{fieldLabels[locale].completeProfileBanner}</p>
+          <p className="text-sm font-medium text-text-primary">
+            {fieldLabels[locale].completeProfileBanner}
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={onOpen} className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-primary-hover">
+          <button
+            onClick={onOpen}
+            className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-primary-hover"
+          >
             {fieldLabels[locale].completeProfileBtn}
           </button>
-          <button onClick={onDismiss} className="rounded-full p-2 text-text-secondary hover:bg-black/5 hover:text-text-primary :bg-white/5 :text-white">
+          <button
+            onClick={onDismiss}
+            className="rounded-full p-2 text-text-secondary hover:bg-black/5 hover:text-text-primary :bg-white/5 :text-white"
+          >
             ×
           </button>
         </div>
@@ -486,12 +622,16 @@ function ProfileCompletionModal({
 }) {
   const dispatch = useDispatch();
   const [step, setStep] = useState(0);
-  const [patientUpdate, { isLoading: isSavingPatient }] = usePatientUpdateProfileMutation();
-  const [doctorUpdate, { isLoading: isSavingDoctor }] = useUpdateDoctorProfileMutation();
+  const [patientUpdate, { isLoading: isSavingPatient }] =
+    usePatientUpdateProfileMutation();
+  const [doctorUpdate, { isLoading: isSavingDoctor }] =
+    useUpdateDoctorProfileMutation();
   const [clinicSave, { isLoading: isSavingClinic }] = useSaveSettingsMutation();
-  const [markProfileComplete, { isLoading: isMarkingProfileComplete }] = useMarkProfileCompleteMutation();
+  const [markProfileComplete, { isLoading: isMarkingProfileComplete }] =
+    useMarkProfileCompleteMutation();
   const [photoPreview, setPhotoPreview] = useState("");
-  const [workingHours, setWorkingHours] = useState<Record<string, WorkingDay>>(defaultWorkingHours);
+  const [workingHours, setWorkingHours] =
+    useState<Record<string, WorkingDay>>(defaultWorkingHours);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [conditions, setConditions] = useState<string[]>([]);
   const [state, setState] = useState(() => ({
@@ -530,7 +670,10 @@ function ProfileCompletionModal({
 
   const labels = fieldLabels[locale];
 
-  const uploadToPreview = (file: File | null, setter: (next: string) => void) => {
+  const uploadToPreview = (
+    file: File | null,
+    setter: (next: string) => void,
+  ) => {
     if (!file) {
       setter("");
       return;
@@ -544,10 +687,14 @@ function ProfileCompletionModal({
     try {
       const accessToken = localStorage.getItem("accessToken") || "";
       const syncAuthUser = (nextFields: Record<string, unknown>) => {
-        dispatch(setCredentials({
-          user: { ...user, ...nextFields } as NonNullable<RootState["auth"]["user"]>,
-          accessToken,
-        }));
+        dispatch(
+          setCredentials({
+            user: { ...user, ...nextFields } as NonNullable<
+              RootState["auth"]["user"]
+            >,
+            accessToken,
+          }),
+        );
       };
 
       if (role === "patient") {
@@ -563,7 +710,11 @@ function ProfileCompletionModal({
           emergencyContactPhone: state.patient.emergencyContactPhone,
           profilePhoto: photoPreview || undefined,
         }).unwrap();
-        syncAuthUser({ name: state.patient.name, phone: state.patient.contact, photo: photoPreview || user.photo || null });
+        syncAuthUser({
+          name: state.patient.name,
+          phone: state.patient.contact,
+          photo: photoPreview || user.photo || null,
+        });
         toast.success(labels.patientProfileSaved);
       } else if (role === "doctor") {
         await doctorUpdate({
@@ -578,7 +729,11 @@ function ProfileCompletionModal({
           bio: state.doctor.bio,
           photo: photoPreview || undefined,
         }).unwrap();
-        syncAuthUser({ name: state.doctor.name, phone: state.doctor.phone, photo: photoPreview || user.photo || null });
+        syncAuthUser({
+          name: state.doctor.name,
+          phone: state.doctor.phone,
+          photo: photoPreview || user.photo || null,
+        });
         toast.success(labels.doctorProfileSaved);
       } else {
         await clinicSave({
@@ -593,7 +748,11 @@ function ProfileCompletionModal({
           photo: photoPreview || undefined,
           workingHours,
         }).unwrap();
-        syncAuthUser({ name: state.clinic.name, phone: state.clinic.phone, photo: photoPreview || user.photo || null });
+        syncAuthUser({
+          name: state.clinic.name,
+          phone: state.clinic.phone,
+          photo: photoPreview || user.photo || null,
+        });
         toast.success(labels.clinicProfileSaved);
       }
 
@@ -612,23 +771,75 @@ function ProfileCompletionModal({
     <Modal isOpen title={labels.review} onClose={onClose} size="xl">
       <div className="space-y-6">
         <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, progress * 100)}%` }} />
+          <div
+            className="h-full rounded-full bg-primary transition-all"
+            style={{ width: `${Math.min(100, progress * 100)}%` }}
+          />
         </div>
 
         {role === "patient" && step === 0 && (
           <div className="grid gap-4 md:grid-cols-2">
-            <Input label={labels.fullName} value={state.patient.name} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, name: event.target.value } }))} />
-            <Input label={labels.dob} type="date" value={state.patient.dob} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, dob: event.target.value } }))} />
+            <Input
+              label={labels.fullName}
+              value={state.patient.name}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  patient: { ...current.patient, name: event.target.value },
+                }))
+              }
+            />
+            <Input
+              label={labels.dob}
+              type="date"
+              value={state.patient.dob}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  patient: { ...current.patient, dob: event.target.value },
+                }))
+              }
+            />
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.gender}</label>
-              <select value={state.patient.gender} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, gender: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">
+                {labels.gender}
+              </label>
+              <select
+                value={state.patient.gender}
+                onChange={(event) =>
+                  setState((current) => ({
+                    ...current,
+                    patient: { ...current.patient, gender: event.target.value },
+                  }))
+                }
+                className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm"
+              >
                 <option value="">Select</option>
-                {genderOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                {genderOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
-            <Input label={labels.phone} type="tel" value={state.patient.contact} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, contact: event.target.value } }))} />
+            <Input
+              label={labels.phone}
+              type="tel"
+              value={state.patient.contact}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  patient: { ...current.patient, contact: event.target.value },
+                }))
+              }
+            />
             <div className="md:col-span-2">
-              <FileField label={labels.photo} preview={photoPreview} onFile={(file) => uploadToPreview(file, setPhotoPreview)} onClear={() => setPhotoPreview("")} />
+              <FileField
+                label={labels.photo}
+                preview={photoPreview}
+                onFile={(file) => uploadToPreview(file, setPhotoPreview)}
+                onClear={() => setPhotoPreview("")}
+              />
             </div>
           </div>
         )}
@@ -636,43 +847,173 @@ function ProfileCompletionModal({
         {role === "patient" && step === 1 && (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.bloodGroup}</label>
-              <select value={state.patient.bloodGroup} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, bloodGroup: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">
+                {labels.bloodGroup}
+              </label>
+              <select
+                value={state.patient.bloodGroup}
+                onChange={(event) =>
+                  setState((current) => ({
+                    ...current,
+                    patient: {
+                      ...current.patient,
+                      bloodGroup: event.target.value,
+                    },
+                  }))
+                }
+                className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm"
+              >
                 <option value="">Select</option>
-                {bloodGroupOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                {bloodGroupOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
-            <TagInput label={labels.allergies} value={allergies} onChange={setAllergies} placeholder={labels.allergies} />
-            <TagInput label={labels.chronicConditions} value={conditions} onChange={setConditions} placeholder={labels.chronicConditions} />
-            <Input label={labels.emergencyName} value={state.patient.emergencyContactName} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, emergencyContactName: event.target.value } }))} />
-            <Input label={labels.emergencyPhone} type="tel" value={state.patient.emergencyContactPhone} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, emergencyContactPhone: event.target.value } }))} />
+            <TagInput
+              label={labels.allergies}
+              value={allergies}
+              onChange={setAllergies}
+              placeholder={labels.allergies}
+            />
+            <TagInput
+              label={labels.chronicConditions}
+              value={conditions}
+              onChange={setConditions}
+              placeholder={labels.chronicConditions}
+            />
+            <Input
+              label={labels.emergencyName}
+              value={state.patient.emergencyContactName}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  patient: {
+                    ...current.patient,
+                    emergencyContactName: event.target.value,
+                  },
+                }))
+              }
+            />
+            <Input
+              label={labels.emergencyPhone}
+              type="tel"
+              value={state.patient.emergencyContactPhone}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  patient: {
+                    ...current.patient,
+                    emergencyContactPhone: event.target.value,
+                  },
+                }))
+              }
+            />
           </div>
         )}
 
         {role === "patient" && step === 2 && (
           <div className="space-y-4 rounded-2xl border border-border-light p-5">
-            <div className="flex items-center justify-between"><span className="text-sm font-medium">{labels.fullName}</span><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button></div>
-            <p className="text-sm text-text-secondary">{state.patient.name || "-"}</p>
-            <div className="flex items-center justify-between border-t border-border-light pt-4"><span className="text-sm font-medium">{labels.bloodGroup}</span><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(1)}>{labels.editSection}</button></div>
-            <p className="text-sm text-text-secondary">{state.patient.bloodGroup || "-"}</p>
-            <Button type="button" className="w-full" onClick={handleSubmit} disabled={isSavingPatient || isMarkingProfileComplete}>{labels.saveProfile}</Button>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">{labels.fullName}</span>
+              <button
+                type="button"
+                className="text-sm font-semibold text-primary"
+                onClick={() => setStep(0)}
+              >
+                {labels.editSection}
+              </button>
+            </div>
+            <p className="text-sm text-text-secondary">
+              {state.patient.name || "-"}
+            </p>
+            <div className="flex items-center justify-between border-t border-border-light pt-4">
+              <span className="text-sm font-medium">{labels.bloodGroup}</span>
+              <button
+                type="button"
+                className="text-sm font-semibold text-primary"
+                onClick={() => setStep(1)}
+              >
+                {labels.editSection}
+              </button>
+            </div>
+            <p className="text-sm text-text-secondary">
+              {state.patient.bloodGroup || "-"}
+            </p>
+            <Button
+              type="button"
+              className="w-full"
+              onClick={handleSubmit}
+              disabled={isSavingPatient || isMarkingProfileComplete}
+            >
+              {labels.saveProfile}
+            </Button>
           </div>
         )}
 
         {role === "doctor" && step === 0 && (
           <div className="grid gap-4 md:grid-cols-2">
-            <Input label={labels.fullName} value={state.doctor.name} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, name: event.target.value } }))} />
-            <Input label={labels.phone} type="tel" value={state.doctor.phone} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, phone: event.target.value } }))} />
+            <Input
+              label={labels.fullName}
+              value={state.doctor.name}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  doctor: { ...current.doctor, name: event.target.value },
+                }))
+              }
+            />
+            <Input
+              label={labels.phone}
+              type="tel"
+              value={state.doctor.phone}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  doctor: { ...current.doctor, phone: event.target.value },
+                }))
+              }
+            />
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.gender}</label>
-              <select value={state.doctor.gender} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, gender: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">
+                {labels.gender}
+              </label>
+              <select
+                value={state.doctor.gender}
+                onChange={(event) =>
+                  setState((current) => ({
+                    ...current,
+                    doctor: { ...current.doctor, gender: event.target.value },
+                  }))
+                }
+                className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm"
+              >
                 <option value="">Select</option>
-                {genderOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                {genderOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
-            <Input label={labels.city} value={state.doctor.city} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, city: event.target.value } }))} />
+            <Input
+              label={labels.city}
+              value={state.doctor.city}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  doctor: { ...current.doctor, city: event.target.value },
+                }))
+              }
+            />
             <div className="md:col-span-2">
-              <FileField label={labels.photo} preview={photoPreview} onFile={(file) => uploadToPreview(file, setPhotoPreview)} onClear={() => setPhotoPreview("")} />
+              <FileField
+                label={labels.photo}
+                preview={photoPreview}
+                onFile={(file) => uploadToPreview(file, setPhotoPreview)}
+                onClear={() => setPhotoPreview("")}
+              />
             </div>
           </div>
         )}
@@ -680,66 +1021,290 @@ function ProfileCompletionModal({
         {role === "doctor" && step === 1 && (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.specialization}</label>
-              <select value={state.doctor.specialization} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, specialization: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">
+                {labels.specialization}
+              </label>
+              <select
+                value={state.doctor.specialization}
+                onChange={(event) =>
+                  setState((current) => ({
+                    ...current,
+                    doctor: {
+                      ...current.doctor,
+                      specialization: event.target.value,
+                    },
+                  }))
+                }
+                className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm"
+              >
                 <option value="">Select</option>
-                {specializationOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                {specializationOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
-            <Input label={labels.licenseNumber} value={state.doctor.licenseNo} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, licenseNo: event.target.value } }))} />
-            <Input label={labels.experience} type="number" min="0" value={state.doctor.experience} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, experience: event.target.value } }))} />
-            <Input label={labels.fee} type="number" min="0" value={state.doctor.consultationFee} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, consultationFee: event.target.value } }))} />
+            <Input
+              label={labels.licenseNumber}
+              value={state.doctor.licenseNo}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  doctor: { ...current.doctor, licenseNo: event.target.value },
+                }))
+              }
+            />
+            <Input
+              label={labels.experience}
+              type="number"
+              min="0"
+              value={state.doctor.experience}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  doctor: { ...current.doctor, experience: event.target.value },
+                }))
+              }
+            />
+            <Input
+              label={labels.fee}
+              type="number"
+              min="0"
+              value={state.doctor.consultationFee}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  doctor: {
+                    ...current.doctor,
+                    consultationFee: event.target.value,
+                  },
+                }))
+              }
+            />
             <div className="md:col-span-2">
-              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.bio}</label>
-              <textarea value={state.doctor.bio} maxLength={300} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, bio: event.target.value } }))} className="min-h-32 w-full rounded-lg border border-border-light bg-white px-5 py-4 text-sm" />
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">
+                {labels.bio}
+              </label>
+              <textarea
+                value={state.doctor.bio}
+                maxLength={300}
+                onChange={(event) =>
+                  setState((current) => ({
+                    ...current,
+                    doctor: { ...current.doctor, bio: event.target.value },
+                  }))
+                }
+                className="min-h-32 w-full rounded-lg border border-border-light bg-white px-5 py-4 text-sm"
+              />
             </div>
           </div>
         )}
 
         {role === "doctor" && step === 2 && (
           <div className="rounded-2xl border border-border-light p-5">
-            <p className="text-sm text-text-secondary">You'll be added to clinics by clinic admins. This step is automatic.</p>
-            <div className="mt-4 flex items-center justify-between"><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button><Button type="button" className="" onClick={handleSubmit} disabled={isSavingDoctor || isMarkingProfileComplete}>{labels.saveProfile}</Button></div>
+            <p className="text-sm text-text-secondary">
+              You'll be added to clinics by clinic admins. This step is
+              automatic.
+            </p>
+            <div className="mt-4 flex items-center justify-between">
+              <button
+                type="button"
+                className="text-sm font-semibold text-primary"
+                onClick={() => setStep(0)}
+              >
+                {labels.editSection}
+              </button>
+              <Button
+                type="button"
+                className=""
+                onClick={handleSubmit}
+                disabled={isSavingDoctor || isMarkingProfileComplete}
+              >
+                {labels.saveProfile}
+              </Button>
+            </div>
           </div>
         )}
 
         {role === "clinic_admin" && step === 0 && (
           <div className="grid gap-4 md:grid-cols-2">
-            <Input label={labels.clinicName} value={state.clinic.name} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, name: event.target.value } }))} />
+            <Input
+              label={labels.clinicName}
+              value={state.clinic.name}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  clinic: { ...current.clinic, name: event.target.value },
+                }))
+              }
+            />
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.clinicType}</label>
-              <select value={state.clinic.clinicType} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, clinicType: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
-                {clinicTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">
+                {labels.clinicType}
+              </label>
+              <select
+                value={state.clinic.clinicType}
+                onChange={(event) =>
+                  setState((current) => ({
+                    ...current,
+                    clinic: {
+                      ...current.clinic,
+                      clinicType: event.target.value,
+                    },
+                  }))
+                }
+                className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm"
+              >
+                {clinicTypeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
-            <Input label={labels.regNumber} value={state.clinic.registrationNumber} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, registrationNumber: event.target.value } }))} />
-            <Input label={labels.phone} value={state.clinic.phone} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, phone: event.target.value } }))} />
-            <Input label={labels.email} type="email" value={state.clinic.email} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, email: event.target.value } }))} />
+            <Input
+              label={labels.regNumber}
+              value={state.clinic.registrationNumber}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  clinic: {
+                    ...current.clinic,
+                    registrationNumber: event.target.value,
+                  },
+                }))
+              }
+            />
+            <Input
+              label={labels.phone}
+              value={state.clinic.phone}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  clinic: { ...current.clinic, phone: event.target.value },
+                }))
+              }
+            />
+            <Input
+              label={labels.email}
+              type="email"
+              value={state.clinic.email}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  clinic: { ...current.clinic, email: event.target.value },
+                }))
+              }
+            />
             <div className="md:col-span-2">
-              <FileField label={labels.photo} preview={photoPreview} onFile={(file) => uploadToPreview(file, setPhotoPreview)} onClear={() => setPhotoPreview("")} />
+              <FileField
+                label={labels.photo}
+                preview={photoPreview}
+                onFile={(file) => uploadToPreview(file, setPhotoPreview)}
+                onClear={() => setPhotoPreview("")}
+              />
             </div>
           </div>
         )}
 
         {role === "clinic_admin" && step === 1 && (
           <div className="grid gap-4 md:grid-cols-2">
-            <Input label={labels.address1} value={state.clinic.address} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, address: event.target.value } }))} />
-            <Input label={labels.address2} value={state.clinic.addressLine2} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, addressLine2: event.target.value } }))} />
-            <Input label={labels.city} value={state.clinic.city} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, city: event.target.value } }))} />
+            <Input
+              label={labels.address1}
+              value={state.clinic.address}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  clinic: { ...current.clinic, address: event.target.value },
+                }))
+              }
+            />
+            <Input
+              label={labels.address2}
+              value={state.clinic.addressLine2}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  clinic: {
+                    ...current.clinic,
+                    addressLine2: event.target.value,
+                  },
+                }))
+              }
+            />
+            <Input
+              label={labels.city}
+              value={state.clinic.city}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  clinic: { ...current.clinic, city: event.target.value },
+                }))
+              }
+            />
             <div className="md:col-span-2 rounded-2xl border border-border-light p-4">
-              <div className="flex items-center justify-between"><span className="text-sm font-bold">{labels.workingHours}</span><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button></div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold">{labels.workingHours}</span>
+                <button
+                  type="button"
+                  className="text-sm font-semibold text-primary"
+                  onClick={() => setStep(0)}
+                >
+                  {labels.editSection}
+                </button>
+              </div>
               <div className="mt-4 space-y-3">
                 {Object.entries(workingHours).map(([day, value]) => (
-                  <div key={day} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 rounded-2xl border border-border-light p-3">
-                    <span className="text-sm font-medium capitalize">{day}</span>
-                    <ToggleSwitch checked={!value.closed} onChange={(checked) => setWorkingHours((current) => ({ ...current, [day]: { ...current[day], closed: !checked } }))} />
+                  <div
+                    key={day}
+                    className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 rounded-2xl border border-border-light p-3"
+                  >
+                    <span className="text-sm font-medium capitalize">
+                      {day}
+                    </span>
+                    <ToggleSwitch
+                      checked={!value.closed}
+                      onChange={(checked) =>
+                        setWorkingHours((current) => ({
+                          ...current,
+                          [day]: { ...current[day], closed: !checked },
+                        }))
+                      }
+                    />
                     {!value.closed ? (
                       <>
-                        <Input type="time" value={value.open} onChange={(event) => setWorkingHours((current) => ({ ...current, [day]: { ...current[day], open: event.target.value } }))} />
-                        <Input type="time" value={value.close} onChange={(event) => setWorkingHours((current) => ({ ...current, [day]: { ...current[day], close: event.target.value } }))} />
+                        <Input
+                          type="time"
+                          value={value.open}
+                          onChange={(event) =>
+                            setWorkingHours((current) => ({
+                              ...current,
+                              [day]: {
+                                ...current[day],
+                                open: event.target.value,
+                              },
+                            }))
+                          }
+                        />
+                        <Input
+                          type="time"
+                          value={value.close}
+                          onChange={(event) =>
+                            setWorkingHours((current) => ({
+                              ...current,
+                              [day]: {
+                                ...current[day],
+                                close: event.target.value,
+                              },
+                            }))
+                          }
+                        />
                       </>
                     ) : (
-                      <span className="text-xs font-semibold text-text-secondary">Closed</span>
+                      <span className="text-xs font-semibold text-text-secondary">
+                        Closed
+                      </span>
                     )}
                   </div>
                 ))}
@@ -750,17 +1315,44 @@ function ProfileCompletionModal({
 
         {role === "clinic_admin" && step === 2 && (
           <div className="rounded-2xl border border-border-light p-5">
-            <div className="flex items-center justify-between"><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button><Button type="button" className="" onClick={handleSubmit} disabled={isSavingClinic || isMarkingProfileComplete}>{labels.saveSettings}</Button></div>
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                className="text-sm font-semibold text-primary"
+                onClick={() => setStep(0)}
+              >
+                {labels.editSection}
+              </button>
+              <Button
+                type="button"
+                className=""
+                onClick={handleSubmit}
+                disabled={isSavingClinic || isMarkingProfileComplete}
+              >
+                {labels.saveSettings}
+              </Button>
+            </div>
           </div>
         )}
 
         <div className="flex items-center justify-between pt-2">
-          <Button type="button" variant="outline" className="" onClick={() => setStep((current) => Math.max(current - 1, 0))} disabled={step === 0}>
+          <Button
+            type="button"
+            variant="outline"
+            className=""
+            onClick={() => setStep((current) => Math.max(current - 1, 0))}
+            disabled={step === 0}
+          >
             <ArrowLeft className="mr-2 h-4 w-4" /> {fieldLabels[locale].back}
           </Button>
           {step < 2 && (
-            <Button type="button" className="" onClick={() => setStep((current) => current + 1)}>
-              {fieldLabels[locale].next} <ChevronRight className="ml-2 h-4 w-4" />
+            <Button
+              type="button"
+              className=""
+              onClick={() => setStep((current) => current + 1)}
+            >
+              {fieldLabels[locale].next}{" "}
+              <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           )}
         </div>
@@ -816,14 +1408,24 @@ export default function OnboardingGate({ role }: { role: Role }) {
     }
   };
 
-  const shouldShowBanner = mounted && user && onboardingCompleted && !profileCompleted && !bannerDismissed && !wizardOpen;
+  const shouldShowBanner =
+    mounted &&
+    user &&
+    onboardingCompleted &&
+    !profileCompleted &&
+    !bannerDismissed &&
+    !wizardOpen;
 
   if (!mounted || !user) return null;
 
   return (
     <>
       {shouldShowBanner && (
-        <ProfileBanner locale={locale} onOpen={() => setProfileOpen(true)} onDismiss={() => setBannerDismissed(true)} />
+        <ProfileBanner
+          locale={locale}
+          onOpen={() => setProfileOpen(true)}
+          onDismiss={() => setBannerDismissed(true)}
+        />
       )}
 
       {wizardOpen && (

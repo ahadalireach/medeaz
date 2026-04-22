@@ -18,7 +18,7 @@ export default function Home() {
         <ImportSection />
         <InsightsSection />
         <ResultsSection />
-        <PrescriptionsSection />
+        {/* <PrescriptionsSection /> */}
         <PoweredBySection />
         <FAQsSection />
         <FinalCTA />

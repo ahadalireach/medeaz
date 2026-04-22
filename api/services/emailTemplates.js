@@ -32,7 +32,7 @@ exports.appointmentConfirmed = (data) => `
       <a href="${process.env.FRONTEND_URL}/dashboard/patient/appointments" class="button">View Appointment Details</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -53,7 +53,7 @@ exports.doctorAppointmentNotice = (data) => `
       <a href="${process.env.FRONTEND_URL}/dashboard/doctor/appointments" class="button">Manage Appointments</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -73,7 +73,7 @@ exports.appointmentAccepted = (data) => `
       <a href="${process.env.FRONTEND_URL}/dashboard/patient/appointments" class="button">View Dashboard</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -87,12 +87,12 @@ exports.appointmentRejected = (data) => `
     <div class="content">
       <p>Hello, ${data.patientName}</p>
       <p>Unfortunately, your appointment with <strong>Dr. ${data.doctorName}</strong> on <strong>${data.dateTime}</strong> has been cancelled.</p>
-      ${data.reason ? `<p><strong>Reason:</strong> ${data.reason}</p>` : ''}
+      ${data.reason ? `<p><strong>Reason:</strong> ${data.reason}</p>` : ""}
       <p>Please try booking another slot or contact the clinic for assistance.</p>
       <a href="${process.env.FRONTEND_URL}/dashboard/patient/book-appointment" class="button">Book New Appointment</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -109,7 +109,7 @@ exports.appointmentCancelledByPatient = (data) => `
       <a href="${process.env.FRONTEND_URL}/dashboard/doctor/appointments" class="button">Check Your Schedule</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -126,7 +126,7 @@ exports.visitSummary = (data) => `
       <a href="${process.env.FRONTEND_URL}/dashboard/patient/records" class="button">View Medical Records</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -135,16 +135,16 @@ exports.newPatientWelcome = (data) => `
   <style>${emailStyles}</style>
   <div class="container">
     <div class="header">
-      <h1 style="color: white; margin: 0;">Welcome to MedEaz</h1>
+      <h1 style="color: white; margin: 0;">Welcome to Medeaz</h1>
     </div>
     <div class="content">
       <p>Hello, ${data.patientName}</p>
-      <p>You have been added to the patient registry of <strong>Dr. ${data.doctorName}</strong> at <strong>MedEaz</strong>.</p>
+      <p>You have been added to the patient registry of <strong>Dr. ${data.doctorName}</strong> at <strong>Medeaz</strong>.</p>
       <p>You can now manage your appointments, view prescriptions, and track your health records online.</p>
       <a href="${process.env.FRONTEND_URL}/login" class="button">Access Your Portal</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -161,7 +161,7 @@ exports.newPrescription = (data) => `
       <a href="${process.env.FRONTEND_URL}/dashboard/patient/records" class="button">View Prescription</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -181,7 +181,7 @@ exports.followUpReminder = (data) => `
       <a href="${process.env.FRONTEND_URL}/dashboard/patient/book-appointment" class="button">Book Appointment</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -201,7 +201,7 @@ exports.appointmentReminder = (data) => `
       <p>We look forward to seeing you.</p>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -214,13 +214,13 @@ exports.newStaffAccount = (data) => `
     </div>
     <div class="content">
       <p>Hello, ${data.name}</p>
-      <p>A new staff account has been created for you at <strong>${data.clinicName}</strong> on MedEaz.</p>
+      <p>A new staff account has been created for you at <strong>${data.clinicName}</strong> on Medeaz.</p>
       <p>Your temporary password is: <strong>${data.password}</strong></p>
       <p>Please log in and change your password immediately.</p>
       <a href="${process.env.FRONTEND_URL}/login" class="button">Login Now</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -238,7 +238,7 @@ exports.doctorAddedToClinic = (data) => `
       <a href="${process.env.FRONTEND_URL}/dashboard/doctor" class="button">Go to Portal</a>
     </div>
     <div class="footer">
-      <p>&copy; 2026 MedEaz. All rights reserved.</p>
+      <p>&copy; 2026 Medeaz. All rights reserved.</p>
     </div>
   </div>
 `;

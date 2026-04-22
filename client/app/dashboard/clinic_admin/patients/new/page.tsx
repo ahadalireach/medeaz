@@ -3,7 +3,16 @@
 import { useState } from "react";
 import { useCreatePatientMutation } from "@/store/api/clinicApi";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, User, Mail, Phone, Calendar, Droplet, MapPin, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  Droplet,
+  MapPin,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
@@ -32,14 +41,14 @@ export default function NewPatientPage() {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, photo: reader.result as string }));
+        setFormData((prev) => ({ ...prev, photo: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
   };
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState<'create' | 'link'>('create');
+  const [activeTab, setActiveTab] = useState<"create" | "link">("create");
 
   const set = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -63,10 +72,12 @@ export default function NewPatientPage() {
 
     if (!formData.name.trim()) newErrors.name = "Full name is required";
     if (!formData.email.trim()) newErrors.email = "Email address is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Valid email is required";
-    
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      newErrors.email = "Valid email is required";
+
     if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
-    if (!formData.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
+    if (!formData.dateOfBirth)
+      newErrors.dateOfBirth = "Date of birth is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
     if (!formData.bloodGroup) newErrors.bloodGroup = "Blood group is required";
     if (!formData.address.trim()) newErrors.address = "Address is required";
@@ -79,11 +90,13 @@ export default function NewPatientPage() {
     e.preventDefault();
 
     try {
-      if (activeTab === 'link') {
+      if (activeTab === "link") {
         if (!validateLink()) return;
         const result = await createPatient({ email: formData.email }).unwrap();
         if (result.data?.isRequestSent) {
-          toast.success("Patient exists! Connection request sent.", { duration: 5000 });
+          toast.success("Patient exists! Connection request sent.", {
+            duration: 5000,
+          });
         } else {
           toast.success("Patient connected successfully!");
         }
@@ -111,42 +124,48 @@ export default function NewPatientPage() {
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </Link>
         <div>
-          <h1 className="text-3xl font-black text-text-primary">Clinical Enrollment</h1>
+          <h1 className="text-3xl font-black text-text-primary">
+            Clinical Enrollment
+          </h1>
           <p className="text-text-secondary mt-1 font-medium">
-            Register new patients or link with existing MedEaz accounts
+            Register new patients or link with existing Medeaz accounts
           </p>
         </div>
       </div>
 
       <div className="flex gap-2 p-1.5 bg-surface rounded-2xl w-fit border border-border-light">
         <button
-          onClick={() => setActiveTab('create')}
+          onClick={() => setActiveTab("create")}
           className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-            activeTab === 'create' 
-            ? 'bg-white  text-primary shadow-sm' 
-            : 'text-text-secondary hover:text-text-secondary :text-white/70'
+            activeTab === "create"
+              ? "bg-white  text-primary shadow-sm"
+              : "text-text-secondary hover:text-text-secondary :text-white/70"
           }`}
         >
           Register New
         </button>
         <button
-          onClick={() => setActiveTab('link')}
+          onClick={() => setActiveTab("link")}
           className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-            activeTab === 'link' 
-            ? 'bg-white  text-primary shadow-sm' 
-            : 'text-text-secondary hover:text-text-secondary :text-white/70'
+            activeTab === "link"
+              ? "bg-white  text-primary shadow-sm"
+              : "text-text-secondary hover:text-text-secondary :text-white/70"
           }`}
         >
           Link Existing
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm"
+      >
         <div className="space-y-8">
-          {activeTab === 'link' ? (
+          {activeTab === "link" ? (
             <div className="py-6">
               <label className="block text-sm font-black text-text-secondary mb-4 uppercase tracking-widest">
-                Registered Email Identity <span className="text-primary">*</span>
+                Registered Email Identity{" "}
+                <span className="text-primary">*</span>
               </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-primary" />
@@ -160,7 +179,8 @@ export default function NewPatientPage() {
               </div>
               <p className="mt-6 text-sm font-bold text-text-secondary flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
-                Existing user profiles will receive a connection request for clinical access approval.
+                Existing user profiles will receive a connection request for
+                clinical access approval.
               </p>
             </div>
           ) : (
@@ -169,11 +189,17 @@ export default function NewPatientPage() {
                 <div className="relative group">
                   <div className="h-32 w-32 rounded-[2rem] overflow-hidden border-2 border-dashed border-border-light bg-background/50 flex items-center justify-center transition-all group-hover:border-primary/50">
                     {formData.photo ? (
-                      <img src={formData.photo} alt="Preview" className="h-full w-full object-cover" />
+                      <img
+                        src={formData.photo}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-white/70">
                         <User size={40} />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Identity Photo</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">
+                          Identity Photo
+                        </span>
                       </div>
                     )}
                   </div>
@@ -186,18 +212,24 @@ export default function NewPatientPage() {
                   {formData.photo && (
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, photo: null }))}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, photo: null }))
+                      }
                       className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-red-500 text-white flex items-center justify-center shadow-xl hover:bg-red-600 transition-colors z-10"
                     >
                       ×
                     </button>
                   )}
                 </div>
-                <p className="text-[10px] text-text-secondary mt-3 font-bold uppercase tracking-widest">Optional Clinical Visual Identity</p>
+                <p className="text-[10px] text-text-secondary mt-3 font-bold uppercase tracking-widest">
+                  Optional Clinical Visual Identity
+                </p>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Full Name</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">
+                  Full Name
+                </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
                   <input
@@ -210,7 +242,9 @@ export default function NewPatientPage() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Email Identity</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">
+                  Email Identity
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
                   <input
@@ -223,7 +257,9 @@ export default function NewPatientPage() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Primary Contact</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">
+                  Primary Contact
+                </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
                   <input
@@ -236,7 +272,9 @@ export default function NewPatientPage() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Birth Date</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">
+                  Birth Date
+                </label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
                   <input
@@ -250,43 +288,49 @@ export default function NewPatientPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Gender</label>
-                    <select
-                        value={formData.gender}
-                        onChange={(e) => set("gender", e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold appearance-none"
-                    >
-                        <option value="">Select...</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
+                  <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">
+                    Gender
+                  </label>
+                  <select
+                    value={formData.gender}
+                    onChange={(e) => set("gender", e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold appearance-none"
+                  >
+                    <option value="">Select...</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
                 <div>
-                    <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Blood Group</label>
-                    <div className="relative">
-                        <Droplet className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500/50" />
-                        <select
-                            value={formData.bloodGroup}
-                            onChange={(e) => set("bloodGroup", e.target.value)}
-                            className="w-full pl-9 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold appearance-none"
-                        >
-                            <option value="">Select...</option>
-                            <option value="A+">A+</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B-">B-</option>
-                            <option value="AB+">AB+</option>
-                            <option value="AB-">AB-</option>
-                            <option value="O+">O+</option>
-                            <option value="O-">O-</option>
-                        </select>
-                    </div>
+                  <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">
+                    Blood Group
+                  </label>
+                  <div className="relative">
+                    <Droplet className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500/50" />
+                    <select
+                      value={formData.bloodGroup}
+                      onChange={(e) => set("bloodGroup", e.target.value)}
+                      className="w-full pl-9 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold appearance-none"
+                    >
+                      <option value="">Select...</option>
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Residential Address</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">
+                  Residential Address
+                </label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3.5 h-5 w-5 text-white/70" />
                   <textarea
@@ -306,7 +350,11 @@ export default function NewPatientPage() {
               disabled={isLoading}
               className="flex-1 py-4 bg-primary text-white rounded-3xl font-black uppercase tracking-widest hover:bg-primary-hover shadow-2xl shadow-primary/20 transition-all disabled:opacity-50 hover:scale-[1.01]"
             >
-              {isLoading ? "Authenticating..." : activeTab === 'create' ? "Authorize Enrollment" : "Initiate Connection Request"}
+              {isLoading
+                ? "Authenticating..."
+                : activeTab === "create"
+                  ? "Authorize Enrollment"
+                  : "Initiate Connection Request"}
             </button>
             <Link
               href="/dashboard/clinic_admin/patients"
