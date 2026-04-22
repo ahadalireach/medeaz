@@ -6,9 +6,9 @@ import { Search, Star, User, ArrowRight, ShieldCheck, MapPin as LocationIcon, Fi
 import Link from "next/link";
 
 const SPECIALIZATIONS = [
-    "General Physician", "Cardiologist", "Dermatologist", "Pediatrician", 
-    "Orthopedic Surgeon", "Gynecologist", "Neurologist", "Ophthalmologist", 
-    "ENT Specialist", "Psychiatrist", "Radiologist", "Urologist", 
+    "General Physician", "Cardiologist", "Dermatologist", "Pediatrician",
+    "Orthopedic Surgeon", "Gynecologist", "Neurologist", "Ophthalmologist",
+    "ENT Specialist", "Psychiatrist", "Radiologist", "Urologist",
     "Dentist", "Nutritionist", "Homeopath", "Physiotherapist"
 ].sort();
 
@@ -226,7 +226,7 @@ export default function FindDoctorsPage() {
                                             <div className="flex items-center gap-1.5 text-xs font-bold text-text-secondary">
                                                 <Building2 className="w-3.5 h-3.5 text-primary" />
                                                 <span className="truncate max-w-[120px]">
-                                                    {(doc.clinicId?.name && !doc.clinicId.name.includes("#")) ? doc.clinicId.name : (doc.clinicId?.name?.includes("#") ? "MedEaz Health Clinic" : "Private Practice")}
+                                                    {(doc.clinicId?.name && !doc.clinicId.name.includes("#")) ? doc.clinicId.name : (doc.clinicId?.name?.includes("#") ? "Medeaz Health Clinic" : "Private Practice")}
                                                 </span>
                                             </div>
                                         </div>
@@ -248,7 +248,7 @@ export default function FindDoctorsPage() {
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">{t('patient.findDoctors.clinic')}</p>
-                                        <p className="text-sm font-bold text-text-primary truncate max-w-[150px]">{(doc.clinicId?.name && !doc.clinicId.name.includes("#")) ? doc.clinicId.name : (doc.clinicId?.name?.includes("#") ? "MedEaz Health Clinic" : "Private Practice")}</p>
+                                        <p className="text-sm font-bold text-text-primary truncate max-w-[150px]">{(doc.clinicId?.name && !doc.clinicId.name.includes("#")) ? doc.clinicId.name : (doc.clinicId?.name?.includes("#") ? "Medeaz Health Clinic" : "Private Practice")}</p>
                                     </div>
                                 </div>
 

@@ -1,31 +1,54 @@
+"use client";
+
 import { Pill, Stethoscope } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export function PrescriptionsSection() {
+  const { language } = useLanguage();
+  const isUrdu = language === "ur";
+
   return (
     <section className="px-4 sm:px-6 lg:px-10 py-20 sm:py-28">
       <div className="mx-auto max-w-[900px] text-center">
         <h2 className="font-display text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] tracking-[-0.02em] text-text-primary">
-          Prescriptions without the waiting room
+          {isUrdu
+            ? "کم انتظامی بوجھ کے ساتھ وائس اینیبلڈ پریسکرپشنز"
+            : "Voice-enabled prescriptions with less admin work"}
         </h2>
         <p className="mt-5 text-[17px] text-text-secondary max-w-xl mx-auto leading-relaxed">
-          No more calling the office for a refill. Medeaz handles medications
-          end to end. Your clinician reviews everything, and responds quickly.
+          {isUrdu
+            ? "Medeaz ڈاکٹروں کو تیزی سے ڈیجیٹل پریسکرپشنز بنانے، میڈیکیشن ہسٹری منظم رکھنے، اور بار بار ہونے والے کاغذی کام کو کم کرنے میں مدد دیتا ہے۔"
+            : "Medeaz helps doctors generate digital prescriptions faster, keep medication history organized, and reduce repetitive paperwork."}
         </p>
       </div>
 
       <div className="mx-auto max-w-[1100px] mt-14 grid grid-cols-1 md:grid-cols-2 gap-6">
         <PrescriptionCard
           icon={<Stethoscope className="h-3.5 w-3.5" strokeWidth={2.5} />}
-          chip="Dr. Jane Doe"
-          title="Approved your prescription"
-          body="Medeaz drafts your prescription based on your full history. Your clinician reviews and signs off."
+          chip={isUrdu ? "ڈاکٹر ورک فلو" : "Doctor workflow"}
+          title={
+            isUrdu ? "وائس ٹو پریسکرپشن ڈرافٹ" : "Voice-to-prescription draft"
+          }
+          body={
+            isUrdu
+              ? "نوٹس کیپچر کریں اور اسٹرکچرڈ پریسکرپشنز بنائیں جو ہر مریض کی ٹائم لائن سے منسلک ہوں۔"
+              : "Capture notes and create structured prescriptions tied to each patient's timeline."
+          }
           tone="lavender"
         />
         <PrescriptionCard
           icon={<Pill className="h-3.5 w-3.5" strokeWidth={2.5} />}
-          chip="Active meds · 3"
-          title="All in one place, always up to date"
-          body="Refills, approvals, and active meds. All in one place, always up to date."
+          chip={isUrdu ? "پیشنٹ ریکارڈز · سنک" : "Patient records · synced"}
+          title={
+            isUrdu
+              ? "پورٹلز میں ہمیشہ دستیاب"
+              : "Always available across portals"
+          }
+          body={
+            isUrdu
+              ? "پریسکرپشنز اپائنٹمنٹس اور ریکارڈز کے ساتھ منسلک رہتی ہیں تاکہ ڈاکٹرز، کلینکس اور پیشنٹس کو یکساں رسائی ملے۔"
+              : "Prescriptions remain connected with appointments and records for doctors, clinics, and patients."
+          }
           tone="cream"
         />
       </div>
@@ -50,8 +73,8 @@ function PrescriptionCard({
     tone === "cream"
       ? "bg-surface-cream"
       : tone === "blue"
-      ? "bg-surface"
-      : "bg-surface-lavender";
+        ? "bg-surface"
+        : "bg-surface-lavender";
 
   return (
     <div className="rounded-[18px] border border-border-light overflow-hidden bg-white">

@@ -2,51 +2,91 @@
 
 import { useState } from "react";
 import { Plus, Minus } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
 
-const FAQS = [
+const FAQS_EN = [
   {
     q: "What is Medeaz?",
-    a: "Medeaz is an AI-supported primary care service. We combine on-demand AI triage and guidance with board-certified clinicians who review and sign off on anything clinical.",
+    a: "Medeaz is a voice-enabled digital healthcare platform for doctors, clinics, and patients. It centralizes records, prescriptions, communication, and operational insights.",
   },
   {
-    q: "What can Medeaz actually do for me?",
-    a: "Ask health questions, import your full medical history, request prescription refills, analyze lab results, get second opinions, and keep one continuous record across providers.",
+    q: "Who can use Medeaz?",
+    a: "Doctors, clinic admins, and patients can each use dedicated modules. Doctors manage consultations and prescriptions, clinics monitor operations, and patients track records and appointments.",
   },
   {
-    q: "Why should I use Medeaz instead of other AI chat apps?",
-    a: "Generic chatbots don’t have your history, can’t prescribe, and aren’t HIPAA-compliant. Medeaz is grounded in your records and every clinical output is reviewed by a licensed clinician.",
+    q: "Does Medeaz support voice-based workflows?",
+    a: "Yes. Medeaz is designed around voice-assisted workflows, including voice-to-prescription drafting to reduce manual writing time for healthcare providers.",
   },
   {
-    q: "Can I trust Medeaz with real medical decisions and my medical data?",
-    a: "Yes. Medeaz is HIPAA compliant, your data is encrypted in transit and at rest, and clinicians make all final medical decisions. AI outputs are advisory, not autonomous.",
+    q: "Does Medeaz support Urdu and English?",
+    a: "Yes. Medeaz provides multilingual interaction with Urdu and English support to improve accessibility for diverse users.",
   },
   {
-    q: "How much does Medeaz cost, and does it work with my insurance?",
-    a: "Membership pricing is transparent and monthly. We’re integrating with major insurers; current coverage is listed during sign-up based on your state.",
+    q: "What analytics does Medeaz provide for clinics?",
+    a: "Clinic admins can monitor patient flow, scheduling activity, and revenue-related trends to improve operations and decision-making.",
   },
   {
-    q: "In what states does Medeaz currently see patients?",
-    a: "We’re expanding quickly. Enter your ZIP during sign-up to confirm availability and which clinicians can see you.",
+    q: "How does Medeaz improve continuity of care?",
+    a: "By keeping appointments, prescriptions, notes, and records connected in one system, Medeaz helps teams and patients avoid fragmented or missing information.",
+  },
+];
+
+const FAQS_UR = [
+  {
+    q: "Medeaz کیا ہے؟",
+    a: "Medeaz ایک وائس اینیبلڈ ڈیجیٹل ہیلتھ کیئر پلیٹ فارم ہے جو ڈاکٹروں، کلینکس اور مریضوں کے لیے ریکارڈز، پریسکرپشنز، کمیونیکیشن اور آپریشنل انسائٹس کو ایک جگہ لاتا ہے۔",
+  },
+  {
+    q: "Medeaz کون استعمال کر سکتا ہے؟",
+    a: "ڈاکٹرز، کلینک ایڈمنز اور مریض سب اپنے متعلقہ ماڈیولز استعمال کر سکتے ہیں۔ ڈاکٹرز کنسلٹیشن اور پریسکرپشنز سنبھالتے ہیں، کلینکس آپریشنز دیکھتے ہیں، اور مریض ریکارڈز اور اپائنٹمنٹس ٹریک کرتے ہیں۔",
+  },
+  {
+    q: "کیا Medeaz وائس بیسڈ ورک فلو سپورٹ کرتا ہے؟",
+    a: "جی ہاں، Medeaz وائس اسسٹڈ ورک فلوز کے لیے ڈیزائن کیا گیا ہے، جن میں وائس ٹو پریسکرپشن ڈرافٹنگ شامل ہے تاکہ دستی لکھائی کا وقت کم ہو۔",
+  },
+  {
+    q: "کیا Medeaz اردو اور انگلش سپورٹ کرتا ہے؟",
+    a: "جی ہاں، Medeaz متنوع صارفین کے لیے اردو اور انگلش میں ملٹی لنگول انٹریکشن فراہم کرتا ہے۔",
+  },
+  {
+    q: "کلینکس کے لیے Medeaz کون سی اینالیٹکس دیتا ہے؟",
+    a: "کلینک ایڈمنز پیشنٹ فلو، شیڈولنگ ایکٹیویٹی، اور ریونیو سے متعلق ٹرینڈز مانیٹر کر سکتے ہیں تاکہ آپریشنز اور فیصلے بہتر ہوں۔",
+  },
+  {
+    q: "Medeaz continuity of care کیسے بہتر بناتا ہے؟",
+    a: "اپائنٹمنٹس، پریسکرپشنز، نوٹس اور ریکارڈز کو ایک سسٹم میں جوڑ کر Medeaz بکھری یا گم معلومات کے مسائل کو کم کرتا ہے۔",
   },
 ];
 
 export function FAQsSection() {
   const [open, setOpen] = useState<number | null>(0);
+  const { language } = useLanguage();
+  const isUrdu = language === "ur";
+  const faqs = isUrdu ? FAQS_UR : FAQS_EN;
 
   return (
     <section className="px-4 sm:px-6 lg:px-10 py-20 sm:py-28">
       <div className="mx-auto max-w-[760px] text-center">
         <div className="inline-flex items-center rounded-full bg-primary-muted px-3.5 py-1.5 text-[12px] font-semibold tracking-wide uppercase text-primary">
-          FAQs
+          {isUrdu ? "سوالات" : "FAQs"}
         </div>
         <h2 className="mt-6 font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] tracking-[-0.02em] text-text-primary">
-          Have questions?<br className="hidden sm:block" /> Here&apos;s the
-          answers
+          {isUrdu ? (
+            <>
+              سوالات ہیں؟
+              <br className="hidden sm:block" /> یہ ہیں جواب
+            </>
+          ) : (
+            <>
+              Have questions?
+              <br className="hidden sm:block" /> Here&apos;s the answers
+            </>
+          )}
         </h2>
       </div>
 
       <div className="mx-auto max-w-[760px] mt-12 space-y-3">
-        {FAQS.map((item, i) => {
+        {faqs.map((item, i) => {
           const isOpen = open === i;
           return (
             <div

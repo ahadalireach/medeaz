@@ -15,17 +15,22 @@ exports.sendEmail = async (to, subject, templateName, data) => {
   try {
     const html = emailTemplates[templateName](data);
     const mailOptions = {
-      from: `"MedEaz" <${process.env.SMTP_USER}>`,
+      from: `"Medeaz" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Email sent: ${templateName} to ${to} (MessageID: ${info.messageId})`);
+    console.log(
+      `Email sent: ${templateName} to ${to} (MessageID: ${info.messageId})`,
+    );
     return true;
   } catch (error) {
-    console.error(`Email error: Failed to send ${templateName} to ${to}:`, error.message);
+    console.error(
+      `Email error: Failed to send ${templateName} to ${to}:`,
+      error.message,
+    );
     return false;
   }
 };

@@ -1,13 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export function FinalCTA() {
+  const { language } = useLanguage();
+  const isUrdu = language === "ur";
+
   return (
     <section className="px-4 sm:px-6 lg:px-10 pt-16 pb-24">
       <div className="mx-auto max-w-[1100px] flex flex-col items-center text-center">
         <div className="flex items-center gap-4 mb-2">
-          <div className="relative h-20 w-20">
+          <div className="relative h-32 w-32">
             <Image
               src="/logo.png"
               alt="medeaz"
@@ -18,12 +24,14 @@ export function FinalCTA() {
           </div>
         </div>
         <h2 className="mt-6 font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] tracking-[-0.02em] text-text-primary max-w-2xl">
-          Your health, finally under your control
+          {isUrdu
+            ? "ریکارڈز، پریسکرپشنز، اور پیشنٹ انگیجمنٹ کو ایک پلیٹ فارم میں لائیں"
+            : "Bring records, prescriptions, and patient engagement into one platform"}
         </h2>
         <div className="mt-8">
           <Link href="/register">
             <Button size="lg" className="px-8">
-              Chat with Medeaz
+              {isUrdu ? "Medeaz کے ساتھ شروع کریں" : "Start with Medeaz"}
             </Button>
           </Link>
         </div>

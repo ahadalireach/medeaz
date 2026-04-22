@@ -134,7 +134,12 @@
     "verificationSent": "Verification email sent!",
     "registrationFailed": "Registration failed",
     "iAm": "I AM A...",
-    "role": { "doctor": "Doctor", "clinic": "Clinic", "clinicAdmin": "Clinic Admin", "patient": "Patient" },
+    "role": {
+      "doctor": "Doctor",
+      "clinic": "Clinic",
+      "clinicAdmin": "Clinic Admin",
+      "patient": "Patient"
+    },
     "validation": {
       "emailRequired": "Please enter your email address.",
       "emailInvalid": "Please enter a valid email address.",
@@ -644,7 +649,7 @@
       "appointments": "Appointments",
       "totalRevenue": "Total Spent",
       "doctorShare": "Your Share (80%)",
-      "platformShare": "MedEaz Share (20%)",
+      "platformShare": "Medeaz Share (20%)",
       "noRevenue": "No spending history found for this year"
     }
   },
@@ -875,7 +880,7 @@
     "support": "Support",
     "helpCenter": "Help Center",
     "reportBug": "Report a Bug",
-    "copyright": "© {year} MedEaz. All rights reserved."
+    "copyright": "© {year} Medeaz. All rights reserved."
   },
   "homepage": {
     "badge": "Voice-Enabled Healthcare Platform",
@@ -899,7 +904,7 @@
     "step3Desc": "Voice prescriptions, records, analytics — all in one place",
     "testimonialsTitle": "Trusted by Healthcare Professionals",
     "ctaTitle": "Start Managing Healthcare Smarter Today",
-    "ctaSubtitle": "Join thousands of doctors, patients, and clinics already using MedEaz",
+    "ctaSubtitle": "Join thousands of doctors, patients, and clinics already using Medeaz",
     "ctaButton": "Create Free Account",
     "navFeatures": "Features",
     "navFaqs": "FAQs",

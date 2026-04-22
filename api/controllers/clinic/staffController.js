@@ -57,15 +57,20 @@ exports.createStaff = asyncHandler(async (req, res) => {
     photo,
   });
 
-  const { sendEmail } = require('../../services/emailService');
+  const { sendEmail } = require("../../services/emailService");
   const clinic = await Clinic.findById(clinicId);
   try {
-    sendEmail(email.toLowerCase(), "Your MedEaz Staff Account", 'newStaffAccount', {
-      name,
-      clinicName: clinic?.name || "the clinic",
-      password: defaultPassword
-    });
-  } catch (e) { }
+    sendEmail(
+      email.toLowerCase(),
+      "Your Medeaz Staff Account",
+      "newStaffAccount",
+      {
+        name,
+        clinicName: clinic?.name || "the clinic",
+        password: defaultPassword,
+      },
+    );
+  } catch (e) {}
 
   res.status(201).json(new ApiResponse(201, staff, "Staff account created"));
 });
