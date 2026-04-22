@@ -3,80 +3,97 @@
 import { useGetPrescriptionsQuery, useDeletePrescriptionMutation } from "@/store/api/doctorApi";
 import Link from "next/link";
 import { useState } from "react";
-import { Plus, FileText, Calendar, User, Loader, Pill, Download, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, FileText, Calendar, User, Pill, Download, Trash2, AlertTriangle, Loader } from "lucide-react";
+import TrashIcon from "@/icons/trash-icon";
+import DownloadIcon from "@/icons/download-icon";
+import { TableSkeleton } from "@/components/ui/Skeleton";
+import { toast } from "react-hot-toast";
+import { useLocale, useTranslations } from "next-intl";
 
-function downloadPrescriptionPDF(prescription: any) {
+function downloadPrescriptionPDF(
+  prescription: any,
+  pkrLabel: string,
+  locale: string,
+  labels: Record<string, string>
+) {
   const medicines = prescription.medicines || [];
-  const date = new Date(prescription.createdAt).toLocaleDateString("en-US", {
+  const date = new Intl.DateTimeFormat(locale, {
     year: "numeric", month: "long", day: "numeric",
-  });
+  }).format(new Date(prescription.createdAt));
 
   const medRows = medicines.map((med: any, i: number) => `
-    <tr style="background:${i % 2 === 0 ? '#F4F3EE' : '#FFFFFF'}">
-      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;font-weight:600;color:#111">${med.name || '-'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;color:#78716C">${med.dosage || '-'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;color:#78716C">${med.frequency || '-'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;color:#78716C">${med.duration || '-'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;color:#78716C">${med.instructions || '-'}</td>
+    <tr style="background:${i % 2 === 0 ? '#f8fffe' : '#fff'} !important">
+      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#111 !important">${med.name || '-'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#374151 !important">${med.dosage || '-'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#374151 !important">${med.frequency || '-'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#374151 !important">${med.duration || '-'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#374151 !important">${med.instructions || '-'}</td>
     </tr>`
   ).join("");
 
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="${locale}" dir="${locale.startsWith('ur') ? 'rtl' : 'ltr'}">
 <head>
   <meta charset="UTF-8" />
-  <title>Prescription - ${prescription.patientId?.name || 'Patient'}</title>
+  <title>${labels.medicalPrescription} - ${prescription.patientId?.name || labels.unknownPatient}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: #fff; color: #111; padding: 40px; }
+    html { background: #fff !important; color-scheme: light !important; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #fff !important; color: #111 !important; padding: 40px; }
     @media print { body { padding: 20px; } @page { margin: 20mm; } }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #0F4C5C; }
-    .brand { font-size: 24px; font-weight: 800; color: #0F4C5C; letter-spacing: -0.5px; }
-    .brand span { color: #111; }
-    .date { font-size: 13px; color: #78716C; text-align: right; }
+    @media print { html, body { background: white !important; color: black !important; } }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #00b495; }
+    .brand { font-size: 24px; font-weight: 800; color: #00b495 !important; letter-spacing: -0.5px; }
+    .brand span { color: #111 !important; }
+    .date { font-size: 13px; color: #6b7280 !important; text-align: right; }
     .section { margin-bottom: 24px; }
-    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #78716C; font-weight: 700; margin-bottom: 6px; }
-    .patient-name { font-size: 20px; font-weight: 700; color: #111; }
-    .patient-email { font-size: 13px; color: #78716C; margin-top: 2px; }
-    .diagnosis-box { background: #E3EFF2; border-left: 4px solid #0F4C5C; padding: 12px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; color: #111; }
+    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280 !important; font-weight: 700; margin-bottom: 6px; }
+    .patient-name { font-size: 20px; font-weight: 700; color: #111 !important; }
+    .patient-email { font-size: 13px; color: #6b7280 !important; margin-top: 2px; }
+    .diagnosis-box { background: #e6f8f4 !important; border-left: 4px solid #00b495; padding: 12px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; color: #111 !important; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
-    thead th { background: #0F4C5C; color: #fff; padding: 10px 14px; text-align: left; font-weight: 700; font-size: 12px; }
-    .notes { background: #F4F3EE; border: 1px solid #EDE9F7; border-radius: 8px; padding: 14px; font-size: 13px; color: #78716C; line-height: 1.6; margin-top: 8px; }
-    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #EDE9F7; display: flex; justify-content: space-between; font-size: 12px; color: #78716C; }
-    .sig-line { margin-top: 40px; border-top: 1px solid #111; width: 200px; padding-top: 6px; font-size: 12px; color: #78716C; }
+    thead th { background: #00b495 !important; color: #fff !important; padding: 10px 14px; text-align: left; font-weight: 700; font-size: 12px; }
+    tbody td { background: #fff !important; color: #111 !important; }
+    .notes { background: #f9fafb !important; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; font-size: 13px; color: #111 !important; line-height: 1.6; margin-top: 8px; }
+    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 11px; color: #4b5563 !important; }
+    .sig-line { margin-top: 40px; border-top: 1px solid #111; width: 200px; padding-top: 6px; font-size: 12px; color: #374151 !important; }
   </style>
 </head>
 <body>
   <div class="header">
     <div>
       <div class="brand">Med<span>eaz</span></div>
-      <div style="font-size:12px;color:#78716C;margin-top:4px">Digital Healthcare Platform</div>
+      <div style="font-size:12px;color:#374151;margin-top:4px">${labels.digitalHealthcarePlatform}</div>
     </div>
     <div class="date">
-      <div style="font-weight:600;color:#111">PRESCRIPTION</div>
+      <div style="font-weight:600;color:#111">${labels.medicalPrescription}</div>
       <div style="margin-top:4px">${date}</div>
     </div>
   </div>
 
   <div style="display:flex;gap:40px;margin-bottom:24px">
     <div class="section" style="flex:1">
-      <div class="section-title">Patient</div>
-      <div class="patient-name">${prescription.patientId?.name || 'Unknown Patient'}</div>
-      <div class="patient-email">${prescription.patientId?.email || ''}</div>
+      <div class="section-title">${labels.patient}</div>
+      <div class="patient-name">${prescription.patientId?.name || labels.unknownPatient}</div>
     </div>
     <div class="section" style="flex:1">
-      <div class="section-title">Diagnosis</div>
-      <div class="diagnosis-box">${prescription.diagnosis || 'Not specified'}</div>
+      <div class="section-title">${labels.healthcareProvider}</div>
+      <div style="font-size:16px;font-weight:700;color:#111 !important">Dr. ${prescription.doctorId?.name || labels.medicalProfessional}</div>
+      <div style="font-size:13px;color:#374151;margin-top:2px">${prescription.clinicId?.name || labels.privateClinic}</div>
     </div>
+  </div>
+  <div class="section">
+    <div class="section-title">${labels.diagnosis}</div>
+    <div class="diagnosis-box">${prescription.diagnosis || labels.notSpecified}</div>
   </div>
 
   ${medicines.length > 0 ? `
   <div class="section">
-    <div class="section-title">Prescribed Medicines (${medicines.length})</div>
+    <div class="section-title">${labels.prescribedMedicines} (${medicines.length})</div>
     <table>
       <thead>
         <tr>
-          <th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Instructions</th>
+          <th>${labels.medicine}</th><th>${labels.dosage}</th><th>${labels.frequency}</th><th>${labels.duration}</th><th>${labels.instructions}</th>
         </tr>
       </thead>
       <tbody>${medRows}</tbody>
@@ -85,15 +102,34 @@ function downloadPrescriptionPDF(prescription: any) {
 
   ${prescription.notes ? `
   <div class="section">
-    <div class="section-title">Additional Notes</div>
+    <div class="section-title">${labels.additionalNotes}</div>
     <div class="notes">${prescription.notes}</div>
   </div>` : ''}
 
+  ${prescription.consultationFee || prescription.medicineCost || prescription.totalCost ? `
+  <div class="section">
+    <div class="section-title">${labels.paymentDetails}</div>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:16px;border-radius:12px;margin-top:8px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="color:#374151;font-size:13px">${labels.consultationFee}:</span>
+        <span style="color:#111;font-weight:700;font-size:13px">${pkrLabel} ${(prescription.consultationFee || 0).toFixed(2)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="color:#374151;font-size:13px">${labels.medicineCost}:</span>
+        <span style="color:#111;font-weight:700;font-size:13px">${pkrLabel} ${(prescription.medicineCost || 0).toFixed(2)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1.5px solid #86efac;margin-top:4px">
+        <span style="color:#000;font-weight:800;font-size:14px">${labels.totalAmount}:</span>
+        <span style="color:#000;font-weight:900;font-size:18px">${pkrLabel} ${(prescription.totalCost || 0).toFixed(2)}</span>
+      </div>
+    </div>
+  </div>` : ''}
+
   <div class="footer">
-    <div>Generated by Medeaz &bull; ${date}</div>
-    <div>Confidential Medical Document</div>
+    <div>${labels.generatedVia} &bull; ${date}</div>
+    <div>${labels.officialMedicalRecord}</div>
   </div>
-  <div class="sig-line">Doctor's Signature</div>
+  <div class="sig-line">${labels.authorizedSignatory}</div>
 </body>
 </html>`;
 
@@ -105,221 +141,204 @@ function downloadPrescriptionPDF(prescription: any) {
   setTimeout(() => { win.print(); }, 500);
 }
 
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+
 export default function PrescriptionsPage() {
+  const t = useTranslations();
+  const locale = useLocale();
   const { data, isLoading } = useGetPrescriptionsQuery({ limit: 50 });
-  const [deletePrescription, { isLoading: isDeleting }] = useDeletePrescriptionMutation();
+  const [deletePrescription] = useDeletePrescriptionMutation();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; patientName: string }>({ open: false, id: '', patientName: '' });
 
   const handleDelete = async () => {
     if (!deleteModal.id) return;
     try {
       await deletePrescription(deleteModal.id).unwrap();
+      toast.success("Prescription deleted successfully");
       setDeleteModal({ open: false, id: '', patientName: '' });
     } catch (err) {
+      toast.error("Failed to delete prescription");
       console.error('Delete failed', err);
     }
   };
 
   const prescriptions = data?.data?.prescriptions || [];
+  const [searchQuery, setSearchQuery] = useState("");
+  const prescriptionPdfLabels = {
+    medicalPrescription: t('prescription.medicalPrescription'),
+    digitalHealthcarePlatform: t('prescription.digitalHealthcarePlatform'),
+    patient: t('prescription.patient'),
+    healthcareProvider: t('prescription.healthcareProvider'),
+    diagnosis: t('prescription.diagnosis'),
+    prescribedMedicines: t('prescription.prescribedMedicines'),
+    medicine: t('prescription.medicine'),
+    dosage: t('prescription.dosage'),
+    frequency: t('prescription.frequency'),
+    duration: t('prescription.duration'),
+    instructions: t('prescription.instructions'),
+    additionalNotes: t('prescription.additionalNotes'),
+    paymentDetails: t('prescription.paymentDetails'),
+    consultationFee: t('prescription.consultationFee'),
+    medicineCost: t('prescription.medicineCost'),
+    totalAmount: t('prescription.totalAmount'),
+    generatedVia: t('prescription.generatedVia'),
+    officialMedicalRecord: t('prescription.officialMedicalRecord'),
+    authorizedSignatory: t('prescription.authorizedSignatory'),
+    unknownPatient: t('prescription.unknownPatient'),
+    medicalProfessional: t('prescription.medicalProfessional'),
+    privateClinic: t('prescription.privateClinic'),
+    notSpecified: t('prescription.notSpecified'),
+  };
+
+  const filteredPrescriptions = prescriptions.filter((px: any) =>
+    px.patientId?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    px.diagnosis?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
+    return <TableSkeleton rows={8} />;
   }
 
   return (
     <>
-    <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black">Prescriptions</h1>
-          <p className="text-text-secondary mt-1 sm:mt-2 text-base sm:text-lg">
-            Manage patient prescriptions
-          </p>
-        </div>
-        <Link
-          href="/dashboard/doctor/prescriptions/new"
-          className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-linear-to-r from-primary to-primary-hover text-white rounded-xl font-semibold hover:shadow-2xl transition-all shadow-lg"
-        >
-          <Plus className="h-5 w-5" />
-          New Prescription
-        </Link>
-      </div>
-
-      {/* Prescriptions List */}
-      <div className="bg-white rounded-2xl border border-border-light overflow-hidden">
-        {prescriptions.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="h-20 w-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText className="h-10 w-10 text-text-muted" />
-            </div>
-            <p className="text-text-secondary text-lg font-medium">No prescriptions found</p>
-            <p className="text-text-muted text-sm mt-1 mb-6">
-              Create your first voice prescription
+      <div className="space-y-4 sm:space-y-6 animate-in">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">{t('doctor.prescriptions.title')}</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1 sm:mt-2 text-base sm:text-lg font-bold">
+              {t('doctor.prescriptions.subtitle')}
             </p>
-            <Link
-              href="/dashboard/doctor/prescriptions/new"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-hover transition-all"
-            >
-              <Plus className="h-5 w-5" />
-              Create Prescription
-            </Link>
           </div>
-        ) : (
-          <div className="divide-y divide-border-light">
-            {prescriptions.map((prescription: any) => (
-              <div key={prescription._id} className="p-4 sm:p-6 hover:bg-surface/30 transition-colors">
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <div className="h-12 w-12 sm:h-14 sm:w-14 bg-linear-to-br from-primary to-primary-hover rounded-full flex items-center justify-center shadow-lg shrink-0">
-                      <FileText className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-black text-lg sm:text-xl flex items-center gap-2 flex-wrap">
-                        <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
-                        <span className="truncate">{prescription.patientId?.name || "Unknown Patient"}</span>
-                      </h3>
-                      <p className="text-text-secondary text-xs sm:text-sm mt-0.5 sm:mt-1 truncate">
+          <Link
+            href="/dashboard/doctor/prescriptions/new"
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md"
+          >
+            <Plus className="h-5 w-5 stroke-[2.5px]" />
+            {t('doctor.prescriptions.newPrescription')}
+          </Link>
+        </div>
+
+        {/* Search Bar */}
+        <div className="max-w-md">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Plus className="h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors rotate-45" />
+            </div>
+            <input
+              type="text"
+              placeholder={t('common.search') + ' (' + t('doctor.patientName') + ', ' + t('doctor.diagnosis') + ')...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#18181b] border border-black/5 dark:border-white/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm"
+            />
+          </div>
+        </div>
+
+        {/* Prescriptions List */}
+        <div className="grid grid-cols-1 gap-4">
+          {filteredPrescriptions.length === 0 ? (
+            <div className="text-center py-20 bg-card-custom border-card-custom rounded-[2.5rem]">
+              <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/30">
+                <FileText className="h-10 w-10 text-primary" />
+              </div>
+              <p className="text-gray-900 dark:text-white text-lg font-bold">{t('doctor.prescriptions.noPrescriptions')}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 mb-6 font-medium">
+                {searchQuery ? t('common.noResults') : t('doctor.prescriptions.noPrescriptions')}
+              </p>
+              {!searchQuery && (
+                <Link
+                  href="/dashboard/doctor/prescriptions/new"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-lg"
+                >
+                  <Plus className="h-5 w-5 stroke-[2.5px]" />
+                  {t('doctor.prescriptions.newPrescription')}
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredPrescriptions.map((prescription: any) => (
+                <div key={prescription._id} className="p-6 bg-card-custom border-card-custom rounded-4xl transition-all hover:border-primary/30 shadow-sm group">
+                  <div className="flex flex-col gap-6">
+                    <div className="flex items-start gap-5">
+                      <div className="h-14 w-14 bg-primary rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+                        <Pill className="h-7 w-7 text-white" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-4">
+                          <h3 className="font-bold text-slate-900 dark:text-white text-xl flex items-center gap-2">
+                            {prescription.patientId?.name || "Unknown Patient"}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => downloadPrescriptionPDF(prescription, t('common.pkr'), locale, prescriptionPdfLabels)}
+                              className="h-10 px-4 bg-primary/10 dark:bg-primary/20 text-primary border border-primary/30 rounded-xl text-xs font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 group"
+                            >
+                              <DownloadIcon className="h-4 w-4" />
+                              {t('common.download')}
+                            </button>
+                            <button
+                              onClick={() => setDeleteModal({ open: true, id: prescription._id, patientName: prescription.patientId?.name || 'Unknown Patient' })}
+                              className="h-10 w-10 flex items-center justify-center border-2 border-transparent hover:border-red-100 dark:hover:border-red-900 text-gray-400 hover:text-red-500 transition-all rounded-xl group"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-slate-600 dark:text-slate-400 text-sm font-bold mt-1">
                           {prescription.patientId?.email}
                         </p>
+                      </div>
                     </div>
-                    {/* Action buttons */}
-                    <div className="shrink-0 flex items-center gap-2">
-                      <button
-                        onClick={() => downloadPrescriptionPDF(prescription)}
-                        title="Download PDF"
-                        className="flex items-center gap-1.5 px-3 py-2 bg-primary-bg text-primary border border-primary/30 rounded-xl text-xs font-semibold hover:bg-primary hover:text-white transition-all"
-                      >
-                        <Download className="h-4 w-4" />
-                        <span className="hidden sm:inline">PDF</span>
-                      </button>
-                      <button
-                        onClick={() => setDeleteModal({ open: true, id: prescription._id, patientName: prescription.patientId?.name || 'Unknown Patient' })}
-                        title="Delete Prescription"
-                        className="flex items-center gap-1.5 px-3 py-2 border-2 border-red-200 text-red-500 rounded-xl text-xs font-semibold hover:bg-red-50 hover:border-red-400 transition-all"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="hidden sm:inline">Delete</span>
-                      </button>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div>
-                      <p className="text-xs sm:text-sm text-text-muted mb-1">Diagnosis</p>
-                      <p className="font-semibold text-black text-sm sm:text-base">
-                        {prescription.diagnosis || "No diagnosis provided"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs sm:text-sm text-text-muted mb-1">Medicines</p>
-                      <div className="flex items-center gap-2">
-                        <Pill className="h-3 w-3 sm:h-4 sm:w-4 text-primary shrink-0" />
-                        <p className="font-semibold text-black text-sm sm:text-base">
-                          {prescription.medicines?.length || 0} medicine(s)
-                        </p>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-xs sm:text-sm text-text-muted mb-1">Created</p>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary shrink-0" />
-                        <p className="font-semibold text-black text-sm sm:text-base">
-                          {new Date(prescription.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    {prescription.rawTranscript && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50">
                       <div>
-                        <p className="text-xs sm:text-sm text-text-muted mb-1">Type</p>
-                        <span className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-primary-bg text-primary rounded-full text-xs font-semibold">
-                          <svg className="h-3 w-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
-                          </svg>
-                          Voice Prescription
-                        </span>
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{t('doctor.diagnosis')}</p>
+                        <p className="font-bold text-gray-900 dark:text-white text-sm">
+                          {prescription.diagnosis || "No diagnosis provided"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{t('common.date')}</p>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-primary" />
+                          <p className="font-bold text-gray-900 dark:text-white text-sm">
+                            {new Date(prescription.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Billing</p>
+                        <p className="font-black text-black dark:text-primary text-base">
+                          {t('common.pkr')} {prescription.totalCost?.toLocaleString() || '0'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {prescription.notes && (
+                      <div className="px-5 py-4 bg-orange-50/30 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20">
+                        <p className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                          <AlertTriangle className="h-3 w-3" />
+                          {t('doctor.notes')}
+                        </p>
+                        <p className="text-gray-700 dark:text-gray-300 text-sm font-medium leading-relaxed">{prescription.notes}</p>
                       </div>
                     )}
                   </div>
-
-                  {prescription.notes && (
-                    <div className="p-3 sm:p-4 bg-primary-bg/30 rounded-xl border border-primary/20">
-                      <p className="text-xs sm:text-sm text-text-muted mb-1.5">Notes</p>
-                      <p className="text-text-primary text-sm sm:text-base">{prescription.notes}</p>
-                    </div>
-                  )}
-
-                  {prescription.medicines && prescription.medicines.length > 0 && (
-                    <div>
-                      <p className="text-xs sm:text-sm font-semibold text-text-secondary mb-3">Prescribed Medicines:</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
-                        {prescription.medicines.slice(0, 4).map((med: any, idx: number) => (
-                          <div key={idx} className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 bg-surface/50 rounded-lg border border-border-light">
-                            <Pill className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-black text-sm sm:text-base truncate">{med.name}</p>
-                              <p className="text-xs text-text-muted mt-0.5">
-                                {med.dosage} • {med.frequency} • {med.duration}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {prescription.medicines.length > 4 && (
-                        <p className="text-xs sm:text-sm text-text-muted mt-2">
-                          + {prescription.medicines.length - 4} more medicine(s)
-                        </p>
-                      )}
-                    </div>
-                  )}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-
-    {/* Delete Confirmation Modal */}
-    {deleteModal.open && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-              <AlertTriangle className="h-6 w-6 text-red-500" />
+              ))}
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-black">Delete Prescription</h3>
-              <p className="text-sm text-text-secondary mt-0.5">This action cannot be undone</p>
-            </div>
-          </div>
-          <p className="text-text-primary mb-6">
-            Are you sure you want to delete the prescription for{' '}
-            <span className="font-semibold text-black">{deleteModal.patientName}</span>?
-          </p>
-          <div className="flex gap-3 justify-end">
-            <button
-              onClick={() => setDeleteModal({ open: false, id: '', patientName: '' })}
-              className="px-5 py-2.5 rounded-xl border-2 border-border-light text-text-primary font-semibold hover:bg-surface transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="px-5 py-2.5 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-all disabled:opacity-60 flex items-center gap-2"
-            >
-              {isDeleting ? <Loader className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-              Delete
-            </button>
-          </div>
+          )}
         </div>
       </div>
-    )}
+
+      <ConfirmationModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: '', patientName: '' })}
+        onConfirm={handleDelete}
+        title={t('doctor.prescriptions.deletePrescription')}
+        message={t('doctor.prescriptions.confirmDelete')}
+      />
     </>
   );
 }

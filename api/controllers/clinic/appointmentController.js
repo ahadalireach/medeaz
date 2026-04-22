@@ -109,6 +109,7 @@ exports.getAppointmentById = asyncHandler(async (req, res) => {
     patient: {
       name: appointment.patientId?.name,
       email: appointment.patientId?.email,
+      photo: appointment.patientId?.photo,
       contact: patientProfile?.contact || appointment.patientId?.phone,
       bloodGroup: patientProfile?.bloodGroup,
       dob: patientProfile?.dob

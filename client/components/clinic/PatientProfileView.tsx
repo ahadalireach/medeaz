@@ -8,6 +8,7 @@ import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { ConfirmationModal } from "../ui/ConfirmationModal";
+import { resolveMediaUrl } from "@/lib/media";
 
 interface PatientProfileViewProps {
   patientId: string;
@@ -83,7 +84,7 @@ export default function PatientProfileView({
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative">
           <div className="h-32 w-32 bg-primary/10 rounded-[2rem] flex items-center justify-center flex-shrink-0 border-4 border-white shadow-xl overflow-hidden">
             {profile.photo ? (
-              <img src={profile.photo.startsWith('http') ? profile.photo : `${process.env.NEXT_PUBLIC_API_URL}${profile.photo}`} alt={profile.name} className="h-full w-full object-cover" />
+              <img src={resolveMediaUrl(profile.photo) || profile.photo} alt={profile.name} className="h-full w-full object-cover" />
             ) : (
               <User className="h-14 w-14 text-primary" />
             )}
@@ -139,7 +140,7 @@ export default function PatientProfileView({
       <div className="flex items-center gap-2 p-1 bg-surface/50 rounded-2xl w-fit">
         {[
           { id: "visits", label: t('clinic.appointments.title') },
-          { id: "records", label: t('patient.records.title') },
+          { id: "records", label: "Medical Records" },
           { id: "prescriptions", label: t('patient.recentPrescriptions') }
         ].map((tab) => (
           <button
@@ -319,24 +320,35 @@ export default function PatientProfileView({
                   <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] block mb-3">Attachments</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {selectedRecord.attachments.map((file: any, idx: number) => {
-                      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || '';
-                      const rawUrl = (file.fileUrl || "").replace(/\\/g, '/');
-                      const relativePath = rawUrl?.startsWith('/') ? rawUrl : `/${rawUrl}`;
-                      const fileUrl = rawUrl
-                        ? (rawUrl.startsWith('http') || rawUrl.startsWith('data:') ? rawUrl : `${baseUrl}${relativePath}`)
-                        : "#";
+                      const rawPath =
+                        file.fileUrl ||
+                        file.url ||
+                        file.path ||
+                        file.secure_url ||
+                        file.attachmentUrl ||
+                        "";
+                      const normalizedPath = String(rawPath || "").trim().replace(/\\/g, '/');
+                      const fileUrl = resolveMediaUrl(normalizedPath) || normalizedPath;
+                      const previewKey = `${normalizedPath || file.fileName || 'file'}-${idx}`;
+                      const isActivePreview = previewFile?.previewKey === previewKey;
+                      const canPreview = Boolean(fileUrl);
                       return (
                         <div key={idx} className="flex flex-col gap-4">
                           <button
-                            onClick={() => setPreviewFile(previewFile?.fileUrl === file.fileUrl ? null : { ...file, fullUrl: fileUrl })}
-                            className={`flex items-center gap-3 p-4 border rounded-2xl transition-all group shadow-sm text-left w-full ${previewFile?.fileUrl === file.fileUrl ? 'bg-primary/5 border-primary shadow-md' : 'bg-background  border-black/5 '}`}
+                            type="button"
+                            onClick={() => {
+                              if (!canPreview) return;
+                              setPreviewFile(isActivePreview ? null : { ...file, fullUrl: fileUrl, previewKey });
+                            }}
+                            disabled={!canPreview}
+                            className={`flex items-center gap-3 p-4 border rounded-2xl transition-all group shadow-sm text-left w-full ${isActivePreview ? 'bg-primary/5 border-primary shadow-md' : 'bg-background  border-black/5 '} ${!canPreview ? 'opacity-60 cursor-not-allowed' : ''}`}
                           >
-                            <div className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all ${previewFile?.fileUrl === file.fileUrl ? 'bg-primary text-white' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'}`}>
+                            <div className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all ${isActivePreview ? 'bg-primary text-white' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'}`}>
                               <FileText className="h-5 w-5" />
                             </div>
                             <div className="min-w-0 flex-1">
                               <p className="text-xs font-black text-text-primary truncate">{file.fileName || `Attachment ${idx + 1}`}</p>
-                              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{file.fileType || "Document"} — {previewFile?.fileUrl === file.fileUrl ? "Hide Preview" : "Show Preview"}</p>
+                              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{file.fileType || "Document"} — {!canPreview ? "Preview Unavailable" : isActivePreview ? "Hide Preview" : "Show Preview"}</p>
                             </div>
                           </button>
                         </div>
@@ -355,7 +367,11 @@ export default function PatientProfileView({
                     </a>
                   </div>
 
-                  {previewFile.fullUrl.match(/\.(jpg|jpeg|png|webp|gif|bmp)$/i) || previewFile.fileType?.includes('image') ? (
+                  {!previewFile.fullUrl ? (
+                    <div className="flex-1 flex items-center justify-center p-10 text-center">
+                      <p className="text-sm font-semibold text-text-secondary">File preview is unavailable for this record.</p>
+                    </div>
+                  ) : /\.(jpg|jpeg|png|webp|gif|bmp)(\?|$)/i.test(previewFile.fullUrl) || String(previewFile.fileType || '').toLowerCase().includes('image') ? (
                     <div className="flex-1 flex items-center justify-center p-8 bg-white">
                       <img
                         src={previewFile.fullUrl}

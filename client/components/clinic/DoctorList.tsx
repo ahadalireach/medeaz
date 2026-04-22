@@ -10,6 +10,7 @@ import { TableSkeleton } from "../ui/Skeleton";
 import AddDoctorModal from "./AddDoctorModal";
 import DoctorStatsModal from "./DoctorStatsModal";
 import { useTranslations } from "next-intl";
+import { resolveMediaUrl } from "@/lib/media";
 
 export default function DoctorList() {
   const [page, setPage] = useState(1);
@@ -87,7 +88,7 @@ export default function DoctorList() {
                       <div className="h-10 w-10 rounded-xl overflow-hidden border border-black/5 shrink-0 bg-surface flex items-center justify-center">
                         {doctor.userId?.photo ? (
                           <img
-                            src={doctor.userId.photo}
+                            src={resolveMediaUrl(doctor.userId.photo) || doctor.userId.photo}
                             alt={doctor.userId?.name || "Doctor"}
                             className="h-full w-full object-cover"
                           />

@@ -1,180 +1,149 @@
 "use client";
 
-import { useGetTodayQueueQuery } from "@/store/api/doctorApi";
+import { useGetTodayQueueQuery, useGetDoctorProfileQuery } from "@/store/api/doctorApi";
 import Link from "next/link";
-import { Mic, Users, Calendar, FileText, Clock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
+import DoctorRevenueChart from "@/components/doctor/DoctorRevenueChart";
+import DoctorStats from "@/components/doctor/DoctorStats";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import AlarmClockPlusIcon from "@/icons/alarm-clock-plus-icon";
+import RightChevronIcon from "@/icons/right-chevron";
+import PenIcon from "@/icons/pen-icon";
+import AccessibilityIcon from "@/icons/accessibility-icon";
+import { useTranslations } from "next-intl";
 
 export default function DoctorDashboard() {
-  const { data, isLoading, error } = useGetTodayQueueQuery(undefined);
+  const t = useTranslations();
+  const { data, isLoading } = useGetTodayQueueQuery(undefined);
+  const { data: profileData } = useGetDoctorProfileQuery(undefined);
 
   const todayQueue = data?.data?.appointments || [];
   const stats = {
-    todayAppointments: data?.data?.stats?.total || 0,
-    pendingAppointments: data?.data?.stats?.pending || 0,
-    completedAppointments: data?.data?.stats?.completed || 0,
+    total: data?.data?.stats?.total || 0,
+    pending: data?.data?.stats?.pending || 0,
+    completed: data?.data?.stats?.completed || 0,
+    inProgress: data?.data?.stats?.inProgress || 0,
   };
 
+  const averageRating = profileData?.data?.averageRating || 4.8;
+  const monthlyRevenue = data?.data?.stats?.thisMonthRevenue || 0;
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full"></div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
+    <div className="space-y-8 animate-in pb-20">
       <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black tracking-tight">Dashboard</h1>
-        <p className="text-text-secondary mt-1 sm:mt-2 text-base sm:text-lg">
-          Welcome back! Here's your overview for today.
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+          {t('nav.dashboard')}
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg font-medium">
+          {t('doctor.dashboard.welcomeBack')} {profileData?.data?.fullName?.split(' ')[0] || 'Member'}
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-border-light hover:border-primary transition-all hover:shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-secondary text-xs sm:text-sm font-medium">Today's Appointments</p>
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black mt-2 sm:mt-3">
-                {stats.todayAppointments}
-              </p>
-            </div>
-            <div className="h-12 w-12 sm:h-14 sm:w-14 bg-primary-bg rounded-xl flex items-center justify-center">
-              <Calendar className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
-            </div>
-          </div>
-        </div>
+      <DoctorStats
+        totalSessions={stats.total}
+        pendingQueue={stats.pending}
+        averageRating={averageRating}
+        monthlyRevenue={monthlyRevenue}
+      />
 
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-border-light hover:border-primary transition-all hover:shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-secondary text-xs sm:text-sm font-medium">Pending</p>
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black mt-2 sm:mt-3">
-                {stats.pendingAppointments}
-              </p>
-            </div>
-            <div className="h-12 w-12 sm:h-14 sm:w-14 bg-primary-bg rounded-xl flex items-center justify-center">
-              <Clock className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-border-light hover:border-primary transition-all hover:shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-secondary text-xs sm:text-sm font-medium">Completed</p>
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black mt-2 sm:mt-3">
-                {stats.completedAppointments}
-              </p>
-            </div>
-            <div className="h-12 w-12 sm:h-14 sm:w-14 bg-primary-bg rounded-xl flex items-center justify-center">
-              <FileText className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <Link
-          href="/dashboard/doctor/prescriptions/new"
-          className="group bg-linear-to-br from-primary to-primary-hover p-6 sm:p-8 rounded-2xl text-white hover:shadow-2xl transition-all"
-        >
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="h-12 w-12 sm:h-16 sm:w-16 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Mic className="h-6 w-6 sm:h-8 sm:w-8" />
-            </div>
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold">Voice Prescription</h3>
-              <p className="text-white/90 mt-0.5 sm:mt-1 text-sm sm:text-base">Create prescription with AI</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/dashboard/doctor/patients"
-          className="group bg-white p-6 sm:p-8 rounded-2xl border border-border-light hover:border-primary hover:shadow-lg transition-all"
-        >
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="h-12 w-12 sm:h-16 sm:w-16 bg-primary-bg rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold text-black">My Patients</h3>
-              <p className="text-text-secondary mt-0.5 sm:mt-1 text-sm sm:text-base">View patient records</p>
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      {/* Today's Queue */}
-      <div className="bg-white rounded-2xl border border-border-light">
-        <div className="p-4 sm:p-6 border-b border-border-light">
-          <h2 className="text-xl sm:text-2xl font-bold text-black">Today's Queue</h2>
-          <p className="text-text-secondary mt-1 text-sm sm:text-base">
-            Appointments scheduled for today
-          </p>
-        </div>
-        <div className="p-4 sm:p-6">
-          {todayQueue.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="h-16 w-16 bg-surface rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="h-8 w-8 text-text-muted" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <CardTitle className="text-xl">{t('doctor.dashboard.todaysAppointments')}</CardTitle>
+            <Link href="/dashboard/doctor/appointments" className="text-sm font-bold text-primary hover:underline hover:underline-offset-4">
+              {t('doctor.dashboard.viewSchedule')}
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {todayQueue.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-6 text-gray-400 group-hover:scale-110 transition-transform">
+                  <AlarmClockPlusIcon className="w-8 h-8" />
+                </div>
+                  <p className="text-sm font-bold text-gray-500 dark:text-[#a1a1aa] uppercase tracking-widest">{t('doctor.dashboard.queueClear')}</p>
+                  <p className="text-[10px] font-medium text-gray-400 mt-1">{t('doctor.dashboard.checkBackLater')}</p>
               </div>
-              <p className="text-text-secondary text-lg">No appointments for today</p>
-              <p className="text-text-muted text-sm mt-1">Time to catch up on paperwork!</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {todayQueue.map((appointment: any) => (
-                <div
-                  key={appointment._id}
-                  className="flex items-center justify-between p-5 bg-surface/50 hover:bg-surface rounded-xl transition-colors border border-transparent hover:border-border"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 bg-primary rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                      {appointment.patientId?.name?.[0] || "P"}
+            ) : (
+              <div className="space-y-4">
+                {todayQueue.slice(0, 5).map((appointment: any) => (
+                  <div
+                    key={appointment._id}
+                    className="group relative rounded-2xl border border-gray-100 p-5 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all hover:scale-[1.01] flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-5 min-w-0">
+                      <div className="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-black/5 dark:border-white/10 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        {appointment.patientId?.photo ? (
+                          <img
+                            src={appointment.patientId.photo}
+                            alt={appointment.patientId?.name || "Patient"}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <AccessibilityIcon className="h-6 w-6 text-slate-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-gray-900 dark:text-white truncate text-base">{appointment.patientId?.name || "Patient"}</h4>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+                          <span className="font-bold">{new Date(appointment.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          <span className="hidden sm:inline">•</span>
+                          <span className="font-semibold uppercase bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md sm:bg-transparent sm:p-0">{appointment.status}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-black text-lg">
-                        {appointment.patientId?.name || "Patient"}
-                      </h3>
-                      <p className="text-text-secondary text-sm">
-                        {new Date(appointment.dateTime).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`px-4 py-1.5 rounded-full text-sm font-medium ${
-                        appointment.status === "pending"
-                          ? "bg-primary-bg text-primary"
-                          : appointment.status === "confirmed"
-                          ? "bg-surface text-primary"
-                          : appointment.status === "in-progress"
-                          ? "bg-surface-cream text-[#B45309]"
-                          : "bg-surface text-primary"
-                      }`}
-                    >
-                      {appointment.status}
-                    </span>
                     <Link
                       href={`/dashboard/doctor/appointments`}
-                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium"
+                      className="p-3 rounded-full bg-gray-100/50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 group-hover:bg-primary group-hover:text-white transition-all shadow-sm"
                     >
-                      View
+                      <RightChevronIcon className="h-4 w-4" />
                     </Link>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+            {todayQueue.length > 5 && (
+              <Link href="/dashboard/doctor/appointments" className="mt-4 block text-center py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-sm font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                + {todayQueue.length - 5} {t('common.viewAll')}
+              </Link>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">{t('doctor.dashboard.practiceTools')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Link
+                  href="/dashboard/doctor/prescriptions/new"
+                  className="p-6 bg-white dark:bg-[#1c1c1e] border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/50 transition-all group shadow-sm flex flex-col items-center text-center"
+                >
+                  <div className="h-14 w-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <PenIcon className="h-7 w-7" />
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">{t('doctor.dashboard.newPrescription')}</h3>
+                </Link>
+                <Link
+                  href="/dashboard/doctor/appointments"
+                  className="p-6 bg-white dark:bg-[#1c1c1e] border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-blue-500/50 transition-all group shadow-sm flex flex-col items-center text-center"
+                >
+                  <div className="h-14 w-14 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <AccessibilityIcon className="h-7 w-7" />
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">{t('doctor.dashboard.advancedQueue')}</h3>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          <DoctorRevenueChart />
         </div>
       </div>
     </div>

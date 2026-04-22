@@ -32,6 +32,11 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
         );
     }
 
+    const prescription = appointment.prescription || appointment.prescriptionId || null;
+    const prescriptionId =
+        (typeof prescription === "object" && prescription?._id) ||
+        (typeof appointment.prescriptionId === "string" ? appointment.prescriptionId : null);
+
     const getStatusBadge = (status: string) => {
         const styles: Record<string, string> = {
             pending: "bg-surface-cream text-[#B45309]   border border-border-light ",
@@ -53,7 +58,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
             <div className="bg-white rounded-xl border border-border-light overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
-                        <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0 text-primary">
+                        <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 text-primary">
                             <Calendar className="h-8 w-8" />
                         </div>
                         <div>
@@ -184,7 +189,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                         )}
                     </div>
                     <div className="space-y-6">
-                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-border-light p-6 rounded-xl relative overflow-hidden">
+                        <div className="bg-linear-to-br from-green-50 to-emerald-50 border border-border-light p-6 rounded-xl relative overflow-hidden">
                             <div className="absolute right-0 top-0 opacity-10">
                                 <CircleDollarSign className="w-48 h-48 -mr-12 -mt-12 text-primary" />
                             </div>
@@ -208,7 +213,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                             </div>
                         </div>
 
-                        {appointment.prescriptionId && (
+                        {prescription && (
                             <div className="bg-surface border border-border-light p-6 rounded-xl">
                                 <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-2">
                                     <Activity className="h-5 w-5" />
@@ -218,7 +223,10 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                                     A prescription has been created for this appointment containing medications or tests.
                                 </p>
                                 <div className="flex gap-3">
-                                    <Link href={`/dashboard/clinic_admin/prescriptions/${appointment.prescriptionId._id}`} className="flex-1">
+                                    <Link
+                                        href={prescriptionId ? `/dashboard/clinic_admin/prescriptions/${prescriptionId}` : "#"}
+                                        className="flex-1"
+                                    >
                                         <button className="w-full bg-primary hover:bg-primary text-white py-2 rounded-lg font-medium transition-colors">
                                             {t('prescription.medicalPrescription')}
                                         </button>

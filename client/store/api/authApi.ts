@@ -4,6 +4,7 @@ import { baseQuery } from "./baseApi";
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQuery,
+  tagTypes: ["Profile"],
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -27,6 +28,15 @@ export const authApi = createApi({
     }),
     getProfile: builder.query({
       query: () => "/auth/profile",
+      providesTags: ["Profile"],
+    }),
+    updateProfile: builder.mutation({
+      query: (formData) => ({
+        url: "/auth/profile",
+        method: "PUT",
+        body: formData,
+      }),
+      invalidatesTags: ["Profile"],
     }),
     verifyEmail: builder.mutation({
       query: (token) => ({
@@ -48,13 +58,6 @@ export const authApi = createApi({
         body: { password },
       }),
     }),
-    updateProfile: builder.mutation({
-      query: (body) => ({
-        url: "/auth/profile",
-        method: "PATCH",
-        body,
-      }),
-    }),
   }),
 });
 
@@ -63,8 +66,8 @@ export const {
   useRegisterMutation,
   useLogoutMutation,
   useGetProfileQuery,
+  useUpdateProfileMutation,
   useVerifyEmailMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
-  useUpdateProfileMutation,
 } = authApi;

@@ -7,11 +7,11 @@ import { Calendar, MessageSquare, ChevronLeft, ChevronRight, HeartPulse, LogOut 
 import { useGetConversationsQuery } from "@/store/api/chatApi";
 import { logout } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
+import NextImage from "next/image";
 import LayoutDashboardIcon from "@/icons/layout-dashboard-icon";
 import UsersIcon from "@/icons/users-icon";
 import ClockIcon from "@/icons/clock-icon";
 import UserIcon from "@/icons/user-icon";
-import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { toggleSidebar } from "@/store/slices/uiSlice";
@@ -68,17 +68,20 @@ export default function DoctorSidebar() {
         <aside className={`lens-sidebar sticky top-0 self-start hidden lg:flex relative ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
             <button
                 onClick={() => dispatch(toggleSidebar())}
-                className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full shadow-lg border-2 border-white  z-50 hover:scale-110 transition-transform hidden lg:block`}
+                className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full shadow-lg border-2 border-white dark:border-[#18181b] z-50 hover:scale-110 transition-transform hidden lg:block`}
             >
-                {t.raw('nav.navigation') === 'نیویگیشن' 
+                {t.raw('nav.navigation') === 'نیویگیشن'
                     ? (isCollapsed ? <ChevronLeft size={14} strokeWidth={3} /> : <ChevronRight size={14} strokeWidth={3} />)
                     : (isCollapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />)
                 }
             </button>
 
-            <div className={`px-3 mb-6 ${isCollapsed ? 'opacity-0 scale-0 overflow-hidden h-0' : 'opacity-100 scale-100 pt-2 transition-all'}`}>
-                <Link href="/dashboard/doctor" className="flex items-center gap-2 group">
-                    <Image
+            <div className={`px-5 mb-8 ${isCollapsed ? 'opacity-0 scale-0 overflow-hidden h-0' : 'opacity-100 scale-100 pt-2 transition-all shadow-none'}`}>
+                <Link
+                    href="/dashboard/doctor"
+                    className="flex items-center gap-2 group"
+                >
+                    <NextImage
                         src="/logo.png"
                         alt="Medeaz"
                         width={36}
@@ -90,7 +93,7 @@ export default function DoctorSidebar() {
                         Medeaz
                     </span>
                 </Link>
-                <p className="text-[10px] font-bold text-text-secondary leading-none uppercase tracking-widest mt-3 px-1 text-nowrap">
+                <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] leading-none uppercase tracking-widest mt-2 px-1 text-nowrap">
                     {t('nav.doctorPortal')}
                 </p>
             </div>
@@ -117,7 +120,7 @@ export default function DoctorSidebar() {
                             <Icon size={18} strokeWidth={isActive(link.href) ? 2.5 : 2} className="shrink-0" />
                             {!isCollapsed && <span>{link.label}</span>}
                             {link.label === "Chat" && totalUnread > 0 && (
-                                <span className={`${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white `}>
+                                <span className={`${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-[#18181b]`}>
                                     {totalUnread > 9 ? '9+' : totalUnread}
                                 </span>
                             )}
@@ -137,7 +140,7 @@ export default function DoctorSidebar() {
                 </button>
 
                 {!isCollapsed && (
-                    <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] px-4">
+                    <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] uppercase tracking-[0.2em] px-4">
                         MEDEAZ HEALTHCARE
                     </p>
                 )}

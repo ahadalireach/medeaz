@@ -227,8 +227,8 @@ export default function DoctorProfilePage() {
         <div className="max-w-4xl mx-auto pb-20">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-text-primary tracking-tight text-center sm:text-left">{t('doctor.profile.title')}</h1>
-                    <p className="text-text-secondary mt-1 text-center sm:text-left">{t('doctor.profile.subtitle')}</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight text-center sm:text-left">{t('doctor.profile.title')}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1 text-center sm:text-left">{t('doctor.profile.subtitle')}</p>
                 </div>
                 {profileData?.data?.isVerified && (
                   <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full border border-primary/20">
@@ -243,12 +243,12 @@ export default function DoctorProfilePage() {
                 <Card className="p-8">
                     <div className="flex flex-col md:flex-row items-center gap-8">
                         <div className="relative group">
-                            <div className="h-32 w-32 rounded-3xl overflow-hidden border-4 border-border-light shadow-xl transition-all group-hover:scale-105">
+                            <div className="h-32 w-32 rounded-3xl overflow-hidden border-4 border-slate-100 dark:border-slate-800 shadow-xl transition-all group-hover:scale-105">
                                 {profileImage ? (
                                     <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
                                 ) : (
-                                    <div className="h-full w-full bg-surface flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
-                                        <UserIcon size={56} className="text-white/70" />
+                                    <div className="h-full w-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800">
+                                        <UserIcon size={56} className="text-gray-300 dark:text-gray-600" />
                                     </div>
                                 )}
                             </div>
@@ -273,13 +273,13 @@ export default function DoctorProfilePage() {
                         <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
                             <LayersIcon size={20} className="text-primary" />
                         </div>
-                        <h2 className="text-xl font-bold text-text-primary">{t('doctor.profile.expertise')}</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.profile.expertise')}</h2>
                     </div>
 
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col space-y-1">
-                                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary mb-1">{t('doctor.profile.specialization')}</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">{t('doctor.profile.specialization')}</label>
                                 <select 
                                     {...register("specialization")}
                                     className="lens-input h-11"
@@ -323,7 +323,7 @@ export default function DoctorProfilePage() {
                             <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
                                 <UserCheckIcon size={20} className="text-primary" />
                             </div>
-                            <h2 className="text-xl font-bold text-text-primary">{t('doctor.profile.education')}</h2>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.profile.education')}</h2>
                         </div>
                         <Button
                             type="button"
@@ -337,7 +337,7 @@ export default function DoctorProfilePage() {
 
                     <div className="space-y-4">
                         {fields.map((field, index) => (
-                            <div key={field.id} className="flex flex-col md:flex-row gap-4 p-5 bg-background rounded-2xl border border-black/5 group relative items-end">
+                            <div key={field.id} className="flex flex-col md:flex-row gap-4 p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-black/5 dark:border-white/5 group relative items-end">
                                 <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <Input 
                                         label={t('doctor.profile.educationDegree') || "Degree"} 
@@ -346,12 +346,12 @@ export default function DoctorProfilePage() {
                                         className="h-12"
                                     />
                                     <div className="flex flex-col space-y-1 w-full">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-text-secondary mb-1">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">
                                             {t('doctor.profile.educationInstitution') || "Institution"}
                                         </label>
                                         <select
                                             {...register(`education.${index}.institution` as const)}
-                                            className="flex h-12 w-full rounded-2xl border border-border-light bg-white px-5 py-2 text-base text-text-primary transition-all font-medium focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
+                                            className="flex h-12 w-full rounded-2xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900/50 px-5 py-2 text-base text-slate-900 dark:text-slate-100 transition-all font-medium focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
                                         >
                                             <option value="">{t('common.select')}...</option>
                                             {PAKISTANI_MEDICAL_INSTITUTIONS.map(inst => (
@@ -370,7 +370,7 @@ export default function DoctorProfilePage() {
                                 <button
                                     type="button"
                                     onClick={() => remove(index)}
-                                    className="p-3 text-red-500 hover:bg-red-50 :bg-red-900/20 rounded-xl transition-colors mb-0.5"
+                                    className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors mb-0.5"
                                 >
                                     <TrashIcon size={20} />
                                 </button>
@@ -385,7 +385,7 @@ export default function DoctorProfilePage() {
                         <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
                             <MapPinIcon size={20} className="text-primary" />
                         </div>
-                        <h2 className="text-xl font-bold text-text-primary">{t('doctor.profile.clinicInfo')}</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.profile.clinicInfo')}</h2>
                     </div>
 
                     <div className="space-y-4">
@@ -419,7 +419,7 @@ export default function DoctorProfilePage() {
                         <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
                             <ClockIcon size={20} className="text-primary" />
                         </div>
-                        <h2 className="text-xl font-bold text-text-primary">{t('doctor.dashboard.viewSchedule')}</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.dashboard.viewSchedule')}</h2>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
@@ -433,9 +433,9 @@ export default function DoctorProfilePage() {
                             const isAvailable = Array.isArray(daySlots) && daySlots.length > 0;
 
                             return (
-                                <div key={day} className={`p-3 rounded-2xl border text-center transition-all ${isAvailable ? 'bg-primary/5 border-primary/20' : 'bg-background  border-black/5  opacity-50'}`}>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">{day}</p>
-                                    <p className={`text-[10px] font-black mt-1 ${isAvailable ? 'text-primary' : 'text-text-secondary'}`}>
+                                <div key={day} className={`p-3 rounded-2xl border text-center transition-all ${isAvailable ? 'bg-primary/5 border-primary/20' : 'bg-slate-50 dark:bg-slate-900/40 border-black/5 dark:border-white/5 opacity-50'}`}>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{day}</p>
+                                    <p className={`text-[10px] font-black mt-1 ${isAvailable ? 'text-primary' : 'text-gray-400'}`}>
                                         {isAvailable ? `${daySlots.length} Slots` : 'Off'}
                                     </p>
                                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -39,6 +39,14 @@ export default function AddDoctorModal({
   const { data: searchData } = useSearchDoctorByEmailQuery(searchEmail, {
     skip: !searchEmail || searchEmail.length < 3,
   });
+
+  useEffect(() => {
+    if (mode === "search") {
+      setSearchResults(searchData?.data || null);
+    } else {
+      setSearchResults(null);
+    }
+  }, [mode, searchData]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -99,11 +107,6 @@ export default function AddDoctorModal({
     }
   };
 
-  // Update search results when data changes
-  if (searchData?.data && mode === "search") {
-    setSearchResults(searchData.data);
-  }
-
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('clinic.addDoctor')}>
       {mode === "options" && (
@@ -152,7 +155,7 @@ export default function AddDoctorModal({
           </div>
 
           {searchEmail.length >= 3 && searchResults && (
-            <div className="border border-border-light rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
+            <div className="border border-border-light rounded-xl overflow-hidden max-h-75 overflow-y-auto">
               {Array.isArray(searchResults) && searchResults.length > 0 ? (
                 <div className="space-y-2">
                   {searchResults.slice(0, 5).map((doctor: any) => (
