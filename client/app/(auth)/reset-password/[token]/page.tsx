@@ -20,8 +20,10 @@ export default function ResetPasswordPage() {
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) return toast.error("Passwords do not match");
-    if (password.length < 6) return toast.error("Password must be at least 6 characters");
+    if (password !== confirmPassword)
+      return toast.error("Passwords do not match");
+    if (password.length < 6)
+      return toast.error("Password must be at least 6 characters");
 
     try {
       await resetPassword({ token: token as string, password }).unwrap();
@@ -40,7 +42,7 @@ export default function ResetPasswordPage() {
         width={56}
         height={56}
         priority
-        className="h-14 w-14 object-contain drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
+        className="h-24 w-24 object-contain drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
       />
       <h1 className="mt-6 font-display text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.1] tracking-[-0.02em] text-text-primary">
         {isSuccess ? "Password updated" : "Set a new password"}
@@ -78,7 +80,11 @@ export default function ResetPasswordPage() {
               aria-label={showPassword ? "Hide password" : "Show password"}
               className="absolute inset-y-0 right-2 my-auto inline-flex h-8 w-8 items-center justify-center rounded-md text-text-secondary hover:text-text-primary cursor-pointer"
             >
-              {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+              {showPassword ? (
+                <EyeOff className="h-4.5 w-4.5" />
+              ) : (
+                <Eye className="h-4.5 w-4.5" />
+              )}
             </button>
           </div>
 
@@ -91,7 +97,12 @@ export default function ResetPasswordPage() {
             className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
           />
 
-          <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={isLoading}
+          >
             {isLoading ? "Updating..." : "Update password"}
           </Button>
         </form>
