@@ -1,244 +1,135 @@
-const brandTeal = "#00b495";
+const { wrapEmail } = require("../utils/emailLayout");
 
-const emailStyles = `
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; color: #333; }
-  .container { max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
-  .header { background-color: ${brandTeal}; padding: 30px; text-align: center; }
-  .header img { width: 150px; }
-  .content { padding: 40px; line-height: 1.6; }
-  .footer { padding: 30px; text-align: center; background-color: #f9f9f9; color: #999; font-size: 12px; }
-  .button { display: inline-block; padding: 12px 24px; background-color: ${brandTeal}; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
-  .detail-box { background-color: #f4fdfb; padding: 20px; border-radius: 8px; border: 1px solid #e0f2f1; margin: 20px 0; }
-  .detail-row { margin-bottom: 8px; display: flex; }
-  .detail-label { font-weight: bold; color: #555; width: 120px; }
-  .detail-value { color: #333; }
-`;
+const dashboardUrl = (path) => `${process.env.FRONTEND_URL}${path}`;
 
-exports.appointmentConfirmed = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">Appointment Confirmed</h1>
+exports.appointmentConfirmed = (data) => wrapEmail(`
+    <div class="badge">Appointment Confirmed</div>
+    <h1 class="title">You're booked in</h1>
+    <p class="text">Hi ${data.patientName}, your appointment with <strong>Dr. ${data.doctorName}</strong> is locked in. Here are the details:</p>
+    <div class="detail-box">
+        <div class="detail-row"><span class="detail-label">Date / Time</span><span class="detail-value">${data.dateTime}</span></div>
+        <div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${data.location}</span></div>
+        <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${data.type}</span></div>
     </div>
-    <div class="content">
-      <p>Hello, ${data.patientName}</p>
-      <p>Your appointment has been successfully booked with <strong>Dr. ${data.doctorName}</strong>.</p>
-      <div class="detail-box">
-        <div class="detail-row"><span class="detail-label">Date/Time:</span> <span class="detail-value">${data.dateTime}</span></div>
-        <div class="detail-row"><span class="detail-label">Location:</span> <span class="detail-value">${data.location}</span></div>
-        <div class="detail-row"><span class="detail-label">Type:</span> <span class="detail-value">${data.type}</span></div>
-      </div>
-      <p>Please arrive 15 minutes early for your check-in.</p>
-      <a href="${process.env.FRONTEND_URL}/dashboard/patient/appointments" class="button">View Appointment Details</a>
+    <p class="text">Please arrive 15 minutes early for check-in.</p>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/patient/appointments")}" class="button">View appointment</a>
     </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.doctorAppointmentNotice = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">New Appointment</h1>
+exports.doctorAppointmentNotice = (data) => wrapEmail(`
+    <div class="badge">New Appointment</div>
+    <h1 class="title">New appointment request</h1>
+    <p class="text">Hello Dr. ${data.doctorName}, a new appointment has been scheduled with <strong>${data.patientName}</strong>.</p>
+    <div class="detail-box">
+        <div class="detail-row"><span class="detail-label">Date / Time</span><span class="detail-value">${data.dateTime}</span></div>
+        <div class="detail-row"><span class="detail-label">Reason</span><span class="detail-value">${data.reason || "—"}</span></div>
     </div>
-    <div class="content">
-      <p>Hello, Dr. ${data.doctorName}</p>
-      <p>A new appointment has been scheduled with <strong>${data.patientName}</strong>.</p>
-      <div class="detail-box">
-        <div class="detail-row"><span class="detail-label">Date/Time:</span> <span class="detail-value">${data.dateTime}</span></div>
-        <div class="detail-row"><span class="detail-label">Reason:</span> <span class="detail-value">${data.reason}</span></div>
-      </div>
-      <a href="${process.env.FRONTEND_URL}/dashboard/doctor/appointments" class="button">Manage Appointments</a>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/doctor/appointments")}" class="button">Manage appointments</a>
     </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.appointmentAccepted = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">Appointment Confirmed</h1>
+exports.appointmentAccepted = (data) => wrapEmail(`
+    <div class="badge">Appointment Accepted</div>
+    <h1 class="title">Your appointment is confirmed</h1>
+    <p class="text">Great news, ${data.patientName}. Your appointment with <strong>Dr. ${data.doctorName}</strong> has been accepted.</p>
+    <div class="detail-box">
+        <div class="detail-row"><span class="detail-label">Date / Time</span><span class="detail-value">${data.dateTime}</span></div>
     </div>
-    <div class="content">
-      <p>Hello, ${data.patientName}</p>
-      <p>Great news! Your appointment with <strong>Dr. ${data.doctorName}</strong> has been confirmed.</p>
-      <div class="detail-box">
-        <div class="detail-row"><span class="detail-label">Date/Time:</span> <span class="detail-value">${data.dateTime}</span></div>
-      </div>
-      <a href="${process.env.FRONTEND_URL}/dashboard/patient/appointments" class="button">View Dashboard</a>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/patient/appointments")}" class="button">View dashboard</a>
     </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.appointmentRejected = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header" style="background-color: #f44336;">
-      <h1 style="color: white; margin: 0;">Appointment Cancelled</h1>
+exports.appointmentRejected = (data) => wrapEmail(`
+    <div class="badge badge-danger">Appointment Cancelled</div>
+    <h1 class="title">Your appointment was cancelled</h1>
+    <p class="text">Hi ${data.patientName}, unfortunately your appointment with <strong>Dr. ${data.doctorName}</strong> on <strong>${data.dateTime}</strong> has been cancelled.</p>
+    ${data.reason ? `<div class="note"><strong>Reason:</strong> ${data.reason}</div>` : ""}
+    <p class="text">You can book another slot or contact the clinic for assistance.</p>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/patient/book-appointment")}" class="button">Book another slot</a>
     </div>
-    <div class="content">
-      <p>Hello, ${data.patientName}</p>
-      <p>Unfortunately, your appointment with <strong>Dr. ${data.doctorName}</strong> on <strong>${data.dateTime}</strong> has been cancelled.</p>
-      ${data.reason ? `<p><strong>Reason:</strong> ${data.reason}</p>` : ""}
-      <p>Please try booking another slot or contact the clinic for assistance.</p>
-      <a href="${process.env.FRONTEND_URL}/dashboard/patient/book-appointment" class="button">Book New Appointment</a>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.appointmentCancelledByPatient = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header" style="background-color: #f44336;">
-      <h1 style="color: white; margin: 0;">Appointment Cancelled</h1>
+exports.appointmentCancelledByPatient = (data) => wrapEmail(`
+    <div class="badge badge-warn">Appointment Cancelled</div>
+    <h1 class="title">Appointment cancelled by patient</h1>
+    <p class="text">Hello Dr. ${data.doctorName}, the appointment with <strong>${data.patientName}</strong> on <strong>${data.dateTime}</strong> has been cancelled by the patient.</p>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/doctor/appointments")}" class="button">Check your schedule</a>
     </div>
-    <div class="content">
-      <p>Hello, Dr. ${data.doctorName}</p>
-      <p>The appointment scheduled with <strong>${data.patientName}</strong> on <strong>${data.dateTime}</strong> has been cancelled by the patient.</p>
-      <a href="${process.env.FRONTEND_URL}/dashboard/doctor/appointments" class="button">Check Your Schedule</a>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.visitSummary = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">Visit Summary</h1>
+exports.visitSummary = (data) => wrapEmail(`
+    <div class="badge">Visit Complete</div>
+    <h1 class="title">Your visit summary is ready</h1>
+    <p class="text">Hi ${data.patientName}, your visit with <strong>Dr. ${data.doctorName}</strong> is complete. Your prescription and summary are now available in your portal.</p>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/patient/records")}" class="button">View medical records</a>
     </div>
-    <div class="content">
-      <p>Hello, ${data.patientName}</p>
-      <p>Your visit with <strong>Dr. ${data.doctorName}</strong> is complete. Your prescription and visit summary are now available in your portal.</p>
-      <a href="${process.env.FRONTEND_URL}/dashboard/patient/records" class="button">View Medical Records</a>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.newPatientWelcome = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">Welcome to Medeaz</h1>
+exports.newPatientWelcome = (data) => wrapEmail(`
+    <div class="badge">Welcome to Medeaz</div>
+    <h1 class="title">Your patient account is ready</h1>
+    <p class="text">Hi ${data.patientName}, you've been added to the patient registry of <strong>Dr. ${data.doctorName}</strong> on Medeaz.</p>
+    <p class="text">You can now manage appointments, view prescriptions, and track your health records online.</p>
+    <div class="button-container">
+        <a href="${dashboardUrl("/login")}" class="button">Access your portal</a>
     </div>
-    <div class="content">
-      <p>Hello, ${data.patientName}</p>
-      <p>You have been added to the patient registry of <strong>Dr. ${data.doctorName}</strong> at <strong>Medeaz</strong>.</p>
-      <p>You can now manage your appointments, view prescriptions, and track your health records online.</p>
-      <a href="${process.env.FRONTEND_URL}/login" class="button">Access Your Portal</a>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.newPrescription = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">New Prescription</h1>
+exports.newPrescription = (data) => wrapEmail(`
+    <div class="badge">New Prescription</div>
+    <h1 class="title">A new prescription is available</h1>
+    <p class="text">Hi ${data.patientName}, <strong>Dr. ${data.doctorName}</strong> has issued a new prescription for you. You can review it anytime from your patient portal.</p>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/patient/records")}" class="button">View prescription</a>
     </div>
-    <div class="content">
-      <p>Hello, ${data.patientName}</p>
-      <p><strong>Dr. ${data.doctorName}</strong> has created a new prescription for you.</p>
-      <a href="${process.env.FRONTEND_URL}/dashboard/patient/records" class="button">View Prescription</a>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.followUpReminder = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">Follow-Up Reminder</h1>
+exports.followUpReminder = (data) => wrapEmail(`
+    <div class="badge">Follow-up Reminder</div>
+    <h1 class="title">Time for your follow-up</h1>
+    <p class="text">Hi ${data.patientName}, this is a friendly reminder for your upcoming follow-up with <strong>Dr. ${data.doctorName}</strong>.</p>
+    <div class="detail-box">
+        <div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">${data.date}</span></div>
     </div>
-    <div class="content">
-      <p>Hello, ${data.patientName}</p>
-      <p>This is a reminder for your upcoming follow-up with <strong>Dr. ${data.doctorName}</strong>.</p>
-      <div class="detail-box">
-        <div class="detail-row"><span class="detail-label">Date:</span> <span class="detail-value">${data.date}</span></div>
-      </div>
-      <a href="${process.env.FRONTEND_URL}/dashboard/patient/book-appointment" class="button">Book Appointment</a>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/patient/book-appointment")}" class="button">Book appointment</a>
     </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);
 
-exports.appointmentReminder = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">Reminder: Appointment Tomorrow</h1>
+exports.appointmentReminder = (data) => wrapEmail(`
+    <div class="badge">Reminder</div>
+    <h1 class="title">Your appointment is tomorrow</h1>
+    <p class="text">Hi ${data.patientName}, this is a reminder for your appointment tomorrow with <strong>Dr. ${data.doctorName}</strong>.</p>
+    <div class="detail-box">
+        <div class="detail-row"><span class="detail-label">Date / Time</span><span class="detail-value">${data.dateTime}</span></div>
     </div>
-    <div class="content">
-      <p>Hello, ${data.patientName}</p>
-      <p>This is a reminder for your appointment tomorrow with <strong>Dr. ${data.doctorName}</strong>.</p>
-      <div class="detail-box">
-        <div class="detail-row"><span class="detail-label">Date/Time:</span> <span class="detail-value">${data.dateTime}</span></div>
-      </div>
-      <p>We look forward to seeing you.</p>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+    <p class="text">We look forward to seeing you.</p>
+`);
 
-exports.newStaffAccount = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">Your Staff Account</h1>
+exports.newStaffAccount = (data) => wrapEmail(`
+    <div class="badge">Staff Account Created</div>
+    <h1 class="title">Welcome to the team</h1>
+    <p class="text">Hi ${data.name}, a staff account has been created for you at <strong>${data.clinicName}</strong> on Medeaz.</p>
+    <p class="text">Use the temporary password below to sign in, then change it immediately from your profile settings.</p>
+    <div class="code-box">${data.password}</div>
+    <div class="button-container">
+        <a href="${dashboardUrl("/login")}" class="button">Log in now</a>
     </div>
-    <div class="content">
-      <p>Hello, ${data.name}</p>
-      <p>A new staff account has been created for you at <strong>${data.clinicName}</strong> on Medeaz.</p>
-      <p>Your temporary password is: <strong>${data.password}</strong></p>
-      <p>Please log in and change your password immediately.</p>
-      <a href="${process.env.FRONTEND_URL}/login" class="button">Login Now</a>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+    <p class="text-muted">For your security, please update this password after your first sign-in.</p>
+`);
 
-exports.doctorAddedToClinic = (data) => `
-  <style>${emailStyles}</style>
-  <div class="container">
-    <div class="header">
-      <h1 style="color: white; margin: 0;">Added to Clinic</h1>
+exports.doctorAddedToClinic = (data) => wrapEmail(`
+    <div class="badge">Clinic Membership</div>
+    <h1 class="title">You've been added to a clinic</h1>
+    <p class="text">Hi Dr. ${data.doctorName}, you've been successfully added to <strong>${data.clinicName}</strong> on Medeaz.</p>
+    <p class="text">You can now manage appointments and patients for this clinic directly from your doctor portal.</p>
+    <div class="button-container">
+        <a href="${dashboardUrl("/dashboard/doctor")}" class="button">Go to portal</a>
     </div>
-    <div class="content">
-      <p>Hello, Dr. ${data.doctorName}</p>
-      <p>You have been successfully added to <strong>${data.clinicName}</strong>.</p>
-      <p>You can now manage appointments and patients for this clinic.</p>
-      <a href="${process.env.FRONTEND_URL}/dashboard/doctor" class="button">Go to Portal</a>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 Medeaz. All rights reserved.</p>
-    </div>
-  </div>
-`;
+`);

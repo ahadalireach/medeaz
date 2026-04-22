@@ -25,9 +25,20 @@ export default function VerifyPage() {
       (async () => {
         try {
           const res: any = await verifyEmail(token).unwrap();
-          dispatch(setCredentials({ user: res.data, accessToken: res.accessToken }));
+          dispatch(
+            setCredentials({
+              user: res.data,
+              accessToken: res.accessToken,
+              refreshToken: res.refreshToken,
+            }),
+          );
+          const roles: string[] = Array.isArray(res.data?.roles)
+            ? res.data.roles
+            : [];
+          const role =
+            res.data?.verifiedRole || roles[roles.length - 1] || "patient";
           toast.success("Email verified!");
-          setTimeout(() => router.push("/dashboard"), 1800);
+          setTimeout(() => router.push(`/dashboard/${role}`), 1800);
         } catch (err: any) {
           toast.error(err?.data?.message || "Verification failed");
         }
@@ -43,7 +54,7 @@ export default function VerifyPage() {
         width={56}
         height={56}
         priority
-        className="h-14 w-14 object-contain drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
+        className="h-24 w-24 object-contain drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
       />
       <div className="mt-8 w-full rounded-2xl border border-border-light bg-surface-cream/60 p-8">
         {isLoading && (
