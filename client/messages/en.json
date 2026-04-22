@@ -928,6 +928,7 @@
   },
   "form": {
     "name": "Name",
+    "fullName": "Full Name",
     "email": "Email",
     "phone": "Phone Number",
     "age": "Age",
