@@ -14,7 +14,7 @@ exports.getDoctors = asyncHandler(async (req, res) => {
     path: "doctors",
     populate: {
       path: "userId",
-      select: "name email",
+      select: "name email photo",
     },
   });
 

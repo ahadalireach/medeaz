@@ -53,13 +53,13 @@ export default function PatientDetailPage() {
       </Link>
 
       {/* Patient Header */}
-      <div className="bg-white rounded-2xl border border-border-light p-8">
+      <div className="bg-surface dark:bg-surface-dark rounded-2xl border border-border-light p-8">
         <div className="flex items-start gap-6">
-          <div className="h-24 w-24 bg-gradient-to-br from-primary to-primary-hover rounded-full flex items-center justify-center text-white font-bold text-4xl shadow-xl">
+          <div className="h-24 w-24 bg-gradient-to-br from-primary to-primary-hover rounded-full flex items-center justify-center text-gray-900 font-bold text-4xl shadow-xl">
             {patient.name?.[0]?.toUpperCase() || "P"}
           </div>
           <div className="flex-1">
-            <h1 className="text-4xl font-bold text-black mb-3">{patient.name}</h1>
+            <h1 className="text-4xl font-bold text-text-primary dark:text-text-primary mb-3">{patient.name}</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {patient.email && (
                 <div className="flex items-center gap-3">
@@ -68,7 +68,7 @@ export default function PatientDetailPage() {
                   </div>
                   <div>
                     <p className="text-xs text-text-muted">Email</p>
-                    <p className="text-black font-medium">{patient.email}</p>
+                    <p className="text-text-primary dark:text-text-primary font-medium">{patient.email}</p>
                   </div>
                 </div>
               )}
@@ -79,7 +79,7 @@ export default function PatientDetailPage() {
                   </div>
                   <div>
                     <p className="text-xs text-text-muted">Phone</p>
-                    <p className="text-black font-medium">{patient.phone}</p>
+                    <p className="text-text-primary dark:text-text-primary font-medium">{patient.phone}</p>
                   </div>
                 </div>
               )}
@@ -90,7 +90,7 @@ export default function PatientDetailPage() {
                   </div>
                   <div>
                     <p className="text-xs text-text-muted">Date of Birth</p>
-                    <p className="text-black font-medium">
+                    <p className="text-text-primary dark:text-text-primary font-medium">
                       {new Date(patient.dob).toLocaleDateString()}
                     </p>
                   </div>
@@ -109,31 +109,31 @@ export default function PatientDetailPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-2xl border border-border-light">
+        <div className="bg-surface dark:bg-surface-dark p-6 rounded-2xl border border-border-light">
           <div className="flex items-center gap-3 mb-2">
             <FileText className="h-6 w-6 text-primary" />
             <h3 className="font-semibold text-text-secondary">Total Records</h3>
           </div>
-          <p className="text-4xl font-bold text-black">{records.length}</p>
+          <p className="text-4xl font-bold text-text-primary dark:text-text-primary">{records.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-border-light">
+        <div className="bg-surface dark:bg-surface-dark p-6 rounded-2xl border border-border-light">
           <div className="flex items-center gap-3 mb-2">
             <Pill className="h-6 w-6 text-primary" />
             <h3 className="font-semibold text-text-secondary">Prescriptions</h3>
           </div>
-          <p className="text-4xl font-bold text-black">{prescriptions.length}</p>
+          <p className="text-4xl font-bold text-text-primary dark:text-text-primary">{prescriptions.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-border-light">
+        <div className="bg-surface dark:bg-surface-dark p-6 rounded-2xl border border-border-light">
           <div className="flex items-center gap-3 mb-2">
             <Calendar className="h-6 w-6 text-primary" />
             <h3 className="font-semibold text-text-secondary">Appointments</h3>
           </div>
-          <p className="text-4xl font-bold text-black">{appointments.length}</p>
+          <p className="text-4xl font-bold text-text-primary dark:text-text-primary">{appointments.length}</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-2xl border border-border-light overflow-hidden">
+      <div className="bg-surface dark:bg-surface-dark rounded-2xl border border-border-light overflow-hidden">
         <div className="flex border-b border-border-light">
           <button
             onClick={() => setActiveTab("records")}
@@ -176,7 +176,7 @@ export default function PatientDetailPage() {
                 records.map((record: any) => (
                   <div key={record._id} className="p-5 bg-surface/30 rounded-xl border border-border-light">
                     <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-bold text-black text-lg">{record.diagnosis || "Medical Record"}</h4>
+                      <h4 className="font-bold text-text-primary dark:text-text-primary text-lg">{record.diagnosis || "Medical Record"}</h4>
                       <span className="text-sm text-text-muted flex items-center gap-1">
                         <Clock className="h-4 w-4" />
                         {new Date(record.createdAt).toLocaleDateString()}
@@ -186,27 +186,27 @@ export default function PatientDetailPage() {
                     {record.vitalSigns && (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {record.vitalSigns.bloodPressure && (
-                          <div className="bg-white p-3 rounded-lg">
+                          <div className="bg-surface dark:bg-surface-dark p-3 rounded-lg">
                             <p className="text-xs text-text-muted">BP</p>
-                            <p className="font-semibold text-black">{record.vitalSigns.bloodPressure}</p>
+                            <p className="font-semibold text-text-primary dark:text-text-primary">{record.vitalSigns.bloodPressure}</p>
                           </div>
                         )}
                         {record.vitalSigns.heartRate && (
-                          <div className="bg-white p-3 rounded-lg">
+                          <div className="bg-surface dark:bg-surface-dark p-3 rounded-lg">
                             <p className="text-xs text-text-muted">Heart Rate</p>
-                            <p className="font-semibold text-black">{record.vitalSigns.heartRate} bpm</p>
+                            <p className="font-semibold text-text-primary dark:text-text-primary">{record.vitalSigns.heartRate} bpm</p>
                           </div>
                         )}
                         {record.vitalSigns.temperature && (
-                          <div className="bg-white p-3 rounded-lg">
+                          <div className="bg-surface dark:bg-surface-dark p-3 rounded-lg">
                             <p className="text-xs text-text-muted">Temperature</p>
-                            <p className="font-semibold text-black">{record.vitalSigns.temperature}°F</p>
+                            <p className="font-semibold text-text-primary dark:text-text-primary">{record.vitalSigns.temperature}°F</p>
                           </div>
                         )}
                         {record.vitalSigns.weight && (
-                          <div className="bg-white p-3 rounded-lg">
+                          <div className="bg-surface dark:bg-surface-dark p-3 rounded-lg">
                             <p className="text-xs text-text-muted">Weight</p>
-                            <p className="font-semibold text-black">{record.vitalSigns.weight} kg</p>
+                            <p className="font-semibold text-text-primary dark:text-text-primary">{record.vitalSigns.weight} kg</p>
                           </div>
                         )}
                       </div>
@@ -226,7 +226,7 @@ export default function PatientDetailPage() {
                   <div key={prescription._id} className="p-5 bg-surface/30 rounded-xl border border-border-light">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h4 className="font-bold text-black text-lg">{prescription.diagnosis}</h4>
+                        <h4 className="font-bold text-text-primary dark:text-text-primary text-lg">{prescription.diagnosis}</h4>
                         {prescription.medicines && (
                           <p className="text-sm text-text-secondary mt-1">
                             {prescription.medicines.length} medicine(s) prescribed
@@ -241,10 +241,10 @@ export default function PatientDetailPage() {
                     {prescription.medicines && prescription.medicines.length > 0 && (
                       <div className="space-y-2 mt-4">
                         {prescription.medicines.map((med: any, idx: number) => (
-                          <div key={idx} className="flex items-start gap-3 p-3 bg-white rounded-lg">
+                          <div key={idx} className="flex items-start gap-3 p-3 bg-surface dark:bg-surface-dark rounded-lg">
                             <Pill className="h-5 w-5 text-primary mt-0.5" />
                             <div className="flex-1">
-                              <p className="font-semibold text-black">{med.name}</p>
+                              <p className="font-semibold text-text-primary dark:text-text-primary">{med.name}</p>
                               <p className="text-sm text-text-secondary">
                                 {med.dosage} • {med.frequency} • {med.duration}
                               </p>
@@ -271,7 +271,7 @@ export default function PatientDetailPage() {
                   <div key={appointment._id} className="p-5 bg-surface/30 rounded-xl border border-border-light">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-bold text-black text-lg">
+                        <h4 className="font-bold text-text-primary dark:text-text-primary text-lg">
                           {new Date(appointment.dateTime).toLocaleDateString()} at{" "}
                           {new Date(appointment.dateTime).toLocaleTimeString("en-US", {
                             hour: "2-digit",
@@ -283,14 +283,14 @@ export default function PatientDetailPage() {
                       <span
                         className={`px-4 py-2 rounded-xl text-sm font-semibold ${
                           appointment.status === "completed"
-                            ? "bg-surface text-primary"
+                            ? "bg-green-50 text-green-700"
                             : appointment.status === "in-progress"
-                            ? "bg-surface-cream text-[#B45309]"
+                            ? "bg-orange-50 text-orange-700"
                             : appointment.status === "confirmed"
-                            ? "bg-surface text-primary"
+                            ? "bg-blue-50 text-blue-700"
                             : appointment.status === "cancelled"
                             ? "bg-red-50 text-red-700"
-                            : "bg-surface-cream text-[#B45309]"
+                            : "bg-yellow-50 text-yellow-700"
                         }`}
                       >
                         {appointment.status}

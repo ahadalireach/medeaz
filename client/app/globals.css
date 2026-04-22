@@ -150,7 +150,6 @@ a {
    Dashboard sidebar shell (used by patient / doctor / clinic_admin portals)
    ========================================================================= */
 .lens-sidebar {
-  display: flex;
   flex-direction: column;
   width: 260px;
   flex-shrink: 0;

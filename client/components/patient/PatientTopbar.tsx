@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Calendar, Bot, Pill, HeartPulse, MessageSquare } from "lucide-react";
 import { useGetConversationsQuery } from "@/store/api/chatApi";
 import LayoutDashboardIcon from "@/icons/layout-dashboard-icon";
@@ -39,7 +38,6 @@ export default function PatientTopbar({ title }: TopbarProps) {
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const { theme } = useTheme();
   const user = useSelector((state: any) => state.auth.user);
   const { data: profileData } = useGetProfileQuery(undefined, {
     skip: !mounted,
@@ -149,12 +147,10 @@ export default function PatientTopbar({ title }: TopbarProps) {
           className="flex items-center gap-2.5 group lg:hidden"
         >
           <Image
-            src={
-              mounted && theme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"
-            }
+            src="/logo.png"
             alt="Medeaz"
-            width={120}
-            height={40}
+            width={60}
+            height={20}
             priority
             className="group-hover:scale-105 transition-all"
           />
@@ -173,7 +169,7 @@ export default function PatientTopbar({ title }: TopbarProps) {
           >
             <FilledBellIcon className="h-5 w-5" />
             {(unreadCount > 0 || totalChatUnread > 0) && (
-              <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm pointer-events-none">
+              <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm pointer-events-none">
                 {unreadCount + totalChatUnread > 9
                   ? "9+"
                   : unreadCount + totalChatUnread}

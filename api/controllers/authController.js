@@ -25,6 +25,18 @@ const {
   getForgotPasswordEmail,
 } = require("../utils/emailTemplates");
 
+const buildUserResponse = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  phone: user.phone,
+  photo: user.photo,
+  roles: user.roles,
+  isVerified: user.isVerified,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+});
+
 // @desc    Register user (Pending)
 // @route   POST /api/auth/register
 // @access  Public
@@ -107,12 +119,14 @@ const verifyEmail = async (req, res) => {
       profileData?.clinicName ||
       null;
     const resolvedPhone = profileData?.phone || null;
+    const resolvedPhoto = profileData?.photo || null;
 
     let user;
     if (isNew) {
       user = await User.create({
         name: resolvedName,
         phone: resolvedPhone,
+        photo: resolvedPhoto,
         email,
         password,
         roles: [role],
@@ -125,6 +139,7 @@ const verifyEmail = async (req, res) => {
         user = await User.create({
           name: resolvedName,
           phone: resolvedPhone,
+          photo: resolvedPhoto,
           email,
           password,
           roles: [role],
@@ -190,10 +205,7 @@ const verifyEmail = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        _id: user._id,
-        email: user.email,
-        roles: user.roles,
-        isVerified: user.isVerified,
+        ...buildUserResponse(user),
         verifiedRole: role,
       },
       accessToken,
@@ -234,10 +246,7 @@ const loginUser = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        _id: user._id,
-        email: user.email,
-        roles: user.roles,
-        isVerified: user.isVerified,
+        ...buildUserResponse(user),
       },
       accessToken,
       refreshToken,
@@ -319,10 +328,7 @@ const getUserProfile = async (req, res) => {
       res.status(200).json({
         success: true,
         data: {
-          _id: user._id,
-          email: user.email,
-          roles: user.roles,
-          isVerified: user.isVerified,
+          ...buildUserResponse(user),
         },
       });
     } else {
@@ -341,6 +347,9 @@ const updateUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      user.name = req.body.name || user.name;
+      user.phone = req.body.phone ?? user.phone;
+      user.photo = req.body.photo ?? user.photo;
       user.email = req.body.email || user.email;
 
       if (req.body.password) {
@@ -352,10 +361,7 @@ const updateUserProfile = async (req, res) => {
       res.status(200).json({
         success: true,
         data: {
-          _id: updatedUser._id,
-          email: updatedUser.email,
-          roles: updatedUser.roles,
-          isVerified: updatedUser.isVerified,
+          ...buildUserResponse(updatedUser),
         },
       });
     } else {

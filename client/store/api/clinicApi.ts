@@ -6,7 +6,7 @@ import type {
 } from "@reduxjs/toolkit/query";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api",
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("accessToken");
     if (token) {
@@ -127,7 +127,6 @@ export const clinicApi = createApi({
     "PatientProfile",
     "ClinicAppointmentDetail",
     "Prescriptions",
-    "RevenueHistory",
   ],
   endpoints: (builder) => ({
     getOverview: builder.query({
@@ -141,6 +140,27 @@ export const clinicApi = createApi({
     getRevenue: builder.query({
       query: (period = "week") => `/clinic/analytics/revenue?period=${period}`,
       providesTags: ["Analytics"],
+    }),
+    getRevenueHistory: builder.query({
+      query: (params = { page: 1, limit: 20 }) => ({
+        url: '/clinic/analytics/revenue/history',
+        params,
+      }),
+      providesTags: ['Analytics'],
+    }),
+    deleteRevenueHistoryRecord: builder.mutation({
+      query: (id: string) => ({
+        url: `/clinic/analytics/revenue/history/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Analytics', 'Overview'],
+    }),
+    clearRevenueHistory: builder.mutation<void, void>({
+      query: () => ({
+        url: '/clinic/analytics/revenue/history',
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Analytics', 'Overview'],
     }),
 
     getDoctors: builder.query({
@@ -222,7 +242,7 @@ export const clinicApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Settings"],
+      invalidatesTags: ["Settings", "Overview"],
     }),
 
     getStaff: builder.query({
@@ -287,29 +307,6 @@ export const clinicApi = createApi({
       }),
       invalidatesTags: ["Patients", "Overview"],
     }),
-
-    // Revenue history
-    getRevenueHistory: builder.query({
-      query: (params) => ({
-        url: "/clinic/revenue/history",
-        params,
-      }),
-      providesTags: ["RevenueHistory"],
-    }),
-    deleteRevenueHistoryRecord: builder.mutation({
-      query: (id) => ({
-        url: `/clinic/revenue/history/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["RevenueHistory"],
-    }),
-    clearRevenueHistory: builder.mutation<unknown, void>({
-      query: () => ({
-        url: "/clinic/revenue/history",
-        method: "DELETE",
-      }),
-      invalidatesTags: ["RevenueHistory"],
-    }),
   }),
 });
 
@@ -317,6 +314,9 @@ export const {
   useGetOverviewQuery,
   useGetPatientFlowQuery,
   useGetRevenueQuery,
+  useGetRevenueHistoryQuery,
+  useDeleteRevenueHistoryRecordMutation,
+  useClearRevenueHistoryMutation,
   useGetDoctorsQuery,
   useAddDoctorMutation,
   useRemoveDoctorMutation,
@@ -339,7 +339,4 @@ export const {
   useGetPatientProfileQuery,
   useDeleteRecordMutation,
   useCreatePatientMutation,
-  useGetRevenueHistoryQuery,
-  useDeleteRevenueHistoryRecordMutation,
-  useClearRevenueHistoryMutation,
 } = clinicApi;

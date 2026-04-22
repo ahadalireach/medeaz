@@ -4,12 +4,15 @@ import { useSelector } from "react-redux";
 import { User, Mail, Phone, Calendar, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { useGetProfileQuery } from "@/store/api/authApi";
 
 export default function ClinicAdminProfilePage() {
   const t = useTranslations();
   const user = useSelector((state: any) => state.auth.user);
+  const { data: profileData } = useGetProfileQuery(undefined);
+  const currentUser = profileData?.data || user;
 
-  if (!user) return null;
+  if (!currentUser) return null;
 
   return (
     <div className="space-y-6">
@@ -20,13 +23,13 @@ export default function ClinicAdminProfilePage() {
       <div className="grid gap-6 md:grid-cols-3">
         {/* Profile Card */}
         <div className="md:col-span-1 space-y-6">
-          <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
+          <div className="rounded-4xl border border-black/5 bg-white p-8 shadow-sm">
             <div className="flex flex-col items-center text-center">
               <div className="relative h-32 w-32 mb-6 group">
-                {user.photo ? (
+                {currentUser.photo ? (
                   <Image
-                    src={user.photo}
-                    alt={user.name}
+                    src={currentUser.photo}
+                    alt={currentUser.name}
                     fill
                     className="rounded-full object-cover relative border-4 border-white shadow-xl"
                   />
@@ -36,7 +39,7 @@ export default function ClinicAdminProfilePage() {
                   </div>
                 )}
               </div>
-              <h2 className="text-2xl font-bold text-text-primary">{user.name}</h2>
+              <h2 className="text-2xl font-bold text-text-primary">{currentUser.name}</h2>
               <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
                 <ShieldCheck className="h-3 w-3" />
                 {t('clinic.profile.role')}
@@ -50,7 +53,7 @@ export default function ClinicAdminProfilePage() {
                 </div>
                 <div>
                   <p className="text-xs text-text-secondary">{t('form.email')}</p>
-                  <p className="font-semibold text-text-primary break-all">{user.email}</p>
+                  <p className="font-semibold text-text-primary break-all">{currentUser.email}</p>
                 </div>
               </div>
 
@@ -60,7 +63,7 @@ export default function ClinicAdminProfilePage() {
                 </div>
                 <div>
                   <p className="text-xs text-text-secondary">{t('doctor.profile.phone')}</p>
-                  <p className="font-semibold text-text-primary">{user.phone || t('clinic.profile.notProvided')}</p>
+                  <p className="font-semibold text-text-primary">{currentUser.phone || t('clinic.profile.notProvided')}</p>
                 </div>
               </div>
 
@@ -71,7 +74,7 @@ export default function ClinicAdminProfilePage() {
                 <div>
                   <p className="text-xs text-text-secondary">{t('clinic.profile.memberSince')}</p>
                   <p className="font-semibold text-text-primary">
-                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : "March 2024"}
+                    {currentUser.createdAt ? new Date(currentUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : "March 2024"}
                   </p>
                 </div>
               </div>
@@ -81,7 +84,7 @@ export default function ClinicAdminProfilePage() {
 
         {/* Security */}
         <div className="md:col-span-2 space-y-6">
-          <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
+          <div className="rounded-4xl border border-black/5 bg-white p-8 shadow-sm">
             <h3 className="text-xl font-bold mb-4 text-text-primary">{t('clinic.profile.accountSecurity')}</h3>
             <p className="text-sm text-text-secondary mb-6">
               {t('clinic.profile.securityNote')}

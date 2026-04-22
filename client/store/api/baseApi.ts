@@ -1,14 +1,9 @@
-import {
-  fetchBaseQuery,
-  type BaseQueryFn,
-  type FetchArgs,
-  type FetchBaseQueryError,
-} from "@reduxjs/toolkit/query/react";
+import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "../store";
-import { logout, setAccessToken } from "../slices/authSlice";
+import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-const rawBaseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
+const baseFetchQuery = fetchBaseQuery({
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.accessToken;
     if (token) {
@@ -18,72 +13,108 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
-let refreshPromise: Promise<string | null> | null = null;
+// Fetch refresh token from localStorage
+const getRefreshToken = () => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("refreshToken");
+};
 
-const runRefresh = (
-  api: Parameters<BaseQueryFn>[1],
-): Promise<string | null> => {
-  if (refreshPromise) return refreshPromise;
+// Custom base query with re-auth and error handling
+export const baseQuery: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await baseFetchQuery(args, api, extraOptions);
 
-  refreshPromise = (async () => {
-    try {
-      const state = api.getState() as RootState;
-      const refreshToken = state.auth.refreshToken;
-      if (!refreshToken) return null;
+  // If 401 error, try to refresh the token
+  if (result.error && result.error.status === 401) {
+    const refreshToken = getRefreshToken();
 
-      const result = await rawBaseQuery(
+    if (refreshToken) {
+      // Try to get a new access token
+      const refreshResult = await baseFetchQuery(
         {
           url: "/auth/refresh",
           method: "POST",
           body: { refreshToken },
         },
         api,
-        {},
+        extraOptions
       );
 
-      const newToken =
-        result.data && typeof result.data === "object"
-          ? (result.data as { accessToken?: string }).accessToken ?? null
-          : null;
+      if (refreshResult.data) {
+        const data = refreshResult.data as { success: boolean; accessToken: string };
+        // Store new token
+        if (typeof window !== "undefined") {
+          localStorage.setItem("accessToken", data.accessToken);
+        }
 
-      if (newToken) {
-        api.dispatch(setAccessToken(newToken));
-        return newToken;
-      }
-      return null;
-    } finally {
-      refreshPromise = null;
-    }
-  })();
-
-  return refreshPromise;
-};
-
-export const baseQuery: BaseQueryFn<
-  string | FetchArgs,
-  unknown,
-  FetchBaseQueryError
-> = async (args, api, extraOptions) => {
-  let result = await rawBaseQuery(args, api, extraOptions);
-
-  if (result.error && result.error.status === 401) {
-    const isAuthCall =
-      typeof args === "object" &&
-      typeof args.url === "string" &&
-      (args.url.startsWith("/auth/login") ||
-        args.url.startsWith("/auth/refresh") ||
-        args.url.startsWith("/auth/register") ||
-        args.url.startsWith("/auth/verify") ||
-        args.url.startsWith("/auth/forgot-password") ||
-        args.url.startsWith("/auth/reset-password"));
-
-    if (!isAuthCall) {
-      const newToken = await runRefresh(api);
-      if (newToken) {
-        result = await rawBaseQuery(args, api, extraOptions);
+        // Retry the original request with the new token
+        result = await baseFetchQuery(args, api, extraOptions);
       } else {
-        api.dispatch(logout());
+        // Refresh failed - logout
+        if (typeof window !== "undefined") {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
       }
+    } else {
+      // No refresh token - logout
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+    }
+  }
+
+  // Normalize error messages
+  if (result.error) {
+    const error = result.error as any;
+
+    if (error.status === "FETCH_ERROR") {
+      return {
+        error: {
+          ...error,
+          data: {
+            message: "Network error. Please check your connection and try again.",
+          },
+        },
+      };
+    }
+
+    if (error.status === "PARSING_ERROR") {
+      return {
+        error: {
+          ...error,
+          data: {
+            message: "Server error. Please try again later.",
+          },
+        },
+      };
+    }
+
+    if (error.status === "TIMEOUT_ERROR") {
+      return {
+        error: {
+          ...error,
+          data: {
+            message: "Request timeout. Please try again.",
+          },
+        },
+      };
+    }
+
+    if (!error.data?.message && error.status) {
+      return {
+        error: {
+          ...error,
+          data: {
+            ...error.data,
+            message: `Request failed with status ${error.status}`,
+          },
+        },
+      };
     }
   }
 

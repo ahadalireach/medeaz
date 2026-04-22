@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    photo: {
+      type: String,
+      default: null,
+    },
     password: {
       type: String,
       required: [true, "Please add a password"],
@@ -39,8 +43,17 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
+
+userSchema.virtual("doctorProfile", {
+  ref: "Doctor",
+  localField: "_id",
+  foreignField: "userId",
+  justOne: true,
+});
 
 // Encrypt password using bcrypt before saving
 userSchema.pre("save", async function () {

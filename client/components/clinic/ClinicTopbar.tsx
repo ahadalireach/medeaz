@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Calendar, Search, UserCog, Settings, HeartPulse } from "lucide-react";
 import LayoutDashboardIcon from "@/icons/layout-dashboard-icon";
 import UsersIcon from "@/icons/users-icon";
@@ -34,7 +33,6 @@ export default function ClinicTopbar({ title }: TopbarProps) {
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const { theme } = useTheme();
 
   const user = useSelector((state: any) => state.auth.user);
   const { unreadCount } = useSelector((state: any) => state.notifications);
@@ -111,12 +109,10 @@ export default function ClinicTopbar({ title }: TopbarProps) {
           className="flex items-center gap-2.5 group lg:hidden"
         >
           <Image
-            src={
-              mounted && theme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"
-            }
+            src="/logo.png"
             alt="Medeaz"
-            width={120}
-            height={40}
+            width={55}
+            height={17}
             priority
             className="group-hover:scale-105 transition-all"
           />
@@ -136,7 +132,7 @@ export default function ClinicTopbar({ title }: TopbarProps) {
           >
             <FilledBellIcon className="h-5 w-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm pointer-events-none">
+              <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm pointer-events-none">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
