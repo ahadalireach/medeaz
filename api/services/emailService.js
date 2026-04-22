@@ -11,24 +11,46 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.sendEmail = async (to, subject, templateName, data) => {
+exports.sendEmail = async (...args) => {
+  let to, subject, html, templateName, data;
+
+  if (args.length === 1 && args[0] && typeof args[0] === "object") {
+    ({ to, subject, html, templateName, data } = args[0]);
+  } else {
+    [to, subject, templateName, data] = args;
+  }
+
+  const label = templateName || "custom";
+
   try {
-    const html = emailTemplates[templateName](data);
+    let body = html;
+    if (!body && templateName) {
+      const render = emailTemplates[templateName];
+      if (typeof render !== "function") {
+        throw new Error(`Unknown email template: "${templateName}"`);
+      }
+      body = render(data);
+    }
+
+    if (!body) {
+      throw new Error("sendEmail requires either `html` or a valid `templateName`");
+    }
+
     const mailOptions = {
       from: `"Medeaz" <${process.env.SMTP_USER}>`,
       to,
       subject,
-      html,
+      html: body,
     };
 
     const info = await transporter.sendMail(mailOptions);
     console.log(
-      `Email sent: ${templateName} to ${to} (MessageID: ${info.messageId})`,
+      `Email sent: ${label} to ${to} (MessageID: ${info.messageId})`,
     );
     return true;
   } catch (error) {
     console.error(
-      `Email error: Failed to send ${templateName} to ${to}:`,
+      `Email error: Failed to send ${label} to ${to}:`,
       error.message,
     );
     return false;

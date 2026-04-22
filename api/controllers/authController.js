@@ -62,17 +62,18 @@ const registerUser = async (req, res) => {
 
     await storePendingUser(verificationToken, userData);
 
-    try {
-      await sendEmail({
-        to: email,
-        subject: "Verify your email - Medeaz",
-        html: getVerificationEmail(email, verificationToken),
+    const sent = await sendEmail({
+      to: email,
+      subject: "Verify your email - Medeaz",
+      html: getVerificationEmail(email, verificationToken),
+    });
+
+    if (!sent) {
+      await deletePendingUser(verificationToken);
+      return res.status(500).json({
+        success: false,
+        message: "Could not send verification email. Please try again.",
       });
-    } catch (err) {
-      console.error("Failed to send verification email", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Email service failed" });
     }
 
     res.status(200).json({
@@ -349,22 +350,23 @@ const forgotPassword = async (req, res) => {
     const resetToken = crypto.randomBytes(32).toString("hex");
     await storeResetToken(resetToken, user._id);
 
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: "Reset your password - Medeaz",
-        html: getForgotPasswordEmail(resetToken),
-      });
-      res.status(200).json({
-        success: true,
-        message: "Password reset link sent to your email",
-      });
-    } catch (err) {
-      console.error(err);
-      res
+    const sent = await sendEmail({
+      to: user.email,
+      subject: "Reset your password - Medeaz",
+      html: getForgotPasswordEmail(resetToken),
+    });
+
+    if (!sent) {
+      await deleteResetToken(resetToken);
+      return res
         .status(500)
         .json({ success: false, message: "Could not send reset email" });
     }
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset link sent to your email",
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
