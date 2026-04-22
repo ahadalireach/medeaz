@@ -1,12 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface AuthUser {
+  _id: string;
+  email: string;
+  role?: string;
+  roles?: string[];
+  isVerified: boolean;
+  profileComplete?: boolean;
+  onboardingComplete?: boolean;
+  name?: string;
+  phone?: string;
+  photo?: string | null;
+  [key: string]: unknown;
+}
+
 interface AuthState {
-  user: {
-    _id: string;
-    email: string;
-    role: string;
-    isVerified: boolean;
-  } | null;
+  user: AuthUser | null;
   accessToken: string | null;
 }
 
@@ -24,6 +33,15 @@ const loadFromStorage = (): AuthState => {
   }
 };
 
+const persistUser = (user: AuthUser | null) => {
+  if (typeof window === "undefined") return;
+  if (user) {
+    localStorage.setItem("user", JSON.stringify(user));
+  } else {
+    localStorage.removeItem("user");
+  }
+};
+
 const initialState: AuthState = loadFromStorage();
 
 const authSlice = createSlice({
@@ -32,14 +50,32 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ user: AuthState["user"]; accessToken: string }>,
+      action: PayloadAction<{ user: AuthUser; accessToken: string }>,
     ) => {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
       if (typeof window !== "undefined") {
         localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("user", JSON.stringify(action.payload.user));
       }
+      persistUser(action.payload.user);
+    },
+    setProfileComplete: {
+      reducer: (state, action: PayloadAction<boolean>) => {
+        if (state.user) {
+          state.user = { ...state.user, profileComplete: action.payload };
+          persistUser(state.user);
+        }
+      },
+      prepare: (value?: boolean) => ({ payload: value ?? true }),
+    },
+    setOnboardingComplete: {
+      reducer: (state, action: PayloadAction<boolean>) => {
+        if (state.user) {
+          state.user = { ...state.user, onboardingComplete: action.payload };
+          persistUser(state.user);
+        }
+      },
+      prepare: (value?: boolean) => ({ payload: value ?? true }),
     },
     logout: (state) => {
       state.user = null;
@@ -52,5 +88,10 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const {
+  setCredentials,
+  setProfileComplete,
+  setOnboardingComplete,
+  logout,
+} = authSlice.actions;
 export default authSlice.reducer;

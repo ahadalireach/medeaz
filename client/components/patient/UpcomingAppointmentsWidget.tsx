@@ -68,15 +68,15 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":
-        return "bg-green-100/50 text-green-700 dark:bg-green-900/20 dark:text-green-400";
+        return "bg-surface/50 text-primary  ";
       case "pending":
-        return "bg-yellow-100/50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400";
+        return "bg-surface-cream/50 text-[#B45309]  ";
       case "cancelled":
-        return "bg-red-100/50 text-red-700 dark:bg-red-900/20 dark:text-red-400";
+        return "bg-red-100/50 text-red-700  ";
       case "completed":
-        return "bg-blue-100/50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
+        return "bg-surface/50 text-primary  ";
       default:
-        return "bg-gray-100/50 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
+        return "bg-surface/50 text-text-primary  ";
     }
   };
 
@@ -98,7 +98,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
       <CardContent>
         {appointments.length === 0 ? (
           <div className="text-center py-8">
-            <p className="mb-4 text-sm text-gray-500 dark:text-[#a1a1aa]">
+            <p className="mb-4 text-sm text-text-secondary">
               {t('patient.dashboard.noUpcoming')}
             </p>
             <Link
@@ -113,14 +113,14 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
             {appointments.slice(0, 3).map((appointment) => (
               <div
                 key={appointment._id}
-                className="group relative rounded-2xl border border-gray-100 p-5 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all hover:scale-[1.01]"
+                className="group relative rounded-2xl border border-border-light p-5 hover:bg-background :bg-ink-soft/50 transition-all hover:scale-[1.01]"
               >
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="font-bold text-gray-900 dark:text-white">
+                    <p className="font-bold text-text-primary">
                       {t('patient.bookAppointmentPage.doctorPrefix')} {getDoctorName(appointment)}
                     </p>
-                    <p className="text-sm font-medium text-gray-500 dark:text-[#a1a1aa]">
+                    <p className="text-sm font-medium text-text-secondary">
                       {appointment.doctorId?.doctorProfile?.specialization || t('appointment.doctor')}
                     </p>
                   </div>
@@ -130,7 +130,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
                     {getStatusLabel(appointment.status)}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-[#a1a1aa] flex-wrap font-medium">
+                <div className="flex items-center gap-4 text-sm text-text-secondary flex-wrap font-medium">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-4 w-4 text-primary" />
                     {appointment.dateTime ? formatDate(appointment.dateTime) : "TBD"}
@@ -141,7 +141,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
                   </div>
                 </div>
                 {appointment.clinicId?.name && (
-                  <div className="mt-3 space-y-1 text-xs font-bold text-gray-400 dark:text-gray-500">
+                  <div className="mt-3 space-y-1 text-xs font-bold text-text-secondary">
                     <div className="flex items-center gap-1.5">
                       <Building2 className="h-3.5 w-3.5" />
                       {appointment.clinicId.name}
@@ -153,7 +153,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
                   </div>
                 )}
                 {!appointment.clinicId?.name && (
-                  <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-gray-400 dark:text-gray-500">
+                  <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-text-secondary">
                     <Building2 className="h-3.5 w-3.5" />
                     {t('appointment.clinic')}
                   </div>

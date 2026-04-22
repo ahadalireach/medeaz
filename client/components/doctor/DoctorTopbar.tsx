@@ -88,7 +88,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
 
     return (
         <>
-            <header className="lens-topbar h-16 border-b border-black/5 dark:border-white/5 bg-white/80 dark:bg-[#18181b]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between w-full">
+            <header className="lens-topbar h-16 border-b border-black/5 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between w-full">
                 {/* Logo - ONLY MOBILE */}
                 <Link href="/dashboard/doctor" className="flex items-center gap-2.5 group lg:hidden">
                     <Image
@@ -101,7 +101,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                     />
                 </Link>
 
-                <h1 className="hidden lg:block text-sm font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white">
+                <h1 className="hidden lg:block text-sm font-black uppercase tracking-[0.2em] text-text-primary">
                     {title || t('nav.doctorPortal')}
                 </h1>
 
@@ -110,11 +110,11 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                     {/* Desktop Notifications */}
                     <button
                         onClick={() => setIsNotificationOpen(true)}
-                        className="h-10 w-10 text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl flex items-center justify-center relative transition-colors cursor-pointer group"
+                        className="h-10 w-10 text-text-secondary hover:bg-black/5 :bg-white/5 rounded-xl flex items-center justify-center relative transition-colors cursor-pointer group"
                     >
                         <FilledBellIcon className="h-5 w-5" />
                         {(unreadCount > 0 || totalChatUnread > 0) && (
-                            <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white dark:border-[#18181b] flex items-center justify-center shadow-sm pointer-events-none">
+                            <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm pointer-events-none">
                                 {(unreadCount + totalChatUnread) > 9 ? '9+' : (unreadCount + totalChatUnread)}
                             </span>
                         )}
@@ -126,7 +126,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                     <Hamburger
                         isOpen={isMenuOpen}
                         onClick={() => setIsMenuOpen(true)}
-                        className="text-black dark:text-white ml-2 cursor-pointer lg:hidden"
+                        className="text-black ml-2 cursor-pointer lg:hidden"
                     />
                 </div>
             </header>
@@ -142,14 +142,14 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                 />
 
                 {/* Drawer Panel */}
-                <div className={`absolute right-0 top-0 h-full w-full max-w-[88vw] sm:max-w-sm bg-white dark:bg-[#18181b] shadow-2xl transition-transform duration-500 ease-out border-l border-black/5 dark:border-white/5 ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
+                <div className={`absolute right-0 top-0 h-full w-full max-w-[88vw] sm:max-w-sm bg-white  shadow-2xl transition-transform duration-500 ease-out border-l border-black/5  ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
                     <div className="flex flex-col h-full">
                         {/* Drawer Header */}
-                        <div className="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
-                            <h2 className={`font-bold text-gray-900 dark:text-white text-sm ${isRtl ? "tracking-normal" : "uppercase tracking-[0.2em] text-xs"}`}>{t('nav.doctorPortal')}</h2>
+                        <div className="p-6 border-b border-black/5 flex items-center justify-between">
+                            <h2 className={`font-bold text-text-primary  text-sm ${isRtl ? "tracking-normal" : "uppercase tracking-[0.2em] text-xs"}`}>{t('nav.doctorPortal')}</h2>
                             <button
                                 onClick={() => setIsMenuOpen(false)}
-                                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface :bg-white/5 transition-colors"
                             >
                                 <XIcon className="h-5 w-5" />
                             </button>
@@ -158,7 +158,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
 
                         {/* Navigation Links */}
                         <nav className={`flex-1 overflow-y-auto p-4 space-y-1 ${isRtl ? "text-right" : ""}`}>
-                            <p className={`px-3 text-[11px] font-bold text-gray-400 mt-4 mb-2 ${isRtl ? "tracking-normal" : "uppercase tracking-widest text-[10px]"}`}>{t('nav.navigation')}</p>
+                            <p className={`px-3 text-[11px] font-bold text-text-secondary mt-4 mb-2 ${isRtl ? "tracking-normal" : "uppercase tracking-widest text-[10px]"}`}>{t('nav.navigation')}</p>
                             {navLinks.map((link) => {
                                 const Icon = link.icon;
                                 return (
@@ -168,13 +168,13 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                                         onClick={() => setIsMenuOpen(false)}
                                         className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${isRtl ? "justify-end" : ""} ${isActive(link.href)
                                             ? "bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]"
-                                            : "text-gray-500 hover:text-primary hover:bg-primary/5"
+                                            : "text-text-secondary hover:text-primary hover:bg-primary/5"
                                             }`}
                                     >
                                         <Icon size={18} />
                                         <span>{link.label}</span>
                                         {link.label === "Chat" && totalChatUnread > 0 && (
-                                            <span className="ml-auto w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-[#18181b]">
+                                            <span className="ml-auto w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white">
                                                 {totalChatUnread > 9 ? '9+' : totalChatUnread}
                                             </span>
                                         )}
@@ -182,13 +182,13 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                                 );
                             })}
 
-                            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-8 mb-2">{t('nav.settings')}</p>
+                            <p className="px-3 text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-8 mb-2">{t('nav.settings')}</p>
                             <Link
                                 href="/dashboard/doctor/profile"
                                 onClick={() => setIsMenuOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${isActive("/dashboard/doctor/profile")
                                     ? "bg-primary text-white shadow-lg shadow-primary/20"
-                                    : "text-gray-500 hover:text-primary hover:bg-primary/5"
+                                    : "text-text-secondary hover:text-primary hover:bg-primary/5"
                                     }`}
                             >
                                 <UserIconAnimated size={18} />
@@ -197,7 +197,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                         </nav>
 
                         {/* Drawer Footer */}
-                        <div className="p-6 border-t border-black/5 dark:border-white/5 space-y-3">
+                        <div className="p-6 border-t border-black/5 space-y-3">
                             <button
                                 onClick={handleLogout}
                                 className="flex items-center justify-center gap-2 w-full py-3 bg-red-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all active:scale-95 group"

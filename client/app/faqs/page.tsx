@@ -63,10 +63,10 @@ export default function FAQPage() {
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <HelpCircle className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+            <h1 className="text-4xl font-extrabold text-text-primary mb-6 tracking-tight">
               {isUrdu ? "اکثر پوچھے جانے والے سوالات" : "Frequently Asked Questions"}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-xl text-text-secondary">
               {isUrdu ? "MedEaz پلیٹ فارم کے بارے میں ضروری معلومات" : "Everything you need to know about the MedEaz platform."}
             </p>
           </div>
@@ -75,21 +75,21 @@ export default function FAQPage() {
             {faqs.map((faq, index) => (
               <div 
                 key={index}
-                className="border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden bg-white dark:bg-[#1a1a1a] shadow-sm transition-all"
+                className="border border-border-light rounded-3xl overflow-hidden bg-white shadow-sm transition-all"
               >
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-background :bg-white/5 transition-colors"
                 >
-                  <span className="font-bold text-gray-900 dark:text-white">{faq.question}</span>
+                  <span className="font-bold text-text-primary">{faq.question}</span>
                   {openIndex === index ? (
                     <ChevronUp className="w-5 h-5 text-primary" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                    <ChevronDown className="w-5 h-5 text-text-secondary" />
                   )}
                 </button>
                 {openIndex === index && (
-                  <div className="p-6 pt-0 text-gray-600 dark:text-gray-400 leading-relaxed animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="p-6 pt-0 text-text-secondary leading-relaxed animate-in fade-in slide-in-from-top-2 duration-300">
                     {faq.answer}
                   </div>
                 )}

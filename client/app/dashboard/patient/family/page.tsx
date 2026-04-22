@@ -136,7 +136,7 @@ export default function FamilyPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-text-primary">
           {t('nav.family')}
         </h1>
         <Button onClick={() => setShowAddModal(true)}>
@@ -151,17 +151,17 @@ export default function FamilyPage() {
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="h-40 animate-pulse rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1a1a1a]"
+              className="h-40 animate-pulse rounded-xl border border-border-light bg-white"
             />
           ))}
         </div>
       ) : members.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-[#1a1a1a]">
-          <Users className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="rounded-xl border border-border-light bg-white p-12 text-center">
+          <Users className="mx-auto h-12 w-12 text-text-secondary" />
+          <h3 className="mt-4 text-lg font-semibold text-text-primary">
             {t('family.noMembers')}
           </h3>
-          <p className="mt-2 text-sm font-bold text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-sm font-bold text-text-secondary">
             {t('family.addFirstMember')}
           </p>
           <Button onClick={() => setShowAddModal(true)} className="mt-4">
@@ -173,7 +173,7 @@ export default function FamilyPage() {
           {members.map((member: any) => (
             <div
               key={member._id}
-              className="rounded-xl border border-gray-200 bg-white p-6 transition-all hover:border-primary dark:border-gray-700 dark:bg-[#1a1a1a]"
+              className="rounded-xl border border-border-light bg-white p-6 transition-all hover:border-primary"
             >
               <div className="mb-4 flex items-start justify-between">
                 <div className="flex items-start gap-3">
@@ -185,10 +185,10 @@ export default function FamilyPage() {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <h3 className="font-semibold text-text-primary">
                       {member.name}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-text-secondary">
                       {member.relation}
                     </p>
                   </div>
@@ -196,13 +196,13 @@ export default function FamilyPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEditModal(member)}
-                    className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 group"
+                    className="rounded-lg p-2 text-text-secondary hover:bg-surface :bg-ink-soft group"
                   >
                     <PenIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => confirmDelete(member._id, member.name)}
-                    className="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 group"
+                    className="rounded-lg p-2 text-red-600 hover:bg-red-50 :bg-red-900/20 group"
                   >
                     <TrashIcon className="h-4 w-4" />
                   </button>
@@ -212,28 +212,28 @@ export default function FamilyPage() {
               <div className="space-y-2 text-sm">
                 {member.dob && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Date of Birth:</span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="text-text-secondary">Date of Birth:</span>
+                    <span className="font-medium text-text-primary">
                       {new Date(member.dob).toLocaleDateString()}
                     </span>
                   </div>
                 )}
                 {member.bloodGroup && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Blood Group:</span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="text-text-secondary">Blood Group:</span>
+                    <span className="font-medium text-text-primary">
                       {member.bloodGroup}
                     </span>
                   </div>
                 )}
                 {member.allergies && member.allergies.length > 0 && (
                   <div>
-                    <span className="text-gray-600 dark:text-gray-400">Allergies:</span>
+                    <span className="text-text-secondary">Allergies:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {member.allergies.map((allergy: string, idx: number) => (
                         <span
                           key={idx}
-                          className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                          className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-800"
                         >
                           {allergy}
                         </span>
@@ -263,11 +263,11 @@ export default function FamilyPage() {
       >
         <form onSubmit={handleSubmit(onAdd)} className="space-y-4">
           <div className="flex flex-col items-center gap-2 mb-4">
-            <div className="relative group overflow-hidden h-20 w-20 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
+            <div className="relative group overflow-hidden h-20 w-20 rounded-full border border-border-light bg-surface flex items-center justify-center">
               {newPhotoBase64 ? (
                 <img src={newPhotoBase64} alt="Preview" className="h-full w-full object-cover" />
               ) : (
-                <Users className="h-8 w-8 text-gray-400" />
+                <Users className="h-8 w-8 text-text-secondary" />
               )}
               <label htmlFor="new-photo" className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                 <span className="text-white text-[10px] font-semibold">Upload</span>
@@ -287,7 +287,7 @@ export default function FamilyPage() {
                 }}
               />
             </div>
-            <span className="text-xs text-gray-500">Profile Picture (Optional)</span>
+            <span className="text-xs text-text-secondary">Profile Picture (Optional)</span>
           </div>
 
           <Input label={t('form.name')} placeholder="Full name" error={errors.name?.message} {...register("name", { required: t('form.required') })} />
@@ -315,11 +315,11 @@ export default function FamilyPage() {
       >
         <form onSubmit={handleSubmitEdit(onEdit)} className="space-y-4">
           <div className="flex flex-col items-center gap-2 mb-4">
-            <div className="relative group overflow-hidden h-20 w-20 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
+            <div className="relative group overflow-hidden h-20 w-20 rounded-full border border-border-light bg-surface flex items-center justify-center">
               {editPhotoBase64 ? (
                 <img src={editPhotoBase64} alt="Preview" className="h-full w-full object-cover" />
               ) : (
-                <Users className="h-8 w-8 text-gray-400" />
+                <Users className="h-8 w-8 text-text-secondary" />
               )}
               <label htmlFor="edit-photo" className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                 <span className="text-white text-[10px] font-semibold">Update</span>
@@ -339,7 +339,7 @@ export default function FamilyPage() {
                 }}
               />
             </div>
-            <span className="text-xs text-gray-500">Profile Picture</span>
+            <span className="text-xs text-text-secondary">Profile Picture</span>
           </div>
 
           <Input

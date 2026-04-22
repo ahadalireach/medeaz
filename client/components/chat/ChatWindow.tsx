@@ -226,11 +226,11 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
   };
 
   return (
-    <div className={`flex-1 flex flex-col h-full bg-white dark:bg-[#18181b] ${!conversationId ? 'hidden md:flex' : 'flex'}`}>
+    <div className={`flex-1 flex flex-col h-full bg-white  ${!conversationId ? 'hidden md:flex' : 'flex'}`}>
       {/* Chat header */}
-      <div className="px-4 md:px-5 py-3 border-b border-black/5 dark:border-white/5 flex items-center gap-3 bg-white dark:bg-[#18181b]">
+      <div className="px-4 md:px-5 py-3 border-b border-black/5 flex items-center gap-3 bg-white">
         {onBack && (
-          <button onClick={onBack} className="md:hidden p-2 -ml-2 text-gray-500 hover:bg-black/5 rounded-lg transition-colors">
+          <button onClick={onBack} className="md:hidden p-2 -ml-2 text-text-secondary hover:bg-black/5 rounded-lg transition-colors">
             <ArrowLeft size={20} />
           </button>
         )}
@@ -238,12 +238,12 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
           {otherParty.photo ? <img src={otherParty.photo} className="w-full h-full object-cover" /> : otherParty.name.charAt(0)}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{otherParty.name}</h3>
-          <p className="text-[11px] md:text-xs text-text-muted dark:text-[#71717a] truncate">{otherParty.specialization || (currentUser.role === 'doctor' ? 'Patient' : 'Doctor')}</p>
+          <h3 className="text-sm font-semibold text-text-primary truncate">{otherParty.name}</h3>
+          <p className="text-[11px] md:text-xs text-text-muted truncate">{otherParty.specialization || (currentUser.role === 'doctor' ? 'Patient' : 'Doctor')}</p>
         </div>
         <button
           onClick={handleDeleteConversation}
-          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50/50 dark:hover:bg-red-500/10 rounded-lg transition-all"
+          className="p-2 text-text-secondary hover:text-red-500 hover:bg-red-50/50 :bg-red-500/10 rounded-lg transition-all"
           title="Delete Conversation"
         >
           <Trash2 size={18} />
@@ -260,7 +260,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
               <div
                 className={`max-w-[30%] sm:max-w-[24%] shadow-sm relative ${isMine ? 'ml-auto' : 'mr-auto'} ${isMine
                     ? 'px-4 py-2.5 rounded-2xl rounded-br-sm bg-primary text-white text-sm font-body'
-                    : 'px-4 py-2.5 rounded-2xl rounded-bl-sm bg-zinc-100 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 text-sm font-body text-gray-900 dark:text-[#e4e4e7]'
+                    : 'px-4 py-2.5 rounded-2xl rounded-bl-sm bg-surface  border border-black/5  text-sm font-body text-text-primary '
                   } ${msg.isDeleted ? 'opacity-60 italic' : ''}`}
               >
                 {msg.isDeleted ? (
@@ -276,11 +276,11 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
                 ) : (
                   msg.content
                 )}
-                <div className={`text-[10px] mt-1 flex items-center gap-1.5 ${isMine ? 'text-white/80 justify-end' : 'text-zinc-500 justify-start'}`}>
+                <div className={`text-[10px] mt-1 flex items-center gap-1.5 ${isMine ? 'text-white/80 justify-end' : 'text-text-secondary justify-start'}`}>
                   {format(new Date(msg.createdAt), 'h:mm a')}
                   {isMine && !msg.isDeleted && (
                     msg.isRead ? (
-                      <CheckCheck size={13} strokeWidth={3} className="inline-block text-blue-500" />
+                      <CheckCheck size={13} strokeWidth={3} className="inline-block text-primary" />
                     ) : msg.isDelivered ? (
                       <CheckCheck size={13} strokeWidth={2} className="inline-block opacity-60" />
                     ) : (
@@ -292,7 +292,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
                 {isMine && !msg.isDeleted && (
                   <button
                     onClick={() => handleDeleteMessage(msg._id)}
-                    className="absolute -left-8 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-red-500 opacity-0 group-hover/msg:opacity-100 transition-all rounded-lg hover:bg-black/5"
+                    className="absolute -left-8 top-1/2 -translate-y-1/2 p-1.5 text-text-secondary hover:text-red-500 opacity-0 group-hover/msg:opacity-100 transition-all rounded-lg hover:bg-black/5"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -305,7 +305,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
         {/* Typing indicator */}
         {isTyping && (
           <div className="flex justify-start">
-            <div className="px-4 py-2.5 rounded-2xl rounded-bl-sm bg-[#f8f9fa] dark:bg-[#1f1f23] border border-black/5 dark:border-white/5">
+            <div className="px-4 py-2.5 rounded-2xl rounded-bl-sm bg-[#F4F3EE] border border-black/5">
               <div className="flex gap-1 items-center h-4">
                 <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:0ms]" />
                 <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:150ms]" />
@@ -319,7 +319,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
       </div>
 
       {/* Input area */}
-      <div className="border-t border-black/5 dark:border-white/5 p-4 flex items-end gap-2 bg-white dark:bg-[#18181b]">
+      <div className="border-t border-black/5 p-4 flex items-end gap-2 bg-white">
         <input
           ref={fileInputRef}
           type="file"
@@ -329,7 +329,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-2 rounded-lg text-text-muted hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0"
+          className="p-2 rounded-lg text-text-muted hover:bg-black/5 :bg-white/5 transition-colors shrink-0"
         >
           <Paperclip size={18} />
         </button>
@@ -339,13 +339,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
           onKeyDown={handleKeyDown}
           placeholder={t('chat.typeMessage')}
           rows={1}
-          className="flex-1 resize-none px-3.5 py-2.5 rounded-lg text-sm font-body
-            bg-[#f8f9fa] dark:bg-[#1f1f23]
-            text-gray-900 dark:text-[#e4e4e7]
-            border border-black/8 dark:border-white/8
-            placeholder:text-text-muted dark:placeholder:text-[#52525b]
-            focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent
-            max-h-32 overflow-y-auto"
+          className="flex-1 resize-none px-3.5 py-2.5 rounded-lg text-sm font-body bg-[#F4F3EE] text-text-primary border border-black/8 placeholder:text-text-muted :text-[#78716C] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent max-h-32 overflow-y-auto"
         />
         <button
           onClick={handleSend}

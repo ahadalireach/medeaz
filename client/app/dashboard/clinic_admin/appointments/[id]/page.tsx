@@ -14,11 +14,11 @@ export default function ClinicAppointmentDetailsPage() {
             <div className="flex items-center gap-4 mb-6">
                 <button
                     onClick={() => router.push("/dashboard/clinic_admin/appointments")}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                    className="p-2 hover:bg-surface :bg-ink-soft rounded-full transition-colors"
                 >
-                    <ArrowLeft className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                    <ArrowLeft className="h-6 w-6 text-text-secondary" />
                 </button>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl font-bold text-text-primary">
                     Appointment Details
                 </h1>
             </div>

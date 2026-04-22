@@ -54,10 +54,10 @@ export function SuccessModal({
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+            <h2 className="text-3xl font-black text-text-primary tracking-tight leading-tight">
               {title}
             </h2>
-            <p className="text-base font-medium text-slate-500 dark:text-slate-400 max-w-[280px] mx-auto leading-relaxed">
+            <p className="text-base font-medium text-text-secondary max-w-[280px] mx-auto leading-relaxed">
               {message}
             </p>
           </div>

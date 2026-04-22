@@ -1,49 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { Play } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 
 export function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-border-light">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center space-x-10">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold tracking-tight text-foreground">
-              medeaz
-            </span>
-          </Link>
+    <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 h-20 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 group">
+          <Image
+            src="/logo.png"
+            alt="medeaz"
+            width={36}
+            height={36}
+            priority
+            className="h-9 w-9 object-contain"
+          />
+          <span className="font-display text-[28px] leading-none text-text-primary/90 tracking-tight font-semibold">
+            Medeaz
+          </span>
+        </Link>
 
-          <nav className="hidden md:flex items-center space-x-8 text-sm font-semibold text-text-secondary">
-            <Link href="#" className="hover:text-foreground transition-colors">
-              About
-            </Link>
-            <Link href="#" className="hover:text-foreground transition-colors">
-              FAQs
-            </Link>
-          </nav>
-        </div>
-
-        <div className="flex items-center space-x-6">
-          <Link
-            href="#"
-            className="hidden sm:flex items-center text-sm font-semibold text-text-secondary hover:text-foreground transition-colors"
-          >
-            <Play className="w-4 h-4 mr-2" />
-            Demo
-          </Link>
+        <div className="flex items-center gap-2">
           <Link href="/login">
             <Button
               variant="ghost"
-              className="h-10 px-4 rounded-full text-sm font-bold hover:bg-surface"
+              size="sm"
+              className="h-10 px-5 text-sm font-semibold"
             >
-              Login
+              Log In
             </Button>
           </Link>
           <Link href="/register">
-            <Button className="h-10 px-6 rounded-full text-sm font-bold shadow-sm">
-              Create Account
+            <Button size="sm" className="h-10 px-5 text-sm font-semibold">
+              Get Started
             </Button>
           </Link>
         </div>

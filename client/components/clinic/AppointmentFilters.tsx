@@ -51,9 +51,9 @@ export default function AppointmentFilters({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700"
+      className="bg-white p-6 rounded-xl border border-border-light"
     >
-      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+      <h3 className="text-lg font-bold text-text-primary mb-4">
         Filter Appointments
       </h3>
 
@@ -63,12 +63,12 @@ export default function AppointmentFilters({
           control={control}
           render={({ field }) => (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-text-primary mb-2">
                 Doctor
               </label>
               <select
                 {...field}
-                className="w-full px-4 py-2 border border-gray-200 dark:border-[#27272a] rounded-lg bg-white dark:bg-[#1f1f23] text-gray-900 dark:text-[#e4e4e7] placeholder:text-gray-400 dark:placeholder:text-[#52525b] focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-4 py-2 border border-border-light rounded-lg bg-white text-text-primary placeholder:text-text-secondary :text-[#78716C] focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="">All Doctors</option>
                 {Array.isArray(doctors) && doctors.map((doctor: any) => (
@@ -86,12 +86,12 @@ export default function AppointmentFilters({
           control={control}
           render={({ field }) => (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-text-primary mb-2">
                 Status
               </label>
               <select
                 {...field}
-                className="w-full px-4 py-2 border border-gray-200 dark:border-[#27272a] rounded-lg bg-white dark:bg-[#1f1f23] text-gray-900 dark:text-[#e4e4e7] placeholder:text-gray-400 dark:placeholder:text-[#52525b] focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-4 py-2 border border-border-light rounded-lg bg-white text-text-primary placeholder:text-text-secondary :text-[#78716C] focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>

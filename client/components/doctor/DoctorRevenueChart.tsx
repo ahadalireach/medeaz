@@ -58,7 +58,7 @@ export default function DoctorRevenueChart() {
                     <CardTitle className="text-xl">{t('doctor.revenue.title')}</CardTitle>
                 </div>
 
-                <div className="flex bg-gray-50 dark:bg-white/5 p-1 rounded-2xl border border-black/5 dark:border-white/10">
+                <div className="flex bg-background p-1 rounded-2xl border border-black/5">
                     {[
                         { id: "day", label: t('analytics.week') },
                         { id: "month", label: t('analytics.month') },
@@ -68,8 +68,8 @@ export default function DoctorRevenueChart() {
                             key={p.id}
                             onClick={() => setPeriod(p.id as any)}
                             className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p.id
-                                ? "bg-white dark:bg-white/10 text-primary shadow-sm"
-                                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                ? "bg-white  text-primary shadow-sm"
+                                : "text-text-secondary hover:text-text-secondary :text-white/70"
                                 }`}
                         >
                             {p.label}
@@ -80,17 +80,17 @@ export default function DoctorRevenueChart() {
 
             <CardContent>
                 {isLoading ? (
-                    <div className="h-64 bg-gray-50 dark:bg-white/5 rounded-4xl animate-pulse"></div>
+                    <div className="h-64 bg-background rounded-4xl animate-pulse"></div>
                 ) : (
                     <div className="h-70 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#78716C20" />
                                 <XAxis
                                     dataKey="label"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 'bold' }}
+                                    tick={{ fill: '#78716C', fontSize: 8, fontWeight: 'bold' }}
                                     interval={period === 'month' ? 4 : (period === 'year' ? 1 : 'preserveStartEnd')}
                                     tickFormatter={(val) => {
                                         if (period === 'day') {
@@ -106,21 +106,21 @@ export default function DoctorRevenueChart() {
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                                    tick={{ fill: '#78716C', fontSize: 10, fontWeight: 'bold' }}
                                     tickFormatter={(value) => `${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
-                                    label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10, fontWeight: "bold", offset: 10 }}
+                                    label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#78716C", fontSize: 10, fontWeight: "bold", offset: 10 }}
                                     domain={[0, (data: any) => Math.max(data.max > 50000 ? data.max : (period === 'day' ? 50000 : (period === 'month' ? 150000 : 500000)))]}
                                 />
                                 <Tooltip
-                                    cursor={{ fill: '#f1f5f9', opacity: 0.1 }}
+                                    cursor={{ fill: '#F4F3EE', opacity: 0.1 }}
                                     contentStyle={{
-                                        backgroundColor: "#18181b",
+                                        backgroundColor: "#1C1917",
                                         border: "none",
                                         borderRadius: "16px",
                                         boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                                     }}
-                                    itemStyle={{ color: "#00b495", fontWeight: 'bold', fontSize: '12px' }}
-                                    labelStyle={{ color: "#94a3b8", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
+                                    itemStyle={{ color: "#0F4C5C", fontWeight: 'bold', fontSize: '12px' }}
+                                    labelStyle={{ color: "#78716C", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
                                     labelFormatter={(val: any) => {
                                         if (period === 'day') return getDayLabel(val);
                                         return getMonthLabel(val);
@@ -135,8 +135,8 @@ export default function DoctorRevenueChart() {
                                 />
                                 <defs>
                                     <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#00b495" stopOpacity={1} />
-                                        <stop offset="95%" stopColor="#0fbda2" stopOpacity={0.8} />
+                                        <stop offset="5%" stopColor="#0F4C5C" stopOpacity={1} />
+                                        <stop offset="95%" stopColor="#0F4C5C" stopOpacity={0.8} />
                                     </linearGradient>
                                 </defs>
                             </BarChart>

@@ -1,33 +1,208 @@
 @import "tailwindcss";
 
-/* Primary (Teal/Green Brand) */
+/* =========================================================================
+   Design tokens — Medeaz refreshed palette
+   Brand: deep teal on warm cream, with lavender / cream / blue-teal surfaces.
+   ========================================================================= */
 @theme {
-  /* Map font-sans to the Inter variable loaded in layout.tsx */
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  /* Fonts */
+  --font-sans: var(--font-inter), "Inter Fallback", ui-sans-serif, system-ui,
+    -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-serif: var(--font-fraunces), "Fraunces Fallback", ui-serif, Georgia,
+    Cambria, "Times New Roman", serif;
+  --font-display: var(--font-fraunces), "Fraunces Fallback", ui-serif, Georgia,
+    Cambria, "Times New Roman", serif;
 
-  --color-primary: #00b495;
-  --color-primary-hover: #19bca0;
-  --color-primary-light: #4dcbb5;
-  --color-primary-muted: #b3e9df;
-  --color-primary-bg: #e6f8f4;
+  /* Primary — deep teal */
+  --color-primary: #0f4c5c;
+  --color-primary-hover: #0a3a47;
+  --color-primary-light: lab(29.2508 -14.7252 -15.1858 / 0.2);
+  --color-primary-muted: lab(29.2508 -14.7252 -15.1858 / 0.1);
+  --color-primary-bg: lab(29.2508 -14.7252 -15.1858 / 0.08);
 
   /* Neutrals */
+  --color-background: #f4f3ee;
   --color-white: #ffffff;
   --color-black: #000000;
-  --color-surface: #E5E5E5;
+  --color-ink: #111111;
+  --color-ink-soft: #1c1917;
+
+  /* Surfaces (tinted section/card backgrounds) */
+  --color-surface: #e3eff2;
+  --color-surface-cream: #fdf4e7;
+  --color-surface-lavender: #ede9f7;
+  --color-surface-overlay: lab(9.05128 1.17788 1.97037 / 0.03);
+
+  /* Accent */
+  --color-accent-purple: lab(61.0331 19.6306 -38.5632 / 0.2);
+  --color-accent-purple-strong: lab(61.0331 19.6306 -38.5632);
 
   /* Text */
-  --color-text-primary: #48494c;
-  --color-text-secondary: #858687;
-  --color-text-muted: #9e9fa0;
+  --color-text-primary: #1c1917;
+  --color-text-secondary: #78716c;
+  --color-text-muted: #78716c;
+  --color-foreground: #1c1917;
 
   /* Borders */
-  --color-border: #ACACB4;
-  --color-border-light: #B8B8B9;
+  --color-border: lab(29.2508 -14.7252 -15.1858 / 0.2);
+  --color-border-light: lab(29.2508 -14.7252 -15.1858 / 0.1);
+
+  /* Alpha whites (for translucent overlays on dark backgrounds) */
+  --color-white-70: oklab(0.999994 0.0000455677 0.0000200868 / 0.7);
+  --color-white-60: oklab(0.999994 0.0000455677 0.0000200868 / 0.6);
+  --color-white-45: oklab(0.999994 0.0000455678 0.0000200868 / 0.45);
+  --color-white-40: oklab(0.999994 0.0000455678 0.0000200868 / 0.4);
+  --color-white-30: oklab(0.999994 0.0000455678 0.0000200868 / 0.3);
+
+  /* Semantic status colors (kept for warnings/errors) */
+  --color-danger: #b4232c;
+  --color-warning: #b4581d;
+}
+
+/* =========================================================================
+   Base
+   ========================================================================= */
+html {
+  background: var(--color-background);
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
+  background: var(--color-background);
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01", "ss03";
+}
+
+/* =========================================================================
+   Typography — Fraunces headings (Inter body), site-wide defaults.
+   Escape hatch: add `font-sans` on any heading that should stay sans.
+   ========================================================================= */
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  font-optical-sizing: auto;
+  color: var(--color-text-primary);
+}
+
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.font-display {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  font-optical-sizing: auto;
+}
+
+/* =========================================================================
+   Form controls — consistent 5-10px radius for inputs + buttons.
+   Any <input>, <textarea>, <select> gets a sane baseline regardless of
+   whether it uses the Input component.
+   ========================================================================= */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+input[type="url"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+textarea,
+select {
+  border-radius: 8px;
+  font-family: var(--font-sans);
+}
+
+/* Checkbox / radio stay square with slight rounding */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--color-primary);
+}
+
+button {
+  font-family: var(--font-sans);
+}
+
+/* Make every interactive control feel clickable by default */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a {
+  cursor: pointer;
+}
+
+/* Use a consistent selection color across the site */
+::selection {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* =========================================================================
+   Dashboard sidebar shell (used by patient / doctor / clinic_admin portals)
+   ========================================================================= */
+.lens-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  flex-shrink: 0;
+  min-height: 100vh;
+  max-height: 100vh;
+  padding: 1.25rem 0.75rem;
+  background: var(--color-background);
+  border-right: 1px solid var(--color-border-light);
+  transition: width 0.22s ease;
+  overflow: hidden;
+}
+
+.lens-sidebar-collapsed {
+  width: 80px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.lens-nav-item,
+.lens-nav-item-active {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  color: var(--color-text-secondary);
+  transition: background 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+}
+
+.lens-nav-item:hover {
+  background: var(--color-primary-muted);
+  color: var(--color-primary);
+}
+
+.lens-nav-item-active {
+  background: var(--color-primary-muted);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.lens-section-label {
+  padding: 0 0.9rem;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
 }

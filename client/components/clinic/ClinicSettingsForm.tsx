@@ -134,28 +134,28 @@ export default function ClinicSettingsForm() {
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 h-96 animate-pulse"></div>
+      <div className="bg-white p-6 rounded-xl border border-border-light h-96 animate-pulse"></div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
+      <div className="bg-white p-6 rounded-xl border border-border-light">
+        <h2 className="text-lg font-bold text-text-primary mb-6">
           {t('clinic.clinicName')}
         </h2>
 
-        <div className="flex flex-col items-center mb-8 pb-8 border-b border-gray-100 dark:border-gray-700/50">
+        <div className="flex flex-col items-center mb-8 pb-8 border-b border-border-light">
           <div className="relative group">
-            <div className="h-28 w-28 rounded-3xl overflow-hidden border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-slate-900/50 flex items-center justify-center transition-all group-hover:border-primary/50">
+            <div className="h-28 w-28 rounded-3xl overflow-hidden border-2 border-dashed border-border-light bg-background/50 flex items-center justify-center transition-all group-hover:border-primary/50">
               {photo ? (
                 <img src={photo} alt="Clinic Logo" className="h-full w-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500">
+                <div className="flex flex-col items-center gap-1 text-text-secondary">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span className="text-[10px] font-black uppercase tracking-widest ">{t('clinic.identityLogo')}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest">{t('clinic.identityLogo')}</span>
                 </div>
               )}
             </div>
@@ -175,7 +175,7 @@ export default function ClinicSettingsForm() {
               </button>
             )}
           </div>
-          <p className="text-[10px] text-gray-400 mt-3 font-bold uppercase tracking-widest ">{t('clinic.visualIdentity')}</p>
+          <p className="text-[10px] text-text-secondary mt-3 font-bold uppercase tracking-widest">{t('clinic.visualIdentity')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,8 +206,8 @@ export default function ClinicSettingsForm() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
+      <div className="bg-white p-6 rounded-xl border border-border-light">
+        <h2 className="text-lg font-bold text-text-primary mb-6">
           {t('settings.workingHours')}
         </h2>
 
@@ -215,7 +215,7 @@ export default function ClinicSettingsForm() {
           {days.map((day) => (
             <div key={day} className="flex items-center gap-4">
               <div className="w-32">
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 capitalize">
+                <p className="text-sm font-semibold text-text-primary capitalize">
                   {t(`schedule.${day}`)}
                 </p>
               </div>
@@ -231,7 +231,7 @@ export default function ClinicSettingsForm() {
                       onChange={field.onChange}
                       className="h-4 w-4 text-primary rounded focus:ring-primary"
                     />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="text-sm text-text-secondary">
                       {t('settings.closed')}
                     </span>
                   </label>
@@ -243,13 +243,13 @@ export default function ClinicSettingsForm() {
                   <input
                     type="time"
                     {...register(`workingHours.${day}.open`)}
-                    className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="px-3 py-2 border border-border-light rounded-lg bg-white text-text-primary focus:ring-2 focus:ring-primary focus:outline-none"
                   />
-                  <span className="text-gray-500" dir="ltr">—</span>
+                  <span className="text-text-secondary" dir="ltr">—</span>
                   <input
                     type="time"
                     {...register(`workingHours.${day}.close`)}
-                    className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="px-3 py-2 border border-border-light rounded-lg bg-white text-text-primary focus:ring-2 focus:ring-primary focus:outline-none"
                   />
                 </>
               )}

@@ -61,10 +61,10 @@ export default function ConversationList({ conversations, activeConversationId, 
   };
 
   return (
-    <div className={`w-full md:w-72 flex-shrink-0 border-r border-black/5 dark:border-white/5 flex flex-col h-full bg-white dark:bg-[#18181b] ${activeConversationId ? 'hidden md:flex' : 'flex'}`}>
+    <div className={`w-full md:w-72 flex-shrink-0 border-r border-black/5  flex flex-col h-full bg-white  ${activeConversationId ? 'hidden md:flex' : 'flex'}`}>
       {/* Header */}
-      <div className="px-4 py-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
-        <h2 className="text-sm font-semibold font-heading text-gray-900 dark:text-[#f4f4f5]">Messages</h2>
+      <div className="px-4 py-4 border-b border-black/5 flex items-center justify-between">
+        <h2 className="text-sm font-semibold font-heading text-text-primary">Messages</h2>
       </div>
 
       {/* Conversation list */}
@@ -72,14 +72,14 @@ export default function ConversationList({ conversations, activeConversationId, 
         {isLoading ? (
           <div className="p-3 space-y-2">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-lg bg-black/[0.06] dark:bg-white/[0.06]" />
+              <div key={i} className="h-16 animate-pulse rounded-lg bg-black/[0.06]" />
             ))}
           </div>
         ) : conversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <MessageSquare size={36} className="text-text-muted dark:text-[#52525b]" strokeWidth={1.5} />
-            <p className="text-xs font-semibold text-gray-900 dark:text-[#f4f4f5] mt-2">{t('chat.noConversations')}</p>
-            <p className="text-[10px] text-text-muted dark:text-[#71717a] mt-1">{t('chat.startChat')}</p>
+            <MessageSquare size={36} className="text-text-muted" strokeWidth={1.5} />
+            <p className="text-xs font-semibold text-text-primary mt-2">{t('chat.noConversations')}</p>
+            <p className="text-[10px] text-text-muted mt-1">{t('chat.startChat')}</p>
           </div>
         ) : (
           conversations.map((c) => {
@@ -92,8 +92,8 @@ export default function ConversationList({ conversations, activeConversationId, 
                   ${activeConversationId === c._id
                     ? 'bg-primary/5 border-r-2 border-r-primary'
                     : unread
-                      ? 'bg-primary/[0.03] dark:bg-primary/[0.06] hover:bg-primary/[0.06]'
-                      : 'hover:bg-black/5 dark:hover:bg-white/5'
+                      ? 'bg-primary/[0.03]  hover:bg-primary/[0.06]'
+                      : 'hover:bg-black/5 :bg-white/5'
                   }`}
               >
                 <div className="relative">
@@ -106,16 +106,16 @@ export default function ConversationList({ conversations, activeConversationId, 
                   </div>
                   {/* Unread dot indicator */}
                   {unread && (
-                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-primary border-2 border-white dark:border-[#18181b]" />
+                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-primary border-2 border-white" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <span className={`text-sm font-heading truncate ${unread ? 'font-black text-gray-950 dark:text-white' : 'font-semibold text-gray-900 dark:text-[#f4f4f5]'}`}>
+                    <span className={`text-sm font-heading truncate ${unread ? 'font-black text-text-primary ' : 'font-semibold text-text-primary '}`}>
                       {c.otherParty.name}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] flex-shrink-0 ${unread ? 'font-bold text-primary font-heading' : 'text-text-muted dark:text-[#71717a]'}`}>
+                      <span className={`text-[10px] flex-shrink-0 ${unread ? 'font-bold text-primary font-heading' : 'text-text-muted '}`}>
                         {formatTime(c.lastMessageAt)}
                       </span>
                       <button
@@ -128,8 +128,8 @@ export default function ConversationList({ conversations, activeConversationId, 
                   </div>
                   <div className="flex items-center justify-between mt-0.5">
                     <p className={`text-xs truncate max-w-[140px] ${unread
-                      ? 'font-bold text-gray-950 dark:text-white'
-                      : 'text-text-muted dark:text-[#71717a]'}`}>
+                      ? 'font-bold text-text-primary '
+                      : 'text-text-muted '}`}>
                       {c.lastMessage || 'No messages yet'}
                     </p>
                     {unread && (

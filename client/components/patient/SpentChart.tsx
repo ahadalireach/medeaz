@@ -23,7 +23,7 @@ export default function SpentChart({ data }: SpentChartProps) {
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="text-xl">{t('patient.revenue.title')}</CardTitle>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-1">
           {t('patient.revenue.subtitle')}
         </p>
       </CardHeader>
@@ -34,16 +34,16 @@ export default function SpentChart({ data }: SpentChartProps) {
             <AreaChart data={[...data].reverse()} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
               <defs>
                 <linearGradient id="colorSpent" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00b495" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#00b495" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#0F4C5C" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#0F4C5C" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#78716C20" />
               <XAxis 
                 dataKey="label" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 'bold' }}
+                tick={{ fill: '#78716C', fontSize: 9, fontWeight: 'bold' }}
                 interval="preserveStartEnd"
                 tickFormatter={(value) => {
                     const parts = value.split(/[ -]/);
@@ -56,19 +56,19 @@ export default function SpentChart({ data }: SpentChartProps) {
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                tick={{ fill: '#78716C', fontSize: 10, fontWeight: 'bold' }}
                 tickFormatter={(value) => `${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
-                label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10, fontWeight: "bold", offset: 10 }}
+                label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#78716C", fontSize: 10, fontWeight: "bold", offset: 10 }}
               />
               <Tooltip 
                 contentStyle={{
-                   backgroundColor: "#18181b",
+                   backgroundColor: "#1C1917",
                    border: "none",
                    borderRadius: "16px",
                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                 }}
-                itemStyle={{ color: "#00b495", fontWeight: 'bold', fontSize: '12px' }}
-                labelStyle={{ color: "#94a3b8", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
+                itemStyle={{ color: "#0F4C5C", fontWeight: 'bold', fontSize: '12px' }}
+                labelStyle={{ color: "#78716C", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
                 labelFormatter={(value: any) => {
                     const parts = value.split(/[ -]/);
                     if (/^\d+$/.test(parts[0])) return value;
@@ -81,7 +81,7 @@ export default function SpentChart({ data }: SpentChartProps) {
               <Area
                 type="monotone"
                 dataKey="spent"
-                stroke="#00b495"
+                stroke="#0F4C5C"
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#colorSpent)"

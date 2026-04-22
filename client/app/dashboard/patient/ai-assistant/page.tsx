@@ -59,12 +59,12 @@ export default function AIAssistantPage() {
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="text-xl font-bold font-heading tracking-tight text-gray-900 dark:text-[#f4f4f5]">AI Assistant</h1>
-          <p className="text-sm font-body text-text-secondary dark:text-[#a1a1aa] mt-1">{t('ai.disclaimer').slice(0, 50)}...</p>
+          <h1 className="text-xl font-bold font-heading tracking-tight text-text-primary">AI Assistant</h1>
+          <p className="text-sm font-body text-text-secondary mt-1">{t('ai.disclaimer').slice(0, 50)}...</p>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col rounded-xl overflow-hidden border border-black/5 dark:border-white/5 bg-white dark:bg-[#18181b]">
+      <div className="flex-1 flex flex-col rounded-xl overflow-hidden border border-black/5 bg-white">
         <div 
           ref={scrollAreaRef}
           className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3"
@@ -81,12 +81,12 @@ export default function AIAssistantPage() {
                   ? 'rounded-br-sm bg-primary text-white'
                   : msg.id === 'disclaimer'
                     ? 'rounded-bl-sm bg-primary/10 text-primary border border-primary/20'
-                    : 'rounded-bl-sm bg-slate-50 dark:bg-slate-800/50 border border-black/5 dark:border-white/5 text-slate-900 dark:text-slate-100'
+                    : 'rounded-bl-sm bg-background  border border-black/5  text-text-primary '
                 }`}
                 dir="auto"
               >
                 {msg.role === 'model' ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-p:leading-relaxed prose-headings:font-heading prose-headings:mt-2 prose-headings:mb-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:font-semibold">
+                  <div className="prose prose-sm max-w-none prose-p:my-1 prose-p:leading-relaxed prose-headings:font-heading prose-headings:mt-2 prose-headings:mb-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:font-semibold">
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : msg.content}
@@ -99,7 +99,7 @@ export default function AIAssistantPage() {
               <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mr-2">
                 <Bot size={14} className="text-primary" />
               </div>
-              <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-[#f8f9fa] dark:bg-[#1f1f23] border border-black/5 dark:border-white/5">
+              <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-[#F4F3EE] border border-black/5">
                 <div className="flex gap-1 items-center h-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:0ms]" />
                   <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:150ms]" />
@@ -110,7 +110,7 @@ export default function AIAssistantPage() {
           )}
         </div>
 
-        <div className="border-t border-black/5 dark:border-white/5 p-4 flex items-end gap-3">
+        <div className="border-t border-black/5 p-4 flex items-end gap-3">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -118,13 +118,7 @@ export default function AIAssistantPage() {
             placeholder={t('ai.askQuestion')}
             rows={1}
             dir="auto"
-            className="flex-1 resize-none px-3.5 py-2.5 rounded-lg text-sm font-body
-              bg-[#f8f9fa] dark:bg-[#1f1f23]
-               dark:text-[#e4e4e7]
-              border border-black/8 dark:border-white/8
-              placeholder:text-text-muted dark:placeholder:text-[#52525b]
-              focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent
-              max-h-32 overflow-y-auto font-medium"
+            className="flex-1 resize-none px-3.5 py-2.5 rounded-lg text-sm font-body bg-[#F4F3EE] border border-black/8 placeholder:text-text-muted :text-[#78716C] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent max-h-32 overflow-y-auto font-medium"
           />
           <button
             onClick={handleSend}

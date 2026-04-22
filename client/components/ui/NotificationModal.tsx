@@ -80,18 +80,18 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
                 onClick={onClose}
             />
 
-            <div className="relative w-full max-w-md bg-white dark:bg-[#18181b] rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-                <div className="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-primary/5">
+            <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                <div className="p-6 border-b border-black/5 flex items-center justify-between bg-primary/5">
                     <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center relative">
                             <Bell className="text-primary h-5 w-5" />
                             {unreadCount > 0 && (
-                                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-white dark:border-[#18181b]" />
+                                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-white" />
                             )}
                         </div>
                         <div>
-                            <h2 className="font-bold text-gray-900 dark:text-white uppercase tracking-widest text-[10px]">Notifications</h2>
-                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">
+                            <h2 className="font-bold text-text-primary uppercase tracking-widest text-[10px]">Notifications</h2>
+                            <p className="text-[10px] text-text-secondary font-bold uppercase tracking-wider mt-1">
                                 You have {unreadCount} unread
                             </p>
                         </div>
@@ -99,14 +99,14 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
                     <div className="flex items-center gap-1">
                         <button
                             onClick={handleClearAll}
-                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            className="p-2 text-text-secondary hover:text-red-500 transition-colors"
                             title="Clear all"
                         >
                             <Trash2 size={18} />
                         </button>
                         <button
                             onClick={onClose}
-                            className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                            className="p-2 text-text-secondary hover:text-text-primary :text-white transition-colors"
                         >
                             <X size={20} />
                         </button>
@@ -116,8 +116,8 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
                 <div className="max-h-[60vh] overflow-y-auto p-4 space-y-3">
                     {notifications.length === 0 ? (
                         <div className="py-20 flex flex-col items-center justify-center text-center opacity-50">
-                            <Bell className="h-12 w-12 text-gray-300 mb-4" />
-                            <p className="text-sm font-bold uppercase tracking-widest text-gray-400">All caught up!</p>
+                            <Bell className="h-12 w-12 text-white/70 mb-4" />
+                            <p className="text-sm font-bold uppercase tracking-widest text-text-secondary">All caught up!</p>
                         </div>
                     ) : (
                         notifications.map((notification: any) => (
@@ -125,27 +125,27 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
                                 key={notification._id}
                                 onClick={() => !notification.read && handleMarkAsRead(notification._id)}
                                 className={`group p-4 rounded-2xl border transition-all cursor-pointer relative ${notification.read
-                                    ? "bg-gray-50/50 dark:bg-white/5 border-transparent opacity-80"
-                                    : "bg-white dark:bg-[#1c1c20] border-primary/20 shadow-sm border-l-4 border-l-primary"
+                                    ? "bg-background/50  border-transparent opacity-80"
+                                    : "bg-white  border-primary/20 shadow-sm border-l-4 border-l-primary"
                                     }`}
                             >
                                 {!notification.read && (
                                     <div className="absolute top-4 right-4 h-2 w-2 bg-primary rounded-full" />
                                 )}
                                 <div className="flex gap-4">
-                                    <div className={`h-10 w-10 min-w-10 rounded-xl flex items-center justify-center ${notification.read ? "bg-gray-100 dark:bg-white/5" : "bg-primary/10"
+                                    <div className={`h-10 w-10 min-w-10 rounded-xl flex items-center justify-center ${notification.read ? "bg-surface " : "bg-primary/10"
                                         }`}>
-                                        <CheckCircle2 size={18} className={notification.read ? "text-gray-400" : "text-primary"} />
+                                        <CheckCircle2 size={18} className={notification.read ? "text-text-secondary" : "text-primary"} />
                                     </div>
                                     <div className="space-y-1 pr-4">
-                                        <p className={`text-sm font-bold transition-colors ${notification.read ? "text-gray-600 dark:text-gray-400" : "text-gray-900 dark:text-white"
+                                        <p className={`text-sm font-bold transition-colors ${notification.read ? "text-text-secondary " : "text-text-primary "
                                             }`}>
                                             {notification.title}
                                         </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                                        <p className="text-xs text-text-secondary leading-relaxed font-medium">
                                             {notification.message}
                                         </p>
-                                        <div className="flex items-center gap-1.5 pt-1 text-[10px] text-gray-400 uppercase tracking-widest font-bold">
+                                        <div className="flex items-center gap-1.5 pt-1 text-[10px] text-text-secondary uppercase tracking-widest font-bold">
                                             <Clock size={10} />
                                             <span>{getTimeLabel(notification.createdAt)}</span>
                                         </div>
@@ -157,8 +157,8 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
                 </div>
 
                 {notifications.length > 0 && (
-                    <div className="p-4 bg-gray-50/50 dark:bg-white/5 border-t border-black/5 dark:border-white/5 text-center">
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">
+                    <div className="p-4 bg-background/50 border-t border-black/5 text-center">
+                        <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest leading-none">
                             End of notifications
                         </p>
                     </div>

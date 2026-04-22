@@ -5,7 +5,7 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
 export function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
-      className={cn("animate-pulse rounded-md bg-gray-200 dark:bg-gray-700", className)}
+      className={cn("animate-pulse rounded-md bg-surface ", className)}
       {...props}
     />
   );
@@ -13,7 +13,7 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
 
 export function CardSkeleton() {
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
+    <div className="bg-white p-6 rounded-2xl border border-border-light">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <Skeleton className="h-4 w-24 mb-3" />
@@ -27,11 +27,11 @@ export function CardSkeleton() {
 
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+    <div className="bg-white rounded-2xl border border-border-light overflow-hidden">
+      <div className="p-6 border-b border-border-light">
         <Skeleton className="h-6 w-48" />
       </div>
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="divide-y divide-border-light">
         {Array.from({ length: rows }).map((_, i) => (
           <div key={i} className="p-6 flex items-center gap-4">
             <Skeleton className="h-12 w-12 rounded-full" />

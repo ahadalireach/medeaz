@@ -7,7 +7,7 @@ export default function LanguageSwitcher() {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-black/10 dark:border-white/10 text-gray-700 dark:text-[#e4e4e7] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-black/10 text-text-primary hover:bg-black/5 :bg-white/5 transition-colors"
     >
       <span className={language === 'en' ? 'text-primary font-bold' : 'text-text-muted'}>EN</span>
       <span className="text-text-muted">|</span>

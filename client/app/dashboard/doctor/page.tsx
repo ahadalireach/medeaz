@@ -156,10 +156,10 @@ export default function DoctorDashboard() {
                         appointment.status === "pending"
                           ? "bg-primary-bg text-primary"
                           : appointment.status === "confirmed"
-                          ? "bg-blue-50 text-blue-600"
+                          ? "bg-surface text-primary"
                           : appointment.status === "in-progress"
-                          ? "bg-orange-50 text-orange-600"
-                          : "bg-green-50 text-green-600"
+                          ? "bg-surface-cream text-[#B45309]"
+                          : "bg-surface text-primary"
                       }`}
                     >
                       {appointment.status}

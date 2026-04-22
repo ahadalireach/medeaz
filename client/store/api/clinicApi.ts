@@ -127,6 +127,7 @@ export const clinicApi = createApi({
     "PatientProfile",
     "ClinicAppointmentDetail",
     "Prescriptions",
+    "RevenueHistory",
   ],
   endpoints: (builder) => ({
     getOverview: builder.query({
@@ -286,6 +287,29 @@ export const clinicApi = createApi({
       }),
       invalidatesTags: ["Patients", "Overview"],
     }),
+
+    // Revenue history
+    getRevenueHistory: builder.query({
+      query: (params) => ({
+        url: "/clinic/revenue/history",
+        params,
+      }),
+      providesTags: ["RevenueHistory"],
+    }),
+    deleteRevenueHistoryRecord: builder.mutation({
+      query: (id) => ({
+        url: `/clinic/revenue/history/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["RevenueHistory"],
+    }),
+    clearRevenueHistory: builder.mutation<unknown, void>({
+      query: () => ({
+        url: "/clinic/revenue/history",
+        method: "DELETE",
+      }),
+      invalidatesTags: ["RevenueHistory"],
+    }),
   }),
 });
 
@@ -315,4 +339,7 @@ export const {
   useGetPatientProfileQuery,
   useDeleteRecordMutation,
   useCreatePatientMutation,
+  useGetRevenueHistoryQuery,
+  useDeleteRevenueHistoryRecordMutation,
+  useClearRevenueHistoryMutation,
 } = clinicApi;

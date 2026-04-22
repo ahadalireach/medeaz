@@ -1,188 +1,270 @@
 "use client";
 
 import { useState } from "react";
-import { useLoginMutation } from "@/store/api/authApi";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
+import { toast } from "react-hot-toast";
+
+import { useLoginMutation } from "@/store/api/authApi";
 import { setCredentials } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import Link from "next/link";
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
-import { toast } from "react-hot-toast";
+import {
+  Eye,
+  EyeOff,
+  UserPlus,
+  Stethoscope,
+  Building2,
+  ArrowRight,
+} from "lucide-react";
+
+const ROLE_META: Record<
+  string,
+  { label: string; description: string; icon: React.ComponentType<{ className?: string }> }
+> = {
+  patient: {
+    label: "Patient",
+    description: "Your health records and appointments",
+    icon: UserPlus,
+  },
+  doctor: {
+    label: "Doctor",
+    description: "See patients, review labs, prescribe",
+    icon: Stethoscope,
+  },
+  clinic_admin: {
+    label: "Clinic",
+    description: "Manage staff, schedules, and revenue",
+    icon: Building2,
+  },
+};
+
+function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" aria-hidden>
+      <path
+        fill="#EA4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+      />
+    </svg>
+  );
+}
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showRoleSelector, setShowRoleSelector] = useState(false);
-  const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [stage, setStage] = useState<"email" | "password">("email");
+  const [roleChoices, setRoleChoices] = useState<string[] | null>(null);
 
   const [login, { isLoading }] = useLoginMutation();
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const validateForm = () => {
-    if (!email.trim()) {
-      toast.error("Please enter your email address.");
-      return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const continueWithEmail = () => {
+    if (!isEmailValid) {
       toast.error("Please enter a valid email address.");
-      return false;
+      return;
     }
-    if (!password) {
-      toast.error("Please enter your password.");
-      return false;
-    }
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
-      return false;
-    }
-    return true;
+    setStage("password");
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (stage === "email") return continueWithEmail();
 
-    if (!validateForm()) return;
+    if (!password || password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
 
     const toastId = toast.loading("Authenticating...");
-
     try {
       const res = await login({ email, password }).unwrap();
-
-      // Store credentials in Redux
       dispatch(
         setCredentials({ user: res.data, accessToken: res.accessToken }),
       );
+      const roles: string[] = Array.isArray(res.data?.roles)
+        ? res.data.roles
+        : [];
 
-      if (res.data.roles && res.data.roles.length > 1) {
-        setUserRoles(res.data.roles);
-        setShowRoleSelector(true);
+      if (roles.length > 1) {
         toast.dismiss(toastId);
-      } else {
-        const role = res.data.roles[0] || "patient";
-        toast.success("Welcome back!", { id: toastId });
-        router.push(`/dashboard/${role}`);
+        setRoleChoices(roles);
+        return;
       }
+
+      const role = roles[0] || "patient";
+      toast.success("Welcome back!", { id: toastId });
+      router.push(`/dashboard/${role}`);
     } catch (err: any) {
       toast.error(err?.data?.message || "Invalid credentials", { id: toastId });
     }
   };
 
-  const handleRoleSelect = (role: string) => {
-    toast.success(`Accessing ${role} dashboard...`);
-    router.push(`/dashboard/${role}`);
-  };
-
-  if (showRoleSelector) {
+  if (roleChoices) {
     return (
-      <div className="w-full max-w-md text-center animate-in fade-in zoom-in duration-300">
-        <h1 className="text-3xl font-bold text-foreground mb-4 tracking-tight">
-          Select Portal
-        </h1>
-        <p className="text-text-secondary mb-10 leading-relaxed">
-          Which account would you like to access today?
-        </p>
-
-        <div className="grid gap-4">
-          {userRoles.map((role) => (
-            <Button
-              key={role}
-              variant="outline"
-              onClick={() => handleRoleSelect(role)}
-              className="h-20 rounded-2xl border-2 border-border-light hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center transition-all group"
-            >
-              <span className="text-lg font-bold capitalize text-foreground group-hover:text-primary">
-                {role.replace("_", " ")}
-              </span>
-              <span className="text-xs text-text-muted capitalize">
-                Access {role} Dashboard
-              </span>
-            </Button>
-          ))}
+      <>
+        <div className="rounded-2xl border border-border-light bg-surface-cream/60 p-5 sm:p-6 text-left">
+          <p className="text-[13px] text-text-secondary text-center mb-4">
+            You have access to more than one dashboard. Choose where to go.
+          </p>
+          <div className="space-y-2">
+            {roleChoices.map((role) => {
+              const meta = ROLE_META[role] || {
+                label: role.replace("_", " "),
+                description: "Open dashboard",
+                icon: UserPlus,
+              };
+              const Icon = meta.icon;
+              return (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => {
+                    toast.success(`Opening ${meta.label} dashboard`);
+                    router.push(`/dashboard/${role}`);
+                  }}
+                  className="group w-full flex items-center gap-3 rounded-lg border border-border-light bg-white px-4 py-3 text-left transition-colors hover:border-primary cursor-pointer"
+                >
+                  <span className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-primary-muted text-primary">
+                    <Icon className="h-4.5 w-4.5" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-[14px] font-semibold text-text-primary capitalize">
+                      {meta.label}
+                    </span>
+                    <span className="block text-[12px] text-text-secondary">
+                      {meta.description}
+                    </span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-text-secondary group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                </button>
+              );
+            })}
+          </div>
         </div>
-
         <button
-          onClick={() => setShowRoleSelector(false)}
-          className="mt-8 text-sm font-semibold text-text-muted hover:text-foreground transition-colors"
+          type="button"
+          onClick={() => {
+            setRoleChoices(null);
+            setStage("email");
+            setPassword("");
+          }}
+          className="mt-6 text-[13px] font-semibold text-text-secondary hover:text-primary cursor-pointer"
         >
-          Back to Login
+          Use a different account
         </button>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="w-full max-w-md text-center">
-      <h1 className="text-heading font-semibold text-4xl md:text-5xl tracking-tight text-foreground mb-10 leading-[1.2]">
-        Welcome back.
-      </h1>
+    <>
+      <div className="rounded-2xl border border-border-light bg-surface-cream/60 p-5 sm:p-6">
+        <button
+          type="button"
+          className="w-full flex items-center justify-center gap-3 h-12 rounded-lg border border-border-light bg-white text-[15px] font-semibold text-text-primary transition-colors hover:border-primary/50 hover:text-primary cursor-pointer"
+          onClick={() => toast("Google sign-in coming soon")}
+        >
+          <GoogleIcon />
+          Continue with Google
+        </button>
 
-      <form onSubmit={handleLogin} className="space-y-4 text-left">
-        <Input
-          type="email"
-          placeholder="Email address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all"
-        />
-        <div className="relative">
-          <Input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+        <div className="my-5 flex items-center gap-3 text-[13px] text-text-secondary">
+          <span className="h-px flex-1 bg-border-light" />
+          Or
+          <span className="h-px flex-1 bg-border-light" />
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            type="email"
+            autoComplete="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (stage === "password") setStage("email");
+            }}
             required
-            className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted pl-5 pr-24 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all"
+            className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
           />
-          <div className="absolute right-2 top-2 flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="w-10 h-10 rounded-xl text-text-muted hover:text-foreground"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
-            </Button>
-            <Button
-              type="submit"
-              size="icon"
-              className="group w-10 h-10 rounded-xl shadow-none hover:shadow-md transition-shadow"
-              disabled={isLoading}
-            >
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </div>
-        </div>
 
-        <div className="text-left mt-2 pl-2">
-          <Link
-            href="/forgot-password"
-            className="text-xs text-text-secondary font-medium hover:underline"
+          {stage === "password" && (
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoFocus
+                className="block h-12 w-full rounded-lg border border-border-light bg-white pl-4 pr-12 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute inset-y-0 right-2 my-auto inline-flex h-8 w-8 items-center justify-center rounded-md text-text-secondary hover:text-text-primary cursor-pointer"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4.5 w-4.5" />
+                ) : (
+                  <Eye className="h-4.5 w-4.5" />
+                )}
+              </button>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={isLoading}
           >
-            Forgot password?
-          </Link>
-        </div>
-      </form>
+            {isLoading
+              ? "Signing in..."
+              : stage === "email"
+              ? "Continue with email"
+              : "Sign in"}
+          </Button>
 
-      <p className="mt-12 text-[13px] text-text-secondary font-medium">
-        Don't have an account?{" "}
+          <div className="pt-1 text-center">
+            <Link
+              href="/forgot-password"
+              className="text-[13px] font-medium text-text-secondary hover:text-primary"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        </form>
+      </div>
+
+      <p className="mt-8 text-[14px] text-text-secondary">
+        New to Medeaz?{" "}
         <Link
           href="/register"
-          className="text-foreground font-semibold hover:underline"
+          className="font-semibold text-text-primary hover:text-primary"
         >
-          Create one.
+          Sign up
         </Link>
       </p>
-    </div>
+    </>
   );
 }

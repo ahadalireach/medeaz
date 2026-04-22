@@ -63,7 +63,15 @@ const baseQueryWithReauth: BaseQueryFn<
 export const doctorApi = createApi({
   reducerPath: 'doctorApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Patients', 'Prescriptions', 'Appointments', 'Schedule'],
+  tagTypes: [
+    'Patients',
+    'Prescriptions',
+    'Appointments',
+    'Schedule',
+    'DoctorProfile',
+    'Records',
+    'Revenue',
+  ],
   endpoints: (builder) => ({
     // Patients
     getPatients: builder.query({
@@ -178,6 +186,58 @@ export const doctorApi = createApi({
       }),
       invalidatesTags: ['Schedule'],
     }),
+
+    // Profile
+    getDoctorProfile: builder.query({
+      query: () => '/doctor/profile',
+      providesTags: ['DoctorProfile'],
+    }),
+    updateDoctorProfile: builder.mutation({
+      query: (body) => ({
+        url: '/doctor/profile',
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['DoctorProfile'],
+    }),
+
+    // Medical records
+    getRecordById: builder.query({
+      query: (id) => `/doctor/records/${id}`,
+      providesTags: (_result, _error, id) => [{ type: 'Records', id }],
+    }),
+
+    // Revenue analytics (for charts)
+    getRevenueAnalytics: builder.query({
+      query: (period: string = 'month') => ({
+        url: '/doctor/revenue/analytics',
+        params: { period },
+      }),
+      providesTags: ['Revenue'],
+    }),
+
+    // Revenue history
+    getRevenueHistory: builder.query({
+      query: (params) => ({
+        url: '/doctor/revenue/history',
+        params,
+      }),
+      providesTags: ['Revenue'],
+    }),
+    deleteRevenueHistoryRecord: builder.mutation({
+      query: (id) => ({
+        url: `/doctor/revenue/history/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Revenue'],
+    }),
+    clearRevenueHistory: builder.mutation<unknown, void>({
+      query: () => ({
+        url: '/doctor/revenue/history',
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Revenue'],
+    }),
   }),
 });
 
@@ -198,5 +258,12 @@ export const {
   useDeleteAppointmentMutation,
   useGetScheduleQuery,
   useUpdateScheduleMutation,
+  useGetDoctorProfileQuery,
+  useUpdateDoctorProfileMutation,
+  useGetRecordByIdQuery,
+  useGetRevenueAnalyticsQuery,
+  useGetRevenueHistoryQuery,
+  useDeleteRevenueHistoryRecordMutation,
+  useClearRevenueHistoryMutation,
 } = doctorApi;
 

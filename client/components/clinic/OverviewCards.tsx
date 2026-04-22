@@ -16,32 +16,32 @@ export default function OverviewCards() {
       label: t('clinic.todayPatients'),
       value: data?.data?.todayPatients || 0,
       icon: UsersIcon,
-      color: "text-[#4f46e5]",
-      bg: "bg-[#4f46e5]/10",
+      color: "text-[#5E4D9C]",
+      bg: "bg-[#5E4D9C]/10",
       isAmount: false,
     },
     {
       label: t('clinic.activeDoctor'),
       value: data?.data?.activeDoctors || 0,
       icon: UserCheckIcon,
-      color: "text-[#f97316]",
-      bg: "bg-[#f97316]/10",
+      color: "text-[#B45309]",
+      bg: "bg-[#B45309]/10",
       isAmount: false,
     },
     {
       label: `${t('analytics.today')}`,
       value: (data?.data?.todayRevenue || 0).toLocaleString(),
       icon: DollarSign,
-      color: "text-[#0ea5e9]",
-      bg: "bg-[#0ea5e9]/10",
+      color: "text-[#0F4C5C]",
+      bg: "bg-[#0F4C5C]/10",
       isAmount: true,
     },
     {
       label: `${t('analytics.thisMonth')}`,
       value: (data?.data?.monthlyRevenue || 0).toLocaleString(),
       icon: Calendar,
-      color: "text-[#10b981]",
-      bg: "bg-[#10b981]/10",
+      color: "text-[#0F4C5C]",
+      bg: "bg-[#0F4C5C]/10",
       isAmount: true,
     },
   ], [data, t]);
@@ -53,10 +53,10 @@ export default function OverviewCards() {
           <div key={i} className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] animate-pulse min-h-[120px]">
             <div className="flex items-center justify-between">
               <div className="space-y-2 flex-1">
-                <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-24" />
-                <div className="h-6 bg-gray-100 dark:bg-gray-800 rounded w-16" />
+                <div className="h-3 bg-surface rounded w-24" />
+                <div className="h-6 bg-surface rounded w-16" />
               </div>
-              <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-xl ml-3" />
+              <div className="h-10 w-10 bg-surface rounded-xl ml-3" />
             </div>
           </div>
         ))}
@@ -74,14 +74,14 @@ export default function OverviewCards() {
             className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] transition-all hover:border-primary/30 group shadow-sm flex items-center justify-between min-h-[100px] sm:min-h-[120px] relative overflow-hidden"
           >
             <div className="flex flex-col justify-center min-w-0 flex-1">
-              <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
+              <p className="text-[9px] sm:text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">
                 {stat.label}
               </p>
               <div className="flex items-baseline gap-1.5 min-w-0">
                 {stat.isAmount && (
-                  <span className="text-sm font-bold text-gray-400 shrink-0">{t('common.pkr')}</span>
+                  <span className="text-sm font-bold text-text-secondary shrink-0">{t('common.pkr')}</span>
                 )}
-                <p className="text-lg sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white tracking-tight truncate">
+                <p className="text-lg sm:text-xl lg:text-2xl font-black text-text-primary tracking-tight truncate">
                   {stat.value}
                 </p>
               </div>

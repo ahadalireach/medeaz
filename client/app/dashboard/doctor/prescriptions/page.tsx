@@ -12,12 +12,12 @@ function downloadPrescriptionPDF(prescription: any) {
   });
 
   const medRows = medicines.map((med: any, i: number) => `
-    <tr style="background:${i % 2 === 0 ? '#f8fffe' : '#fff'}">
-      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#111">${med.name || '-'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#374151">${med.dosage || '-'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#374151">${med.frequency || '-'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#374151">${med.duration || '-'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#374151">${med.instructions || '-'}</td>
+    <tr style="background:${i % 2 === 0 ? '#F4F3EE' : '#FFFFFF'}">
+      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;font-weight:600;color:#111">${med.name || '-'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;color:#78716C">${med.dosage || '-'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;color:#78716C">${med.frequency || '-'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;color:#78716C">${med.duration || '-'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #EDE9F7;color:#78716C">${med.instructions || '-'}</td>
     </tr>`
   ).join("");
 
@@ -30,27 +30,27 @@ function downloadPrescriptionPDF(prescription: any) {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #fff; color: #111; padding: 40px; }
     @media print { body { padding: 20px; } @page { margin: 20mm; } }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #00b495; }
-    .brand { font-size: 24px; font-weight: 800; color: #00b495; letter-spacing: -0.5px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #0F4C5C; }
+    .brand { font-size: 24px; font-weight: 800; color: #0F4C5C; letter-spacing: -0.5px; }
     .brand span { color: #111; }
-    .date { font-size: 13px; color: #6b7280; text-align: right; }
+    .date { font-size: 13px; color: #78716C; text-align: right; }
     .section { margin-bottom: 24px; }
-    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; font-weight: 700; margin-bottom: 6px; }
+    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #78716C; font-weight: 700; margin-bottom: 6px; }
     .patient-name { font-size: 20px; font-weight: 700; color: #111; }
-    .patient-email { font-size: 13px; color: #6b7280; margin-top: 2px; }
-    .diagnosis-box { background: #e6f8f4; border-left: 4px solid #00b495; padding: 12px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; color: #111; }
+    .patient-email { font-size: 13px; color: #78716C; margin-top: 2px; }
+    .diagnosis-box { background: #E3EFF2; border-left: 4px solid #0F4C5C; padding: 12px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; color: #111; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
-    thead th { background: #00b495; color: #fff; padding: 10px 14px; text-align: left; font-weight: 700; font-size: 12px; }
-    .notes { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; font-size: 13px; color: #374151; line-height: 1.6; margin-top: 8px; }
-    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 12px; color: #9ca3af; }
-    .sig-line { margin-top: 40px; border-top: 1px solid #111; width: 200px; padding-top: 6px; font-size: 12px; color: #6b7280; }
+    thead th { background: #0F4C5C; color: #fff; padding: 10px 14px; text-align: left; font-weight: 700; font-size: 12px; }
+    .notes { background: #F4F3EE; border: 1px solid #EDE9F7; border-radius: 8px; padding: 14px; font-size: 13px; color: #78716C; line-height: 1.6; margin-top: 8px; }
+    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #EDE9F7; display: flex; justify-content: space-between; font-size: 12px; color: #78716C; }
+    .sig-line { margin-top: 40px; border-top: 1px solid #111; width: 200px; padding-top: 6px; font-size: 12px; color: #78716C; }
   </style>
 </head>
 <body>
   <div class="header">
     <div>
       <div class="brand">Med<span>eaz</span></div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">Digital Healthcare Platform</div>
+      <div style="font-size:12px;color:#78716C;margin-top:4px">Digital Healthcare Platform</div>
     </div>
     <div class="date">
       <div style="font-weight:600;color:#111">PRESCRIPTION</div>

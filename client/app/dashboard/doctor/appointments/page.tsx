@@ -165,14 +165,14 @@ export default function AppointmentsPage() {
                     <span
                       className={`inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-center ${
                         appointment.status === "pending"
-                          ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                          ? "bg-surface-cream text-[#B45309] border border-border-light"
                           : appointment.status === "confirmed"
-                          ? "bg-blue-50 text-blue-700 border border-blue-200"
+                          ? "bg-surface text-primary border border-border-light"
                           : appointment.status === "in-progress"
-                          ? "bg-orange-50 text-orange-700 border border-orange-200"
+                          ? "bg-surface-cream text-[#B45309] border border-border-light"
                           : appointment.status === "completed"
-                          ? "bg-green-50 text-green-700 border border-green-200"
-                          : "bg-gray-50 text-gray-700 border border-gray-200"
+                          ? "bg-surface text-primary border border-border-light"
+                          : "bg-background text-text-primary border border-border-light"
                       }`}
                     >
                       {appointment.status.replace("-", " ")}
@@ -207,7 +207,7 @@ export default function AppointmentsPage() {
                     {appointment.status === "in-progress" && (
                       <button
                         onClick={() => handleStatusUpdate(appointment._id, "completed", "Complete")}
-                        className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-green-500 text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-green-600 transition-all shadow-md hover:shadow-lg w-full"
+                        className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-primary text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-primary transition-all shadow-md hover:shadow-lg w-full"
                       >
                         <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                         Complete

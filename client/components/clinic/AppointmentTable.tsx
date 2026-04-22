@@ -66,11 +66,11 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      confirmed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-      completed: "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400",
-      cancelled: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-      "in-progress": "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+      pending: "bg-surface-cream text-[#B45309]  ",
+      confirmed: "bg-surface text-primary  ",
+      completed: "bg-surface text-primary  ",
+      cancelled: "bg-red-100 text-red-800  ",
+      "in-progress": "bg-surface-lavender text-primary  ",
     };
 
     return (
@@ -86,54 +86,54 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
 
   return (
     <>
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
-        <h2 className="text-xl font-black text-slate-900 dark:text-white mb-6 ">{t('clinic.appointments.title')}</h2>
+      <div className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm">
+        <h2 className="text-xl font-black text-text-primary mb-6">{t('clinic.appointments.title')}</h2>
 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-800">
-                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('clinic.appointments.patient')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('clinic.appointments.doctor')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('clinic.appointments.dateTime')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('clinic.appointments.type')}</th>
-                <th className="text-center py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('clinic.appointments.status')}</th>
-                <th className="text-right py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('clinic.appointments.actions')}</th>
+              <tr className="border-b border-border-light">
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.patient')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.doctor')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.dateTime')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.type')}</th>
+                <th className="text-center py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.status')}</th>
+                <th className="text-right py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+            <tbody className="divide-y divide-slate-50">
               {appointments.map((appointment: any) => (
                 <tr
                   key={appointment._id}
-                  className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  className="group hover:bg-background :bg-ink-soft/50 transition-colors"
                 >
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 overflow-hidden">
+                      <div className="h-8 w-8 rounded-full bg-surface flex items-center justify-center text-text-secondary overflow-hidden">
                         {appointment.patientId?.photo ? (
                           <img src={appointment.patientId.photo} alt="P" className="h-full w-full object-cover" />
                         ) : (
                           <UserIcon size={16} />
                         )}
                       </div>
-                      <span className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+                      <span className="text-sm font-bold text-text-primary uppercase tracking-tight">
                         {appointment.patientId?.name || "N/A"}
                       </span>
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400 ">
+                    <span className="text-sm font-medium text-text-secondary">
                       Dr. {appointment.doctorId?.name || "N/A"}
                     </span>
                   </td>
                   <td className="py-4 px-4">
-                    <div className="bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-xl inline-block">
-                      <span className="text-xs font-black text-slate-700 dark:text-slate-300">
+                    <div className="bg-surface px-3 py-1.5 rounded-xl inline-block">
+                      <span className="text-xs font-black text-text-primary">
                         {appointment.dateTime ? format(new Date(appointment.dateTime), "MMM dd • h:mm a") : "N/A"}
                       </span>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-xs font-bold text-slate-500 uppercase">
+                  <td className="py-4 px-4 text-xs font-bold text-text-secondary uppercase">
                     {appointment.type || "consultation"}
                   </td>
                   <td className="py-4 px-4 text-center">
@@ -143,13 +143,13 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
                     <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => setDeleteId(appointment._id)}
-                      className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all group/btn active:scale-90"
+                      className="p-2 rounded-xl bg-surface text-text-secondary hover:text-red-500 hover:bg-red-50 transition-all group/btn active:scale-90"
                     >
                       <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />
                     </button>
                     <button
                       onClick={() => handleOpenDetail(appointment._id)}
-                      className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all group/btn"
+                      className="p-2 rounded-xl bg-surface text-text-secondary hover:text-primary hover:bg-primary/10 transition-all group/btn"
                     >
                       <EyeIcon size={16} className="group-hover/btn:scale-110 transition-transform" />
                     </button>
@@ -162,29 +162,29 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
         </div>
 
         {appointments.length === 0 && (
-          <div className="text-center py-20 bg-slate-50 dark:bg-slate-800/30 rounded-[2.5rem] mt-4 border-2 border-dashed border-slate-100 dark:border-slate-800">
-            <Calendar className="mx-auto h-12 w-12 text-slate-300 mb-4 opacity-50" />
-            <p className="text-slate-500 dark:text-slate-400 font-bold tracking-tight">{t('clinic.appointments.noAppointments')}</p>
+          <div className="text-center py-20 bg-background rounded-[2.5rem] mt-4 border-2 border-dashed border-border-light">
+            <Calendar className="mx-auto h-12 w-12 text-white/70 mb-4 opacity-50" />
+            <p className="text-text-secondary font-bold tracking-tight">{t('clinic.appointments.noAppointments')}</p>
           </div>
         )}
 
         {pagination?.pages > 1 && (
           <div className="mt-6 flex items-center justify-between">
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-semibold text-text-secondary">
               Page {pagination.page} of {pagination.pages}
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                 disabled={page <= 1}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-semibold disabled:opacity-50"
+                className="px-3 py-1.5 rounded-lg border border-border-light text-sm font-semibold disabled:opacity-50"
               >
                 {t('common.back')}
               </button>
               <button
                 onClick={() => setPage((prev) => Math.min(prev + 1, pagination.pages))}
                 disabled={page >= pagination.pages}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-semibold disabled:opacity-50"
+                className="px-3 py-1.5 rounded-lg border border-border-light text-sm font-semibold disabled:opacity-50"
               >
                 {t('common.next')}
               </button>

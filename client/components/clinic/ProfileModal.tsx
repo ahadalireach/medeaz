@@ -119,10 +119,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <img
                 src={profileImage}
                 alt="Profile"
-                className="h-24 w-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700"
+                className="h-24 w-24 rounded-full object-cover border-4 border-border-light"
               />
             ) : (
-              <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center border-4 border-gray-200 dark:border-gray-700">
+              <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center border-4 border-border-light">
                 <span className="text-3xl font-bold text-black">
                   {user?.name ? getInitials(user.name) : "CA"}
                 </span>
@@ -142,7 +142,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               />
             </label>
           </div>
-          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-3 text-sm text-text-secondary">
             Click the upload icon to change profile picture
           </p>
         </div>

@@ -48,11 +48,11 @@ function RatingModal({ isOpen, onClose, appointmentId, doctorId, reviewId, initi
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+      <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
+        <h3 className="text-xl font-bold text-text-primary mb-2">
           {reviewId ? t('patient.appointments.rating.updateTitle') : t('patient.appointments.rating.title')}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">{t('patient.appointments.rating.subtitle')}</p>
+        <p className="text-sm text-text-secondary mb-6">{t('patient.appointments.rating.subtitle')}</p>
 
         <div className="flex justify-center gap-2 mb-6">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -62,7 +62,7 @@ function RatingModal({ isOpen, onClose, appointmentId, doctorId, reviewId, initi
               className="p-1 transition-all"
             >
               <Star
-                className={`h-10 w-10 ${star <= rating ? "fill-primary text-primary" : "text-gray-300 dark:text-gray-600"
+                className={`h-10 w-10 ${star <= rating ? "fill-primary text-primary" : "text-white/70 "
                   }`}
               />
             </button>
@@ -73,7 +73,7 @@ function RatingModal({ isOpen, onClose, appointmentId, doctorId, reviewId, initi
           placeholder={t('patient.appointments.rating.placeholder')}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3 text-sm focus:ring-primary focus:border-primary mb-6 h-32"
+          className="w-full rounded-xl border-border-light bg-background p-3 text-sm focus:ring-primary focus:border-primary mb-6 h-32"
         />
 
         <div className="flex gap-3">
@@ -209,7 +209,7 @@ export default function AppointmentsPage() {
       case "completed":
         return "lens-badge-completed";
       case "in-progress":
-        return "bg-orange-500/10 text-orange-500 border-orange-500/20";
+        return "bg-[#B45309]/10 text-[#B45309] border-[#B45309]/20";
       default:
         return "lens-badge-neutral";
     }
@@ -240,7 +240,7 @@ export default function AppointmentsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-text-primary">
           {t('nav.appointments')}
         </h1>
         <Link href="/dashboard/patient/book-appointment">
@@ -259,7 +259,7 @@ export default function AppointmentsPage() {
             onClick={() => setView(filter)}
             className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors shrink-0 ${view === filter
               ? "bg-primary text-white"
-              : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-[#1a1a1a] dark:text-gray-300 dark:hover:bg-gray-800"
+              : "bg-white text-text-primary hover:bg-surface   :bg-ink-soft"
               }`}
           >
             {filter === "all" ? t('common.all') : 
@@ -276,17 +276,17 @@ export default function AppointmentsPage() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-40 animate-pulse rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1a1a1a]"
+              className="h-40 animate-pulse rounded-xl border border-border-light bg-white"
             />
           ))}
         </div>
       ) : appointments.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-[#1a1a1a]">
-          <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="rounded-xl border border-border-light bg-white p-12 text-center">
+          <Calendar className="mx-auto h-12 w-12 text-text-secondary" />
+          <h3 className="mt-4 text-lg font-semibold text-text-primary">
             {t('appointment.noAppointments')}
           </h3>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-text-secondary">
             {view === "upcoming"
               ? t('appointment.noUpcoming')
               : view === "past"
@@ -304,7 +304,7 @@ export default function AppointmentsPage() {
           {appointments.map((appointment: any) => (
             <div
               key={appointment._id}
-              className="rounded-xl border border-gray-200 bg-white p-6 transition-all hover:border-primary dark:border-gray-700 dark:bg-[#1a1a1a]"
+              className="rounded-xl border border-border-light bg-white p-6 transition-all hover:border-primary"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex-1">
@@ -323,10 +323,10 @@ export default function AppointmentsPage() {
                     <div className="flex-1">
                       <div className="mb-2 flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                          <h3 className="text-lg font-semibold text-text-primary">
                             {t('common.doctorPrefix')} {getDoctorName(appointment)}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-sm text-text-secondary">
                             {appointment.doctorId?.doctorProfile?.specialization || t('appointment.doctor')}
                           </p>
                         </div>
@@ -344,7 +344,7 @@ export default function AppointmentsPage() {
                         </div>
                       </div>
 
-                      <div className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="mt-3 space-y-2 text-sm text-text-secondary">
                         <div className="flex items-center gap-2">
                           <Building2 className="h-4 w-4" />
                           <span>{getClinicName(appointment)}</span>
@@ -370,11 +370,11 @@ export default function AppointmentsPage() {
                       </div>
 
                       {appointment.reason && (
-                        <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                        <div className="mt-3 rounded-lg bg-background p-3">
+                          <p className="text-xs font-semibold text-text-secondary">
                             {t('patient.bookAppointmentPage.reasonForVisit')}
                           </p>
-                          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                          <p className="mt-1 text-sm text-text-primary">
                             {appointment.reason}
                           </p>
                         </div>
@@ -430,7 +430,7 @@ export default function AppointmentsPage() {
                       variant="outline"
                       size="icon"
                       onClick={() => setDeleteId(appointment._id)}
-                      className="text-gray-400 hover:text-red-500 hover:bg-red-50 border-gray-200"
+                      className="text-text-secondary hover:text-red-500 hover:bg-red-50 border-border-light"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -443,7 +443,7 @@ export default function AppointmentsPage() {
                     variant="outline"
                     size="icon"
                     onClick={() => setDeleteId(appointment._id)}
-                    className="text-gray-400 hover:text-red-500 hover:bg-red-50 border-gray-200 h-10 w-10 shrink-0"
+                    className="text-text-secondary hover:text-red-500 hover:bg-red-50 border-border-light h-10 w-10 shrink-0"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -456,7 +456,7 @@ export default function AppointmentsPage() {
                         variant="outline"
                         onClick={() => handleCancel(appointment._id)}
                         disabled={isCancelling}
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700 :bg-red-900/20"
                       >
                           {isCancelling ? t('patient.appointments.cancelling') : t('patient.appointments.confirmCancelBtn')}
                       </Button>
@@ -468,7 +468,7 @@ export default function AppointmentsPage() {
                     <Button
                       variant="outline"
                       onClick={() => setConfirmCancelId(appointment._id)}
-                      className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700 :bg-red-900/20"
                     >
                       <X className="mr-2 h-4 w-4" />
                       {t('common.cancel')}

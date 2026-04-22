@@ -19,18 +19,18 @@ export default function ConnectionRequestsWidget() {
     }
   };
 
-  if (isLoading) return <div className="h-32 bg-white dark:bg-gray-800 animate-pulse rounded-3xl border border-gray-100 dark:border-gray-700" />;
+  if (isLoading) return <div className="h-32 bg-white animate-pulse rounded-3xl border border-border-light" />;
   if (requests.length === 0) return null;
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
+    <div className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
       <div className="flex items-center gap-4 mb-8">
         <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center">
           <UserPlus className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white  tracking-tight">Professional Connections</h2>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Pending Requests</p>
+          <h2 className="text-xl font-black text-text-primary tracking-tight">Professional Connections</h2>
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mt-1">Pending Requests</p>
         </div>
       </div>
 
@@ -38,11 +38,11 @@ export default function ConnectionRequestsWidget() {
         {requests.map((request: any) => (
           <div 
             key={request._id}
-            className="group relative p-6 bg-slate-50 dark:bg-slate-950 rounded-3xl border border-slate-100/50 dark:border-slate-800/50 hover:border-primary/30 transition-all overflow-hidden"
+            className="group relative p-6 bg-background rounded-3xl border border-border-light/50 hover:border-primary/30 transition-all overflow-hidden"
           >
             <div className="flex items-start justify-between">
               <div className="flex gap-4">
-                <div className="h-14 w-14 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-800 group-hover:bg-primary transition-colors">
+                <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-border-light group-hover:bg-primary transition-colors">
                   {request.fromRole === 'doctor' ? (
                     <Stethoscope className="h-7 w-7 text-primary group-hover:text-white" />
                   ) : (
@@ -50,12 +50,12 @@ export default function ConnectionRequestsWidget() {
                   )}
                 </div>
                 <div>
-                  <h3 className="font-black text-slate-900 dark:text-white text-lg ">{request.fromName}</h3>
+                  <h3 className="font-black text-text-primary text-lg">{request.fromName}</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md">
                       {request.fromRole}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wants Access</span>
+                    <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Wants Access</span>
                   </div>
                 </div>
               </div>
@@ -64,7 +64,7 @@ export default function ConnectionRequestsWidget() {
                 <button
                   disabled={isProcessing}
                   onClick={() => onHandle(request._id, "approved")}
-                  className="h-10 w-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
+                  className="h-10 w-10 bg-primary text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
                   title="Approve"
                 >
                   <Check className="h-5 w-5" />
@@ -72,7 +72,7 @@ export default function ConnectionRequestsWidget() {
                 <button
                   disabled={isProcessing}
                   onClick={() => onHandle(request._id, "rejected")}
-                  className="h-10 w-10 bg-rose-500 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-rose-500/20"
+                  className="h-10 w-10 bg-red-500 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-rose-500/20"
                   title="Reject"
                 >
                   <X className="h-5 w-5" />
@@ -80,7 +80,7 @@ export default function ConnectionRequestsWidget() {
               </div>
             </div>
             
-            <p className="mt-4 text-xs font-medium text-slate-500 leading-relaxed  border-t border-slate-100 dark:border-slate-800 pt-4">
+            <p className="mt-4 text-xs font-medium text-text-secondary leading-relaxed border-t border-border-light pt-4">
               Allows this {request.fromRole} to view your medical history, reports, and prescriptions for better care.
             </p>
           </div>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PatientSidebar from "@/components/patient/PatientSidebar";
 import PatientTopbar from "@/components/patient/PatientTopbar";
-import Footer from "@/components/ui/Footer";
 import MedicalBackground from "@/components/ui/MedicalBackground";
 import { ChatSocketProvider } from "@/providers/ChatSocketProvider";
 import { useTranslations } from "next-intl";
@@ -46,7 +45,7 @@ export default function PatientLayout({
     <ChatSocketProvider>
       <div className="flex flex-col min-h-screen relative print:block">
         <div className="print:hidden">
-            <MedicalBackground />
+          <MedicalBackground />
         </div>
         <div className="flex flex-1 transition-colors duration-300 w-full print:block">
           <div className="print:hidden">
@@ -54,16 +53,13 @@ export default function PatientLayout({
           </div>
           <div className="flex-1 flex flex-col print:block">
             <div className="print:hidden">
-                <PatientTopbar title={t('nav.patientDashboard')} />
+              <PatientTopbar title={t("nav.patientDashboard")} />
             </div>
             <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-in bg-transparent transition-all duration-300 print:p-0 print:m-0">
               <div className="max-w-7xl mx-auto print:max-w-none">
                 {children}
               </div>
             </main>
-            <div className="print:hidden">
-                <Footer />
-            </div>
           </div>
         </div>
       </div>

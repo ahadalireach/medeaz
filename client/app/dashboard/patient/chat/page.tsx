@@ -52,7 +52,7 @@ export default function PatientChatPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-10rem)] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 bg-white dark:bg-[#18181b] shadow-sm">
+    <div className="flex h-[calc(100vh-10rem)] rounded-2xl overflow-hidden border border-black/5 bg-white shadow-sm">
       <ConversationList
         conversations={data?.data || []}
         activeConversationId={activeConversationId}
@@ -69,11 +69,11 @@ export default function PatientChatPage() {
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <div className="w-16 h-16 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] flex items-center justify-center mb-4">
-              <MessageSquare size={32} className="text-text-muted dark:text-[#52525b]" strokeWidth={1.5} />
+            <div className="w-16 h-16 rounded-2xl bg-black/[0.03] flex items-center justify-center mb-4">
+              <MessageSquare size={32} className="text-text-muted" strokeWidth={1.5} />
             </div>
-            <h3 className="text-sm font-semibold font-heading text-gray-900 dark:text-[#f4f4f5]">{t('chat.noConversations')}</h3>
-            <p className="text-sm font-body text-text-muted dark:text-[#71717a] mt-1.5 max-w-[200px]">
+            <h3 className="text-sm font-semibold font-heading text-text-primary">{t('chat.noConversations')}</h3>
+            <p className="text-sm font-body text-text-muted mt-1.5 max-w-[200px]">
               {t('chat.startChat')}
             </p>
           </div>

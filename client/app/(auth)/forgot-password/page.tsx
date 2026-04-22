@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { CheckCircle2 } from "lucide-react";
+import { toast } from "react-hot-toast";
+
 import { useForgotPasswordMutation } from "@/store/api/authApi";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import Link from "next/link";
-import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
-import { toast } from "react-hot-toast";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -26,71 +27,76 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white p-6 font-sans">
-        <div className="w-full max-w-sm text-center">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
-            <CheckCircle2 className="w-10 h-10 text-primary" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-4 tracking-tight">
-            Check your email.
-          </h1>
-          <p className="text-text-secondary mb-10 leading-relaxed">
-            We've sent a password reset link to{" "}
-            <span className="font-semibold text-foreground">{email}</span>.
-          </p>
-          <Link href="/login">
-            <Button
-              variant="outline"
-              className="w-full h-12 rounded-2xl font-semibold"
-            >
-              Back to Login
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-6 font-sans">
-      <div className="w-full max-w-sm text-center">
-        <Link
-          href="/login"
-          className="inline-flex items-center text-text-muted hover:text-foreground transition-colors mb-8 text-sm font-medium"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to login
-        </Link>
+    <div className="flex flex-col items-center text-center">
+      <Image
+        src="/logo.png"
+        alt="medeaz"
+        width={56}
+        height={56}
+        priority
+        className="h-14 w-14 object-contain drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
+      />
+      <h1 className="mt-6 font-display text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.1] tracking-[-0.02em] text-text-primary">
+        {isSubmitted ? "Check your email" : "Reset your password"}
+      </h1>
 
-        <h1 className="text-3xl font-bold text-foreground mb-4 tracking-tight">
-          Reset password.
-        </h1>
-        <p className="text-text-secondary mb-10 leading-relaxed">
-          Enter your email address to reset your password for{" "}
-          <strong>all your associated Medeaz roles</strong> (Patient, Doctor,
-          Clinic).
-        </p>
+      {isSubmitted ? (
+        <div className="mt-8 w-full rounded-2xl border border-border-light bg-surface-cream/60 p-8 text-center">
+          <div className="mx-auto mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <CheckCircle2 className="h-6 w-6 text-primary" />
+          </div>
+          <p className="text-[14px] text-text-secondary leading-relaxed">
+            We&apos;ve sent a password reset link to{" "}
+            <span className="font-semibold text-text-primary">{email}</span>.
+          </p>
+          <div className="mt-6">
+            <Link href="/login">
+              <Button variant="outline">Back to login</Button>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <>
+          <p className="mt-3 max-w-sm text-[14px] text-text-secondary leading-relaxed">
+            Enter your email and we&apos;ll send you a link to set a new
+            password across all your Medeaz roles.
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all"
-          />
-          <Button
-            type="submit"
-            className="w-full h-14 rounded-2xl font-bold shadow-lg shadow-primary/20"
-            disabled={isLoading}
+          <form
+            onSubmit={handleSubmit}
+            className="mt-8 w-full rounded-2xl border border-border-light bg-surface-cream/60 p-5 sm:p-6 text-left space-y-3"
           >
-            {isLoading ? "Sending..." : "Send Reset Link"}
-          </Button>
-        </form>
-      </div>
+            <input
+              type="email"
+              autoComplete="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+            />
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? "Sending..." : "Send reset link"}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-[14px] text-text-secondary">
+            Remember your password?{" "}
+            <Link
+              href="/login"
+              className="font-semibold text-text-primary hover:text-primary"
+            >
+              Log in
+            </Link>
+          </p>
+        </>
+      )}
     </div>
   );
 }

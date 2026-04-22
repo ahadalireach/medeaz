@@ -1,65 +1,97 @@
 "use client";
 
 import Link from "next/link";
-import { Github, Twitter, Youtube } from "lucide-react";
+import Image from "next/image";
+
+const COMPANY = [
+  { label: "About Us", href: "/about" },
+  { label: "Careers", href: "#" },
+  { label: "Contact", href: "/support" },
+  { label: "Help", href: "/support" },
+];
+
+const LEGAL = [
+  { label: "Terms of Use", href: "/cookie-policy" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Notice of Privacy Practices", href: "/privacy-policy" },
+  { label: "Trust Center", href: "#" },
+];
 
 export function Footer() {
   return (
-    <footer className="py-24 px-6 relative border-t border-border-light border-dashed overflow-hidden">
-      {/* Footer Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] bg-[url('/nodes.svg')] bg-center bg-no-repeat pointer-events-none"></div>
+    <footer className="relative bg-ink-soft text-white overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.25] mix-blend-overlay"
+        style={{ backgroundImage: "url('/footer-bg.svg')" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(80% 60% at 10% 40%, rgba(255,255,255,0.05), transparent 60%)",
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start relative z-10 space-y-16 md:space-y-0">
-        <div className="flex flex-col">
-          <Link href="/" className="flex items-center space-x-2 mb-10">
-            <span className="text-2xl font-bold tracking-tight text-foreground">
-              medeaz
-            </span>
-          </Link>
-          <p className="text-text-muted font-medium text-sm mb-10">
-            &copy; 2026 Medeaz
-          </p>
-          <div className="flex space-x-6">
-            <Github className="w-6 h-6 text-text-muted hover:text-foreground cursor-pointer transition-colors" />
-            <Twitter className="w-6 h-6 text-text-muted hover:text-foreground cursor-pointer transition-colors" />
-            <Youtube className="w-6 h-6 text-text-muted hover:text-foreground cursor-pointer transition-colors" />
+      <div className="relative mx-auto max-w-[1400px] px-6 lg:px-10 pt-20 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-12 md:gap-20">
+          <div className="flex items-start">
+            <div className="relative h-36 w-36">
+              <Image
+                src="/logo.png"
+                alt="medeaz"
+                fill
+                sizes="96px"
+                className="object-contain drop-shadow-;[0_14px_40px_rgba(94,77,156,0.45)]"
+              />
+            </div>
           </div>
+
+          <FooterColumn title="Company" items={COMPANY} />
+          <FooterColumn title="Legal" items={LEGAL} />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-20 gap-y-12">
-          <div>
-            <h5 className="font-bold text-foreground mb-8">Developers</h5>
-            <ul className="space-y-4 text-sm font-bold text-text-secondary">
-              <li className="hover:text-foreground transition-colors cursor-pointer">
-                Docs
-              </li>
-              <li className="hover:text-foreground transition-colors cursor-pointer">
-                Dashboard
-              </li>
-              <li className="hover:text-foreground transition-colors cursor-pointer">
-                Status
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-bold text-foreground mb-8">About</h5>
-          </div>
-          <div>
-            <h5 className="font-bold text-foreground mb-8">Company</h5>
-            <ul className="space-y-4 text-sm font-bold text-text-secondary">
-              <li className="hover:text-foreground transition-colors cursor-pointer">
-                Contact
-              </li>
-              <li className="hover:text-foreground transition-colors cursor-pointer">
-                Privacy
-              </li>
-              <li className="hover:text-foreground transition-colors cursor-pointer">
-                Terms
-              </li>
-            </ul>
-          </div>
+        <div className="mt-16 border-t border-white/10 pt-8">
+          <p className="max-w-3xl mx-auto text-center text-[13px] text-white/60 leading-relaxed">
+            Medeaz is an AI doctor, not a licensed clinician. AI-generated
+            outputs are informational only and are not medical advice,
+            diagnoses, or treatment. All outputs should be reviewed with a
+            licensed health care professional.
+          </p>
+          <p className="mt-6 text-center text-[13px] text-white/45">
+            © 2026 Medeaz Health. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({
+  title,
+  items,
+}: {
+  title: string;
+  items: { label: string; href: string }[];
+}) {
+  return (
+    <div className="min-w-[160px]">
+      <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/60">
+        {title}
+      </p>
+      <ul className="mt-5 space-y-3">
+        {items.map((item) => (
+          <li key={item.label}>
+            <Link
+              href={item.href}
+              className="text-[14px] text-white/90 hover:text-white transition-colors cursor-pointer"
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

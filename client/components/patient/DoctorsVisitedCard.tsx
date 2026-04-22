@@ -29,7 +29,7 @@ export default function DoctorsVisitedCard({ doctors }: DoctorsVisitedCardProps)
       </CardHeader>
       <CardContent>
         {doctors.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-[#a1a1aa] py-2">
+          <p className="text-sm text-text-secondary py-2">
             {t('common.noResults')}
           </p>
         ) : (
@@ -38,9 +38,9 @@ export default function DoctorsVisitedCard({ doctors }: DoctorsVisitedCardProps)
               <button
                 key={doctor._id}
                 onClick={() => setSelectedDoctorId(doctor._id)}
-                className="w-full text-start flex items-start gap-3 rounded-2xl border border-gray-100 p-4 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all hover:border-primary/30 hover:shadow-md group"
+                className="w-full text-start flex items-start gap-3 rounded-2xl border border-border-light p-4 hover:bg-background :bg-ink-soft/50 transition-all hover:border-primary/30 hover:shadow-md group"
               >
-                <div className="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-black/5 dark:border-white/10 bg-slate-50 dark:bg-slate-800 flex items-center justify-center transition-transform group-hover:scale-105">
+                <div className="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-black/5 bg-background flex items-center justify-center transition-transform group-hover:scale-105">
                   {(doctor as any).photo ? (
                     <img
                       src={(doctor as any).photo.startsWith('http') ? (doctor as any).photo : `${process.env.NEXT_PUBLIC_API_URL}${(doctor as any).photo}`}
@@ -48,14 +48,14 @@ export default function DoctorsVisitedCard({ doctors }: DoctorsVisitedCardProps)
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <User className="h-6 w-6 text-slate-400" />
+                    <User className="h-6 w-6 text-text-secondary" />
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                  <p className="font-bold text-text-primary group-hover:text-primary transition-colors">
                     {t('patient.bookAppointmentPage.doctorPrefix')} {doctor.name}
                   </p>
-                  <p className="text-sm font-medium text-gray-600 dark:text-[#a1a1aa]">
+                  <p className="text-sm font-medium text-text-secondary">
                     {doctor.specialization}
                   </p>
                   <p className="text-xs font-bold uppercase tracking-wider text-primary mt-1">

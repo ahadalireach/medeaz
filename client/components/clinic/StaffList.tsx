@@ -39,9 +39,9 @@ export default function StaffList() {
 
   const getRoleBadge = (role: string) => {
     const styles = {
-      admin: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-      nurse: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-      receptionist: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      admin: "bg-surface-lavender text-primary  ",
+      nurse: "bg-surface text-primary  ",
+      receptionist: "bg-surface text-primary  ",
     };
 
     return (
@@ -60,9 +60,9 @@ export default function StaffList() {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+      <div className="bg-white p-6 rounded-xl border border-border-light">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-bold text-text-primary">
             {t('clinic.staff.title')}
           </h2>
           <button
@@ -77,23 +77,23 @@ export default function StaffList() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <tr className="border-b border-border-light">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('clinic.staff.name')}
                 </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('clinic.staff.email')}
                 </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('clinic.staff.role')}
                 </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('form.phone')}
                 </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('clinic.staff.createdOn')}
                 </th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-center py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('clinic.appointments.actions')}
                 </th>
               </tr>
@@ -102,11 +102,11 @@ export default function StaffList() {
               {staff.map((member: any) => (
                 <tr
                   key={member._id}
-                  className="border-b border-gray-100 dark:border-gray-700/50"
+                  className="border-b border-border-light"
                 >
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl overflow-hidden border border-black/5 dark:border-white/10 shrink-0 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-xl overflow-hidden border border-black/5 shrink-0 bg-surface flex items-center justify-center">
                         {member.photo ? (
                           <img
                             src={member.photo}
@@ -114,22 +114,22 @@ export default function StaffList() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <User className="h-6 w-6 text-slate-400" />
+                          <User className="h-6 w-6 text-text-secondary" />
                         )}
                       </div>
-                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                      <span className="text-sm font-bold text-text-primary">
                         {member.name}
                       </span>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-sm text-gray-700 dark:text-gray-300">
+                  <td className="py-4 px-4 text-sm text-text-primary">
                     {member.email}
                   </td>
                   <td className="py-4 px-4">{getRoleBadge(member.role)}</td>
-                  <td className="py-4 px-4 text-sm text-gray-700 dark:text-gray-300">
+                  <td className="py-4 px-4 text-sm text-text-primary">
                     {member.phone || "N/A"}
                   </td>
-                  <td className="py-4 px-4 text-sm text-gray-700 dark:text-gray-300">
+                  <td className="py-4 px-4 text-sm text-text-primary">
                     {member.createdAt
                       ? format(new Date(member.createdAt), "MMM dd, yyyy")
                       : "N/A"}
@@ -141,16 +141,16 @@ export default function StaffList() {
                           setSelectedStaff(member);
                           setShowEditModal(true);
                         }}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all group"
+                        className="p-2 hover:bg-surface :bg-text-secondary rounded-lg transition-all group"
                       >
-                        <PenIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                        <PenIcon className="h-4 w-4 text-text-secondary" />
                       </button>
                       <button
                         onClick={() => {
                           setSelectedStaff(member);
                           setShowConfirmModal(true);
                         }}
-                        className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all group"
+                        className="p-2 hover:bg-red-50 :bg-red-900/20 rounded-lg transition-all group"
                       >
                         <TrashIcon className="h-4 w-4 text-red-600" />
                       </button>
@@ -163,7 +163,7 @@ export default function StaffList() {
         </div>
 
         {staff.length === 0 && (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-text-secondary">
             {t('clinic.staff.noStaff')}
           </div>
         )}

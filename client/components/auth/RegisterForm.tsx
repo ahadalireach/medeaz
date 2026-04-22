@@ -1,35 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { useRegisterMutation } from "@/store/api/authApi";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
+import { toast } from "react-hot-toast";
+
+import { useRegisterMutation } from "@/store/api/authApi";
 import { setCredentials } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import Link from "next/link";
-import {
-  ArrowRight,
-  UserPlus,
-  Stethoscope,
-  Building2,
-  Eye,
-  EyeOff,
-  CheckCircle2,
-} from "lucide-react";
+import { Eye, EyeOff, CheckCircle2, UserPlus, Stethoscope, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "react-hot-toast";
+
+type Role = "patient" | "doctor" | "clinic_admin";
+
+const ROLES: {
+  value: Role;
+  label: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+}[] = [
+  { value: "patient", label: "Patient", icon: UserPlus },
+  { value: "doctor", label: "Doctor", icon: Stethoscope },
+  { value: "clinic_admin", label: "Clinic", icon: Building2 },
+];
 
 export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<"patient" | "doctor" | "clinic_admin">(
-    "patient",
-  );
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [role, setRole] = useState<Role>("patient");
 
-  // Profile-specific fields
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [specialization, setSpecialization] = useState("");
@@ -37,69 +37,49 @@ export function RegisterForm() {
   const [clinicName, setClinicName] = useState("");
   const [address, setAddress] = useState("");
 
+  const [agreedTos, setAgreedTos] = useState(false);
+  const [agreedHie, setAgreedHie] = useState(false);
+
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [register, { isLoading }] = useRegisterMutation();
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const validateForm = () => {
-    if (!email.trim()) {
-      toast.error("Please enter an email address.");
-      return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
-      return false;
-    }
-    if (!password) {
-      toast.error("Please enter a password.");
-      return false;
-    }
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
-      return false;
-    }
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
-    // Role-specific validation
-    if (role === "patient") {
-      if (!fullName.trim() || !phone.trim()) {
-        toast.error("Please fill in all patient details.");
-        return false;
-      }
-    } else if (role === "doctor") {
-      if (!fullName.trim() || !specialization.trim() || !licenseNo.trim()) {
-        toast.error("Please fill in all doctor details.");
-        return false;
-      }
-    } else if (role === "clinic_admin") {
-      if (!clinicName.trim() || !address.trim() || !phone.trim()) {
-        toast.error("Please fill in all clinic details.");
-        return false;
-      }
-    }
+  const validate = () => {
+    if (!isEmailValid) return toast.error("Please enter a valid email address."), false;
+    if (!password || password.length < 6)
+      return toast.error("Password must be at least 6 characters."), false;
+    if (!agreedTos || !agreedHie)
+      return toast.error("Please accept both agreements to continue."), false;
 
+    if (role === "patient" && (!fullName.trim() || !phone.trim()))
+      return toast.error("Please fill in your full name and phone."), false;
+    if (role === "doctor" && (!fullName.trim() || !specialization.trim() || !licenseNo.trim()))
+      return toast.error("Please fill in your doctor details."), false;
+    if (role === "clinic_admin" && (!clinicName.trim() || !address.trim() || !phone.trim()))
+      return toast.error("Please fill in your clinic details."), false;
     return true;
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
 
-    if (!validateForm()) return;
+    const profileData =
+      role === "patient"
+        ? { fullName, phone }
+        : role === "doctor"
+        ? { fullName, specialization, licenseNo }
+        : { clinicName, address, phone };
 
-    const toastId = toast.loading("Processing...");
-
-    // Prepare profile data based on role
-    let profileData = {};
-    if (role === "patient") {
-      profileData = { fullName, phone };
-    } else if (role === "doctor") {
-      profileData = { fullName, specialization, licenseNo };
-    } else if (role === "clinic_admin") {
-      profileData = { clinicName, address, phone };
-    }
-
+    const toastId = toast.loading("Creating your account...");
     try {
-      await register({ email, password, role, profileData }).unwrap();
+      const res: any = await register({ email, password, role, profileData }).unwrap();
+      if (res?.accessToken && res?.data) {
+        dispatch(setCredentials({ user: res.data, accessToken: res.accessToken }));
+      }
       setIsSubmitted(true);
       toast.success("Verification email sent!", { id: toastId });
     } catch (err: any) {
@@ -109,191 +89,207 @@ export function RegisterForm() {
 
   if (isSubmitted) {
     return (
-      <div className="w-full max-w-md text-center py-12">
-        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 animate-in zoom-in duration-500">
-          <CheckCircle2 className="w-10 h-10 text-primary" />
+      <div className="rounded-2xl border border-border-light bg-surface-cream/60 p-8 text-center">
+        <div className="mx-auto mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+          <CheckCircle2 className="h-7 w-7 text-primary" />
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-4 tracking-tight">
-          Check your inbox.
-        </h1>
-        <p className="text-text-secondary text-base leading-relaxed mb-10 max-w-[320px] mx-auto">
-          We've sent a verification link to <br />
-          <span className="font-semibold text-foreground">{email}</span>.
+        <p className="text-[15px] text-text-primary">
+          We&apos;ve sent a verification link to{" "}
+          <span className="font-semibold">{email}</span>.
         </p>
-        <Link href="/login">
-          <Button
-            variant="outline"
-            className="h-12 px-8 rounded-2xl font-semibold"
-          >
-            Back to Login
-          </Button>
-        </Link>
+        <div className="mt-6 flex justify-center">
+          <Link href="/login">
+            <Button variant="outline">Back to login</Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
-  const RoleCard = ({ type, icon: Icon, label }: any) => {
-    const isSelected = role === type;
-    return (
-      <div
-        onClick={() => setRole(type)}
-        className={cn(
-          "flex items-center justify-center py-3 px-4 transition-all cursor-pointer rounded-full border-2 text-sm font-semibold flex-1",
-          isSelected
-            ? "border-primary bg-primary text-white shadow-sm"
-            : "border-border-light bg-white text-text-primary transition-shadow",
-        )}
-      >
-        <Icon
-          className={cn(
-            "w-4 h-4 mr-2",
-            isSelected ? "text-white" : "text-text-muted",
-          )}
-        />
-        {label}
-      </div>
-    );
-  };
-
   return (
-    <div className="w-full max-w-md text-center pt-8 md:pt-0">
-      <h1 className="text-heading font-semibold tracking-tight text-4xl md:text-5xl text-foreground mb-10 leading-[1.2]">
-        Create account.
-      </h1>
-
-      <form onSubmit={handleRegister} className="space-y-5 text-left">
-        <div>
-          <label className="text-[11px] font-bold text-text-muted uppercase tracking-wider ml-1 block mb-3">
-            I am a...
-          </label>
-          <div className="flex gap-3 mb-2 flex-wrap sm:flex-nowrap">
-            <RoleCard type="patient" icon={UserPlus} label="Patient" />
-            <RoleCard type="doctor" icon={Stethoscope} label="Doctor" />
-            <RoleCard type="clinic_admin" icon={Building2} label="Clinic" />
-          </div>
+    <>
+      <div className="rounded-2xl border border-border-light bg-surface-cream/60 p-5 sm:p-6 text-left">
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          {ROLES.map(({ value, label, icon: Icon }) => {
+            const selected = role === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setRole(value)}
+                className={cn(
+                  "inline-flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold transition-colors cursor-pointer border",
+                  selected
+                    ? "border-primary bg-primary text-white"
+                    : "border-border-light bg-white text-text-primary hover:border-primary/50 hover:text-primary",
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+                {label}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="space-y-4">
-          {/* Shared Fields */}
-          <Input
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
             type="email"
-            placeholder="Email address"
+            autoComplete="email"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all"
+            className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
           />
 
           <div className="relative">
-            <Input
+            <input
               type={showPassword ? "text" : "password"}
-              placeholder="Secure password"
+              autoComplete="new-password"
+              placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted pl-5 pr-14 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all"
+              className="block h-12 w-full rounded-lg border border-border-light bg-white pl-4 pr-12 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground transition-colors"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute inset-y-0 right-2 my-auto inline-flex h-8 w-8 items-center justify-center rounded-md text-text-secondary hover:text-text-primary cursor-pointer"
             >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
+              {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
             </button>
           </div>
 
-          <div className="h-px bg-border-light/50 my-6" />
-
-          {/* Role-Specific Fields */}
           {(role === "patient" || role === "doctor") && (
-            <Input
+            <input
               type="text"
-              placeholder="Full Name"
+              placeholder="Full name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all animate-in slide-in-from-left duration-300"
+              className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
             />
           )}
 
           {role === "doctor" && (
             <>
-              <Input
+              <input
                 type="text"
-                placeholder="Specialization (e.g. Cardiologist)"
+                placeholder="Specialization"
                 value={specialization}
                 onChange={(e) => setSpecialization(e.target.value)}
                 required
-                className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all animate-in slide-in-from-left duration-300"
+                className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
               />
-              <Input
+              <input
                 type="text"
-                placeholder="Medical License Number"
+                placeholder="Medical license number"
                 value={licenseNo}
                 onChange={(e) => setLicenseNo(e.target.value)}
                 required
-                className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all animate-in slide-in-from-left duration-300"
+                className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
               />
             </>
           )}
 
           {role === "clinic_admin" && (
             <>
-              <Input
+              <input
                 type="text"
-                placeholder="Clinic Name"
+                placeholder="Clinic name"
                 value={clinicName}
                 onChange={(e) => setClinicName(e.target.value)}
                 required
-                className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all animate-in slide-in-from-left duration-300"
+                className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
               />
-              <Input
+              <input
                 type="text"
-                placeholder="Clinic Address"
+                placeholder="Clinic address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 required
-                className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all animate-in slide-in-from-left duration-300"
+                className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
               />
             </>
           )}
 
           {(role === "patient" || role === "clinic_admin") && (
-            <Input
+            <input
               type="tel"
-              placeholder="Contact Number"
+              placeholder="Contact number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
-              className="h-14 tracking-wide font-medium rounded-2xl bg-surface/50 border-border shadow-none placeholder:text-text-muted px-5 text-base w-full focus-visible:ring-primary focus-visible:border-primary transition-all animate-in slide-in-from-left duration-300"
+              className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
             />
           )}
 
+          <label className="flex items-start gap-3 pt-2 text-[13px] text-text-secondary leading-relaxed cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreedTos}
+              onChange={(e) => setAgreedTos(e.target.checked)}
+              className="mt-0.5 h-4 w-4 flex-none rounded border border-border cursor-pointer"
+            />
+            <span>
+              I have read and acknowledge the{" "}
+              <Link href="/cookie-policy" className="font-semibold text-text-primary hover:text-primary">
+                Terms of Service
+              </Link>
+              ,{" "}
+              <span className="font-semibold text-text-primary">Consent to Treatment</span>{" "}
+              and{" "}
+              <Link href="/privacy-policy" className="font-semibold text-text-primary hover:text-primary">
+                Privacy Policy
+              </Link>
+            </span>
+          </label>
+
+          <label className="flex items-start gap-3 text-[13px] text-text-secondary leading-relaxed cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreedHie}
+              onChange={(e) => setAgreedHie(e.target.checked)}
+              className="mt-0.5 h-4 w-4 flex-none rounded border border-border cursor-pointer"
+            />
+            <span>
+              I have read and agree to the{" "}
+              <span className="font-semibold text-text-primary">Health Information Exchange</span>{" "}
+              notice
+            </span>
+          </label>
+
           <Button
             type="submit"
-            className="w-full h-14 rounded-2xl font-bold shadow-lg shadow-primary/20 mt-4 group"
+            size="lg"
+            className="mt-1 w-full"
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Create Account"}
-            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            {isLoading ? "Creating account..." : "Continue with email"}
           </Button>
-        </div>
-      </form>
+        </form>
+      </div>
 
-      <p className="mt-12 text-[13px] text-text-secondary font-medium">
+      <button
+        type="button"
+        onClick={() => toast("Google sign-up coming soon")}
+        className="mt-6 text-[14px] font-semibold text-text-primary hover:text-primary cursor-pointer"
+      >
+        Continue with Google
+      </button>
+
+      <p className="mt-4 text-[14px] text-text-secondary">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="text-foreground font-semibold hover:underline"
+          className="font-semibold text-text-primary hover:text-primary"
         >
-          Login.
+          Log in
         </Link>
       </p>
-    </div>
+    </>
   );
 }

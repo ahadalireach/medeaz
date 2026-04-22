@@ -76,12 +76,12 @@ export default function FamilyRecordsPage() {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+          className="flex items-center gap-2 text-text-secondary hover:text-text-primary :text-white"
         >
           <ArrowLeft className="h-5 w-5" />
           <span className="font-medium">Back to Family</span>
         </button>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-text-primary">
           Family Member Records
         </h1>
         <button
@@ -99,17 +99,17 @@ export default function FamilyRecordsPage() {
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="h-32 animate-pulse rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1a1a1a]"
+              className="h-32 animate-pulse rounded-xl border border-border-light bg-white"
             />
           ))}
         </div>
       ) : records.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-[#1a1a1a]">
-          <FileText className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="rounded-xl border border-border-light bg-white p-12 text-center">
+          <FileText className="mx-auto h-12 w-12 text-text-secondary" />
+          <h3 className="mt-4 text-lg font-semibold text-text-primary">
             No records found
           </h3>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-text-secondary">
             Medical records for this family member will appear here
           </p>
         </div>
@@ -118,17 +118,17 @@ export default function FamilyRecordsPage() {
           {records.map((record: any) => (
             <div
               key={record._id}
-              className="rounded-xl border border-gray-200 bg-white p-6 transition-all hover:border-primary dark:border-gray-700 dark:bg-[#1a1a1a]"
+              className="rounded-xl border border-border-light bg-white p-6 transition-all hover:border-primary"
             >
               <div className="flex items-start gap-3">
                 <div className="rounded-lg bg-primary/10 p-2">
                   <FileText className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-text-primary">
                     {record.diagnosis}
                   </h3>
-                  <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-text-secondary">
                     <div className="flex items-center gap-1">
                       <User className="h-4 w-4" />
                       <span>Dr. {record.doctorId?.name}</span>
@@ -144,15 +144,15 @@ export default function FamilyRecordsPage() {
                   </div>
 
                   {record.medicines && record.medicines.length > 0 && (
-                    <div className="mt-4 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                      <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                    <div className="mt-4 rounded-lg bg-background p-3">
+                      <p className="text-xs font-semibold text-text-secondary">
                         Medicines ({record.medicines.length})
                       </p>
                       <div className="mt-1 flex flex-wrap gap-2">
                         {record.medicines.slice(0, 3).map((med: any, idx: number) => (
                           <span
                             key={idx}
-                            className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                            className="rounded-full bg-white px-3 py-1 text-xs font-medium text-text-primary"
                           >
                             {med.name}
                           </span>
@@ -168,7 +168,7 @@ export default function FamilyRecordsPage() {
                 </div>
 
                 {/* View Details CTA */}
-                <div className="ml-4 flex h-full flex-col justify-center border-l border-gray-100 pl-4 dark:border-gray-800">
+                <div className="ml-4 flex h-full flex-col justify-center border-l border-border-light pl-4">
                   <Link
                     href={`/dashboard/patient/records/${record._id}`}
                     className="flex items-center gap-1 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
@@ -193,13 +193,13 @@ export default function FamilyRecordsPage() {
             placeholder="Title"
             value={formData.title}
             onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
-            className="w-full rounded-xl border border-gray-200 p-3 text-sm"
+            className="w-full rounded-xl border border-border-light p-3 text-sm"
           />
 
           <select
             value={formData.recordType}
             onChange={(e) => setFormData((prev) => ({ ...prev, recordType: e.target.value }))}
-            className="w-full rounded-xl border border-gray-200 p-3 text-sm"
+            className="w-full rounded-xl border border-border-light p-3 text-sm"
           >
             <option value="Lab Report">Lab Report</option>
             <option value="Imaging">Imaging</option>
@@ -211,17 +211,17 @@ export default function FamilyRecordsPage() {
             type="date"
             value={formData.date}
             onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
-            className="w-full rounded-xl border border-gray-200 p-3 text-sm"
+            className="w-full rounded-xl border border-border-light p-3 text-sm"
           />
 
           <textarea
             placeholder="Notes"
             value={formData.notes}
             onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-            className="w-full rounded-xl border border-gray-200 p-3 text-sm h-24"
+            className="w-full rounded-xl border border-border-light p-3 text-sm h-24"
           />
 
-          <label className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 p-4 text-sm text-gray-600 cursor-pointer hover:border-primary hover:text-primary">
+          <label className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm text-text-secondary cursor-pointer hover:border-primary hover:text-primary">
             <Upload className="h-4 w-4" />
             {formData.fileUrl ? "Attachment selected" : "Upload attachment"}
             <input type="file" className="hidden" onChange={handleFileChange} />

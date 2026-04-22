@@ -34,44 +34,44 @@ export default function PatientSettingsPage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="h-10 w-10 rounded-xl border border-gray-200 bg-white text-gray-600 hover:text-gray-900 dark:border-gray-700 dark:bg-[#1a1a1a] dark:text-gray-400 dark:hover:text-white flex items-center justify-center"
+          className="h-10 w-10 rounded-xl border border-border-light bg-white text-text-secondary hover:text-text-primary :text-white flex items-center justify-center"
         >
           <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-text-primary">
             {t("patient.settings.title")}
           </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm text-text-secondary">
             {t("patient.settings.subtitle")}
           </p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-[#1a1a1a]">
+        <div className="rounded-3xl border border-border-light bg-white p-6">
           <div className="mb-5 flex items-center gap-3">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-bold text-text-primary">
               {t("patient.settings.connectionRequests")}
             </h2>
           </div>
 
           {isLoading ? (
             <div className="space-y-3">
-              <div className="h-24 animate-pulse rounded-2xl bg-gray-100 dark:bg-gray-800" />
-              <div className="h-24 animate-pulse rounded-2xl bg-gray-100 dark:bg-gray-800" />
+              <div className="h-24 animate-pulse rounded-2xl bg-surface" />
+              <div className="h-24 animate-pulse rounded-2xl bg-surface" />
             </div>
           ) : requests.length > 0 ? (
             <div className="space-y-4">
               {requests.map((request: any) => (
-                <div key={request._id} className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700">
+                <div key={request._id} className="rounded-2xl border border-border-light p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-sm font-bold text-gray-900 dark:text-white">
+                      <p className="text-sm font-bold text-text-primary">
                         {request.fromName || t("patient.settings.connectionFrom")}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-text-secondary">
                         {request.fromRole === "doctor" ? t("patient.settings.doctorRequest") : t("patient.settings.clinicRequest")}
                       </p>
                     </div>
@@ -87,7 +87,7 @@ export default function PatientSettingsPage() {
                       <button
                         onClick={() => handleAction(request._id, "rejected")}
                         disabled={isSaving}
-                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 disabled:opacity-50"
+                        className="inline-flex items-center gap-2 rounded-xl border border-border-light px-4 py-2 text-sm font-bold text-text-primary hover:bg-background :bg-ink-soft disabled:opacity-50"
                       >
                         <XCircle className="h-4 w-4" />
                         {t("patient.settings.reject")}
@@ -98,23 +98,23 @@ export default function PatientSettingsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <div className="rounded-2xl border border-dashed border-border-light p-8 text-center">
+              <p className="text-sm font-medium text-text-secondary">
                 {t("patient.settings.noRequests")}
               </p>
             </div>
           )}
         </div>
 
-        <div className="rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-[#1a1a1a]">
+        <div className="rounded-3xl border border-border-light bg-white p-6">
           <div className="mb-5 flex items-center gap-3">
             <CheckCircle2 className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-bold text-text-primary">
               {t("patient.settings.profileShortcut")}
             </h2>
           </div>
 
-          <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
+          <p className="text-sm leading-6 text-text-secondary">
             {t("patient.settings.profileShortcutDesc")}
           </p>
 

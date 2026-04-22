@@ -39,8 +39,8 @@ export default function ClinicRevenuePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t("clinic.revenueHistory.title")}</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("clinic.revenueHistory.subtitle")}</p>
+          <h1 className="text-3xl font-bold text-text-primary">{t("clinic.revenueHistory.title")}</h1>
+          <p className="mt-1 text-sm text-text-secondary">{t("clinic.revenueHistory.subtitle")}</p>
         </div>
         <button
           onClick={onClear}
@@ -52,14 +52,14 @@ export default function ClinicRevenuePage() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1a1a1a]">
-        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t("clinic.revenueHistory.totalEarned")}</p>
+      <div className="rounded-2xl border border-border-light bg-white p-5">
+        <p className="text-sm font-bold text-text-secondary">{t("clinic.revenueHistory.totalEarned")}</p>
         <p className="mt-1 text-3xl font-black text-primary">{total.toLocaleString()} {t("common.pkr")}</p>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1a1a1a]">
+      <div className="overflow-x-auto rounded-2xl border border-border-light bg-white">
         <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-800">
+          <thead className="bg-background">
             <tr>
               <th className="px-4 py-3 text-left">{t("clinic.revenueHistory.date")}</th>
               <th className="px-4 py-3 text-left">{t("clinic.revenueHistory.patient")}</th>
@@ -75,7 +75,7 @@ export default function ClinicRevenuePage() {
             {isLoading ? (
               <tr><td className="px-4 py-6" colSpan={8}>{t("common.loading")}</td></tr>
             ) : entries.length ? entries.map((entry: any) => (
-              <tr key={entry._id} className="border-t border-gray-100 dark:border-gray-800">
+              <tr key={entry._id} className="border-t border-border-light">
                 <td className="px-4 py-3">{new Date(entry.occurredAt).toLocaleDateString()}</td>
                 <td className="px-4 py-3">{entry.patientUserId?.name || t("common.noData")}</td>
                 <td className="px-4 py-3">{entry.doctorUserId?.name || t("common.noData")}</td>

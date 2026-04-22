@@ -19,10 +19,10 @@ export default function PatientDashboard() {
   return (
     <div className="space-y-8 animate-in">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-text-primary">
           {t('nav.dashboard')}
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg font-medium">
+        <p className="text-text-secondary mt-2 text-lg font-medium">
           {t('patient.dashboard.welcomeBack')} {user?.name?.split(' ')[0] || 'Member'}
         </p>
       </div>
@@ -32,7 +32,7 @@ export default function PatientDashboard() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-32 animate-pulse rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+              className="h-32 animate-pulse rounded-xl border border-border-light bg-white"
             />
           ))}
         </div>

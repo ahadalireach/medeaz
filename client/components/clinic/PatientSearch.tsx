@@ -53,20 +53,20 @@ export default function PatientSearch() {
     <div className="space-y-6 animate-in">
       <form
         onSubmit={handleSearch}
-        className="bg-white dark:bg-gray-800 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-700/50 shadow-sm"
+        className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm"
       >
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-secondary" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('clinic.patientSearch.searchPlaceholder')}
-              className="w-full pl-12 pr-4 py-3.5 border border-gray-100 dark:border-gray-700 rounded-2xl bg-gray-50/50 dark:bg-[#1a1a1a] text-gray-900 dark:text-white placeholder:text-gray-500 focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+              className="w-full pl-12 pr-4 py-3.5 border border-border-light rounded-2xl bg-background/50 text-text-primary placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:outline-none transition-all"
             />
           </div>
-          <Button type="submit" disabled={isLoading} className="rounded-2xl h-full py-3.5 px-8">
+          <Button type="submit" disabled={isLoading} className="h-full py-3.5 px-8">
             {isSearching ? <RefreshCcw className="h-5 w-5 animate-spin" /> : t('common.search')}
           </Button>
         </div>
@@ -75,7 +75,7 @@ export default function PatientSearch() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-48 bg-gray-50 dark:bg-gray-800 animate-pulse rounded-[2rem] border border-gray-100 dark:border-gray-700/50" />
+            <div key={i} className="h-48 bg-background animate-pulse rounded-[2rem] border border-border-light" />
           ))}
         </div>
       ) : results.length > 0 ? (
@@ -84,10 +84,10 @@ export default function PatientSearch() {
             {results.map((patient: any) => (
               <div
                 key={patient._id}
-                className="bg-white dark:bg-gray-800 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all group"
+                className="bg-white p-8 rounded-[2rem] border border-border-light shadow-sm hover:shadow-md transition-all group"
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className="h-20 w-20 rounded-3xl overflow-hidden mb-4 transition-all shadow-sm border border-black/5 dark:border-white/10 flex items-center justify-center bg-primary/10">
+                  <div className="h-20 w-20 rounded-3xl overflow-hidden mb-4 transition-all shadow-sm border border-black/5 flex items-center justify-center bg-primary/10">
                     {patient.photo ? (
                       <img
                         src={patient.photo}
@@ -98,21 +98,21 @@ export default function PatientSearch() {
                       <User className="h-10 w-10 text-primary" />
                     )}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                  <h3 className="text-xl font-bold text-text-primary mb-1">
                     {patient.name}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 truncate w-full">
+                  <p className="text-sm text-text-secondary mb-6 truncate w-full">
                     {patient.email}
                   </p>
 
-                  <div className="w-full grid grid-cols-2 gap-4 text-left p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl mb-6">
+                  <div className="w-full grid grid-cols-2 gap-4 text-left p-4 bg-background rounded-2xl mb-6">
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('form.gender')}</p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{patient.gender || t('clinic.profile.notProvided')}</p>
+                      <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t('form.gender')}</p>
+                      <p className="text-sm font-semibold text-text-primary">{patient.gender || t('clinic.profile.notProvided')}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('clinic.patientSearch.totalVisits')}</p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{patient.totalVisits || 0}</p>
+                      <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t('clinic.patientSearch.totalVisits')}</p>
+                      <p className="text-sm font-semibold text-text-primary">{patient.totalVisits || 0}</p>
                     </div>
                   </div>
 
@@ -129,21 +129,21 @@ export default function PatientSearch() {
 
           {pagination?.pages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold text-text-secondary">
                 Page {pagination.page} of {pagination.pages}
               </p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handlePageChange(Math.max(page - 1, 1))}
                   disabled={page <= 1}
-                  className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-semibold disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-lg border border-border-light text-sm font-semibold disabled:opacity-50"
                 >
                   {t('common.previous')}
                 </button>
                 <button
                   onClick={() => handlePageChange(Math.min(page + 1, pagination.pages))}
                   disabled={page >= pagination.pages}
-                  className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-semibold disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-lg border border-border-light text-sm font-semibold disabled:opacity-50"
                 >
                   {t('common.next')}
                 </button>
@@ -152,12 +152,12 @@ export default function PatientSearch() {
           )}
         </>
       ) : (
-        <div className="bg-white dark:bg-gray-800 p-20 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 text-center shadow-sm">
-          <div className="h-20 w-20 bg-gray-50 dark:bg-gray-900/50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <User className="h-10 w-10 text-gray-300 dark:text-gray-600" />
+        <div className="bg-white p-20 rounded-[2.5rem] border border-border-light text-center shadow-sm">
+          <div className="h-20 w-20 bg-background rounded-full flex items-center justify-center mx-auto mb-6">
+            <User className="h-10 w-10 text-white/70" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('clinic.patientSearch.noResults')}</h3>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
+          <h3 className="text-xl font-bold text-text-primary">{t('clinic.patientSearch.noResults')}</h3>
+          <p className="text-text-secondary mt-2">
             {t('clinic.patientSearch.adjustSearch')}
           </p>
         </div>

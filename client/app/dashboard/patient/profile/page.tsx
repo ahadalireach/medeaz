@@ -123,26 +123,26 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-        <div className="h-96 animate-pulse rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1a1a1a]" />
+        <div className="h-8 w-48 animate-pulse rounded bg-surface" />
+        <div className="h-96 animate-pulse rounded-xl border border-border-light bg-white" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+      <h1 className="text-3xl font-bold text-text-primary">
         {t('patient.profile.title')}
       </h1>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-gray-700">
+      <div className="flex border-b border-border-light">
         <button
           onClick={() => setActiveTab("profile")}
           className={`px-6 py-3 font-semibold ${
             activeTab === "profile"
               ? "border-b-2 border-primary text-primary"
-              : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              : "text-text-secondary hover:text-text-primary  :text-white/70"
           }`}
         >
           {t('patient.profile.profileSettings')}
@@ -152,7 +152,7 @@ export default function ProfilePage() {
           className={`px-6 py-3 font-semibold ${
             activeTab === "password"
               ? "border-b-2 border-primary text-primary"
-              : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              : "text-text-secondary hover:text-text-primary  :text-white/70"
           }`}
         >
           {t('patient.profile.security')}
@@ -160,9 +160,9 @@ export default function ProfilePage() {
       </div>
 
       {activeTab === "profile" ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-[#1a1a1a]">
+        <div className="rounded-xl border border-border-light bg-white p-8">
           <div className="mb-8 flex items-center gap-6">
-            <div className="relative group overflow-hidden h-24 w-24 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 shrink-0">
+            <div className="relative group overflow-hidden h-24 w-24 rounded-full border border-border-light bg-surface shrink-0">
               {profile?.profilePhoto ? (
                 <img
                   src={profile.profilePhoto}
@@ -170,7 +170,7 @@ export default function ProfilePage() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-gray-400">
+                <div className="flex h-full w-full items-center justify-center text-text-secondary">
                   <User size={48} strokeWidth={1.5} />
                 </div>
               )}
@@ -220,7 +220,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold text-text-primary">
                 {profile?.userId?.name || profile?.name}
               </h2>
               <p className="text-sm font-medium text-primary mt-1">
@@ -260,12 +260,12 @@ export default function ProfilePage() {
               />
 
               <div className="flex flex-col space-y-1 w-full">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <label className="text-sm font-semibold text-text-primary">
                   {t('patient.profile.gender')}
                 </label>
                 <select
                   {...register("gender")}
-                  className="flex h-14 w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1a1a1a] px-4 py-2 text-base text-gray-900 dark:text-white focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
+                  className="flex h-14 w-full rounded-xl border border-border-light bg-white px-4 py-2 text-base text-text-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
@@ -287,14 +287,14 @@ export default function ProfilePage() {
               {...register("allergies")}
             />
 
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-900/10">
+            <div className="rounded-lg border border-border-light bg-surface-cream p-4">
               <div className="flex gap-3">
-                <AlertCircle className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                <AlertCircle className="h-5 w-5 shrink-0 text-[#B45309]" />
                 <div>
-                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                  <p className="text-sm font-semibold text-[#B45309]">
                     {t('patient.profile.importantInfo')}
                   </p>
-                  <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
+                  <p className="mt-1 text-sm text-[#B45309]">
                     {t('patient.profile.keepUpToDate')}
                   </p>
                 </div>
@@ -309,8 +309,8 @@ export default function ProfilePage() {
           </form>
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-[#1a1a1a]">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+        <div className="rounded-xl border border-border-light bg-white p-8">
+          <h2 className="text-xl font-bold text-text-primary mb-6">
             {t('patient.profile.changePassword')}
           </h2>
           <form onSubmit={handleSubmitPassword(onChangePassword)} className="space-y-6 max-w-lg">

@@ -283,14 +283,14 @@ export default function PatientDetailPage() {
                       <span
                         className={`px-4 py-2 rounded-xl text-sm font-semibold ${
                           appointment.status === "completed"
-                            ? "bg-green-50 text-green-700"
+                            ? "bg-surface text-primary"
                             : appointment.status === "in-progress"
-                            ? "bg-orange-50 text-orange-700"
+                            ? "bg-surface-cream text-[#B45309]"
                             : appointment.status === "confirmed"
-                            ? "bg-blue-50 text-blue-700"
+                            ? "bg-surface text-primary"
                             : appointment.status === "cancelled"
                             ? "bg-red-50 text-red-700"
-                            : "bg-yellow-50 text-yellow-700"
+                            : "bg-surface-cream text-[#B45309]"
                         }`}
                       >
                         {appointment.status}

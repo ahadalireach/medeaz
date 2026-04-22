@@ -48,6 +48,13 @@ export const authApi = createApi({
         body: { password },
       }),
     }),
+    updateProfile: builder.mutation({
+      query: (body) => ({
+        url: "/auth/profile",
+        method: "PATCH",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -59,4 +66,5 @@ export const {
   useVerifyEmailMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useUpdateProfileMutation,
 } = authApi;

@@ -9,63 +9,63 @@ export default function SupportContent() {
     return (
         <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 animate-in fade-in duration-500">
             <div className="text-center mb-16">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary mb-4 tracking-tight">
                     {isUrdu ? <>ہم آپ کی <span className="text-primary">کس طرح مدد</span> کر سکتے ہیں؟</> : <>How can we <span className="text-primary">help?</span></>}
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                <p className="text-xl text-text-secondary max-w-2xl mx-auto">
                     {isUrdu ? "ہماری سپورٹ ٹیم آپ کے سوالات اور مسائل کے حل کے لیے موجود ہے۔" : "Our dedicated support team is here to assist you with any questions or issues."}
                 </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8 mb-16">
-                <div className="bg-white dark:bg-[#1a1a1a] p-8 rounded-2xl border border-gray-100 dark:border-gray-800 text-center shadow-sm">
+                <div className="bg-white p-8 rounded-2xl border border-border-light text-center shadow-sm">
                     <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6">
                         <Mail className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{isUrdu ? "ای میل سپورٹ" : "Email Support"}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">{isUrdu ? "کسی بھی وقت ای میل کریں، ہم 24 گھنٹوں میں جواب دیں گے۔" : "Send us an email anytime, we'll reply within 24 hours."}</p>
+                    <h3 className="text-lg font-bold text-text-primary mb-2">{isUrdu ? "ای میل سپورٹ" : "Email Support"}</h3>
+                    <p className="text-text-secondary mb-4 text-sm">{isUrdu ? "کسی بھی وقت ای میل کریں، ہم 24 گھنٹوں میں جواب دیں گے۔" : "Send us an email anytime, we'll reply within 24 hours."}</p>
                     <a href="mailto:support@medeaz.com" className="text-primary font-semibold hover:underline">support@medeaz.com</a>
                 </div>
 
-                <div className="bg-white dark:bg-[#1a1a1a] p-8 rounded-2xl border border-gray-100 dark:border-gray-800 text-center shadow-sm">
+                <div className="bg-white p-8 rounded-2xl border border-border-light text-center shadow-sm">
                     <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6">
                         <Phone className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{isUrdu ? "فون سپورٹ" : "Phone Support"}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">{isUrdu ? "ہماری سپورٹ ٹیم سے براہِ راست بات کریں۔" : "Speak directly with our support team."}</p>
+                    <h3 className="text-lg font-bold text-text-primary mb-2">{isUrdu ? "فون سپورٹ" : "Phone Support"}</h3>
+                    <p className="text-text-secondary mb-4 text-sm">{isUrdu ? "ہماری سپورٹ ٹیم سے براہِ راست بات کریں۔" : "Speak directly with our support team."}</p>
                     <a href="tel:+18001234567" className="text-primary font-semibold hover:underline">+1 (800) 123-4567</a>
                 </div>
 
-                <div className="bg-white dark:bg-[#1a1a1a] p-8 rounded-2xl border border-gray-100 dark:border-gray-800 text-center shadow-sm">
+                <div className="bg-white p-8 rounded-2xl border border-border-light text-center shadow-sm">
                     <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6">
                         <Clock className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{isUrdu ? "اوقاتِ کار" : "Business Hours"}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">{isUrdu ? "پیر تا جمعہ، صبح 9:00 تا شام 6:00" : "Mon - Fri, 9:00 AM - 6:00 PM EST"}</p>
-                    <span className="text-gray-500 dark:text-gray-500 font-semibold text-sm">{isUrdu ? "ہفتہ وار تعطیل میں جواب میں تاخیر ہو سکتی ہے۔" : "Weekend responses may vary."}</span>
+                    <h3 className="text-lg font-bold text-text-primary mb-2">{isUrdu ? "اوقاتِ کار" : "Business Hours"}</h3>
+                    <p className="text-text-secondary mb-4 text-sm">{isUrdu ? "پیر تا جمعہ، صبح 9:00 تا شام 6:00" : "Mon - Fri, 9:00 AM - 6:00 PM EST"}</p>
+                    <span className="text-text-secondary font-semibold text-sm">{isUrdu ? "ہفتہ وار تعطیل میں جواب میں تاخیر ہو سکتی ہے۔" : "Weekend responses may vary."}</span>
                 </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-3xl p-8 md:p-12 border border-black/5 dark:border-white/5">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+            <div className="bg-background rounded-3xl p-8 md:p-12 border border-black/5">
+                <h2 className="text-2xl font-bold text-text-primary mb-8 flex items-center gap-3">
                     <HelpCircle className="text-primary w-6 h-6" />
                     {isUrdu ? "اکثر پوچھے جانے والے سوالات" : "Frequently Asked Questions"}
                 </h2>
 
                 <div className="space-y-6 text-left">
                     <div>
-                        <h4 className="text-lg font-bold text-gray-900 dark:text-white">{isUrdu ? "پاس ورڈ کیسے ری سیٹ کریں؟" : "How do I reset my password?"}</h4>
-                        <p className="text-gray-600 dark:text-gray-400 mt-2">{isUrdu ? "لاگ ان پیج پر \"Forgot Password\" پر کلک کریں یا پروفائل سیٹنگز سے پاس ورڈ تبدیل کریں۔" : "You can reset your password from the login page by clicking \"Forgot Password\" or from your profile settings if you are already logged in."}</p>
+                        <h4 className="text-lg font-bold text-text-primary">{isUrdu ? "پاس ورڈ کیسے ری سیٹ کریں؟" : "How do I reset my password?"}</h4>
+                        <p className="text-text-secondary mt-2">{isUrdu ? "لاگ ان پیج پر \"Forgot Password\" پر کلک کریں یا پروفائل سیٹنگز سے پاس ورڈ تبدیل کریں۔" : "You can reset your password from the login page by clicking \"Forgot Password\" or from your profile settings if you are already logged in."}</p>
                     </div>
-                    <hr className="border-gray-200 dark:border-gray-800" />
+                    <hr className="border-border-light" />
                     <div>
-                        <h4 className="text-lg font-bold text-gray-900 dark:text-white">{isUrdu ? "اپائنٹمنٹ کیسے منسوخ کریں؟" : "How do I cancel an appointment?"}</h4>
-                        <p className="text-gray-600 dark:text-gray-400 mt-2">{isUrdu ? "ڈیش بورڈ میں \"Appointments\" ٹیب کھولیں، اپائنٹمنٹ منتخب کریں اور \"Cancel\" پر کلک کریں۔" : "Go to the \"Appointments\" tab in your dashboard, select the upcoming appointment, and click \"Cancel\". Be sure to check clinic cancellation policies."}</p>
+                        <h4 className="text-lg font-bold text-text-primary">{isUrdu ? "اپائنٹمنٹ کیسے منسوخ کریں؟" : "How do I cancel an appointment?"}</h4>
+                        <p className="text-text-secondary mt-2">{isUrdu ? "ڈیش بورڈ میں \"Appointments\" ٹیب کھولیں، اپائنٹمنٹ منتخب کریں اور \"Cancel\" پر کلک کریں۔" : "Go to the \"Appointments\" tab in your dashboard, select the upcoming appointment, and click \"Cancel\". Be sure to check clinic cancellation policies."}</p>
                     </div>
-                    <hr className="border-gray-200 dark:border-gray-800" />
+                    <hr className="border-border-light" />
                     <div>
-                        <h4 className="text-lg font-bold text-gray-900 dark:text-white">{isUrdu ? "کیا میرا میڈیکل ڈیٹا محفوظ ہے؟" : "Is my medical data secure?"}</h4>
-                        <p className="text-gray-600 dark:text-gray-400 mt-2">{isUrdu ? "جی ہاں، MedEaz جدید سیکیورٹی معیارات اور انکرپشن کے ساتھ آپ کے ڈیٹا کو محفوظ رکھتا ہے۔" : "Yes, MedEaz employs end-to-end encryption for all patient records and is fully compliant with modern healthcare data standards."}</p>
+                        <h4 className="text-lg font-bold text-text-primary">{isUrdu ? "کیا میرا میڈیکل ڈیٹا محفوظ ہے؟" : "Is my medical data secure?"}</h4>
+                        <p className="text-text-secondary mt-2">{isUrdu ? "جی ہاں، MedEaz جدید سیکیورٹی معیارات اور انکرپشن کے ساتھ آپ کے ڈیٹا کو محفوظ رکھتا ہے۔" : "Yes, MedEaz employs end-to-end encryption for all patient records and is fully compliant with modern healthcare data standards."}</p>
                     </div>
                 </div>
             </div>

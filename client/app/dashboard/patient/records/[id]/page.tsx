@@ -38,17 +38,17 @@ export default function RecordDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-        <div className="h-64 animate-pulse rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1a1a1a]" />
+        <div className="h-8 w-48 animate-pulse rounded bg-surface" />
+        <div className="h-64 animate-pulse rounded-xl border border-border-light bg-white" />
       </div>
     );
   }
 
   if (!prescription) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-[#1a1a1a]">
-        <FileText className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+      <div className="rounded-xl border border-border-light bg-white p-12 text-center">
+        <FileText className="mx-auto h-12 w-12 text-text-secondary" />
+        <h3 className="mt-4 text-lg font-semibold text-text-primary">
           {t('prescription.notFound')}
         </h3>
         <Button onClick={() => router.back()} className="mt-4">
@@ -64,27 +64,27 @@ export default function RecordDetailPage() {
       <div className="flex items-center justify-between print:hidden">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+          className="flex items-center gap-2 text-text-secondary hover:text-text-primary :text-white transition-colors"
         >
           <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
           <span className="font-medium">{t('prescription.backToRecords')}</span>
         </button>
-        <Button onClick={handlePrint} variant="outline" className="bg-white dark:bg-white/5 border-black/10 dark:border-white/10 rounded-2xl h-11 px-6 text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
+        <Button onClick={handlePrint} variant="outline" className="bg-white border-black/10 h-11 px-6 text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
           <Printer className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
           {t('prescription.printPrescription')}
         </Button>
       </div>
 
       {/* Prescription Details */}
-      <div className="rounded-[2.5rem] border border-black/5 dark:border-white/10 bg-white dark:bg-[#18181b] p-8 sm:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+      <div className="rounded-[2.5rem] border border-black/5 bg-white p-8 sm:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
         {/* Header Section */}
-        <div className="mb-8 border-b border-gray-200 pb-6 dark:border-gray-700">
+        <div className="mb-8 border-b border-border-light pb-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white print:text-2xl">
+              <h1 className="text-3xl font-bold text-text-primary print:text-2xl">
                 {t('prescription.medicalPrescription')}
               </h1>
-              <p className="mt-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 print:text-xs">
+              <p className="mt-2 flex items-center gap-2 text-sm text-text-secondary print:text-xs">
                 <Calendar className="h-4 w-4" />
                 {formatDate(prescription.createdAt)}
               </p>
@@ -96,7 +96,7 @@ export default function RecordDetailPage() {
                  width={120}
                  height={40}
                  priority
-                 className="dark:hidden print:block"
+                 className="print:block"
                />
                <NextImage
                  src="/logo-dark.svg"
@@ -104,7 +104,7 @@ export default function RecordDetailPage() {
                  width={120}
                  height={40}
                  priority
-                 className="hidden dark:block print:hidden"
+                 className="hidden print:hidden"
                />
             </div>
           </div>
@@ -113,46 +113,46 @@ export default function RecordDetailPage() {
         {/* Doctor & Clinic Info - Only for prescriptions */}
         {prescription.type !== "document" && (
           <div className="mb-8 grid gap-6 md:grid-cols-2 print:grid-cols-2 print:mb-6">
-            <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700 print:border-gray-100">
-              <p className="mb-3 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 print:text-[10px]">
+            <div className="rounded-lg border border-border-light p-4 print:border-border-light">
+              <p className="mb-3 text-xs font-semibold uppercase text-text-secondary print:text-[10px]">
                 {t('prescription.doctorInfo')}
               </p>
               <div className="space-y-2">
-                <p className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white print:text-sm">
+                <p className="flex items-center gap-2 font-semibold text-text-primary print:text-sm">
                   <User className="h-4 w-4 text-primary" />
                   {t('patient.bookAppointmentPage.doctorPrefix')} {prescription.doctorId?.name}
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 print:text-xs">
+                <p className="text-sm text-text-secondary print:text-xs">
                   {prescription.doctorId?.specialization}
                 </p>
                 {prescription.doctorId?.licenseNumber && (
-                  <p className="text-xs text-gray-500 dark:text-gray-500 print:text-[9px]">
+                  <p className="text-xs text-text-secondary print:text-[9px]">
                     {t('form.licenseNo')}: {prescription.doctorId.licenseNumber}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700 print:border-gray-100">
-              <p className="mb-3 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 print:text-[10px]">
+            <div className="rounded-lg border border-border-light p-4 print:border-border-light">
+              <p className="mb-3 text-xs font-semibold uppercase text-text-secondary print:text-[10px]">
                 {t('prescription.clinicInfo')}
               </p>
               <div className="space-y-2">
-                <p className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white print:text-sm">
+                <p className="flex items-center gap-2 font-semibold text-text-primary print:text-sm">
                   <Building2 className="h-4 w-4 text-primary" />
                   {prescription.clinicId?.name}
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 print:text-xs">
+                <p className="text-sm text-text-secondary print:text-xs">
                   {prescription.clinicId?.address}
                 </p>
                 {prescription.clinicId?.phone && (
-                  <p className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500 print:text-[9px]">
+                  <p className="flex items-center gap-2 text-xs text-text-secondary print:text-[9px]">
                     <Phone className="h-3 w-3" />
                     {prescription.clinicId.phone}
                   </p>
                 )}
                 {prescription.clinicId?.email && (
-                  <p className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500 print:text-[9px]">
+                  <p className="flex items-center gap-2 text-xs text-text-secondary print:text-[9px]">
                     <Mail className="h-3 w-3" />
                     {prescription.clinicId.email}
                   </p>
@@ -163,26 +163,26 @@ export default function RecordDetailPage() {
         )}
 
         {/* Patient Info - Single line for print */}
-        <div className="mb-8 rounded-lg border border-gray-200 p-6 dark:border-gray-700 print:mb-6 print:border-none print:p-0">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 print:mb-2 border-b border-gray-100 pb-2 print:border-gray-200">
+        <div className="mb-8 rounded-lg border border-border-light p-6 print:mb-6 print:border-none print:p-0">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary print:mb-2 border-b border-border-light pb-2 print:border-border-light">
             {t('prescription.patientInfo')}
           </p>
           <div className="flex flex-wrap items-center gap-x-10 gap-y-2 pt-1 print:pt-0">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase text-gray-400 print:text-gray-500">{t('form.name')}:</span>
-              <span className="text-sm font-black text-gray-900 dark:text-white print:text-sm">
+              <span className="text-[10px] font-bold uppercase text-text-secondary print:text-text-secondary">{t('form.name')}:</span>
+              <span className="text-sm font-black text-text-primary print:text-sm">
                 {prescription.patientId?.name || "N/A"}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase text-gray-400 print:text-gray-500">{t('form.gender')}:</span>
-              <span className="text-sm font-bold text-gray-900 dark:text-white capitalize print:text-sm">
+              <span className="text-[10px] font-bold uppercase text-text-secondary print:text-text-secondary">{t('form.gender')}:</span>
+              <span className="text-sm font-bold text-text-primary capitalize print:text-sm">
                 {prescription.patientId?.gender ? t(`form.${prescription.patientId.gender}`) : "N/A"}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase text-gray-400 print:text-gray-500">{t('patient.profile.bloodGroup')}:</span>
-              <span className="text-sm font-bold text-gray-900 dark:text-white print:text-sm">
+              <span className="text-[10px] font-bold uppercase text-text-secondary print:text-text-secondary">{t('patient.profile.bloodGroup')}:</span>
+              <span className="text-sm font-bold text-text-primary print:text-sm">
                 {prescription.patientId?.bloodGroup || "N/A"}
               </span>
             </div>
@@ -191,11 +191,11 @@ export default function RecordDetailPage() {
 
         {/* Diagnosis */}
         <div className="mb-8 print:mb-6">
-          <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white print:text-sm">
+          <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-text-primary print:text-sm">
             <FileText className="h-5 w-5 text-primary print:h-4 print:w-4" />
             {t('prescription.diagnosis')}
           </h3>
-          <p className="rounded-lg bg-gray-50 p-4 text-gray-700 dark:bg-gray-800 dark:text-gray-300 print:bg-white print:p-0 print:text-sm">
+          <p className="rounded-lg bg-background p-4 text-text-primary print:bg-white print:p-0 print:text-sm">
             {prescription.diagnosis}
           </p>
         </div>
@@ -203,7 +203,7 @@ export default function RecordDetailPage() {
         {/* Medicines */}
         {prescription.medicines && prescription.medicines.length > 0 && (
           <div className="mb-8 print:mb-6">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white print:text-sm">
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-text-primary print:text-sm">
               <Pill className="h-5 w-5 text-primary print:h-4 print:w-4" />
               {t('prescription.prescribedMedicines')} ({prescription.medicines.length})
             </h3>
@@ -211,10 +211,10 @@ export default function RecordDetailPage() {
               {prescription.medicines.map((medicine: any, index: number) => (
                 <div
                   key={index}
-                  className="rounded-lg border border-gray-200 p-4 dark:border-gray-700 print:border-gray-100 print:break-inside-avoid print:bg-white"
+                  className="rounded-lg border border-border-light p-4 print:border-border-light print:break-inside-avoid print:bg-white"
                 >
                   <div className="mb-2 flex items-start justify-between">
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white print:text-sm">
+                    <h4 className="text-lg font-semibold text-text-primary print:text-sm">
                       {index + 1}. {medicine.name}
                     </h4>
                     <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary print:bg-white print:border print:border-primary/20 print:text-[10px]">
@@ -222,15 +222,15 @@ export default function RecordDetailPage() {
                     </span>
                   </div>
                   <div className="grid gap-2 text-sm md:grid-cols-2 print:grid-cols-2">
-                    <p className="text-gray-600 dark:text-gray-400 print:text-xs">
+                    <p className="text-text-secondary print:text-xs">
                       <span className="font-medium">{t('prescription.frequency')}:</span> {medicine.frequency}
                     </p>
-                    <p className="text-gray-600 dark:text-gray-400 print:text-xs">
+                    <p className="text-text-secondary print:text-xs">
                       <span className="font-medium">{t('prescription.duration')}:</span> {medicine.duration}
                     </p>
                   </div>
                   {medicine.instructions && (
-                    <p className="mt-2 text-sm italic text-gray-600 dark:text-gray-400 print:text-xs">
+                    <p className="mt-2 text-sm italic text-text-secondary print:text-xs">
                       {medicine.instructions}
                     </p>
                   )}
@@ -243,10 +243,10 @@ export default function RecordDetailPage() {
         {/* Notes */}
         {prescription.notes && (
           <div className="mb-8 print:mb-6">
-            <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white print:text-sm">
+            <h3 className="mb-3 text-lg font-semibold text-text-primary print:text-sm">
               {t('prescription.additionalNotes')}
             </h3>
-            <p className="rounded-lg bg-gray-50 p-4 text-gray-700 dark:bg-gray-800 dark:text-gray-300 print:bg-white print:p-0 print:text-sm">
+            <p className="rounded-lg bg-background p-4 text-text-primary print:bg-white print:p-0 print:text-sm">
               {prescription.notes}
             </p>
           </div>
@@ -256,7 +256,7 @@ export default function RecordDetailPage() {
         {prescription.attachments && prescription.attachments.length > 0 && (
           <>
           <div className="print:hidden">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-text-primary">
               <FileText className="h-5 w-5 text-primary" />
               {t('prescription.uploadedDocuments')} ({prescription.attachments.length})
             </h3>
@@ -264,7 +264,7 @@ export default function RecordDetailPage() {
               {prescription.attachments.map((attachment: any, index: number) => (
                 <div 
                   key={index} 
-                  className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 group cursor-pointer"
+                  className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border-light bg-background group cursor-pointer"
                   onClick={() => setSelectedImage(attachment.fileUrl)}
                 >
                     <NextImage
@@ -315,18 +315,18 @@ export default function RecordDetailPage() {
 
           {/* Print attachments */}
           <div className="hidden print:block mb-8 print:mb-6">
-            <h3 className="mb-3 text-lg font-semibold text-gray-900 print:text-sm">
+            <h3 className="mb-3 text-lg font-semibold text-text-primary print:text-sm">
               {t('prescription.uploadedDocuments')} ({prescription.attachments.length})
             </h3>
             <div className="grid grid-cols-2 gap-3">
               {prescription.attachments.map((attachment: any, index: number) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-2 print:break-inside-avoid bg-white">
+                <div key={index} className="border border-border-light rounded-lg p-2 print:break-inside-avoid bg-white">
                   <img
                     src={attachment.fileUrl}
                     alt={attachment.fileName || `Attachment ${index + 1}`}
                     className="w-full h-auto max-h-[260px] object-contain"
                   />
-                  <p className="mt-1 text-[10px] text-gray-600">{attachment.fileName || `Attachment ${index + 1}`}</p>
+                  <p className="mt-1 text-[10px] text-text-secondary">{attachment.fileName || `Attachment ${index + 1}`}</p>
                 </div>
               ))}
             </div>
@@ -335,14 +335,14 @@ export default function RecordDetailPage() {
         )}
 
         {/* Signature Block - Only for print */}
-        <div className="hidden print:block mt-16 pt-8 border-t border-gray-200">
+        <div className="hidden print:block mt-16 pt-8 border-t border-border-light">
             <div className="flex justify-between items-end">
                 <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase text-gray-400">{t('prescription.issueDate')}</p>
+                    <p className="text-[10px] font-bold uppercase text-text-secondary">{t('prescription.issueDate')}</p>
                     <p className="text-sm font-bold">{formatDate(prescription.createdAt)}</p>
                 </div>
                 <div className="text-center min-w-[200px] space-y-4">
-                    <div className="h-px bg-gray-900 w-full mb-1"></div>
+                    <div className="h-px bg-ink-soft w-full mb-1"></div>
                     <p className="text-sm font-black uppercase tracking-[0.2em] mb-4">{t('prescription.doctorSignature')}</p>
                 </div>
             </div>

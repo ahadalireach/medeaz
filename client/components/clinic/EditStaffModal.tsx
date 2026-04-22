@@ -89,11 +89,11 @@ export default function EditStaffModal({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="flex flex-col items-center mb-6">
           <div className="relative group">
-            <div className="h-24 w-24 rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 flex items-center justify-center transition-all group-hover:border-primary/50">
+            <div className="h-24 w-24 rounded-2xl overflow-hidden border-2 border-dashed border-border-light bg-background flex items-center justify-center transition-all group-hover:border-primary/50">
               {profileImage ? (
                 <img src={profileImage} alt="Preview" className="h-full w-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500">
+                <div className="flex flex-col items-center gap-1 text-text-secondary">
                   <User size={32} />
                   <span className="text-[10px] font-bold uppercase tracking-widest">{t('clinic.staff.photo')}</span>
                 </div>
@@ -115,7 +115,7 @@ export default function EditStaffModal({
               </button>
             )}
           </div>
-          <p className="text-[10px] text-gray-400 mt-2 font-medium">{t('clinic.staff.uploadPhoto')}</p>
+          <p className="text-[10px] text-text-secondary mt-2 font-medium">{t('clinic.staff.uploadPhoto')}</p>
         </div>
 
         <Input
@@ -141,19 +141,19 @@ export default function EditStaffModal({
         />
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-semibold text-text-primary mb-2">
             {t('clinic.staff.role')}
           </label>
           <select
             {...register("role")}
-            className="w-full px-4 py-2 border border-gray-200 dark:border-[#27272a] rounded-lg bg-white dark:bg-[#1f1f23] text-gray-900 dark:text-[#e4e4e7] placeholder:text-gray-400 dark:placeholder:text-[#52525b] focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full px-4 py-2 border border-border-light rounded-lg bg-white text-text-primary placeholder:text-text-secondary :text-[#78716C] focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <option value="receptionist">Receptionist</option>
             <option value="nurse">Nurse</option>
             <option value="admin">Admin</option>
           </select>
           {errors.role && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            <p className="mt-1 text-sm text-red-600">
               {errors.role.message}
             </p>
           )}

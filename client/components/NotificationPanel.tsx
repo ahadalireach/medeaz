@@ -29,17 +29,17 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
 
     const getIcon = (type: string) => {
         switch (type) {
-            case "success": return <CheckedIcon className="h-4 w-4 text-green-500" />;
+            case "success": return <CheckedIcon className="h-4 w-4 text-primary" />;
             case "error": return <AlertCircle size={16} className="text-red-500" />;
-            case "warning": return <AlertCircle size={16} className="text-orange-500" />;
-            case "appointment_status": return <CheckedIcon className="h-4 w-4 text-green-500" />;
-            case "appointment_booked": return <Info size={16} className="text-blue-500" />;
-            case "appointment_cancelled_by_patient": return <AlertCircle size={16} className="text-orange-500" />;
-            case "appointment_reminder": return <Info size={16} className="text-blue-500" />;
-            case "doctor_appointment_reminder": return <Info size={16} className="text-blue-500" />;
-            case "follow_up_reminder": return <Info size={16} className="text-blue-500" />;
-            case "new_prescription": return <CheckedIcon className="h-4 w-4 text-green-500" />;
-            default: return <Info size={16} className="text-blue-500" />;
+            case "warning": return <AlertCircle size={16} className="text-[#B45309]" />;
+            case "appointment_status": return <CheckedIcon className="h-4 w-4 text-primary" />;
+            case "appointment_booked": return <Info size={16} className="text-primary" />;
+            case "appointment_cancelled_by_patient": return <AlertCircle size={16} className="text-[#B45309]" />;
+            case "appointment_reminder": return <Info size={16} className="text-primary" />;
+            case "doctor_appointment_reminder": return <Info size={16} className="text-primary" />;
+            case "follow_up_reminder": return <Info size={16} className="text-primary" />;
+            case "new_prescription": return <CheckedIcon className="h-4 w-4 text-primary" />;
+            default: return <Info size={16} className="text-primary" />;
         }
     };
 
@@ -212,12 +212,12 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
                             <div
                                 key={n._id || n.id}
                                 className={`relative p-5 rounded-3xl border transition-all cursor-pointer group ${!n.read
-                                    ? 'bg-white dark:bg-white/5 border-primary/20 shadow-sm'
-                                    : 'bg-transparent border-black/5 dark:border-white/5 grayscale-[0.5] opacity-70 hover:opacity-100 hover:grayscale-0'}`}
+                                    ? 'bg-white  border-primary/20 shadow-sm'
+                                    : 'bg-transparent border-black/5  grayscale-[0.5] opacity-70 hover:opacity-100 hover:grayscale-0'}`}
                                 onClick={() => handleOpen(n)}
                             >
                                 <div className="flex gap-4">
-                                    <div className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center transition-all ${!n.read ? 'bg-primary/10 text-primary' : 'bg-gray-100 dark:bg-white/5 text-gray-400'}`}>
+                                    <div className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center transition-all ${!n.read ? 'bg-primary/10 text-primary' : 'bg-surface  text-text-secondary'}`}>
                                         {getIcon(n.type)}
                                     </div>
                                     <div className="flex-1 min-w-0 pr-12">
@@ -226,15 +226,15 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
                                             return (
                                                 <>
                                         <div className="flex items-start justify-between gap-2 mb-1">
-                                            <h4 className={`text-sm font-bold truncate ${!n.read ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
+                                            <h4 className={`text-sm font-bold truncate ${!n.read ? 'text-text-primary ' : 'text-text-secondary '}`}>
                                                 {localized.title}
                                             </h4>
                                         </div>
-                                        <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 leading-normal line-clamp-2">
+                                        <p className="text-[11px] font-medium text-text-secondary leading-normal line-clamp-2">
                                             {localized.message}
                                         </p>
                                         <div className="flex items-center gap-3 mt-3">
-                                            <span className="text-[9px] font-black text-gray-400 dark:text-[#3f3f46] uppercase tracking-widest">
+                                            <span className="text-[9px] font-black text-text-secondary uppercase tracking-widest">
                                                 {getTimeAgo(n.createdAt)}
                                             </span>
                                             {!n.read && <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
@@ -255,11 +255,11 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
                         ))
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                            <div className="h-20 w-20 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mb-6 border border-dashed border-gray-200 dark:border-white/10">
+                            <div className="h-20 w-20 bg-background rounded-[2.5rem] flex items-center justify-center mb-6 border border-dashed border-border-light">
                                 <FilledBellIcon className="h-6 w-6" />
                             </div>
-                            <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{t('topbar.noNotifications').toUpperCase()}</h4>
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2 max-w-50 leading-relaxed">
+                            <h4 className="text-xl font-black text-text-primary uppercase tracking-tight">{t('topbar.noNotifications').toUpperCase()}</h4>
+                            <p className="text-sm font-bold text-text-secondary mt-2 max-w-50 leading-relaxed">
                                 {t('topbar.noNotificationsDesc')}
                             </p>
                         </div>

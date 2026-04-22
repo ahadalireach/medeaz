@@ -106,25 +106,25 @@ export default function NewPatientPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard/clinic_admin/patients"
-          className="h-10 w-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center hover:bg-surface/80 transition-colors border border-gray-100 dark:border-gray-700"
+          className="h-10 w-10 bg-white rounded-xl flex items-center justify-center hover:bg-surface/80 transition-colors border border-border-light"
         >
-          <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+          <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </Link>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white ">Clinical Enrollment</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">
+          <h1 className="text-3xl font-black text-text-primary">Clinical Enrollment</h1>
+          <p className="text-text-secondary mt-1 font-medium">
             Register new patients or link with existing MedEaz accounts
           </p>
         </div>
       </div>
 
-      <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/50 rounded-2xl w-fit border border-slate-200 dark:border-slate-800/50">
+      <div className="flex gap-2 p-1.5 bg-surface rounded-2xl w-fit border border-border-light">
         <button
           onClick={() => setActiveTab('create')}
           className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
             activeTab === 'create' 
-            ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' 
-            : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+            ? 'bg-white  text-primary shadow-sm' 
+            : 'text-text-secondary hover:text-text-secondary :text-white/70'
           }`}
         >
           Register New
@@ -133,19 +133,19 @@ export default function NewPatientPage() {
           onClick={() => setActiveTab('link')}
           className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
             activeTab === 'link' 
-            ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' 
-            : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+            ? 'bg-white  text-primary shadow-sm' 
+            : 'text-text-secondary hover:text-text-secondary :text-white/70'
           }`}
         >
           Link Existing
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-sm">
+      <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm">
         <div className="space-y-8">
           {activeTab === 'link' ? (
             <div className="py-6">
-              <label className="block text-sm font-black text-slate-400 dark:text-slate-500 mb-4 uppercase tracking-widest">
+              <label className="block text-sm font-black text-text-secondary mb-4 uppercase tracking-widest">
                 Registered Email Identity <span className="text-primary">*</span>
               </label>
               <div className="relative">
@@ -154,11 +154,11 @@ export default function NewPatientPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => set("email", e.target.value)}
-                  className="w-full pl-14 pr-4 py-5 border-2 border-slate-50 dark:border-slate-800 rounded-3xl focus:outline-none focus:border-primary bg-slate-50/50 dark:bg-slate-950 text-xl font-black  tracking-tight"
+                  className="w-full pl-14 pr-4 py-5 border-2 border-border-light rounded-3xl focus:outline-none focus:border-primary bg-background/50 text-xl font-black tracking-tight"
                   placeholder="patient@system.com"
                 />
               </div>
-              <p className="mt-6 text-sm font-bold text-slate-400  flex items-center gap-2">
+              <p className="mt-6 text-sm font-bold text-text-secondary flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 Existing user profiles will receive a connection request for clinical access approval.
               </p>
@@ -167,13 +167,13 @@ export default function NewPatientPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="md:col-span-2 flex flex-col items-center pb-6">
                 <div className="relative group">
-                  <div className="h-32 w-32 rounded-[2rem] overflow-hidden border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 flex items-center justify-center transition-all group-hover:border-primary/50">
+                  <div className="h-32 w-32 rounded-[2rem] overflow-hidden border-2 border-dashed border-border-light bg-background/50 flex items-center justify-center transition-all group-hover:border-primary/50">
                     {formData.photo ? (
                       <img src={formData.photo} alt="Preview" className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
+                      <div className="flex flex-col items-center gap-2 text-white/70">
                         <User size={40} />
-                        <span className="text-[10px] font-black uppercase tracking-widest ">Identity Photo</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Identity Photo</span>
                       </div>
                     )}
                   </div>
@@ -193,68 +193,68 @@ export default function NewPatientPage() {
                     </button>
                   )}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-3 font-bold uppercase tracking-widest ">Optional Clinical Visual Identity</p>
+                <p className="text-[10px] text-text-secondary mt-3 font-bold uppercase tracking-widest">Optional Clinical Visual Identity</p>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Full Name</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => set("name", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-slate-50 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-primary bg-slate-50/50 dark:bg-slate-950 font-bold"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Email Identity</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Email Identity</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => set("email", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-slate-50 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-primary bg-slate-50/50 dark:bg-slate-950 font-bold"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Primary Contact</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Primary Contact</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => set("phone", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-slate-50 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-primary bg-slate-50/50 dark:bg-slate-950 font-bold"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Birth Date</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Birth Date</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
                   <input
                     type="date"
                     value={formData.dateOfBirth}
                     onChange={(e) => set("dateOfBirth", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-slate-50 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-primary bg-slate-50/50 dark:bg-slate-950 font-bold"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Gender</label>
+                    <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Gender</label>
                     <select
                         value={formData.gender}
                         onChange={(e) => set("gender", e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-slate-50 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-primary bg-slate-50/50 dark:bg-slate-950 font-bold appearance-none"
+                        className="w-full px-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold appearance-none"
                     >
                         <option value="">Select...</option>
                         <option value="male">Male</option>
@@ -263,13 +263,13 @@ export default function NewPatientPage() {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Blood Group</label>
+                    <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Blood Group</label>
                     <div className="relative">
                         <Droplet className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500/50" />
                         <select
                             value={formData.bloodGroup}
                             onChange={(e) => set("bloodGroup", e.target.value)}
-                            className="w-full pl-9 pr-4 py-3 border-2 border-slate-50 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-primary bg-slate-50/50 dark:bg-slate-950 font-bold appearance-none"
+                            className="w-full pl-9 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold appearance-none"
                         >
                             <option value="">Select...</option>
                             <option value="A+">A+</option>
@@ -286,13 +286,13 @@ export default function NewPatientPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Residential Address</label>
+                <label className="block text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Residential Address</label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3.5 h-5 w-5 text-slate-300" />
+                  <MapPin className="absolute left-3 top-3.5 h-5 w-5 text-white/70" />
                   <textarea
                     value={formData.address}
                     onChange={(e) => set("address", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-slate-50 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-primary bg-slate-50/50 dark:bg-slate-950 font-bold min-h-[100px]"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold min-h-[100px]"
                     placeholder="Street, City, Province"
                   />
                 </div>
@@ -310,7 +310,7 @@ export default function NewPatientPage() {
             </button>
             <Link
               href="/dashboard/clinic_admin/patients"
-              className="px-10 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-3xl font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+              className="px-10 py-4 bg-surface text-text-secondary rounded-3xl font-black uppercase tracking-widest hover:bg-surface :bg-text-secondary transition-all"
             >
               Back
             </Link>

@@ -77,14 +77,14 @@ export default function DoctorsList() {
             {/* Search and Filter Section */}
             <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
                 <div className="relative group flex-1">
-                    <MagnifierIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <MagnifierIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary group-focus-within:text-primary transition-colors" />
                     <input
                         type="text"
                         placeholder={t('patient.findDoctors.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && setIsSearching(true)}
-                        className="w-full pl-12 pr-4 h-14 rounded-2xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-slate-900/50 text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-primary/5 focus:border-primary focus:outline-none transition-all shadow-sm"
+                        className="w-full pl-12 pr-4 h-14 rounded-2xl border border-border-light bg-white text-base text-text-primary placeholder:text-text-secondary focus:ring-4 focus:ring-primary/5 focus:border-primary focus:outline-none transition-all shadow-sm"
                     />
                 </div>
 
@@ -96,13 +96,13 @@ export default function DoctorsList() {
                             setSelectedCity(e.target.value);
                             setIsSearching(true);
                         }}
-                        className="w-full pl-12 pr-10 h-14 appearance-none rounded-2xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-slate-900/50 text-base text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/5 focus:border-primary focus:outline-none transition-all shadow-sm cursor-pointer"
+                        className="w-full pl-12 pr-10 h-14 appearance-none rounded-2xl border border-border-light bg-white text-base text-text-primary focus:ring-4 focus:ring-primary/5 focus:border-primary focus:outline-none transition-all shadow-sm cursor-pointer"
                     >
                         {PAKISTANI_CITIES.map(city => (
                             <option key={city} value={city}>{city}</option>
                         ))}
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
@@ -121,12 +121,12 @@ export default function DoctorsList() {
             <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8 max-w-5xl mx-auto">
                 {(isLoading || isSearching) ? (
                     [1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-48 animate-pulse rounded-3xl border border-gray-100 bg-white dark:border-[#27272a] dark:bg-[#18181b]/50" />
+                        <div key={i} className="h-48 animate-pulse rounded-3xl border border-border-light bg-white" />
                     ))
                 ) : filteredDoctors.map((doctor: any) => (
                     <div
                         key={doctor._id}
-                        className="group relative bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-100 dark:border-gray-800 p-6 transition-all hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5"
+                        className="group relative bg-white rounded-3xl border border-border-light p-6 transition-all hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5"
                     >
                         <div className="flex items-start gap-5">
                             <div className="relative">
@@ -138,7 +138,7 @@ export default function DoctorsList() {
                                     )}
                                 </div>
                                 {doctor.isVerified && (
-                                    <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1 rounded-lg shadow-lg border-2 border-white dark:border-[#1a1a1a]">
+                                    <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1 rounded-lg shadow-lg border-2 border-white">
                                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                                         </svg>
@@ -147,20 +147,20 @@ export default function DoctorsList() {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
+                                <h3 className="text-xl font-bold text-text-primary truncate">
                                     Dr. {doctor.name}
                                 </h3>
-                                <p className="text-sm font-bold text-primary dark:text-primary mt-1">
+                                <p className="text-sm font-bold text-primary mt-1">
                                     {doctor.specialization}
                                 </p>
 
-                                <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                                <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-text-secondary uppercase tracking-widest">
                                     <MapPinIcon size={14} className="text-primary" />
                                     <span className="truncate">{doctor.clinicId?.name || "Private Practice"}</span>
                                 </div>
 
                                 <div className="mt-3 flex items-center gap-4">
-                                    <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 dark:text-gray-300">
+                                    <div className="flex items-center gap-1.5 text-xs font-bold text-text-secondary">
                                         <Calendar size={14} className="text-primary" />
                                         {doctor.appointmentsCount || 0} Consults
                                     </div>
@@ -172,10 +172,10 @@ export default function DoctorsList() {
                             </div>
                         </div>
 
-                        <div className="mt-8 pt-6 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
+                        <div className="mt-8 pt-6 border-t border-border-light flex items-center justify-between">
                             <div className="flex flex-col">
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('doctor.profile.consultationFee')}</span>
-                                <span className="text-sm font-extrabold text-gray-900 dark:text-white">{(doctor.consultationFee || 1500).toLocaleString()} {t('common.pkr')}</span>
+                                <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t('doctor.profile.consultationFee')}</span>
+                                <span className="text-sm font-extrabold text-text-primary">{(doctor.consultationFee || 1500).toLocaleString()} {t('common.pkr')}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
@@ -198,12 +198,12 @@ export default function DoctorsList() {
             </div>
 
             {filteredDoctors.length === 0 && (
-                <div className="text-center py-24 bg-gray-50/50 dark:bg-white/5 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800">
+                <div className="text-center py-24 bg-background/50 rounded-3xl border border-dashed border-border-light">
                     <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                         <MagnifierIcon className="h-10 w-10 text-primary" />
                     </div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{t('patient.findDoctors.noDoctors')}</p>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">{t('patient.findDoctors.adjustSearch')}</p>
+                    <p className="text-2xl font-bold text-text-primary">{t('patient.findDoctors.noDoctors')}</p>
+                    <p className="text-text-secondary mt-2 font-medium">{t('patient.findDoctors.adjustSearch')}</p>
                 </div>
             )}
         </div>

@@ -34,14 +34,14 @@ export function ConfirmModal({
 
   const variantColors = {
     danger: "bg-red-500 hover:bg-red-600",
-    warning: "bg-yellow-500 hover:bg-yellow-600",
+    warning: "bg-[#B45309] hover:bg-[#B45309]",
     info: "bg-primary hover:bg-primary-hover",
   };
 
   const variantIconColors = {
     danger: "bg-red-100 text-red-600",
-    warning: "bg-yellow-100 text-yellow-600",
-    info: "bg-blue-100 text-blue-600",
+    warning: "bg-surface-cream text-[#B45309]",
+    info: "bg-surface text-primary",
   };
 
   return (

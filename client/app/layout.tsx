@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google"; // Using Inter for Lens-like clean sans
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/providers/StoreProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { Toaster } from "react-hot-toast";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+  axes: ["opsz", "SOFT"],
+});
 
 export const metadata: Metadata = {
   title: "Medeaz",
@@ -18,8 +29,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <body className="font-sans antialiased bg-white text-text-primary">
+    <html
+      lang="en"
+      className={`${inter.variable} ${fraunces.variable}`}
+      suppressHydrationWarning
+    >
+      <body
+        className="font-sans antialiased bg-background text-text-primary"
+        suppressHydrationWarning
+      >
         <StoreProvider>
           <LanguageProvider>
             {children}

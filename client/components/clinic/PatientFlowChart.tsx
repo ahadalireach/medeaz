@@ -20,7 +20,7 @@ export default function PatientFlowChart() {
 
   if (isLoading) {
     return (
-      <div className="h-80 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] animate-pulse"></div>
+      <div className="h-80 bg-background rounded-[2.5rem] animate-pulse"></div>
     );
   }
 
@@ -36,7 +36,7 @@ export default function PatientFlowChart() {
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="text-xl">{t('clinic.dashboard.todaysOverview')}</CardTitle>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-1">
           {t('analytics.patientFlow')}
         </p>
       </CardHeader>
@@ -47,44 +47,44 @@ export default function PatientFlowChart() {
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
               <defs>
                 <linearGradient id="colorFlow" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00b495" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#00b495" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#0F4C5C" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#0F4C5C" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#78716C20" />
               <XAxis 
                 dataKey="date" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 'medium' }}
+                tick={{ fill: '#78716C', fontSize: 8, fontWeight: 'medium' }}
                 interval="preserveStartEnd"
                 tickFormatter={formatAxisDate}
                 height={55}
-                label={{ value: t('common.date'), position: "insideBottom", offset: -5, fill: "#94a3b8", fontSize: 10, fontWeight: "bold" }}
+                label={{ value: t('common.date'), position: "insideBottom", offset: -5, fill: "#78716C", fontSize: 10, fontWeight: "bold" }}
               />
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                tick={{ fill: '#78716C', fontSize: 10, fontWeight: 'bold' }}
                 allowDecimals={false}
-                label={{ value: t('clinic.appointments.patient'), angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10, fontWeight: "bold" }}
+                label={{ value: t('clinic.appointments.patient'), angle: -90, position: "insideLeft", fill: "#78716C", fontSize: 10, fontWeight: "bold" }}
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: "#18181b",
+                  backgroundColor: "#1C1917",
                   border: "none",
                   borderRadius: "16px",
                   boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                 }}
-                itemStyle={{ color: "#00b495", fontWeight: 'bold', fontSize: '12px' }}
-                labelStyle={{ color: "#94a3b8", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
+                itemStyle={{ color: "#0F4C5C", fontWeight: 'bold', fontSize: '12px' }}
+                labelStyle={{ color: "#78716C", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
                 labelFormatter={(value: any) => formatAxisDate(String(value))}
                 formatter={(value: any) => [value, t('clinic.appointments.patient')]}
               />
               <Area
                 type="monotone"
                 dataKey="patients"
-                stroke="#00b495"
+                stroke="#0F4C5C"
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#colorFlow)"

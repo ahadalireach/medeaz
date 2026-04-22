@@ -288,7 +288,7 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (valu
       onClick={() => onChange(!checked)}
       className={cn(
         "relative h-6 w-11 rounded-full transition-colors",
-        checked ? "bg-primary" : "bg-gray-300 dark:bg-gray-700",
+        checked ? "bg-primary" : "bg-surface-lavender ",
       )}
     >
       <span
@@ -323,8 +323,8 @@ function TagInput({
 
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{label}</label>
-      <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-3">
+      <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary">{label}</label>
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-border-light bg-white p-3">
         {value.map((tag) => (
           <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-primary-bg px-3 py-1 text-xs font-bold text-primary">
             {tag}
@@ -342,7 +342,7 @@ function TagInput({
           }}
           onBlur={addTag}
           placeholder={placeholder}
-          className="min-w-45 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
+          className="min-w-45 flex-1 bg-transparent text-sm outline-none placeholder:text-text-secondary :text-text-secondary"
         />
       </div>
     </div>
@@ -362,10 +362,10 @@ function FileField({
 }) {
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{label}</label>
-      <div className="flex items-center gap-4 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-4">
-        <div className="h-16 w-16 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-          {preview ? <img src={preview} alt={label} className="h-full w-full object-cover" /> : <UserRound className="h-7 w-7 text-slate-400" />}
+      <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary">{label}</label>
+      <div className="flex items-center gap-4 rounded-2xl border border-dashed border-border p-4">
+        <div className="h-16 w-16 overflow-hidden rounded-2xl bg-surface flex items-center justify-center">
+          {preview ? <img src={preview} alt={label} className="h-full w-full object-cover" /> : <UserRound className="h-7 w-7 text-text-secondary" />}
         </div>
         <div className="flex-1 space-y-2">
           <input type="file" accept="image/*" onChange={(event) => onFile(event.target.files?.[0] || null)} />
@@ -398,8 +398,8 @@ function OnboardingWizard({
 
   return createPortal(
     <div className="fixed inset-0 z-600 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
-      <div className="relative w-full max-w-xl rounded-3xl border border-white/10 bg-white p-6 shadow-2xl dark:bg-[#111827] dark:border-white/5">
-        <button type="button" onClick={onSkip} className="absolute right-4 top-4 text-xs font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-primary">
+      <div className="relative w-full max-w-xl rounded-3xl border border-white/10 bg-white p-6 shadow-2xl">
+        <button type="button" onClick={onSkip} className="absolute right-4 top-4 text-xs font-bold uppercase tracking-[0.2em] text-text-secondary hover:text-primary">
           {fieldLabels[locale].skip}
         </button>
 
@@ -409,29 +409,29 @@ function OnboardingWizard({
               <StepIcon className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">{fieldLabels[locale].completeProfileBanner}</p>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white">{active.title}</h2>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-secondary">{fieldLabels[locale].completeProfileBanner}</p>
+              <h2 className="text-2xl font-black text-text-primary">{active.title}</h2>
             </div>
           </div>
         </div>
 
-        <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{active.description}</p>
+        <p className="text-sm leading-7 text-text-secondary">{active.description}</p>
 
         <div className="mt-8 flex items-center justify-between gap-3">
-          <Button type="button" variant="outline" onClick={() => setStep((value) => Math.max(value - 1, 0))} disabled={step === 0} className="rounded-2xl">
+          <Button type="button" variant="outline" onClick={() => setStep((value) => Math.max(value - 1, 0))} disabled={step === 0} className="">
             {fieldLabels[locale].back}
           </Button>
           <div className="flex items-center gap-2">
             {steps.map((_, index) => (
-              <span key={index} className={cn("h-2 w-2 rounded-full", index === step ? "bg-primary" : "bg-slate-300 dark:bg-slate-600")} />
+              <span key={index} className={cn("h-2 w-2 rounded-full", index === step ? "bg-primary" : "bg-surface-lavender ")} />
             ))}
           </div>
           {step < steps.length - 1 ? (
-            <Button type="button" onClick={() => setStep((value) => value + 1)} className="rounded-2xl">
+            <Button type="button" onClick={() => setStep((value) => value + 1)} className="">
               {fieldLabels[locale].next} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button type="button" onClick={onComplete} className="rounded-2xl">
+            <Button type="button" onClick={onComplete} className="">
               {fieldLabels[locale].getStarted}
             </Button>
           )}
@@ -452,17 +452,17 @@ function ProfileBanner({
   onDismiss: () => void;
 }) {
   return (
-    <div className="sticky top-16 z-40 border-b border-primary/30 bg-primary-bg px-4 py-3 shadow-sm dark:border-primary/20">
+    <div className="sticky top-16 z-40 border-b border-primary/30 bg-primary-bg px-4 py-3 shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-5 w-5 text-primary" />
-          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{fieldLabels[locale].completeProfileBanner}</p>
+          <p className="text-sm font-medium text-text-primary">{fieldLabels[locale].completeProfileBanner}</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={onOpen} className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-primary-hover">
             {fieldLabels[locale].completeProfileBtn}
           </button>
-          <button onClick={onDismiss} className="rounded-full p-2 text-slate-500 hover:bg-black/5 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white">
+          <button onClick={onDismiss} className="rounded-full p-2 text-text-secondary hover:bg-black/5 hover:text-text-primary :bg-white/5 :text-white">
             ×
           </button>
         </div>
@@ -611,7 +611,7 @@ function ProfileCompletionModal({
   return (
     <Modal isOpen title={labels.review} onClose={onClose} size="xl">
       <div className="space-y-6">
-        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
           <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, progress * 100)}%` }} />
         </div>
 
@@ -620,8 +620,8 @@ function ProfileCompletionModal({
             <Input label={labels.fullName} value={state.patient.name} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, name: event.target.value } }))} />
             <Input label={labels.dob} type="date" value={state.patient.dob} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, dob: event.target.value } }))} />
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{labels.gender}</label>
-              <select value={state.patient.gender} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, gender: event.target.value } }))} className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-5 text-sm dark:border-slate-700 dark:bg-slate-900/50">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.gender}</label>
+              <select value={state.patient.gender} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, gender: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
                 <option value="">Select</option>
                 {genderOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
@@ -636,8 +636,8 @@ function ProfileCompletionModal({
         {role === "patient" && step === 1 && (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{labels.bloodGroup}</label>
-              <select value={state.patient.bloodGroup} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, bloodGroup: event.target.value } }))} className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-5 text-sm dark:border-slate-700 dark:bg-slate-900/50">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.bloodGroup}</label>
+              <select value={state.patient.bloodGroup} onChange={(event) => setState((current) => ({ ...current, patient: { ...current.patient, bloodGroup: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
                 <option value="">Select</option>
                 {bloodGroupOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
@@ -650,12 +650,12 @@ function ProfileCompletionModal({
         )}
 
         {role === "patient" && step === 2 && (
-          <div className="space-y-4 rounded-2xl border border-slate-200 p-5 dark:border-slate-700">
+          <div className="space-y-4 rounded-2xl border border-border-light p-5">
             <div className="flex items-center justify-between"><span className="text-sm font-medium">{labels.fullName}</span><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button></div>
-            <p className="text-sm text-slate-600 dark:text-slate-300">{state.patient.name || "-"}</p>
-            <div className="flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-700"><span className="text-sm font-medium">{labels.bloodGroup}</span><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(1)}>{labels.editSection}</button></div>
-            <p className="text-sm text-slate-600 dark:text-slate-300">{state.patient.bloodGroup || "-"}</p>
-            <Button type="button" className="w-full rounded-2xl" onClick={handleSubmit} disabled={isSavingPatient || isMarkingProfileComplete}>{labels.saveProfile}</Button>
+            <p className="text-sm text-text-secondary">{state.patient.name || "-"}</p>
+            <div className="flex items-center justify-between border-t border-border-light pt-4"><span className="text-sm font-medium">{labels.bloodGroup}</span><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(1)}>{labels.editSection}</button></div>
+            <p className="text-sm text-text-secondary">{state.patient.bloodGroup || "-"}</p>
+            <Button type="button" className="w-full" onClick={handleSubmit} disabled={isSavingPatient || isMarkingProfileComplete}>{labels.saveProfile}</Button>
           </div>
         )}
 
@@ -664,8 +664,8 @@ function ProfileCompletionModal({
             <Input label={labels.fullName} value={state.doctor.name} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, name: event.target.value } }))} />
             <Input label={labels.phone} type="tel" value={state.doctor.phone} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, phone: event.target.value } }))} />
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{labels.gender}</label>
-              <select value={state.doctor.gender} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, gender: event.target.value } }))} className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-5 text-sm dark:border-slate-700 dark:bg-slate-900/50">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.gender}</label>
+              <select value={state.doctor.gender} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, gender: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
                 <option value="">Select</option>
                 {genderOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
@@ -680,8 +680,8 @@ function ProfileCompletionModal({
         {role === "doctor" && step === 1 && (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{labels.specialization}</label>
-              <select value={state.doctor.specialization} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, specialization: event.target.value } }))} className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-5 text-sm dark:border-slate-700 dark:bg-slate-900/50">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.specialization}</label>
+              <select value={state.doctor.specialization} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, specialization: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
                 <option value="">Select</option>
                 {specializationOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
@@ -690,16 +690,16 @@ function ProfileCompletionModal({
             <Input label={labels.experience} type="number" min="0" value={state.doctor.experience} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, experience: event.target.value } }))} />
             <Input label={labels.fee} type="number" min="0" value={state.doctor.consultationFee} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, consultationFee: event.target.value } }))} />
             <div className="md:col-span-2">
-              <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{labels.bio}</label>
-              <textarea value={state.doctor.bio} maxLength={300} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, bio: event.target.value } }))} className="min-h-32 w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm dark:border-slate-700 dark:bg-slate-900/50" />
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.bio}</label>
+              <textarea value={state.doctor.bio} maxLength={300} onChange={(event) => setState((current) => ({ ...current, doctor: { ...current.doctor, bio: event.target.value } }))} className="min-h-32 w-full rounded-lg border border-border-light bg-white px-5 py-4 text-sm" />
             </div>
           </div>
         )}
 
         {role === "doctor" && step === 2 && (
-          <div className="rounded-2xl border border-slate-200 p-5 dark:border-slate-700">
-            <p className="text-sm text-slate-600 dark:text-slate-300">You'll be added to clinics by clinic admins. This step is automatic.</p>
-            <div className="mt-4 flex items-center justify-between"><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button><Button type="button" className="rounded-2xl" onClick={handleSubmit} disabled={isSavingDoctor || isMarkingProfileComplete}>{labels.saveProfile}</Button></div>
+          <div className="rounded-2xl border border-border-light p-5">
+            <p className="text-sm text-text-secondary">You'll be added to clinics by clinic admins. This step is automatic.</p>
+            <div className="mt-4 flex items-center justify-between"><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button><Button type="button" className="" onClick={handleSubmit} disabled={isSavingDoctor || isMarkingProfileComplete}>{labels.saveProfile}</Button></div>
           </div>
         )}
 
@@ -707,8 +707,8 @@ function ProfileCompletionModal({
           <div className="grid gap-4 md:grid-cols-2">
             <Input label={labels.clinicName} value={state.clinic.name} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, name: event.target.value } }))} />
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{labels.clinicType}</label>
-              <select value={state.clinic.clinicType} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, clinicType: event.target.value } }))} className="h-14 w-full rounded-2xl border border-slate-200 bg-white px-5 text-sm dark:border-slate-700 dark:bg-slate-900/50">
+              <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">{labels.clinicType}</label>
+              <select value={state.clinic.clinicType} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, clinicType: event.target.value } }))} className="h-14 w-full rounded-lg border border-border-light bg-white px-5 text-sm">
                 {clinicTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
             </div>
@@ -726,11 +726,11 @@ function ProfileCompletionModal({
             <Input label={labels.address1} value={state.clinic.address} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, address: event.target.value } }))} />
             <Input label={labels.address2} value={state.clinic.addressLine2} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, addressLine2: event.target.value } }))} />
             <Input label={labels.city} value={state.clinic.city} onChange={(event) => setState((current) => ({ ...current, clinic: { ...current.clinic, city: event.target.value } }))} />
-            <div className="md:col-span-2 rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
+            <div className="md:col-span-2 rounded-2xl border border-border-light p-4">
               <div className="flex items-center justify-between"><span className="text-sm font-bold">{labels.workingHours}</span><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button></div>
               <div className="mt-4 space-y-3">
                 {Object.entries(workingHours).map(([day, value]) => (
-                  <div key={day} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 rounded-2xl border border-slate-100 p-3 dark:border-slate-800">
+                  <div key={day} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 rounded-2xl border border-border-light p-3">
                     <span className="text-sm font-medium capitalize">{day}</span>
                     <ToggleSwitch checked={!value.closed} onChange={(checked) => setWorkingHours((current) => ({ ...current, [day]: { ...current[day], closed: !checked } }))} />
                     {!value.closed ? (
@@ -739,7 +739,7 @@ function ProfileCompletionModal({
                         <Input type="time" value={value.close} onChange={(event) => setWorkingHours((current) => ({ ...current, [day]: { ...current[day], close: event.target.value } }))} />
                       </>
                     ) : (
-                      <span className="text-xs font-semibold text-slate-400">Closed</span>
+                      <span className="text-xs font-semibold text-text-secondary">Closed</span>
                     )}
                   </div>
                 ))}
@@ -749,17 +749,17 @@ function ProfileCompletionModal({
         )}
 
         {role === "clinic_admin" && step === 2 && (
-          <div className="rounded-2xl border border-slate-200 p-5 dark:border-slate-700">
-            <div className="flex items-center justify-between"><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button><Button type="button" className="rounded-2xl" onClick={handleSubmit} disabled={isSavingClinic || isMarkingProfileComplete}>{labels.saveSettings}</Button></div>
+          <div className="rounded-2xl border border-border-light p-5">
+            <div className="flex items-center justify-between"><button type="button" className="text-sm font-semibold text-primary" onClick={() => setStep(0)}>{labels.editSection}</button><Button type="button" className="" onClick={handleSubmit} disabled={isSavingClinic || isMarkingProfileComplete}>{labels.saveSettings}</Button></div>
           </div>
         )}
 
         <div className="flex items-center justify-between pt-2">
-          <Button type="button" variant="outline" className="rounded-2xl" onClick={() => setStep((current) => Math.max(current - 1, 0))} disabled={step === 0}>
+          <Button type="button" variant="outline" className="" onClick={() => setStep((current) => Math.max(current - 1, 0))} disabled={step === 0}>
             <ArrowLeft className="mr-2 h-4 w-4" /> {fieldLabels[locale].back}
           </Button>
           {step < 2 && (
-            <Button type="button" className="rounded-2xl" onClick={() => setStep((current) => current + 1)}>
+            <Button type="button" className="" onClick={() => setStep((current) => current + 1)}>
               {fieldLabels[locale].next} <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           )}

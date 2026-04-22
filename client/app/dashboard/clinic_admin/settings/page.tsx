@@ -7,7 +7,7 @@ export default function SettingsPage() {
   const t = useTranslations();
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+      <h1 className="text-3xl font-bold text-text-primary">
         {t('nav.settings')}
       </h1>
       <ClinicSettingsForm />

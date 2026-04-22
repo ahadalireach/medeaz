@@ -108,7 +108,7 @@ export default function AddDoctorModal({
     <Modal isOpen={isOpen} onClose={handleClose} title={t('clinic.addDoctor')}>
       {mode === "options" && (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('clinic.chooseDoctorAddMethod') || "Choose how to add a doctor:"}</p>
+          <p className="text-sm text-text-secondary font-medium">{t('clinic.chooseDoctorAddMethod') || "Choose how to add a doctor:"}</p>
           
           <button
             onClick={() => setMode("search")}
@@ -116,19 +116,19 @@ export default function AddDoctorModal({
           >
             <Search className="h-6 w-6 text-primary" />
             <div>
-              <p className="font-bold text-gray-900 dark:text-white">{t('clinic.searchByEmail') || "Search Doctor by Email"}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{t('clinic.searchByEmailDesc') || "Find and add existing doctors"}</p>
+              <p className="font-bold text-text-primary">{t('clinic.searchByEmail') || "Search Doctor by Email"}</p>
+              <p className="text-xs text-text-secondary">{t('clinic.searchByEmailDesc') || "Find and add existing doctors"}</p>
             </div>
           </button>
 
           <button
             onClick={() => setMode("manual")}
-            className="w-full p-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 hover:border-primary/50 bg-gray-50 dark:bg-gray-800/50 hover:bg-primary/5 transition-all flex items-center gap-3 text-left"
+            className="w-full p-4 rounded-2xl border-2 border-border-light hover:border-primary/50 bg-background hover:bg-primary/5 transition-all flex items-center gap-3 text-left"
           >
-            <Plus className="h-6 w-6 text-gray-400" />
+            <Plus className="h-6 w-6 text-text-secondary" />
             <div>
-              <p className="font-bold text-gray-900 dark:text-white">{t('clinic.manuallyAddDoctor') || "Add Manually"}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{t('clinic.manuallyAddDoctorDesc') || "Enter doctor details manually"}</p>
+              <p className="font-bold text-text-primary">{t('clinic.manuallyAddDoctor') || "Add Manually"}</p>
+              <p className="text-xs text-text-secondary">{t('clinic.manuallyAddDoctorDesc') || "Enter doctor details manually"}</p>
             </div>
           </button>
 
@@ -148,27 +148,27 @@ export default function AddDoctorModal({
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
             />
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-2">{t('clinic.typeEmailToSearch') || "Type a doctor's email to search"}</p>
+            <p className="text-[10px] text-text-secondary mt-2">{t('clinic.typeEmailToSearch') || "Type a doctor's email to search"}</p>
           </div>
 
           {searchEmail.length >= 3 && searchResults && (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
+            <div className="border border-border-light rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
               {Array.isArray(searchResults) && searchResults.length > 0 ? (
                 <div className="space-y-2">
                   {searchResults.slice(0, 5).map((doctor: any) => (
                     <button
                       key={doctor._id || doctor.email}
                       onClick={() => handleSelectSearchResult(doctor)}
-                      className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 last:border-b-0 transition-colors"
+                      className="w-full p-3 text-left hover:bg-background :bg-ink-soft/50 border-b border-border-light last:border-b-0 transition-colors"
                     >
-                      <p className="font-semibold text-gray-900 dark:text-white">{doctor.fullName || doctor.name || 'N/A'}</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{doctor.email}</p>
-                      <p className="text-[10px] text-gray-500 dark:text-gray-500 ">{doctor.specialization || "General"}</p>
+                      <p className="font-semibold text-text-primary">{doctor.fullName || doctor.name || 'N/A'}</p>
+                      <p className="text-xs text-text-secondary">{doctor.email}</p>
+                      <p className="text-[10px] text-text-secondary">{doctor.specialization || "General"}</p>
                     </button>
                   ))}
                 </div>
               ) : (
-                <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                <div className="p-4 text-center text-text-secondary">
                   {t('clinic.noDoctorsFound') || "No doctors found with that email"}
                 </div>
               )}
@@ -189,23 +189,23 @@ export default function AddDoctorModal({
       {mode === "manual" && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="p-3 rounded-xl bg-primary/5 border border-primary/15">
-          <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+          <p className="text-xs font-semibold text-text-primary">
             {t('clinic.patientSearch.searchPlaceholder')}
           </p>
         </div>
 
         {/* Photo Upload Section */}
         <div className="flex flex-col items-center pb-4">
-          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 w-full">
+          <label className="text-sm font-bold text-text-primary mb-2 w-full">
             {t('form.profilePhoto')} ({t('common.optional')})
           </label>
           <div className="relative group w-32 h-32">
-            <div className="w-full h-full rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-black/20 flex items-center justify-center transition-all group-hover:border-primary/50">
+            <div className="w-full h-full rounded-2xl overflow-hidden border-2 border-dashed border-border-light bg-background flex items-center justify-center transition-all group-hover:border-primary/50">
               {profileImage ? (
                 <img src={profileImage} alt="Preview" className="w-full h-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center gap-2 text-gray-400">
-                  <div className="p-3 bg-white dark:bg-white/5 rounded-xl shadow-sm">
+                <div className="flex flex-col items-center gap-2 text-text-secondary">
+                  <div className="p-3 bg-white rounded-xl shadow-sm">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -230,7 +230,7 @@ export default function AddDoctorModal({
               </button>
             )}
           </div>
-          <p className="text-[10px] text-gray-400 mt-2">{t('common.optional')} — 2MB max</p>
+          <p className="text-[10px] text-text-secondary mt-2">{t('common.optional')} — 2MB max</p>
         </div>
 
         <Input
