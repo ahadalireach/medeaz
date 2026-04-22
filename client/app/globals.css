@@ -159,7 +159,7 @@ a {
   background: var(--color-background);
   border-right: 1px solid var(--color-border-light);
   transition: width 0.22s ease;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .lens-sidebar-collapsed {

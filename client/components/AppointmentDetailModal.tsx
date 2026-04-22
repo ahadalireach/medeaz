@@ -79,23 +79,12 @@ export default function AppointmentDetailModal({
         if (!photo) return "";
         const trimmed = String(photo).trim();
         if (!trimmed) return "";
-        if (/^https?:\/\//i.test(trimmed)) return trimmed;
-
-        const baseApi = process.env.NEXT_PUBLIC_API_URL || "";
-        const defaultApiOrigin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:5002";
-        const baseOrigin = baseApi ? baseApi.replace(/\/api\/?$/, "") : defaultApiOrigin;
-        if (!baseOrigin) return "";
-
-        const normalizedPath = trimmed.startsWith("/")
-            ? trimmed
-            : trimmed.startsWith("uploads/")
-                ? `/${trimmed}`
-                : `/uploads/${trimmed}`;
-        try {
-            return new URL(normalizedPath, baseOrigin).toString();
-        } catch {
-            return "";
-        }
+        // Full URL (http/https) or data URI — use as-is
+        if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("data:")) return trimmed;
+        // Relative path — prefix with the API base URL (same logic as profile page)
+        const base = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api").replace(/\/api\/?$/, "");
+        const path = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+        return `${base}${path}`;
     };
 
     const patientPhotoUrl = resolveImageUrl(appointment?.patient?.photo);
@@ -142,55 +131,52 @@ export default function AppointmentDetailModal({
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Patient Section */}
                         <div className="space-y-4 p-6 rounded-4xl bg-white border border-border-light">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mb-4">
                                 <UserIcon className="h-5 w-5 text-primary" />
                                 <h3 className="text-lg font-black text-text-primary">{t('clinic.appointments.patient')}</h3>
                             </div>
 
-                            <div className="flex items-center gap-4 py-2">
-                                <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-border-light bg-background flex items-center justify-center">
-                                    {appointment.patient?.photo ? (
-                                        patientPhotoUrl ? (
-                                            <div className="relative h-full w-full">
-                                                <UserIcon className="h-6 w-6 text-text-secondary absolute inset-0 m-auto" />
-                                                <img
-                                                    src={patientPhotoUrl}
-                                                    alt={appointment.patient.name || t('clinic.appointments.patient')}
-                                                    className="h-full w-full object-cover relative z-10"
-                                                    onError={(e) => {
-                                                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                                                    }}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <UserIcon className="h-6 w-6 text-text-secondary" />
-                                        )
+                            <div className="flex items-center gap-4">
+                                {/* Patient Avatar — 64px, with initials fallback */}
+                                <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-border-light bg-primary/10 flex items-center justify-center shrink-0">
+                                    {patientPhotoUrl ? (
+                                        <img
+                                            src={patientPhotoUrl}
+                                            alt={appointment.patient?.name || t('clinic.appointments.patient')}
+                                            className="h-full w-full object-cover"
+                                            onError={(e) => {
+                                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                                                (e.currentTarget.parentElement as HTMLElement).innerHTML = `<span class="text-xl font-black text-primary">${(appointment.patient?.name || "?").charAt(0).toUpperCase()}</span>`;
+                                            }}
+                                        />
                                     ) : (
-                                        <UserIcon className="h-6 w-6 text-text-secondary" />
+                                        <span className="text-xl font-black text-primary">
+                                            {(appointment.patient?.name || "?").charAt(0).toUpperCase()}
+                                        </span>
                                     )}
                                 </div>
-                                <div>
-                                    <p className="font-bold text-text-primary">{appointment.patient?.name}</p>
-                                    <p className="text-sm text-text-secondary">{appointment.patient?.email || t('common.noData')}</p>
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-black text-text-primary text-base truncate">{appointment.patient?.name || t('common.noData')}</p>
+                                    <p className="text-sm text-text-secondary truncate">{appointment.patient?.email || t('common.noData')}</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 pt-2">
+                            <div className="grid grid-cols-2 gap-3 pt-2">
                                 <div className="p-3 bg-background rounded-2xl">
                                     <p className="text-[10px] font-black text-text-secondary uppercase tracking-tighter">{t('patient.profile.bloodGroup')}</p>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         <Droplet className="h-3 w-3 text-red-500" />
-                                        <span className="font-bold text-text-primary">{appointment.patient?.bloodGroup || "O+"}</span>
+                                        <span className="font-bold text-text-primary">{appointment.patient?.bloodGroup || "—"}</span>
                                     </div>
                                 </div>
                                 <div className="p-3 bg-background rounded-2xl">
                                     <p className="text-[10px] font-black text-text-secondary uppercase tracking-tighter">{t('form.phone')}</p>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         <PhoneVolumeIcon className="h-3 w-3 text-text-secondary" />
-                                        <span className="font-bold text-text-primary break-all">{appointment.patient?.contact || t('common.noData')}</span>
+                                        <span className="font-bold text-text-primary break-all text-sm">{appointment.patient?.contact || t('common.noData')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -198,48 +184,47 @@ export default function AppointmentDetailModal({
 
                         {/* Doctor Section */}
                         <div className="space-y-4 p-6 rounded-4xl bg-white border border-border-light">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mb-4">
                                 <Activity className="h-5 w-5 text-primary" />
                                 <h3 className="text-lg font-black text-text-primary">{t('clinic.appointments.doctor')}</h3>
                             </div>
 
-                            <div className="flex items-center gap-4 py-2">
-                                <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-border-light bg-background flex items-center justify-center">
-                                    {appointment.doctor?.photo ? (
-                                        doctorPhotoUrl ? (
-                                            <div className="relative h-full w-full">
-                                                <UserIcon className="h-6 w-6 text-text-secondary absolute inset-0 m-auto" />
-                                                <img
-                                                    src={doctorPhotoUrl}
-                                                    alt={appointment.doctor.name || t('appointment.doctor')}
-                                                    className="h-full w-full object-cover relative z-10"
-                                                    onError={(e) => {
-                                                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                                                    }}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <UserIcon className="h-6 w-6 text-text-secondary" />
-                                        )
+                            <div className="flex items-center gap-4">
+                                {/* Doctor Avatar — 64px, with initials fallback */}
+                                <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-border-light bg-primary/10 flex items-center justify-center shrink-0">
+                                    {doctorPhotoUrl ? (
+                                        <img
+                                            src={doctorPhotoUrl}
+                                            alt={appointment.doctor?.name || t('clinic.appointments.doctor')}
+                                            className="h-full w-full object-cover"
+                                            onError={(e) => {
+                                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                                                (e.currentTarget.parentElement as HTMLElement).innerHTML = `<span class="text-xl font-black text-primary">${(appointment.doctor?.name || "D").charAt(0).toUpperCase()}</span>`;
+                                            }}
+                                        />
                                     ) : (
-                                        <UserIcon className="h-6 w-6 text-text-secondary" />
+                                        <span className="text-xl font-black text-primary">
+                                            {(appointment.doctor?.name || "D").charAt(0).toUpperCase()}
+                                        </span>
                                     )}
                                 </div>
-                                <div>
-                                    <p className="font-bold text-text-primary">
-                                        {t('patient.bookAppointmentPage.doctorPrefix')} {appointment.doctor?.name}
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-black text-text-primary text-base">
+                                        {t('patient.bookAppointmentPage.doctorPrefix')} {appointment.doctor?.name || t('common.noData')}
                                     </p>
-                                    <p className="text-sm text-primary font-bold">{appointment.doctor?.specialization}</p>
+                                    <p className="text-sm text-primary font-bold">{appointment.doctor?.specialization || "—"}</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2 mt-4 text-sm font-medium text-text-secondary">
-                                <MapPinIcon className="h-4 w-4 shrink-0 text-text-secondary" />
-                                <span className="line-clamp-1">{clinicName}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
-                                <MapPinIcon className="h-4 w-4 shrink-0 text-text-secondary" />
-                                <span className="line-clamp-1">{clinicAddress}</span>
+                            <div className="space-y-2 pt-2">
+                                <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                    <MapPinIcon className="h-4 w-4 shrink-0 text-text-secondary" />
+                                    <span className="line-clamp-1">{clinicName}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                    <MapPinIcon className="h-4 w-4 shrink-0 text-text-secondary" />
+                                    <span className="line-clamp-1">{clinicAddress}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

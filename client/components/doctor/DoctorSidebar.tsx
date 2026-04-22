@@ -7,11 +7,11 @@ import { Calendar, MessageSquare, ChevronLeft, ChevronRight, HeartPulse, LogOut 
 import { useGetConversationsQuery } from "@/store/api/chatApi";
 import { logout } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
+import NextImage from "next/image";
 import LayoutDashboardIcon from "@/icons/layout-dashboard-icon";
 import UsersIcon from "@/icons/users-icon";
 import ClockIcon from "@/icons/clock-icon";
 import UserIcon from "@/icons/user-icon";
-import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { toggleSidebar } from "@/store/slices/uiSlice";
@@ -70,22 +70,28 @@ export default function DoctorSidebar() {
                 onClick={() => dispatch(toggleSidebar())}
                 className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full shadow-lg border-2 border-white dark:border-[#18181b] z-50 hover:scale-110 transition-transform hidden lg:block`}
             >
-                {t.raw('nav.navigation') === 'نیویگیشن' 
+                {t.raw('nav.navigation') === 'نیویگیشن'
                     ? (isCollapsed ? <ChevronLeft size={14} strokeWidth={3} /> : <ChevronRight size={14} strokeWidth={3} />)
                     : (isCollapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />)
                 }
             </button>
 
             <div className={`px-5 mb-8 ${isCollapsed ? 'opacity-0 scale-0 overflow-hidden h-0' : 'opacity-100 scale-100 pt-2 transition-all shadow-none'}`}>
-                <Link href="/dashboard/doctor" className="flex items-center gap-2.5 group">
-                    <Image
-                        src={mounted && theme === 'dark' ? "/logo-dark.svg" : "/logo-light.svg"}
-                        alt="MedEaz"
-                        width={100}
-                        height={34}
+                <Link
+                    href="/dashboard/doctor"
+                    className="flex items-center gap-2 group"
+                >
+                    <NextImage
+                        src="/logo.png"
+                        alt="Medeaz"
+                        width={36}
+                        height={36}
                         priority
-                        className="group-hover:scale-105 transition-all"
+                        className="h-9 w-9 object-contain"
                     />
+                    <span className="font-display text-[22px] leading-none text-text-primary tracking-tight">
+                        Medeaz
+                    </span>
                 </Link>
                 <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] leading-none uppercase tracking-widest mt-2 px-1 text-nowrap">
                     {t('nav.doctorPortal')}
