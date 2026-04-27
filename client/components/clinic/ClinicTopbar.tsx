@@ -109,12 +109,11 @@ export default function ClinicTopbar({ title }: TopbarProps) {
           className="flex items-center gap-2.5 group lg:hidden"
         >
           <Image
-            src="/logo.png"
-            alt="Medeaz"
-            width={55}
-            height={17}
-            priority
-            className="group-hover:scale-105 transition-all"
+            src="/medeaz.jpeg"
+            alt="Medeaz Logo"
+            width={32}
+            height={32}
+            className="rounded-lg object-cover"
           />
         </Link>
 

@@ -137,9 +137,21 @@ export const aiApi = createApi({
       }),
     }),
 
-    chatWithAI: builder.mutation<any, { message: string; conversationHistory: any[] }>({
+    // Groq Chat
+    groqChat: builder.mutation<
+      { success: boolean; data: { reply: string }; message: string },
+      { message: string; conversationHistory?: Array<{ role: string; content: string }> }
+    >({
       query: (body) => ({
-        url: '/ai/gemini/chat',
+        url: '/ai/groq/chat',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    chatWithAI: builder.mutation<any, { message: string; conversationHistory: any[]; language?: string }>({
+      query: (body) => ({
+        url: '/ai/groq/chat',
         method: 'POST',
         body,
       }),
@@ -152,5 +164,6 @@ export const {
   useParsePrescriptionMutation,
   useVoicePrescriptionMutation,
   useGeminiChatMutation,
+  useGroqChatMutation,
   useChatWithAIMutation,
 } = aiApi;

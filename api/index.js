@@ -69,6 +69,8 @@ if (!isServerless) {
     },
   });
 
+  const { setIO } = require("./config/socket");
+  setIO(io);
   app.set("io", io);
 
   const onlineUsers = new Map();
@@ -76,7 +78,9 @@ if (!isServerless) {
   app.set("onlineUsers", onlineUsers);
 
   io.on("connection", (socket) => {
-    socket.on("join", (userId) => {
+    socket.on("join", (data) => {
+      const userId = typeof data === "string" ? data : data?.userId;
+      if (!userId) return;
       socket.join(userId);
       onlineUsers.set(userId, socket.id);
       io.emit("user_status", { userId, status: "online" });

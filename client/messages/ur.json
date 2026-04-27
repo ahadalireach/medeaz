@@ -115,6 +115,10 @@
     "staff": "عملہ",
     "analytics": "تجزیہ",
     "settings": "ترتیبات",
+    "totalspent": "کل خرچ",
+    "totalSpent": "کل خرچ",
+    "revenuehistory": "آمدنی کی تاریخ",
+    "revenueHistory": "آمدنی کی تاریخ",
     "logout": "لاگ آؤٹ",
     "signOut": "سائن آؤٹ",
     "navigation": "نیویگیشن"
@@ -279,6 +283,11 @@
       "analyzing": "AI کے ساتھ نسخہ کا تجربہ کیا جا رہا ہے...",
       "successTitle": "نسخہ تیار ہے!",
       "successMsg": "نسخہ کامیابی کے ساتھ جاری کر دیا گیا ہے اور مریض کو بھیج دیا گیا ہے۔",
+      "placeholders": {
+        "searchPatient": "نام یا ای میل سے مریض تلاش کریں...",
+        "diagnosis": "مثلاً شدید سانس کا انفیکشن",
+        "notes": "مریض کے لیے اضافی ہدایات..."
+      },
       "recordingComplete": "ریکارڈنگ مکمل!",
       "processWithAi": "AI کے ساتھ پروسیس کریں",
       "skipToManual": "دستی اندراج پر جائیں",
@@ -491,7 +500,7 @@
         "discharge": "ڈسچارج سمری"
       },
       "placeholders": {
-        "title": "مثلًا: خون کے ٹیسٹ کی رپورٹ اکتوبر 2023",
+        "title": "مثلًا: احمد علی",
         "notes": "کوئی مخصوص تفصیل یا ڈاکٹر کے تذکرے شامل کریں..."
       },
       "filter": {
@@ -663,6 +672,21 @@
       "appointments": "ملاقاتیں",
       "totalRevenue": "کل خرچ",
       "noRevenue": "اس سال کا کوئی خرچ نہیں ملا"
+    },
+    "spentHistory": {
+      "title": "کل خرچ کی تاریخ",
+      "subtitle": "اپوائنٹمنٹ اور نسخوں پر اپنے تاریخی اخراجات دیکھیں۔",
+      "totalSpent": "کل خرچ",
+      "table": {
+        "date": "تاریخ",
+        "doctor": "ڈاکٹر",
+        "clinic": "کلینک",
+        "type": "قسم",
+        "amount": "رقم",
+        "noData": "خرچ کی کوئی تاریخ نہیں ملی۔",
+        "unknownDoctor": "نامعلوم",
+        "privateClinic": "پرائیویٹ کلینک"
+      }
     }
   },
   "clinic": {
@@ -766,7 +790,7 @@
     "patientSearch": {
       "title": "مریض تلاش",
       "subtitle": "سسٹم میں رجسٹرڈ مریض تلاش کریں",
-      "searchPlaceholder": "نام یا ای میل سے تلاش کریں...",
+      "searchPlaceholder": "نام یا ای میل سے مریض تلاش کریں...",
       "noResults": "کوئی مریض نہیں ملا",
       "adjustSearch": "مختلف الفاظ سے تلاش کریں",
       "viewProfile": "پروفائل دیکھیں",
@@ -998,6 +1022,7 @@
     "doctor": "ڈاکٹر",
     "clinic": "کلینک",
     "date": "تاریخ",
+      "deleteRecord": "ریکارڈ حذف کریں",
     "time": "وقت",
     "noUpcoming": "کوئی آنے والی ملاقات نہیں",
     "noPast": "کوئی پرانی ملاقات نہیں",
@@ -1166,5 +1191,32 @@
     "openAt": "کھلنے کا وقت",
     "closeAt": "بند ہونے کا وقت",
     "closed": "بند"
+  },
+  "nav": {
+    "dashboard": "ڈیش بورڈ",
+    "records": "طبی ریکارڈ",
+    "doctors": "ڈاکٹرز",
+    "appointments": "اپوائنٹمنٹس",
+    "bookAppointment": "اپوائنٹمنٹ بک کریں",
+    "family": "خاندان کے افراد",
+    "patients": "میرے مریض",
+    "prescriptions": "نسخے",
+    "chat": "پیغامات",
+    "aiAssistant": "اے آئی اسسٹنٹ",
+    "totalSpent": "کل خرچ",
+    "revenueHistory": "آمدنی کی تاریخ",
+    "profile": "پروفائل ترتیبات",
+    "staff": "عملے کا انتظام",
+    "searchPatients": "مریض تلاش کریں",
+    "patientPortal": "مریض پورٹل",
+    "clinicPortal": "کلینک پورٹل",
+    "doctorPortal": "ڈاکٹر پورٹل",
+    "clinicDashboard": "کلینک ڈیش بورڈ",
+    "patientDashboard": "مریض ڈیش بورڈ",
+    "doctorDashboard": "ڈاکٹر ڈیش بورڈ",
+    "schedule": "میرا شیڈول",
+    "settings": "ترتیبات",
+    "signOut": "سائن آؤٹ",
+    "navigation": "نیویگیشن"
   }
 }

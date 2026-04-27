@@ -426,6 +426,20 @@ export default function AppointmentsPage() {
                         {t('patient.appointments.rateExperience')}
                       </Button>
                     )}
+                    {appointment.prescriptionId && (
+                      <Link 
+                        href={`/dashboard/patient/records/${appointment.prescriptionId._id || appointment.prescriptionId}`}
+                        className="flex-1"
+                      >
+                        <Button
+                          variant="outline"
+                          className="w-full border-primary text-primary hover:bg-primary/10 font-bold"
+                        >
+                          <Building2 className="mr-2 h-4 w-4" />
+                          {t('nav.medicalRecords')}
+                        </Button>
+                      </Link>
+                    )}
                     <Button
                       variant="outline"
                       size="icon"

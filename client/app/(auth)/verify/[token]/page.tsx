@@ -49,12 +49,12 @@ export default function VerifyPage() {
   return (
     <div className="flex flex-col items-center text-center">
       <Image
-        src="/logo.png"
-        alt="medeaz"
-        width={56}
-        height={56}
+        src="/medeaz.jpeg"
+        alt="Medeaz Logo"
+        width={64}
+        height={64}
         priority
-        className="h-24 w-24 object-contain drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
+        className="mx-auto rounded-lg object-cover shadow-sm mb-6"
       />
       <div className="mt-8 w-full rounded-2xl border border-border-light bg-surface-cream/60 p-8">
         {isLoading && (

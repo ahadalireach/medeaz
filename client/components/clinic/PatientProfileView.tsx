@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useGetPatientProfileQuery, useDeleteRecordMutation } from "@/store/api/clinicApi";
+import { useGetPatientProfileQuery } from "@/store/api/clinicApi";
 import { format } from "date-fns";
 import { ArrowLeft, User, Mail, Phone, Calendar, FileText, Trash2, Pill, Eye, X, Building2, Download } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import { ConfirmationModal } from "../ui/ConfirmationModal";
 import { resolveMediaUrl } from "@/lib/media";
 
 interface PatientProfileViewProps {
@@ -19,7 +18,6 @@ export default function PatientProfileView({
 }: PatientProfileViewProps) {
   const t = useTranslations();
   const { data, isLoading } = useGetPatientProfileQuery(patientId);
-  const [deleteRecord] = useDeleteRecordMutation();
 
   const profile = data?.data;
 
@@ -27,18 +25,6 @@ export default function PatientProfileView({
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
   const [previewFile, setPreviewFile] = useState<any>(null);
-  const [deleteRecordId, setDeleteRecordId] = useState<string | null>(null);
-
-  const handleDeleteRecord = async () => {
-    if (!deleteRecordId) return;
-    try {
-      await deleteRecord(deleteRecordId).unwrap();
-      toast.success("Medical record deleted successfully");
-      setDeleteRecordId(null);
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to delete medical record");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -231,13 +217,6 @@ export default function PatientProfileView({
                             title="View Details"
                           >
                             <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteRecordId(record._id)}
-                            className="p-2 text-red-500 hover:bg-red-50 :bg-red-500/10 rounded-lg transition-colors inline-block"
-                            title="Delete Record"
-                          >
-                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       </div>
@@ -471,14 +450,6 @@ export default function PatientProfileView({
           </div>
         </div>
       )}
-
-      <ConfirmationModal
-        isOpen={!!deleteRecordId}
-        onClose={() => setDeleteRecordId(null)}
-        onConfirm={handleDeleteRecord}
-        title={t('modal.confirmDelete')}
-        message={t('modal.cannotUndo')}
-      />
     </div>
   );
 }

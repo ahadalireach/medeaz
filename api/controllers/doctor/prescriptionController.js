@@ -80,27 +80,60 @@ exports.createPrescription = asyncHandler(async (req, res) => {
     notes,
     rawTranscript,
     audioUrl,
-    status
+    status,
+    consultationFee,
+    medicineCost,
+    totalCost,
+    followUpDate,
   } = req.body;
+
+  const fee = Math.round(parseFloat(consultationFee) || 0);
+  const medCost = Math.round(parseFloat(medicineCost) || 0);
+  const total = Math.round(parseFloat(totalCost) || (fee + medCost));
+
+  // Handle empty string appointmentId from frontend
+  const validAppointmentId = appointmentId && appointmentId.trim() !== "" ? appointmentId : null;
+
+  let resolvedClinicId = req.body.clinicId || null;
+  if (!resolvedClinicId && validAppointmentId) {
+    const linkedAppointment = await Appointment.findById(validAppointmentId).select('clinicId');
+    resolvedClinicId = linkedAppointment?.clinicId || null;
+  }
+  if (!resolvedClinicId) {
+    const Doctor = require('../../models/Doctor');
+    const doctorProfile = await Doctor.findOne({ userId: req.user._id }).select('clinicId');
+    resolvedClinicId = doctorProfile?.clinicId || null;
+  }
 
   const prescription = await Prescription.create({
     doctorId: req.user._id,
     patientId,
-    appointmentId,
+    appointmentId: validAppointmentId,
+    clinicId: resolvedClinicId,
     diagnosis,
     medicines,
     notes,
     rawTranscript,
     audioUrl,
+    consultationFee: fee,
+    medicineCost: medCost,
+    totalCost: total,
+    followUpDate: followUpDate || null,
     status: status || 'finalized',
     createdBy: req.user._id
   });
 
+
+  const Patient = require('../../models/Patient');
+  // Lookup by userId because the doctor portal sends User IDs
+  const patientProfile = await Patient.findOne({ userId: patientId });
+
   // Create corresponding medical record
   const medicalRecord = await MedicalRecord.create({
-    patientId,
+    patientId: patientProfile ? patientProfile._id : patientId,
     doctorId: req.user._id,
-    appointmentId,
+    clinicId: resolvedClinicId,
+    appointmentId: validAppointmentId,
     prescriptionId: prescription._id,
     visitDate: new Date(),
     chiefComplaint: req.body.chiefComplaint || diagnosis,
@@ -109,16 +142,36 @@ exports.createPrescription = asyncHandler(async (req, res) => {
   });
 
   // Update appointment status if linked
-  if (appointmentId) {
-    await Appointment.findByIdAndUpdate(appointmentId, {
+  if (validAppointmentId) {
+    await Appointment.findByIdAndUpdate(validAppointmentId, {
       status: 'completed',
-      completedAt: new Date()
+      completedAt: new Date(),
+      prescriptionId: prescription._id
     });
   }
 
   const populatedPrescription = await Prescription.findById(prescription._id)
     .populate('patientId', 'name email')
+    .populate('doctorId', 'name specialization')
     .populate('appointmentId');
+
+  // Trigger real-time notification to patient
+  try {
+    const { sendNotification } = require('../../services/notificationService');
+    // Important: Use patientId (User ID) for notification room
+    await sendNotification(patientId, {
+      type: 'new_prescription',
+      titleKey: 'newPrescriptionReady',
+      bodyKey: 'newPrescriptionReadyBody',
+      bodyParams: { 
+        doctorName: populatedPrescription.doctorId?.name || 'Your Doctor' 
+      },
+      actionUrl: `/dashboard/patient/records/${prescription._id}`,
+      portal: 'patient'
+    });
+  } catch (err) {
+    console.error('Failed to send prescription notification:', err);
+  }
 
   res.status(201).json(
     new ApiResponse(201, populatedPrescription, 'Prescription created successfully')

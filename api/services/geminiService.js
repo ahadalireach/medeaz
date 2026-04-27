@@ -152,9 +152,37 @@ class GeminiService {
     try {
       if (!this.apiKey || !this.genAI)
         return this.parseWithRules(transcription);
-      const result = await this.model.generateContent(
-        `Parse this prescription: "${transcription}"`,
-      );
+      
+      const prompt = `
+        Analyze the following medical prescription text and extract structured information.
+        Text: "${transcription}"
+        
+        Extract:
+        1. diagnosis: The main condition or reason for visit.
+        2. medicines: A list of medicines mentioned. For each:
+           - name: medicine name.
+           - dosage: e.g., 500mg, 10ml.
+           - frequency: e.g., twice a day, 1-0-1, daily.
+           - duration: e.g., 5 days, 1 week.
+           - instructions: e.g., after food, before sleep, if needed.
+        3. notes: ANY additional advice, symptoms, or clinical notes mentioned that are NOT part of the diagnosis or medicines list. 
+           IMPORTANT: Do NOT include the original transcript here. ONLY extract specific medical advice.
+        4. consultationFee: Any mentioned consultation or doctor fee as a number.
+        5. medicineCost: Any mentioned cost for medicines as a number.
+
+        Return the result strictly as a JSON object with this structure:
+        {
+          "diagnosis": "string",
+          "medicines": [{"name": "string", "dosage": "string", "frequency": "string", "duration": "string", "instructions": "string"}],
+          "notes": "string",
+          "consultationFee": number,
+          "medicineCost": number
+        }
+        
+        If a field is missing, use an empty string or 0 for numbers. Do not include any explanations, just the JSON.
+      `;
+
+      const result = await this.model.generateContent(prompt);
       const response = await result.response;
       let text = response
         .text()
@@ -163,15 +191,38 @@ class GeminiService {
         .trim();
       return JSON.parse(text);
     } catch (error) {
+      console.error("Gemini parse error:", error);
       return this.parseWithRules(transcription);
     }
   }
 
   parseWithRules(transcription) {
+    // Basic heuristic fallback if Gemini fails
+    const medicineBlocks = transcription.split(/\s+(?:and|next|then|also|plus)\s+/i);
+    const medicines = medicineBlocks.map(block => {
+      const med = { name: "", dosage: "", frequency: "", duration: "", instructions: "" };
+      const words = block.trim().split(/\s+/);
+      if (words.length === 0) return null;
+
+      // Simple heuristic
+      med.name = words[0];
+      
+      const dosageMatch = block.match(/(\d+(?:\.\d+)?\s*(?:mg|ml|mcg|tablet|pill|capsule|spoon|drop)s?)/i);
+      if (dosageMatch) med.dosage = dosageMatch[1];
+
+      const freqMatch = block.match(/(once|twice|thrice|daily|morning|evening|night|\d+\s*times?)/i);
+      if (freqMatch) med.frequency = freqMatch[1];
+
+      const durMatch = block.match(/(\d+\s*(?:day|week|month|year)s?)/i);
+      if (durMatch) med.duration = durMatch[1];
+
+      return med;
+    }).filter(m => m && m.name.length > 2);
+
     return {
       diagnosis: "General consultation",
-      medicines: [],
-      notes: transcription,
+      medicines: medicines,
+      notes: "", // Keep notes empty for manual entry
       parsedBy: "fallback",
     };
   }

@@ -140,19 +140,19 @@ export default function PatientTopbar({ title }: TopbarProps) {
 
   return (
     <>
-      <header className="lens-topbar h-16 border-b border-black/5 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between w-full">
+      <header className="lens-topbar px-4 sm:px-6 w-full">
         {/* Logo - ONLY MOBILE */}
         <Link
           href="/dashboard/patient"
           className="flex items-center gap-2.5 group lg:hidden"
         >
           <Image
-            src="/logo.png"
-            alt="Medeaz"
-            width={60}
-            height={20}
+            src="/medeaz.jpeg"
+            alt="Medeaz Logo"
+            width={32}
+            height={32}
             priority
-            className="group-hover:scale-105 transition-all"
+            className="rounded-lg object-cover group-hover:scale-105 transition-all"
           />
         </Link>
 
@@ -165,7 +165,7 @@ export default function PatientTopbar({ title }: TopbarProps) {
           {/* Desktop Notifications */}
           <button
             onClick={() => setIsNotificationOpen(true)}
-            className="h-10 w-10 text-text-secondary hover:bg-black/5 :bg-white/5 rounded-xl flex items-center justify-center relative transition-colors cursor-pointer group"
+            className="h-10 w-10 text-text-secondary hover:bg-black/5 rounded-xl flex items-center justify-center relative transition-colors cursor-pointer group"
           >
             <FilledBellIcon className="h-5 w-5" />
             {(unreadCount > 0 || totalChatUnread > 0) && (
@@ -183,7 +183,7 @@ export default function PatientTopbar({ title }: TopbarProps) {
           <Hamburger
             isOpen={isMenuOpen}
             onClick={() => setIsMenuOpen(true)}
-            className="text-black ml-2 cursor-pointer lg:hidden"
+            className="text-text-primary ml-2 cursor-pointer lg:hidden"
           />
         </div>
       </header>

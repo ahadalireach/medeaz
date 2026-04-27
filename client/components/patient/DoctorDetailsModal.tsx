@@ -122,9 +122,13 @@ export default function DoctorDetailsModal({
   }
 
   const doctorPhoto = doctor.userId?.photo
-    ? doctor.userId.photo.startsWith("http")
+    ? doctor.userId.photo.startsWith("data:")
       ? doctor.userId.photo
-      : `${process.env.NEXT_PUBLIC_API_URL}${doctor.userId.photo}`
+      : doctor.userId.photo.startsWith("http")
+        ? doctor.userId.photo
+        : doctor.userId.photo.startsWith("/")
+          ? `${process.env.NEXT_PUBLIC_SOCKET_URL}${doctor.userId.photo}`
+          : `${process.env.NEXT_PUBLIC_SOCKET_URL}/${doctor.userId.photo}`
     : null;
 
   return (
@@ -133,16 +137,19 @@ export default function DoctorDetailsModal({
         {/* Header Info */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="relative">
-            <div className="h-32 w-32 rounded-3xl overflow-hidden border-4 border-primary/10 shadow-xl bg-background flex items-center justify-center">
-              {doctorPhoto ? (
-                <img
-                  src={doctorPhoto}
-                  alt={doctor.fullName}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <User className="h-16 w-16 text-white/70" />
-              )}
+            <div className="h-32 w-32 rounded-3xl overflow-hidden border-4 border-primary/10 shadow-xl bg-background flex items-center justify-center relative">
+              <img
+                src={doctorPhoto ? 
+                  ((doctorPhoto.startsWith('http') || doctorPhoto.startsWith('data:')) ? doctorPhoto : 
+                  `${process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'}${((doctorPhoto.startsWith('/') ? '' : '/') + doctorPhoto)}`)
+                  : "/medeaz.jpeg"}
+                alt={doctor.fullName}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/medeaz.jpeg";
+                }}
+              />
             </div>
             {doctor.isVerified && (
               <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-2xl shadow-lg border-4 border-white">
@@ -219,7 +226,7 @@ export default function DoctorDetailsModal({
               </span>
             </div>
             <p className="text-xs md:text-sm font-bold text-text-primary">
-              {ct("pkr")} {doctor.consultationFee || "1,500"}
+              {ct("pkr")} {doctor.consultationFee ? Math.round(doctor.consultationFee).toLocaleString() : "1,500"}
             </p>
           </div>
 

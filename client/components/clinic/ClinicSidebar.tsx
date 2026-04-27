@@ -10,6 +10,7 @@ import {
   ChevronRight,
   HeartPulse,
   LogOut,
+  DollarSign,
 } from "lucide-react";
 import { logout } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
@@ -115,12 +116,12 @@ export default function ClinicSidebar() {
           className="flex items-center gap-2 group"
         >
           <NextImage
-            src="/logo.png"
-            alt="Medeaz"
+            src="/medeaz.jpeg"
+            alt="Medeaz Logo"
             width={36}
             height={36}
             priority
-            className="h-9 w-9 object-contain"
+            className="h-9 w-9 rounded-lg object-cover"
           />
           <span className="font-display text-[22px] leading-none text-text-primary tracking-tight">
             Medeaz
@@ -133,9 +134,14 @@ export default function ClinicSidebar() {
 
       {isCollapsed && (
         <div className="flex justify-center mb-8">
-          <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-            <HeartPulse size={20} />
-          </div>
+          <Link href="/dashboard/clinic_admin" className="h-10 w-10 relative group">
+            <NextImage
+              src="/medeaz.jpeg"
+              alt="Medeaz"
+              fill
+              className="object-cover rounded-lg shadow-md transition-transform group-hover:scale-110"
+            />
+          </Link>
         </div>
       )}
 

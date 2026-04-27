@@ -32,7 +32,7 @@ const appointmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'],
+    enum: ['pending', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show', 'reserved'],
     default: 'pending',
     index: true
   },
@@ -65,6 +65,10 @@ const appointmentSchema = new mongoose.Schema({
   },
   completedAt: {
     type: Date
+  },
+  prescriptionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Prescription'
   }
 }, {
   timestamps: true

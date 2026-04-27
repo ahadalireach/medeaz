@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* =========================================================================
-   Design tokens — Medeaz refreshed palette
-   Brand: deep teal on warm cream, with lavender / cream / blue-teal surfaces.
+   Design tokens — Medeaz Light Design System
+   Brand: cream/white background, white sidebar, teal accents
    ========================================================================= */
 @theme {
   /* Fonts */
@@ -12,50 +12,58 @@
     Cambria, "Times New Roman", serif;
   --font-display: var(--font-fraunces), "Fraunces Fallback", ui-serif, Georgia,
     Cambria, "Times New Roman", serif;
+  --font-urdu: var(--font-baloo-urdu), var(--font-noto-urdu), var(--font-inter), sans-serif;
 
-  /* Primary — deep teal */
-  --color-primary: #0f4c5c;
-  --color-primary-hover: #0a3a47;
-  --color-primary-light: lab(29.2508 -14.7252 -15.1858 / 0.2);
-  --color-primary-muted: lab(29.2508 -14.7252 -15.1858 / 0.1);
-  --color-primary-bg: lab(29.2508 -14.7252 -15.1858 / 0.08);
+  /* Primary — #00b495 brand teal (per README.md) */
+  --color-primary: #00b495;
+  --color-primary-hover: #19bca0;
+  --color-primary-light: #4dcbb5;
+  --color-primary-muted: #b3e9df;
+  --color-primary-bg: #e6f8f4;
 
-  /* Neutrals */
-  --color-background: #f4f3ee;
+  /* Teal accent palette */
+  --color-teal-600: #00b495;
+  --color-teal-500: #19bca0;
+  --color-teal-400: #4dcbb5;
+  --color-teal-50:  #e6f8f4;
+
+  /* Background — pale neutral (layouts override with their own bg) */
+  --color-background: #f6f8f8;
   --color-white: #ffffff;
   --color-black: #000000;
-  --color-ink: #111111;
-  --color-ink-soft: #1c1917;
 
-  /* Surfaces (tinted section/card backgrounds) */
-  --color-surface: #e3eff2;
-  --color-surface-cream: #fdf4e7;
-  --color-surface-lavender: #ede9f7;
-  --color-surface-overlay: lab(9.05128 1.17788 1.97037 / 0.03);
+  /* Surfaces */
+  --color-surface: #e5e5e5;
+  --color-surface-cream: #f6f8f8;
+  --color-surface-tint: #e6f8f4;
 
-  /* Accent */
-  --color-accent-purple: lab(61.0331 19.6306 -38.5632 / 0.2);
-  --color-accent-purple-strong: lab(61.0331 19.6306 -38.5632);
+  /* Sidebar — white with teal active */
+  --color-sidebar-bg: #ffffff;
+  --color-sidebar-border: rgba(0, 0, 0, 0.07);
+  --color-sidebar-text: #1a1a1c;
+  --color-sidebar-text-active: #00b495;
+  --color-sidebar-active-bg: #e6f8f4;
 
-  /* Text */
-  --color-text-primary: #1c1917;
-  --color-text-secondary: #78716c;
-  --color-text-muted: #78716c;
-  --color-foreground: #1c1917;
+  /* Topbar — white */
+  --color-topbar-bg: rgba(255, 255, 255, 0.92);
+  --color-topbar-border: rgba(0, 0, 0, 0.07);
 
-  /* Borders */
-  --color-border: lab(29.2508 -14.7252 -15.1858 / 0.2);
-  --color-border-light: lab(29.2508 -14.7252 -15.1858 / 0.1);
+  /* Card */
+  --color-card-bg: #ffffff;
+  --color-card-border: rgba(0, 0, 0, 0.06);
 
-  /* Alpha whites (for translucent overlays on dark backgrounds) */
-  --color-white-70: oklab(0.999994 0.0000455677 0.0000200868 / 0.7);
-  --color-white-60: oklab(0.999994 0.0000455677 0.0000200868 / 0.6);
-  --color-white-45: oklab(0.999994 0.0000455678 0.0000200868 / 0.45);
-  --color-white-40: oklab(0.999994 0.0000455678 0.0000200868 / 0.4);
-  --color-white-30: oklab(0.999994 0.0000455678 0.0000200868 / 0.3);
+  /* Text (per README) */
+  --color-text-primary: #000000;
+  --color-text-secondary: #1a1a1c;
+  --color-text-muted: #4a4a4d;
+  --color-foreground: #000000;
 
-  /* Semantic status colors (kept for warnings/errors) */
-  --color-danger: #b4232c;
+  /* Borders (per README) */
+  --color-border: #d1d1d6;
+  --color-border-light: #e5e5ea;
+
+  /* Semantic */
+  --color-danger: #dc2626;
   --color-warning: #b4581d;
 }
 
@@ -63,12 +71,14 @@
    Base
    ========================================================================= */
 html {
-  background: var(--color-background);
+  /* Transparent so layouts provide their own background */
+  background: transparent;
 }
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-background);
+  /* Transparent — each layout wrapper sets its own bg with the SVG pattern inline */
+  background: transparent;
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -76,21 +86,16 @@ body {
 }
 
 /* =========================================================================
-   Typography — Fraunces headings (Inter body), site-wide defaults.
-   Escape hatch: add `font-sans` on any heading that should stay sans.
+   Typography
    ========================================================================= */
-h1,
-h2,
-h3 {
+h1, h2, h3 {
   font-family: var(--font-serif);
   letter-spacing: -0.02em;
   font-optical-sizing: auto;
   color: var(--color-text-primary);
 }
 
-h4,
-h5,
-h6 {
+h4, h5, h6 {
   font-family: var(--font-sans);
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
@@ -102,10 +107,17 @@ h6 {
   font-optical-sizing: auto;
 }
 
+.font-urdu {
+  font-family: var(--font-baloo-urdu), var(--font-noto-urdu), serif;
+}
+
+[lang="ur"], [dir="rtl"], .font-urdu {
+  font-family: var(--font-baloo-urdu), var(--font-noto-urdu), serif !important;
+  line-height: 1.8;
+}
+
 /* =========================================================================
-   Form controls — consistent 5-10px radius for inputs + buttons.
-   Any <input>, <textarea>, <select> gets a sane baseline regardless of
-   whether it uses the Input component.
+   Form controls
    ========================================================================= */
 input[type="text"],
 input[type="email"],
@@ -123,85 +135,315 @@ select {
   font-family: var(--font-sans);
 }
 
-/* Checkbox / radio stay square with slight rounding */
 input[type="checkbox"],
 input[type="radio"] {
   accent-color: var(--color-primary);
 }
 
-button {
-  font-family: var(--font-sans);
-}
+button { font-family: var(--font-sans); }
 
-/* Make every interactive control feel clickable by default */
 button:not(:disabled),
 [role="button"]:not([aria-disabled="true"]),
-a {
-  cursor: pointer;
-}
+a { cursor: pointer; }
 
-/* Use a consistent selection color across the site */
 ::selection {
   background: var(--color-primary);
-  color: var(--color-white);
+  color: #ffffff;
 }
 
 /* =========================================================================
-   Dashboard sidebar shell (used by patient / doctor / clinic_admin portals)
+   Dashboard Sidebar — white, teal accents (matches screenshot)
    ========================================================================= */
 .lens-sidebar {
   flex-direction: column;
-  width: 260px;
+  width: 220px;
   flex-shrink: 0;
   min-height: 100vh;
   max-height: 100vh;
   padding: 1.25rem 0.75rem;
-  background: var(--color-background);
-  border-right: 1px solid var(--color-border-light);
+  background: var(--color-sidebar-bg);
+  border-right: 1px solid var(--color-sidebar-border);
   transition: width 0.22s ease;
-  overflow: hidden;
+  overflow: visible;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
 }
 
 .lens-sidebar-collapsed {
-  width: 80px;
+  width: 72px;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
 
+/* Nav items */
 .lens-nav-item,
 .lens-nav-item-active {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.9rem;
+  gap: 0.625rem;
+  padding: 0.55rem 0.75rem;
   border-radius: 8px;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
   line-height: 1.1;
-  letter-spacing: -0.005em;
-  color: var(--color-text-secondary);
+  color: var(--color-sidebar-text);
   transition: background 0.15s ease, color 0.15s ease;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .lens-nav-item:hover {
-  background: var(--color-primary-muted);
+  background: rgba(15, 76, 92, 0.06);
   color: var(--color-primary);
 }
 
 .lens-nav-item-active {
-  background: var(--color-primary-muted);
-  color: var(--color-primary);
+  background: var(--color-sidebar-active-bg);
+  color: var(--color-sidebar-text-active);
   font-weight: 600;
 }
 
 .lens-section-label {
-  padding: 0 0.9rem;
+  padding: 0 0.75rem;
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* =========================================================================
+   Topbar — white, subtle shadow
+   ========================================================================= */
+.lens-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 1.5rem;
+  background: var(--color-topbar-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-topbar-border);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+/* =========================================================================
+   Page headings
+   ========================================================================= */
+.lens-page-title {
+  font-size: 1.875rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+  font-family: var(--font-serif);
+}
+
+.lens-subtitle {
+  font-size: 0.875rem;
+  font-weight: 500;
   color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+/* =========================================================================
+   Cards — white with soft shadow
+   ========================================================================= */
+.lens-card {
+  background: var(--color-card-bg);
+  border-radius: 1rem;
+  border: 1px solid var(--color-card-border);
+  box-shadow: 0 1px 8px -2px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0,0,0,0.04);
+  padding: 1.25rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.lens-card:hover {
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+/* =========================================================================
+   Primary button — teal
+   ========================================================================= */
+.lens-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 1.25rem;
+  height: 2.5rem;
+  background: #00b495;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border-radius: 0.625rem;
+  border: none;
+  box-shadow: 0 2px 8px -2px rgba(0, 180, 149, 0.4);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.lens-btn-primary:hover {
+  background: #19bca0;
+  box-shadow: 0 4px 16px -4px rgba(0, 180, 149, 0.5);
+}
+
+.lens-btn-primary:active  { transform: scale(0.97); }
+.lens-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* =========================================================================
+   Icon button
+   ========================================================================= */
+.lens-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.25rem;
+  width: 2.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lens-btn-icon:hover {
+  background: var(--color-primary-muted);
+  color: var(--color-primary);
+}
+
+/* =========================================================================
+   Input
+   ========================================================================= */
+.lens-input {
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lens-input:focus {
+  border-color: var(--color-teal-500);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+/* =========================================================================
+   Badges
+   ========================================================================= */
+.lens-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.lens-badge-pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.lens-badge-active {
+  background: #e6f8f4;
+  color: #00b495;
+  border-color: #b3e9df;
+}
+
+.lens-badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+.lens-badge-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+/* =========================================================================
+   Animate-in
+   ========================================================================= */
+.animate-in {
+  animation: lens-fade-in 0.25s ease both;
+}
+
+@keyframes lens-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+html[lang="ur"],
+html[data-lang="ur"] {
+  --font-sans: var(--font-urdu);
+  --font-display: var(--font-urdu);
+  --font-serif: var(--font-urdu);
+}
+
+/* Urdu Font Support - Standardized across all portals */
+[data-lang="ur"] body,
+[data-lang="ur"] .font-urdu,
+[data-lang="ur"] h1,
+[data-lang="ur"] h2,
+[data-lang="ur"] h3,
+[data-lang="ur"] h4,
+[data-lang="ur"] h5,
+[data-lang="ur"] h6,
+[data-lang="ur"] p,
+[data-lang="ur"] span,
+[data-lang="ur"] div,
+[data-lang="ur"] button,
+[data-lang="ur"] input,
+[data-lang="ur"] textarea,
+[data-lang="ur"] select,
+[data-lang="ur"] label {
+  font-family: var(--font-baloo-urdu), var(--font-noto-urdu), system-ui, -apple-system, sans-serif !important;
+}
+
+/* Ensure consistent line height and spacing for Urdu */
+[data-lang="ur"] * {
+  line-height: 1.6;
+}
+
+/* Recharts Visibility Fixes - Standardized across all dashboards */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  @apply !bg-[#0F4C5C] !border-none !rounded-xl !shadow-2xl !p-4 !backdrop-blur-md;
+}
+
+.recharts-tooltip-wrapper .recharts-tooltip-label {
+  @apply !text-white !font-bold !text-xs !mb-2 !uppercase !tracking-widest !opacity-90;
+}
+
+.recharts-tooltip-wrapper .recharts-tooltip-item {
+  @apply !text-white !font-black !text-sm !py-1 !px-0;
+}
+
+/* Responsive Grid Adjustments */
+@media (max-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }

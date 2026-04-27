@@ -19,6 +19,7 @@ import AlarmClockPlusIcon from "@/icons/alarm-clock-plus-icon";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { RootState } from "@/store/store";
 import { useTranslations } from "next-intl";
+import { useChatSocket } from "@/providers/ChatSocketProvider";
 
 export default function PatientSidebar() {
   const t = useTranslations();
@@ -45,10 +46,24 @@ export default function PatientSidebar() {
     setMounted(true);
   }, []);
 
-  const { data: conversationsData } = useGetConversationsQuery({ viewerRole: 'patient' }, {
+  const { data: conversationsData, refetch } = useGetConversationsQuery({ viewerRole: 'patient' }, {
     pollingInterval: 30000,
     skip: !mounted
   });
+  const { onConversationUpdated, onNewMessage } = useChatSocket();
+
+  useEffect(() => {
+    const unsubConversation = onConversationUpdated?.(() => {
+      refetch();
+    });
+    const unsubMessage = onNewMessage?.(() => {
+      refetch();
+    });
+    return () => {
+      unsubConversation?.();
+      unsubMessage?.();
+    };
+  }, [onConversationUpdated, onNewMessage, refetch]);
 
   const totalUnread = conversationsData?.data?.reduce((acc: number, conv: any) => acc + (conv.unreadCount || 0), 0) || 0;
 
@@ -81,27 +96,32 @@ export default function PatientSidebar() {
       <div className={`px-3 mb-6 ${isCollapsed ? 'opacity-0 scale-0 overflow-hidden h-0' : 'opacity-100 scale-100 pt-2 transition-all'}`}>
         <Link href="/dashboard/patient" className="flex items-center gap-2 group">
           <NextImage
-            src="/logo.png"
-            alt="Medeaz"
+            src="/medeaz.jpeg"
+            alt="Medeaz Logo"
             width={36}
             height={36}
             priority
-            className="h-9 w-9 object-contain"
+            className="h-9 w-9 rounded-lg object-cover"
           />
           <span className="font-display text-[22px] leading-none text-text-primary tracking-tight">
             Medeaz
           </span>
         </Link>
-        <p className="text-[10px] font-bold text-text-secondary leading-none uppercase tracking-widest mt-3 px-1 text-nowrap">
+        <p className="text-[10px] font-bold leading-none uppercase tracking-widest mt-3 px-1 text-nowrap" style={{ color: '#00b495' }}>
           {t('nav.patientPortal')}
         </p>
       </div>
 
       {isCollapsed && (
         <div className="flex justify-center mb-8">
-          <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-            <HeartPulse size={20} />
-          </div>
+          <Link href="/dashboard/patient" className="h-10 w-10 relative group">
+            <NextImage
+              src="/medeaz.jpeg"
+              alt="Medeaz"
+              fill
+              className="object-cover rounded-lg shadow-md transition-transform group-hover:scale-110"
+            />
+          </Link>
         </div>
       )}
 
@@ -118,7 +138,7 @@ export default function PatientSidebar() {
             >
               <Icon size={18} strokeWidth={isActive(link.href) ? 2.5 : 2} className="shrink-0" />
               {!isCollapsed && <span>{link.label}</span>}
-              {link.label === "Chat" && totalUnread > 0 && (
+              {link.href.includes('/chat') && totalUnread > 0 && (
                 <span className={`${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white `}>
                   {totalUnread > 9 ? '9+' : totalUnread}
                 </span>
@@ -139,7 +159,7 @@ export default function PatientSidebar() {
         </button>
 
         {!isCollapsed && (
-          <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] px-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] px-4 text-text-muted">
               MEDEAZ HEALTHCARE
           </p>
         )}

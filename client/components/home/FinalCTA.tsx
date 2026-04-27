@@ -15,18 +15,18 @@ export function FinalCTA() {
         <div className="flex items-center gap-4 mb-2">
           <div className="relative h-32 w-32">
             <Image
-              src="/logo.png"
-              alt="medeaz"
+              src="/medeaz.jpeg"
+              alt="Medeaz Logo"
               fill
               sizes="80px"
-              className="object-contain drop-shadow-[0_12px_24px_rgba(94,77,156,0.25)]"
+              className="object-contain rounded-lg drop-shadow-[0_12px_24px_rgba(94,77,156,0.25)]"
             />
           </div>
         </div>
         <h2 className="mt-6 font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] tracking-[-0.02em] text-text-primary max-w-2xl">
           {isUrdu
-            ? "ریکارڈز، پریسکرپشنز، اور پیشنٹ انگیجمنٹ کو ایک پلیٹ فارم میں لائیں"
-            : "Bring records, prescriptions, and patient engagement into one platform"}
+            ? "کلینکس اور مریضوں کے لیے جدید اور آسان ہیلتھ کیئر سسٹم"
+            : "Modern and seamless healthcare system for clinics and patients"}
         </h2>
         <div className="mt-8">
           <Link href="/register">

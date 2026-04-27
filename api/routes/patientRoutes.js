@@ -26,6 +26,7 @@ router.put('/reviews/:id', reviewController.updateReview);
 
 // ========== Dashboard Routes ==========
 router.get('/dashboard', dashboardController.getDashboard);
+router.get('/spent-history', dashboardController.getSpentHistory);
 
 // ========== Medical Records Routes ==========
 router.get('/records', recordsController.getRecords);

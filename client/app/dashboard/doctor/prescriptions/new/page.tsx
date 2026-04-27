@@ -9,7 +9,6 @@ import { toast } from "react-hot-toast";
 import { SuccessModal } from "@/components/ui/SuccessModal";
 import { Mic, MicOff, Loader, User, Pill, FileText, Sparkles, ArrowRight, Trash2, Search, Plus } from "lucide-react";
 import TrashIcon from "@/icons/trash-icon";
-import { Button } from "@/components/ui/Button";
 import { Suspense } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
@@ -38,7 +37,7 @@ function NewPrescriptionInner() {
     rawTranscript: "",
     consultationFee: 0,
     medicineCost: 0,
-    appointmentId: appointmentIdFromQuery || "",
+    appointmentId: appointmentIdFromQuery || null,
   });
   const [patientSearch, setPatientSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -46,7 +45,7 @@ function NewPrescriptionInner() {
   const toMoneyNumber = (value: unknown) => {
     const normalized = Number(value);
     if (!Number.isFinite(normalized) || normalized < 0) return 0;
-    return Math.round(normalized * 100) / 100;
+    return Math.round(normalized);
   };
 
   useEffect(() => {
@@ -132,7 +131,44 @@ function NewPrescriptionInner() {
               interim += event.results[i][0].transcript;
             }
           }
-          setLiveTranscript(finalText + interim);
+          const fullText = finalText + interim;
+          setLiveTranscript(fullText);
+
+          // Real-time sequential parsing
+          // We look for patterns like "Medicine [Name] [Dosage] [Frequency] for [Duration]"
+          // Split by separators like "and", "next", "then", or "also"
+          const medicineBlocks = fullText.split(/\s+(?:and|next|then|also|plus)\s+/i);
+          const parsedMeds = medicineBlocks.map(block => {
+            const med: any = { name: "", dosage: "", frequency: "", duration: "", instructions: "" };
+            
+            // Heuristic extraction
+            const words = block.trim().split(/\s+/);
+            if (words.length === 0) return null;
+
+            // 1. Name is usually first
+            med.name = words[0];
+
+            // 2. Dosage (numbers + unit)
+            const dosageMatch = block.match(/(\d+(?:\.\d+)?\s*(?:mg|ml|mcg|tablet|pill|capsule|spoon|drop)s?)/i);
+            if (dosageMatch) med.dosage = dosageMatch[1];
+
+            // 3. Frequency
+            const freqMatch = block.match(/(once|twice|thrice|daily|morning|evening|night|\d+\s*times?)/i);
+            if (freqMatch) med.frequency = freqMatch[1];
+
+            // 4. Duration
+            const durMatch = block.match(/(\d+\s*(?:day|week|month|year)s?)/i);
+            if (durMatch) med.duration = durMatch[1];
+
+            return med;
+          }).filter(m => m && m.name.length > 2); // Avoid noise
+
+          if (parsedMeds.length > 0) {
+            setPrescriptionData((prev: any) => ({
+              ...prev,
+              medicines: parsedMeds
+            }));
+          }
         };
 
         recognition.onerror = (event: any) => {
@@ -143,11 +179,11 @@ function NewPrescriptionInner() {
         recognition.start();
       }
 
-        timerRef.current = setInterval(() => {
-          setRecordingTime((prev) => prev + 1);
-        }, 1000);
+      timerRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
 
-        toast.success(t('doctor.prescriptions.recordingStarted'));
+      toast.success(t('doctor.prescriptions.recordingStarted'));
     } catch (error) {
       console.error("Error starting recording:", error);
       toast.error(t('doctor.schedule.unavailable')); // Or a better key if I had one
@@ -193,7 +229,7 @@ function NewPrescriptionInner() {
       // Transcription is done by the browser (Web Speech API) — no audio upload needed.
       // Only call Gemini for medical text parsing.
       const parseRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api'}/ai/prescription/parse-enhanced`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/ai/prescription/parse-enhanced`,
         {
           method: "POST",
           headers: {
@@ -222,13 +258,20 @@ function NewPrescriptionInner() {
 
       const parseData = await parseRes.json();
 
-      setPrescriptionData((prev: any) => ({
-        ...prev,
-        diagnosis: parseData.data.diagnosis || "",
-        medicines: parseData.data.medicines || [],
-        notes: parseData.data.notes || "",
-        rawTranscript: liveTranscript,
-      }));
+      setPrescriptionData((prev: any) => {
+        const aiMeds = parseData.data.medicines || [];
+        return {
+          ...prev,
+          diagnosis: parseData.data.diagnosis || prev.diagnosis || "",
+          // Use AI medicines if found, otherwise keep the real-time parsed ones
+          medicines: aiMeds.length > 0 ? aiMeds : (prev.medicines.length > 0 ? prev.medicines : []),
+          // Ensure notes don't get filled with transcript if AI fallback is used
+          notes: (parseData.data.notes && parseData.data.notes !== liveTranscript) ? parseData.data.notes : "",
+          rawTranscript: liveTranscript,
+          consultationFee: parseData.data.consultationFee ? toMoneyNumber(parseData.data.consultationFee) : prev.consultationFee,
+          medicineCost: parseData.data.medicineCost ? toMoneyNumber(parseData.data.medicineCost) : prev.medicineCost,
+        };
+      });
 
       toast.success(t('toast.prescriptionSaved'), { id: toastId });
       setStep("review");
@@ -252,14 +295,15 @@ function NewPrescriptionInner() {
       await createPrescription({
         patientId: selectedPatient,
         ...prescriptionData,
+        appointmentId: prescriptionData.appointmentId || null,
       }).unwrap();
 
       toast.dismiss(toastId);
       setIsSuccessModalOpen(true);
     } catch (error: any) {
       let message = error?.data?.message || error.message || "Operation failed";
-      if (message.includes('Path `diagnosis` is required')) {
-        message = t('form.required');
+      if (message.includes('Path `diagnosis` is required') || message.toLowerCase().includes('diagnosis')) {
+        message = `${t('doctor.diagnosis')} is required.`;
       }
       toast.error(message, { id: toastId });
     }
@@ -349,7 +393,7 @@ function NewPrescriptionInner() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <input
                   type="text"
-                  placeholder={t('patient.records.placeholders.title')}
+                  placeholder={t('doctor.prescriptions.placeholders.searchPatient')}
                   value={patientSearch}
                   onChange={(e) => setPatientSearch(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl focus:border-primary focus:outline-none font-medium text-lg lg:text-xl transition-all"
@@ -439,102 +483,102 @@ function NewPrescriptionInner() {
 
       {/* Step 2: Record */}
       {step === "record" && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">{t('doctor.prescriptions.record')}</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">{t('doctor.prescriptions.record')}</h2>
 
-            <div className="text-center py-12">
-              {!audioBlob ? (
-                <>
-                  <div className={`mx-auto h-40 w-40 rounded-full flex items-center justify-center mb-6 transition-all ${recording ? "bg-red-100 dark:bg-red-900/30 animate-pulse" : "bg-primary/10 dark:bg-primary/20"}`}>
-                    {recording ? (
-                      <div className="relative">
-                        <MicOff className="h-20 w-20 text-red-600" />
-                        <div className="absolute -top-2 -right-2 h-4 w-4 bg-red-600 rounded-full animate-ping"></div>
-                      </div>
-                    ) : (
-                      <Mic className="h-20 w-20 text-primary" />
-                    )}
+          <div className="text-center py-12">
+            {!audioBlob ? (
+              <>
+                <div className={`mx-auto h-40 w-40 rounded-full flex items-center justify-center mb-6 transition-all ${recording ? "bg-red-100 dark:bg-red-900/30 animate-pulse" : "bg-primary/10 dark:bg-primary/20"}`}>
+                  {recording ? (
+                    <div className="relative">
+                      <MicOff className="h-20 w-20 text-red-600" />
+                      <div className="absolute -top-2 -right-2 h-4 w-4 bg-red-600 rounded-full animate-ping"></div>
+                    </div>
+                  ) : (
+                    <Mic className="h-20 w-20 text-primary" />
+                  )}
+                </div>
+
+                {recording && (
+                  <div className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                    {formatTime(recordingTime)}
                   </div>
+                )}
 
-                  {recording && (
-                    <div className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                      {formatTime(recordingTime)}
-                    </div>
-                  )}
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  {recording ? t('doctor.prescriptions.voiceDescription') : t('doctor.prescriptions.voiceTranscription')}
+                </p>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    {recording ? t('doctor.prescriptions.voiceDescription') : t('doctor.prescriptions.voiceTranscription')}
+                {/* Live transcript preview */}
+                {liveTranscript && (
+                  <div className="mx-auto max-w-lg mb-6 p-4 bg-primary/10 dark:bg-primary/20 rounded-xl text-left border border-primary/30 dark:border-primary/40">
+                    <p className="text-xs font-semibold text-primary mb-1">Live Transcript</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">{liveTranscript}</p>
+                  </div>
+                )}
+
+                <button
+                  onClick={recording ? stopRecording : startRecording}
+                  className={`px-12 py-5 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-xl ${recording ? "bg-red-500 hover:bg-red-600 text-white" : "bg-primary hover:bg-primary-hover text-white"}`}
+                >
+                  {recording ? t('doctor.stopRecording') : t('doctor.startRecording')}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="mx-auto h-40 w-40 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-6">
+                  <Sparkles className="h-20 w-20 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('doctor.prescriptions.recordingComplete')}</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  {t('common.time')}: {formatTime(recordingTime)}
+                </p>
+                {liveTranscript && (
+                  <div className="mx-auto max-w-lg mb-6 p-4 bg-primary/10 dark:bg-primary/20 rounded-xl text-left border border-primary/30 dark:border-primary/40">
+                    <p className="text-xs font-semibold text-primary mb-1">Transcribed Text</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">{liveTranscript}</p>
+                  </div>
+                )}
+                {!liveTranscript && (
+                  <p className="text-amber-600 text-sm mb-4">
+                    No transcript detected. Your browser may not support Speech Recognition. Try re-recording.
                   </p>
-
-                  {/* Live transcript preview */}
-                  {liveTranscript && (
-                    <div className="mx-auto max-w-lg mb-6 p-4 bg-primary/10 dark:bg-primary/20 rounded-xl text-left border border-primary/30 dark:border-primary/40">
-                      <p className="text-xs font-semibold text-primary mb-1">Live Transcript</p>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">{liveTranscript}</p>
-                    </div>
-                  )}
-
+                )}
+                <div className="flex items-center justify-center gap-4">
                   <button
-                    onClick={recording ? stopRecording : startRecording}
-                    className={`px-12 py-5 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-xl ${recording ? "bg-red-500 hover:bg-red-600 text-white" : "bg-primary hover:bg-primary-hover text-white"}`}
+                    onClick={() => {
+                      setAudioBlob(null);
+                      setLiveTranscript("");
+                      setRecordingTime(0);
+                    }}
+                    className="px-8 py-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-semibold hover:border-primary hover:text-primary transition-all"
                   >
-                    {recording ? t('doctor.stopRecording') : t('doctor.startRecording')}
+                    {t('common.cancel')}
                   </button>
-                </>
-              ) : (
-                <>
-                  <div className="mx-auto h-40 w-40 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-6">
-                    <Sparkles className="h-20 w-20 text-green-600 dark:text-green-400" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('doctor.prescriptions.recordingComplete')}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    {t('common.time')}: {formatTime(recordingTime)}
-                  </p>
-                  {liveTranscript && (
-                    <div className="mx-auto max-w-lg mb-6 p-4 bg-primary/10 dark:bg-primary/20 rounded-xl text-left border border-primary/30 dark:border-primary/40">
-                      <p className="text-xs font-semibold text-primary mb-1">Transcribed Text</p>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">{liveTranscript}</p>
-                    </div>
-                  )}
-                  {!liveTranscript && (
-                    <p className="text-amber-600 text-sm mb-4">
-                      No transcript detected. Your browser may not support Speech Recognition. Try re-recording.
-                    </p>
-                  )}
-                  <div className="flex items-center justify-center gap-4">
-                    <button
-                      onClick={() => {
-                        setAudioBlob(null);
-                        setLiveTranscript("");
-                        setRecordingTime(0);
-                      }}
-                      className="px-8 py-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-semibold hover:border-primary hover:text-primary transition-all"
-                    >
-                      {t('common.cancel')}
-                    </button>
-                    <button
-                      onClick={processVoicePrescription}
-                      disabled={processing}
-                      className="px-8 py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg"
-                    >
-                      {processing ? (
-                        <>
-                          <Loader className="h-5 w-5 animate-spin" />
-                          {t('doctor.prescriptions.analyzing')}
-                        </>
-                      ) : (
-                        <>
-                          {t('doctor.prescriptions.processWithAi')}
-                          <ArrowRight className="h-5 w-5" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+                  <button
+                    onClick={processVoicePrescription}
+                    disabled={processing}
+                    className="px-8 py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg"
+                  >
+                    {processing ? (
+                      <>
+                        <Loader className="h-5 w-5 animate-spin" />
+                        {t('doctor.prescriptions.analyzing')}
+                      </>
+                    ) : (
+                      <>
+                        {t('doctor.prescriptions.processWithAi')}
+                        <ArrowRight className="h-5 w-5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-        )
+        </div>
+      )
       }
 
       {/* Step 3: Review */}
@@ -551,7 +595,7 @@ function NewPrescriptionInner() {
                 onChange={(e) => setPrescriptionData({ ...prescriptionData, diagnosis: e.target.value })}
                 className="w-full p-4 border-2 border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1f1f23] text-gray-900 dark:text-[#e4e4e7] placeholder:text-gray-400 dark:placeholder:text-[#52525b] rounded-xl focus:border-primary focus:outline-none"
                 rows={3}
-                placeholder="Enter diagnosis..."
+                placeholder={t('doctor.prescriptions.placeholders.diagnosis')}
               />
             </div>
 
@@ -638,7 +682,7 @@ function NewPrescriptionInner() {
                   <input
                     type="number"
                     min="0"
-                    step="0.01"
+                    step="1"
                     value={prescriptionData.consultationFee}
                     onChange={(e) => setPrescriptionData({ ...prescriptionData, consultationFee: toMoneyNumber(e.target.value) })}
                     className="flex h-12 w-full rounded-2xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900/50 px-5 py-2 text-base text-slate-900 dark:text-slate-100 transition-all font-medium focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
@@ -651,7 +695,7 @@ function NewPrescriptionInner() {
                   <input
                     type="number"
                     min="0"
-                    step="0.01"
+                    step="1"
                     value={prescriptionData.medicineCost}
                     onChange={(e) => setPrescriptionData({ ...prescriptionData, medicineCost: toMoneyNumber(e.target.value) })}
                     className="flex h-12 w-full rounded-2xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900/50 px-5 py-2 text-base text-slate-900 dark:text-slate-100 transition-all font-medium focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
@@ -660,7 +704,7 @@ function NewPrescriptionInner() {
               </div>
               <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
                 <span className="text-gray-500 font-bold uppercase tracking-widest text-xs">{t('doctor.prescriptions.totalBilling')}</span>
-                <span className="text-2xl font-black text-primary">{toMoneyNumber(toMoneyNumber(prescriptionData.consultationFee) + toMoneyNumber(prescriptionData.medicineCost)).toLocaleString(undefined, { maximumFractionDigits: 2 })} {t('common.pkr')}</span>
+                <span className="text-2xl font-black text-primary">{(Number(prescriptionData.consultationFee) + Number(prescriptionData.medicineCost)).toLocaleString(undefined, { maximumFractionDigits: 0 })} {t('common.pkr')}</span>
               </div>
             </div>
 

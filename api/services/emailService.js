@@ -1,15 +1,38 @@
 const nodemailer = require("nodemailer");
 const emailTemplates = require("./emailTemplates");
 
+// Gmail App Passwords are shown with spaces for readability but must be sent
+// without any whitespace to authenticate correctly.
+const smtpPass = (process.env.SMTP_PASS || "").replace(/\s+/g, "");
+const smtpUser = process.env.SMTP_USER || "";
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: process.env.SMTP_PORT || 587,
+  port: parseInt(process.env.SMTP_PORT || "587", 10),
   secure: false,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: smtpUser,
+    pass: smtpPass,
+  },
+  tls: {
+    rejectUnauthorized: false,
   },
 });
+
+// Verify SMTP connection at startup — logs success or the exact error
+transporter.verify((error) => {
+  if (error) {
+    console.error(
+      `[SMTP] ❌ Connection failed — user="${smtpUser}" pass-length=${smtpPass.length}:`,
+      error.message,
+    );
+  } else {
+    console.log(
+      `[SMTP] ✅ Connected — user="${smtpUser}" pass-length=${smtpPass.length}`,
+    );
+  }
+});
+
 
 exports.sendEmail = async (...args) => {
   let to, subject, html, templateName, data;

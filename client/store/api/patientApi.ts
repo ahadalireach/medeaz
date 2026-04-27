@@ -20,6 +20,14 @@ export const patientApi = createApi({
       providesTags: ["Dashboard"],
     }),
 
+    getSpentHistory: builder.query({
+      query: (params: { page?: number; limit?: number } = {}) => ({
+        url: "/patient/spent-history",
+        params,
+      }),
+      providesTags: ["Dashboard"],
+    }),
+
     getRecords: builder.query({
       query: (params: { limit?: number } = {}) => ({
         url: "/patient/records",
@@ -187,7 +195,7 @@ export const patientApi = createApi({
 
     chatWithAi: builder.mutation({
       query: (data: any) => ({
-        url: "/ai/gemini/chat",
+        url: "/ai/groq/chat",
         method: "POST",
         body: data,
       }),
@@ -230,6 +238,7 @@ export const patientApi = createApi({
 
 export const {
   useGetDashboardQuery,
+  useGetSpentHistoryQuery,
   useGetRecordsQuery,
   useGetRecordDetailQuery,
   useUploadRecordMutation,

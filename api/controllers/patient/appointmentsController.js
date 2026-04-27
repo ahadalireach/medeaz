@@ -43,7 +43,7 @@ exports.getAppointments = asyncHandler(async (req, res) => {
       }
     },
     { $project: { review: 0 } },
-    { $sort: { dateTime: view === 'upcoming' ? 1 : -1 } }
+    { $sort: { dateTime: -1 } }
   ]);
 
   // Manually populate since aggregate doesn't support model populate easily
@@ -53,7 +53,8 @@ exports.getAppointments = asyncHandler(async (req, res) => {
       select: 'name email photo',
       populate: { path: 'doctorProfile', select: 'specialization' }
     },
-    { path: 'clinicId', select: 'name address phone' }
+    { path: 'clinicId', select: 'name address phone' },
+    { path: 'prescriptionId' }
   ]);
 
   const doctorUserIds = [...new Set(

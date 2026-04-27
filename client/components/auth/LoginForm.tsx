@@ -9,55 +9,33 @@ import { toast } from "react-hot-toast";
 import { useLoginMutation } from "@/store/api/authApi";
 import { setCredentials } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 import {
   Eye,
   EyeOff,
   UserPlus,
   Stethoscope,
   Building2,
-  ArrowRight,
 } from "lucide-react";
 
-const ROLE_META: Record<
-  string,
-  { label: string; description: string; icon: React.ComponentType<{ className?: string }> }
-> = {
-  patient: {
-    label: "Patient",
-    description: "Your health records and appointments",
-    icon: UserPlus,
-  },
-  doctor: {
-    label: "Doctor",
-    description: "See patients, review labs, prescribe",
-    icon: Stethoscope,
-  },
-  clinic_admin: {
-    label: "Clinic",
-    description: "Manage staff, schedules, and revenue",
-    icon: Building2,
-  },
-};
+const ROLES: {
+  value: string;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}[] = [
+  { value: "patient", label: "Patient", description: "Your health records & appointments", icon: UserPlus },
+  { value: "doctor", label: "Doctor", description: "See patients, review labs, prescribe", icon: Stethoscope },
+  { value: "clinic_admin", label: "Clinic", description: "Manage staff, schedules, and revenue", icon: Building2 },
+];
 
 function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 48 48" aria-hidden>
-      <path
-        fill="#EA4335"
-        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-      />
-      <path
-        fill="#4285F4"
-        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-      />
-      <path
-        fill="#34A853"
-        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-      />
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
     </svg>
   );
 }
@@ -67,7 +45,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [stage, setStage] = useState<"email" | "password">("email");
-  const [roleChoices, setRoleChoices] = useState<string[] | null>(null);
+  const [role, setRole] = useState<string>("patient");
 
   const [login, { isLoading }] = useLoginMutation();
   const router = useRouter();
@@ -94,7 +72,7 @@ export function LoginForm() {
 
     const toastId = toast.loading("Authenticating...");
     try {
-      const res = await login({ email, password }).unwrap();
+      const res = await login({ email, password, role }).unwrap();
       dispatch(
         setCredentials({
           user: res.data,
@@ -102,17 +80,6 @@ export function LoginForm() {
           refreshToken: res.refreshToken,
         }),
       );
-      const roles: string[] = Array.isArray(res.data?.roles)
-        ? res.data.roles
-        : [];
-
-      if (roles.length > 1) {
-        toast.dismiss(toastId);
-        setRoleChoices(roles);
-        return;
-      }
-
-      const role = roles[0] || "patient";
       toast.success("Welcome back!", { id: toastId });
       router.push(`/dashboard/${role}`);
     } catch (err: any) {
@@ -120,66 +87,29 @@ export function LoginForm() {
     }
   };
 
-  if (roleChoices) {
-    return (
-      <>
-        <div className="rounded-2xl border border-border-light bg-surface-cream/60 p-5 sm:p-6 text-left">
-          <p className="text-[13px] text-text-secondary text-center mb-4">
-            You have access to more than one dashboard. Choose where to go.
-          </p>
-          <div className="space-y-2">
-            {roleChoices.map((role) => {
-              const meta = ROLE_META[role] || {
-                label: role.replace("_", " "),
-                description: "Open dashboard",
-                icon: UserPlus,
-              };
-              const Icon = meta.icon;
-              return (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => {
-                    toast.success(`Opening ${meta.label} dashboard`);
-                    router.push(`/dashboard/${role}`);
-                  }}
-                  className="group w-full flex items-center gap-3 rounded-lg border border-border-light bg-white px-4 py-3 text-left transition-colors hover:border-primary cursor-pointer"
-                >
-                  <span className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-primary-muted text-primary">
-                    <Icon className="h-4.5 w-4.5" />
-                  </span>
-                  <span className="flex-1">
-                    <span className="block text-[14px] font-semibold text-text-primary capitalize">
-                      {meta.label}
-                    </span>
-                    <span className="block text-[12px] text-text-secondary">
-                      {meta.description}
-                    </span>
-                  </span>
-                  <ArrowRight className="h-4 w-4 text-text-secondary group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            setRoleChoices(null);
-            setStage("email");
-            setPassword("");
-          }}
-          className="mt-6 text-[13px] font-semibold text-text-secondary hover:text-primary cursor-pointer"
-        >
-          Use a different account
-        </button>
-      </>
-    );
-  }
-
   return (
     <>
-      <div className="rounded-2xl border border-border-light bg-surface-cream/60 p-5 sm:p-6">
+      <div className="rounded-2xl border border-border-light bg-white/80 p-5 sm:p-6 shadow-sm backdrop-blur-sm">
+        {/* Role selector */}
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          {ROLES.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => { setRole(value); setStage("email"); }}
+              className={cn(
+                "inline-flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold transition-colors cursor-pointer border",
+                role === value
+                  ? "border-primary bg-primary text-white shadow-sm"
+                  : "border-border-light bg-white text-text-primary hover:border-primary/50 hover:text-primary",
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
+
         <button
           type="button"
           className="w-full flex items-center justify-center gap-3 h-12 rounded-lg border border-border-light bg-white text-[15px] font-semibold text-text-primary transition-colors hover:border-primary/50 hover:text-primary cursor-pointer"
@@ -245,8 +175,8 @@ export function LoginForm() {
             {isLoading
               ? "Signing in..."
               : stage === "email"
-              ? "Continue with email"
-              : "Sign in"}
+                ? "Continue with email"
+                : "Sign in"}
           </Button>
 
           <div className="pt-1 text-center">
@@ -260,7 +190,7 @@ export function LoginForm() {
         </form>
       </div>
 
-      <p className="mt-8 text-[14px] text-text-secondary">
+      <p className="mt-6 text-[14px] text-text-secondary">
         New to Medeaz?{" "}
         <Link
           href="/register"

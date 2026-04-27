@@ -104,6 +104,10 @@
     "staff": "Staff",
     "analytics": "Analytics",
     "settings": "Settings",
+    "totalspent": "Total Spent",
+    "totalSpent": "Total Spent",
+    "revenuehistory": "Revenue History",
+    "revenueHistory": "Revenue History",
     "logout": "Logout",
     "signOut": "Sign Out",
     "navigation": "Navigation"
@@ -195,7 +199,7 @@
       "newForm": {
         "title": "Create Appointment",
         "subtitle": "Schedule a new appointment using your available schedule slots",
-        "searchPlaceholder": "Search patients by name or email...",
+        "searchPlaceholder": "Search patient by name or email...",
         "selectPatientFirst": "Please select a patient first",
         "selectSlot": "Select an available slot",
         "noSlots": "No available slots for this date. Please choose another date.",
@@ -273,6 +277,11 @@
       "analyzing": "Analyzing prescription with AI...",
       "successTitle": "Prescription Ready!",
       "successMsg": "The prescription has been successfully issued and sent to the patient.",
+      "placeholders": {
+        "searchPatient": "Search patient by name or email...",
+        "diagnosis": "e.g., Acute Respiratory Infection",
+        "notes": "Additional instructions for the patient..."
+      },
       "recordingComplete": "Recording Complete!",
       "processWithAi": "Process with AI",
       "skipToManual": "Skip to Manual Entry",
@@ -356,6 +365,7 @@
       "earned": "Earned",
       "totalEarned": "Total Earned",
       "deleteAll": "Delete All",
+      "clearConfirm": "Delete all revenue history records? This cannot be undone.",
       "recordDeleted": "Record deleted",
       "cleared": "Revenue history cleared",
       "empty": "No revenue history found"
@@ -487,7 +497,7 @@
         "discharge": "Discharge Summary"
       },
       "placeholders": {
-        "title": "e.g., Blood Test Report Oct 2023",
+        "title": "e.g., John Doe",
         "notes": "Add any specific details or doctor's mention..."
       },
       "filter": {
@@ -504,6 +514,7 @@
         "file": "File",
         "actions": "Actions"
       },
+      "deleteRecord": "Delete Record",
       "viewFile": "View File",
       "confirmDelete": "Are you sure you want to delete this record?",
       "attachment": "ATTACHMENT",
@@ -550,6 +561,7 @@
       "selectClinicTitle": "Select a Clinic",
       "searchClinicsPlaceholder": "Search clinics...",
       "findSpecialists": "Find Specialists",
+      "findClinic": "Find Clinic",
       "noClinics": "No clinics available",
       "noClinicsMatch": "No clinics match your search",
       "doctorsCount": "{n} doctors",
@@ -651,6 +663,21 @@
       "doctorShare": "Your Share (80%)",
       "platformShare": "Medeaz Share (20%)",
       "noRevenue": "No spending history found for this year"
+    },
+    "spentHistory": {
+      "title": "Total Spent History",
+      "subtitle": "View your historical spending on appointments and prescriptions.",
+      "totalSpent": "Total Spent",
+      "table": {
+        "date": "Date",
+        "doctor": "Doctor",
+        "clinic": "Clinic",
+        "type": "Type",
+        "amount": "Amount",
+        "noData": "No spending history found.",
+        "unknownDoctor": "Unknown",
+        "privateClinic": "Private Clinic"
+      }
     }
   },
   "clinic": {
@@ -739,7 +766,7 @@
     "patientSearch": {
       "title": "Patient Search",
       "subtitle": "Search for patients registered in the system",
-      "searchPlaceholder": "Search by name or email...",
+      "searchPlaceholder": "Search patient by name or email...",
       "noResults": "No patients found",
       "adjustSearch": "Try a different search term",
       "viewProfile": "View Profile",
@@ -1138,5 +1165,32 @@
     "openAt": "Opens at",
     "closeAt": "Closes at",
     "closed": "Closed"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "records": "Medical Records",
+    "doctors": "Doctors",
+    "appointments": "Appointments",
+    "bookAppointment": "Book Appointment",
+    "family": "Family Members",
+    "patients": "My Patients",
+    "prescriptions": "Prescriptions",
+    "chat": "Messages",
+    "aiAssistant": "AI Assistant",
+    "totalSpent": "Total Spent",
+    "revenueHistory": "Revenue History",
+    "profile": "Profile Settings",
+    "staff": "Staff Management",
+    "searchPatients": "Search Patients",
+    "patientPortal": "Patient Portal",
+    "clinicPortal": "Clinic Portal",
+    "doctorPortal": "Doctor Portal",
+    "clinicDashboard": "Clinic Dashboard",
+    "patientDashboard": "Patient Dashboard",
+    "doctorDashboard": "Doctor Dashboard",
+    "schedule": "My Schedule",
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "navigation": "Navigation"
   }
 }

@@ -112,7 +112,7 @@ export function RegisterForm() {
 
   return (
     <>
-      <div className="rounded-2xl border border-border-light bg-surface-cream/60 p-5 sm:p-6 text-left">
+      <div className="rounded-2xl border border-border-light bg-white/80 p-5 sm:p-6 text-left shadow-sm backdrop-blur-sm">
         <div className="mb-4 grid grid-cols-3 gap-2">
           {ROLES.map(({ value, label, icon: Icon }) => {
             const selected = role === value;
@@ -124,7 +124,7 @@ export function RegisterForm() {
                 className={cn(
                   "inline-flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold transition-colors cursor-pointer border",
                   selected
-                    ? "border-primary bg-primary text-white"
+                    ? "border-primary bg-primary text-white shadow-sm"
                     : "border-border-light bg-white text-text-primary hover:border-primary/50 hover:text-primary",
                 )}
               >
@@ -155,7 +155,7 @@ export function RegisterForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="block h-12 w-full rounded-lg border border-border-light bg-white pl-4 pr-12 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+              className="block h-12 w-full rounded-lg pl-4 pr-12 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary bg-white border border-border-light"
             />
             <button
               type="button"
@@ -174,7 +174,7 @@ export function RegisterForm() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+            className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
             />
           )}
 
@@ -186,7 +186,7 @@ export function RegisterForm() {
                 value={specialization}
                 onChange={(e) => setSpecialization(e.target.value)}
                 required
-                className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+                className="block h-12 w-full rounded-lg px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary bg-white border border-border-light"
               />
               <input
                 type="text"
@@ -194,7 +194,7 @@ export function RegisterForm() {
                 value={licenseNo}
                 onChange={(e) => setLicenseNo(e.target.value)}
                 required
-                className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+                className="block h-12 w-full rounded-lg px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary bg-white border border-border-light"
               />
             </>
           )}
@@ -207,7 +207,7 @@ export function RegisterForm() {
                 value={clinicName}
                 onChange={(e) => setClinicName(e.target.value)}
                 required
-                className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+                className="block h-12 w-full rounded-lg px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary bg-white border border-border-light"
               />
               <input
                 type="text"
@@ -215,7 +215,7 @@ export function RegisterForm() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 required
-                className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+                className="block h-12 w-full rounded-lg px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary bg-white border border-border-light"
               />
             </>
           )}
@@ -227,7 +227,8 @@ export function RegisterForm() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
-              className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+            className="block h-12 w-full rounded-lg px-4 text-[15px] transition-colors focus:outline-none"
+              style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.2)', color: '#1c1917' }}
             />
           )}
 

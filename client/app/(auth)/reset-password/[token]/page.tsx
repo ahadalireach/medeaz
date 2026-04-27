@@ -37,12 +37,12 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex flex-col items-center text-center">
       <Image
-        src="/logo.png"
-        alt="medeaz"
-        width={56}
-        height={56}
+        src="/medeaz.jpeg"
+        alt="Medeaz Logo"
+        width={64}
+        height={64}
         priority
-        className="h-24 w-24 object-contain drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
+        className="mx-auto rounded-lg object-cover shadow-sm mb-6"
       />
       <h1 className="mt-6 font-display text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.1] tracking-[-0.02em] text-text-primary">
         {isSuccess ? "Password updated" : "Set a new password"}

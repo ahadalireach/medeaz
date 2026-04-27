@@ -41,6 +41,26 @@ const doctorSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patient",
     }],
+    consultationFee: {
+      type: Number,
+      default: 0,
+    },
+    revenue: {
+      total: {
+        type: Number,
+        default: 0,
+      },
+      monthly: {
+        type: Map,
+        of: Number,
+        default: new Map(),
+      },
+      daily: {
+        type: Map,
+        of: Number,
+        default: new Map(),
+      },
+    },
   },
   {
     timestamps: true,

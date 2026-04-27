@@ -112,15 +112,15 @@ function downloadPrescriptionPDF(
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:16px;border-radius:12px;margin-top:8px">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
         <span style="color:#374151;font-size:13px">${labels.consultationFee}:</span>
-        <span style="color:#111;font-weight:700;font-size:13px">${pkrLabel} ${(prescription.consultationFee || 0).toFixed(2)}</span>
+        <span style="color:#111;font-weight:700;font-size:13px">${pkrLabel} ${Math.round(prescription.consultationFee || 0).toLocaleString()}</span>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
         <span style="color:#374151;font-size:13px">${labels.medicineCost}:</span>
-        <span style="color:#111;font-weight:700;font-size:13px">${pkrLabel} ${(prescription.medicineCost || 0).toFixed(2)}</span>
+        <span style="color:#111;font-weight:700;font-size:13px">${pkrLabel} ${Math.round(prescription.medicineCost || 0).toLocaleString()}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1.5px solid #86efac;margin-top:4px">
         <span style="color:#000;font-weight:800;font-size:14px">${labels.totalAmount}:</span>
-        <span style="color:#000;font-weight:900;font-size:18px">${pkrLabel} ${(prescription.totalCost || 0).toFixed(2)}</span>
+        <span style="color:#000;font-weight:900;font-size:18px">${pkrLabel} ${Math.round(prescription.totalCost || 0).toLocaleString()}</span>
       </div>
     </div>
   </div>` : ''}

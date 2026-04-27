@@ -6,6 +6,7 @@ import { DollarSign, Calendar } from "lucide-react";
 import UsersIcon from "@/icons/users-icon";
 import UserCheckIcon from "@/icons/user-check-icon";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 export default function OverviewCards() {
   const t = useTranslations();
@@ -68,30 +69,42 @@ export default function OverviewCards() {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       {stats.map((stat) => {
         const Icon = stat.icon;
+        
+        let href = "#";
+        if (stat.label === t('clinic.todayPatients')) {
+          href = "/dashboard/clinic_admin/patients/search";
+        } else if (stat.label === t('clinic.activeDoctor')) {
+          href = "/dashboard/clinic_admin/doctors";
+        } else if (stat.isAmount) {
+          href = "/dashboard/clinic_admin/revenue";
+        }
+
         return (
-          <div
-            key={stat.label}
-            className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] transition-all hover:border-primary/30 group shadow-sm flex items-center justify-between min-h-[100px] sm:min-h-[120px] relative overflow-hidden"
+          <Link 
+            key={stat.label} 
+            href={href} 
+            className="block group"
           >
-            <div className="flex flex-col justify-center min-w-0 flex-1">
-              <p className="text-[9px] sm:text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">
-                {stat.label}
-              </p>
-              <div className="flex items-baseline gap-1.5 min-w-0">
-                {stat.isAmount && (
-                  <span className="text-sm font-bold text-text-secondary shrink-0">{t('common.pkr')}</span>
-                )}
-                <p className="text-lg sm:text-xl lg:text-2xl font-black text-text-primary tracking-tight truncate">
-                  {stat.value}
+            <div className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] transition-all hover:border-primary/30 shadow-sm flex items-center justify-between min-h-[100px] sm:min-h-[120px] relative overflow-hidden">
+              <div className="flex flex-col justify-center min-w-0 flex-1">
+                <p className="text-[9px] sm:text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">
+                  {stat.label}
                 </p>
+                <div className="flex items-baseline gap-1.5 min-w-0">
+                  {stat.isAmount && (
+                    <span className="text-sm font-bold text-text-secondary shrink-0">{t('common.pkr')}</span>
+                  )}
+                  <p className="text-lg sm:text-xl lg:text-2xl font-black text-text-primary tracking-tight truncate">
+                    {stat.value}
+                  </p>
+                </div>
               </div>
+              <div className="text-primary transition-all p-2 sm:p-3 bg-primary/5 rounded-xl group-hover:scale-110 duration-300 shrink-0 ml-3">
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5 stroke-[2.5px]" />
+              </div>
+              <div className={`absolute -bottom-4 -right-4 h-16 w-16 ${stat.bg} rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity`} />
             </div>
-            <div className="text-primary transition-all p-2 sm:p-3 bg-primary/5 rounded-xl group-hover:scale-110 duration-300 shrink-0 ml-3">
-              <Icon className="h-4 w-4 sm:h-5 sm:w-5 stroke-[2.5px]" />
-            </div>
-            {/* Subtle glow */}
-            <div className={`absolute -bottom-4 -right-4 h-16 w-16 ${stat.bg} rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity`} />
-          </div>
+          </Link>
         );
       })}
     </div>

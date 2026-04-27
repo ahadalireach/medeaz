@@ -53,23 +53,49 @@ const registerUser = async (req, res) => {
 
     // Check if user already exists in DB
     const existingUser = await User.findOne({ email });
-    if (existingUser && existingUser.roles.includes(role)) {
+
+    // Block re-registration with a DIFFERENT role (role isolation)
+    if (existingUser) {
+      if (existingUser.roles.includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: "An account with this role already exists for this email.",
+        });
+      }
+      // User exists but with a different role — not allowed
       return res.status(400).json({
         success: false,
-        message: "Account with this role already exists",
+        message:
+          `This email is already registered as ${existingUser.roles.join("/")}. ` +
+          "Please use a different email or log in with your existing role.",
       });
     }
 
-    // Instead of creating user, store in Redis and send email
+    // For clinic admins, prevent duplicate clinic names
+    if (role === "clinic_admin") {
+      const clinicName = profileData?.clinicName?.trim();
+      if (clinicName) {
+        const existingClinic = await Clinic.findOne({
+          name: { $regex: new RegExp(`^${clinicName}$`, "i") },
+        });
+        if (existingClinic) {
+          return res.status(400).json({
+            success: false,
+            message: `A clinic named "${clinicName}" already exists. Please choose a different name.`,
+          });
+        }
+      }
+    }
+
+    // Store pending registration in Redis and send verification email
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
-    // If user exists, we only need to store the email and role for 'adding role' logic later
     const userData = {
       email,
       password,
       role,
       profileData,
-      isNew: !existingUser,
+      isNew: true,
     };
 
     await storePendingUser(verificationToken, userData);
@@ -221,7 +247,7 @@ const verifyEmail = async (req, res) => {
 // @access  Public
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -236,6 +262,16 @@ const loginUser = async (req, res) => {
       return res
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
+    }
+
+    // If a specific role was requested, verify the user has it
+    if (role && !user.roles.includes(role)) {
+      return res.status(403).json({
+        success: false,
+        message:
+          `This account is not registered as ${role}. ` +
+          `Please log in with your correct role (${user.roles.join("/")}).`,
+      });
     }
 
     const accessToken = generateAccessToken(user._id, user.roles);

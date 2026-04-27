@@ -33,15 +33,15 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
     // Always rely on sender role for ownership in doctor/patient chat rendering.
     return !!senderRole && senderRole === currentUser.role;
   };
-  const { 
-    joinConversation, 
-    leaveConversation, 
-    sendMessage, 
-    sendTyping, 
+  const {
+    joinConversation,
+    leaveConversation,
+    sendMessage,
+    sendTyping,
     acknowledgeDelivered,
-    onNewMessage, 
-    onTypingStatus, 
-    onMessageDeleted, 
+    onNewMessage,
+    onTypingStatus,
+    onMessageDeleted,
     onMessagesRead,
     onMessageStatusUpdated,
   } = useChatSocket();
@@ -235,7 +235,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
           </button>
         )}
         <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden shrink-0">
-          {otherParty.photo ? <img src={otherParty.photo} className="w-full h-full object-cover" /> : otherParty.name.charAt(0)}
+          {otherParty.photo ? <img src={otherParty.photo} className="w-full h-full object-cover" /> : otherParty.name?.charAt(0)}
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold text-text-primary truncate">{otherParty.name}</h3>
@@ -259,8 +259,8 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
             <div key={msg._id} className="w-full animate-in fade-in slide-in-from-bottom-2 group/msg">
               <div
                 className={`max-w-[30%] sm:max-w-[24%] shadow-sm relative ${isMine ? 'ml-auto' : 'mr-auto'} ${isMine
-                    ? 'px-4 py-2.5 rounded-2xl rounded-br-sm bg-primary text-white text-sm font-body'
-                    : 'px-4 py-2.5 rounded-2xl rounded-bl-sm bg-surface  border border-black/5  text-sm font-body text-text-primary '
+                  ? 'px-4 py-2.5 rounded-2xl rounded-br-sm bg-primary text-white text-sm font-body'
+                  : 'px-4 py-2.5 rounded-2xl rounded-bl-sm bg-surface  border border-black/5  text-sm font-body text-text-primary '
                   } ${msg.isDeleted ? 'opacity-60 italic' : ''}`}
               >
                 {msg.isDeleted ? (
@@ -280,7 +280,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
                   {format(new Date(msg.createdAt), 'h:mm a')}
                   {isMine && !msg.isDeleted && (
                     msg.isRead ? (
-                      <CheckCheck size={13} strokeWidth={3} className="inline-block text-primary" />
+                      <CheckCheck size={13} strokeWidth={3} className="inline-block text-sky-300" />
                     ) : msg.isDelivered ? (
                       <CheckCheck size={13} strokeWidth={2} className="inline-block opacity-60" />
                     ) : (

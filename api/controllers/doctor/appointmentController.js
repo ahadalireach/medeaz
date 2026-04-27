@@ -79,7 +79,7 @@ exports.createAppointment = asyncHandler(async (req, res) => {
   });
 
   const populatedAppointment = await Appointment.findById(appointment._id)
-    .populate('patientId', 'name email phone')
+    .populate('patientId', 'name email phone photo')
     .populate('clinicId', 'name address');
 
   res.status(201).json(
@@ -112,9 +112,9 @@ exports.getAppointments = asyncHandler(async (req, res) => {
   }
 
   const appointments = await Appointment.find(filter)
-    .populate('patientId', 'name email phone')
+    .populate('patientId', 'name email phone photo')
     .populate('clinicId', 'name address')
-    .sort({ dateTime: 1 })
+    .sort({ dateTime: -1 })
     .limit(parseInt(limit))
     .skip((parseInt(page) - 1) * parseInt(limit));
 
@@ -149,9 +149,9 @@ exports.getTodayQueue = asyncHandler(async (req, res) => {
     doctorId,
     dateTime: { $gte: today, $lte: endOfDay }
   })
-    .populate('patientId', 'name email phone')
+    .populate('patientId', 'name email phone photo')
     .populate('clinicId', 'name')
-    .sort({ dateTime: 1 });
+    .sort({ dateTime: -1 });
 
   const stats = {
     total: appointments.length,
@@ -174,8 +174,8 @@ exports.getTodayQueue = asyncHandler(async (req, res) => {
  */
 exports.getAppointmentById = asyncHandler(async (req, res) => {
   const appointment = await Appointment.findById(req.params.id)
-    .populate('patientId', 'name email phone dob')
-    .populate('doctorId', 'name email specialization')
+    .populate('patientId', 'name email phone photo')
+    .populate('doctorId', 'name email photo')
     .populate('clinicId', 'name address phone');
 
   if (!appointment) {
@@ -187,8 +187,45 @@ exports.getAppointmentById = asyncHandler(async (req, res) => {
     throw new ApiError(403, 'You do not have permission to view this appointment');
   }
 
+  // Get doctor profile for specialization
+  const doctorProfile = await Doctor.findOne({ userId: appointment.doctorId._id });
+
+  // Get patient profile for blood group and contact
+  const Patient = require('../../models/Patient');
+  const patientProfile = await Patient.findOne({ userId: appointment.patientId._id });
+
+  // Get prescription if any
+  const Prescription = require('../../models/Prescription');
+  const prescription = await Prescription.findOne({ appointmentId: appointment._id });
+
+  const result = {
+    ...appointment.toObject(),
+    patient: {
+      name: appointment.patientId?.name,
+      email: appointment.patientId?.email,
+      photo: appointment.patientId?.photo,
+      contact: patientProfile?.contact || appointment.patientId?.phone,
+      bloodGroup: patientProfile?.bloodGroup,
+    },
+    doctor: {
+      name: appointment.doctorId?.name,
+      photo: appointment.doctorId?.photo,
+      specialization: doctorProfile?.specialization,
+    },
+    prescription: prescription ? {
+      _id: prescription._id,
+      diagnosis: prescription.diagnosis,
+      medicines: prescription.medicines,
+      consultationFee: prescription.consultationFee,
+      medicineCost: prescription.medicineCost,
+      totalCost: prescription.totalCost,
+      notes: prescription.notes,
+      followUpDate: prescription.followUpDate
+    } : null
+  };
+
   res.status(200).json(
-    new ApiResponse(200, appointment, 'Appointment fetched successfully')
+    new ApiResponse(200, result, 'Appointment fetched successfully')
   );
 });
 

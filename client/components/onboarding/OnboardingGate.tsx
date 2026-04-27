@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  Calendar as CalendarIcon,
   CheckCircle2,
   ChevronRight,
   Crown,
@@ -15,6 +16,7 @@ import {
   HeartPulse,
   House,
   Info,
+  Mic as MicIcon,
   UserRound,
   Users,
 } from "lucide-react";
@@ -298,7 +300,6 @@ const clinicTypeOptions = [
 const bloodGroupOptions = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const genderOptions = ["male", "female", "other"];
 
-type Role = "patient" | "doctor" | "clinic_admin";
 
 type WorkingDay = {
   closed: boolean;
@@ -316,37 +317,7 @@ const defaultWorkingHours: Record<string, WorkingDay> = {
   sunday: { closed: true, open: "09:00", close: "17:00" },
 };
 
-function CalendarIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      {...props}
-    >
-      <path d="M8 2v4M16 2v4M3 10h18" />
-      <rect x="3" y="6" width="18" height="16" rx="2" />
-    </svg>
-  );
-}
 
-function MicIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      {...props}
-    >
-      <rect x="9" y="2" width="6" height="12" rx="3" />
-      <path d="M5 10v1a7 7 0 0 0 14 0v-1" />
-      <path d="M12 19v3" />
-      <path d="M8 22h8" />
-    </svg>
-  );
-}
 
 function ToggleSwitch({
   checked,
@@ -725,7 +696,7 @@ function ProfileCompletionModal({
           specialization: state.doctor.specialization,
           licenseNo: state.doctor.licenseNo,
           experience: Number(state.doctor.experience || 0),
-          consultationFee: Number(state.doctor.consultationFee || 0),
+          consultationFee: Math.round(Number(state.doctor.consultationFee || 0)),
           bio: state.doctor.bio,
           photo: photoPreview || undefined,
         }).unwrap();
@@ -1361,7 +1332,10 @@ function ProfileCompletionModal({
   );
 }
 
-export default function OnboardingGate({ role }: { role: Role }) {
+
+type Role = "patient" | "doctor" | "clinic_admin";
+
+export default function OnboardingGate({ role, children }: { role: Role, children: React.ReactNode }) {
   const locale = useLocale() as "en" | "ur";
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
@@ -1446,6 +1420,7 @@ export default function OnboardingGate({ role }: { role: Role }) {
           onCompleted={() => setBannerDismissed(true)}
         />
       )}
+      {children}
     </>
   );
 }
