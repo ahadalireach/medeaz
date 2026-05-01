@@ -8,6 +8,8 @@ const prescriptionController = require('../controllers/doctor/prescriptionContro
 const patientController = require('../controllers/doctor/patientController');
 const appointmentController = require('../controllers/doctor/appointmentController');
 const scheduleController = require('../controllers/doctor/scheduleController');
+const profileController = require('../controllers/doctor/profileController');
+const revenueController = require('../controllers/doctor/revenueController');
 
 // All routes require authentication and doctor role
 router.use(protect);
@@ -44,5 +46,15 @@ router.put('/schedule/:day', scheduleController.updateDaySchedule);
 router.get('/schedule/slots', scheduleController.getAvailableSlots);
 router.post('/schedule/:day/slots', scheduleController.addSlot);
 router.delete('/schedule/:day/slots/:slotIndex', scheduleController.removeSlot);
+
+// ========== Profile Routes ==========
+router.get('/profile', profileController.getProfile);
+router.put('/profile', profileController.updateProfile);
+
+// ========== Revenue Routes ==========
+router.get('/revenue', revenueController.getRevenue);
+router.get('/revenue/history', revenueController.getRevenueHistory);
+router.delete('/revenue/history', revenueController.clearRevenueHistory);
+router.delete('/revenue/history/:id', revenueController.deleteRevenueHistoryRecord);
 
 module.exports = router;

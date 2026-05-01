@@ -126,12 +126,12 @@ export default function AppointmentsPage() {
     if (!photo) return "";
     const trimmed = String(photo).trim();
     if (!trimmed) return "";
-    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    if (/^(https?:\/\/|data:)/i.test(trimmed)) return trimmed;
 
-    const baseApi = process.env.NEXT_PUBLIC_API_URL || "";
-    const defaultApiOrigin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:5002";
-    const baseOrigin = baseApi ? baseApi.replace(/\/api\/?$/, "") : defaultApiOrigin;
-    if (!baseOrigin) return "";
+    // Use NEXT_PUBLIC_SOCKET_URL (base server without /api) for static uploads
+    const baseOrigin =
+      process.env.NEXT_PUBLIC_SOCKET_URL ||
+      (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "");
 
     const normalizedPath = trimmed.startsWith("/")
       ? trimmed
@@ -144,6 +144,7 @@ export default function AppointmentsPage() {
       return "";
     }
   };
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;

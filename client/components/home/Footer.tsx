@@ -2,91 +2,88 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useLocale } from "next-intl";
 
 const PRODUCT_LINKS = [
-  { label: "About", href: "/about" },
-  { label: "Docs", href: "/docs" },
-  { label: "Support", href: "/support" },
-  { label: "FAQ", href: "/faqs" },
-  { label: "Cookies", href: "/cookie-policy" },
-  { label: "Policy", href: "/privacy-policy" },
+  { label: "About", labelUr: "ہمارے بارے میں", href: "/about" },
+  { label: "Docs", labelUr: "دستاویزات", href: "/docs" },
+  { label: "Support", labelUr: "مدد", href: "/support" },
+  { label: "FAQ", labelUr: "سوالات", href: "/faqs" },
+  { label: "Cookies", labelUr: "کوکیز پالیسی", href: "/cookie-policy" },
+  { label: "Policy", labelUr: "پرائیویسی", href: "/privacy-policy" },
 ];
 
 export function Footer() {
-  return (
-    <footer className="relative bg-ink-soft text-white overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-overlay"
-        style={{ backgroundImage: "url('/footer-bg.svg')" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.14] mix-blend-soft-light"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-          backgroundSize: "220px 220px",
-        }}
-      />
+  const locale = useLocale();
+  const isUrdu = locale === "ur";
 
-      <div className="relative mx-auto max-w-[1100px] px-6 lg:px-8 pt-16 pb-8">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10">
-          <div className="flex items-center gap-4">
-            <div className="relative h-16 w-16">
+  return (
+    <footer className="relative bg-white border-t border-black/[0.06] overflow-hidden">
+      {/* Subtle diagonal pattern matching dashboard background */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none select-none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden
+      >
+        <defs>
+          <pattern id="footer-diag" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="60" stroke="#0F4C5C" strokeWidth="0.5" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#footer-diag)" opacity="0.04" />
+      </svg>
+
+      <div className="relative mx-auto max-w-[1100px] px-6 lg:px-8 pt-12 pb-8">
+        <div className={`flex flex-col md:flex-row md:items-start md:justify-between gap-10 ${isUrdu ? "md:flex-row-reverse" : ""}`}>
+          {/* Brand */}
+          <div className={`flex items-center gap-4 ${isUrdu ? "flex-row-reverse" : ""}`}>
+            <div className="relative h-14 w-14 shrink-0">
               <Image
-                src="/logo.png"
+                src="/medeaz.jpeg"
                 alt="medeaz"
                 fill
-                sizes="64px"
-                className="object-contain"
+                sizes="56px"
+                className="object-contain rounded-lg"
               />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-white/95">Medeaz</p>
-              <p className="text-xs text-white/60">
-                Voice-enabled digital healthcare platform
+            <div className={isUrdu ? "text-right" : ""}>
+              <p className="text-base font-bold text-gray-900">Medeaz</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {isUrdu
+                  ? "آواز سے چلنے والا ڈیجیٹل صحت پلیٹ فارم"
+                  : "Voice-enabled digital healthcare platform"}
               </p>
             </div>
           </div>
 
-          <FooterColumn title="Quick Links" items={PRODUCT_LINKS} />
+          {/* Quick Links */}
+          <div className={`min-w-[220px] ${isUrdu ? "text-right" : ""}`}>
+            <p className={`text-[11px] font-semibold tracking-[0.14em] uppercase text-gray-400`}>
+              {isUrdu ? "فوری روابط" : "Quick Links"}
+            </p>
+            <ul className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3">
+              {PRODUCT_LINKS.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-gray-700 hover:text-primary transition-colors font-medium"
+                  >
+                    {isUrdu ? item.labelUr : item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 text-center">
-          <p className="text-xs text-white/45">
-            © {new Date().getFullYear()} Medeaz. All rights reserved.
+        {/* Bottom bar */}
+        <div className={`mt-10 border-t border-black/[0.06] pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 ${isUrdu ? "sm:flex-row-reverse" : ""}`}>
+          <p className="text-xs text-gray-400">
+            © {new Date().getFullYear()} Medeaz.{" "}
+            {isUrdu ? "تمام حقوق محفوظ ہیں۔" : "All rights reserved."}
           </p>
         </div>
       </div>
     </footer>
-  );
-}
-
-function FooterColumn({
-  title,
-  items,
-}: {
-  title: string;
-  items: { label: string; href: string }[];
-}) {
-  return (
-    <div className="min-w-[220px]">
-      <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/60">
-        {title}
-      </p>
-      <ul className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3">
-        {items.map((item) => (
-          <li key={item.label}>
-            <Link
-              href={item.href}
-              className="text-sm text-white/90 hover:text-white transition-colors"
-            >
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }

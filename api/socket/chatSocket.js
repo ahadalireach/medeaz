@@ -16,8 +16,8 @@ const chatSocket = (io) => {
       if (!conv) return;
 
       const recipientId = senderRole === 'doctor' ? conv.patientId.toString() : conv.doctorId.toString();
-      const onlineUsers = io.onlineUsers || new Map();
-      const isDelivered = onlineUsers.has(recipientId);
+      const recipientRoom = io.sockets.adapter.rooms.get(recipientId);
+      const isDelivered = !!(recipientRoom && recipientRoom.size > 0);
 
       const message = await Message.create({
         conversationId, senderId, senderRole,
@@ -26,7 +26,7 @@ const chatSocket = (io) => {
       });
 
       const conversationUpdate = {
-        lastMessage: type === 'file' ? `📎 ${fileName || 'File'}` : content,
+        lastMessage: type === 'file' ? `📎 ${fileName || 'File'}` : '🔒 Encrypted message',
         lastMessageAt: new Date(),
         lastMessageSender: senderRole,
         ...(senderRole === 'doctor'
@@ -45,17 +45,8 @@ const chatSocket = (io) => {
       io.to(senderId.toString()).emit('conversation_updated', updatedConversation);
       io.to(recipientId).emit('conversation_updated', updatedConversation);
 
-      // Only emit to recipient personal room when they are NOT already in the conversation room.
-      // This avoids duplicate deliveries when chat is open while preserving off-chat notifications.
-      const recipientSocketId = onlineUsers.get(recipientId);
-      const roomSockets = io.sockets.adapter.rooms.get(conversationId);
-      const recipientInConversationRoom = !!(
-        recipientSocketId && roomSockets && roomSockets.has(recipientSocketId)
-      );
-
-      if (!recipientInConversationRoom) {
-        io.to(recipientId).emit('new_message', message);
-      }
+      // Always emit to recipient personal room so sidebars/toasts update in real-time across portals.
+      io.to(recipientId).emit('new_message', message);
 
       // Sender tick bootstrap: single gray if offline recipient, double gray if online recipient.
       io.to(senderId.toString()).emit('message_status_updated', {

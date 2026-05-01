@@ -11,7 +11,9 @@ import {
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 
 export default function PatientDetailPage() {
   const t = useTranslations();
@@ -24,6 +26,11 @@ export default function PatientDetailPage() {
   const [deleteRecord] = useDeleteRecordMutation();
   const [deletePrescription] = useDeletePrescriptionMutation();
   const [deleteAppointment] = useDeleteAppointmentMutation();
+
+  const [deleteConfig, setDeleteConfig] = useState<{
+    id: string;
+    type: "record" | "prescription" | "appointment";
+  } | null>(null);
 
   const patient = data?.data?.patient;
   const patientProfile = patient?.profile;
@@ -50,31 +57,21 @@ export default function PatientDetailPage() {
     }
   };
 
-  const handleDeleteRecord = async (id: string) => {
-    if (!window.confirm(t('modal.confirmDelete'))) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfig) return;
+    const { id, type } = deleteConfig;
     try {
-      await deleteRecord(id).unwrap();
-      toast.success(t('common.success'));
-    } catch (error: any) {
-      toast.error(error?.data?.message || t('common.error'));
-    }
-  };
-
-  const handleDeletePrescription = async (id: string) => {
-    if (!window.confirm(t('modal.confirmDelete'))) return;
-    try {
-      await deletePrescription(id).unwrap();
-      toast.success(t('common.success'));
-    } catch (error: any) {
-      toast.error(error?.data?.message || t('common.error'));
-    }
-  };
-
-  const handleDeleteAppointment = async (id: string) => {
-    if (!window.confirm(t('modal.confirmDelete'))) return;
-    try {
-      await deleteAppointment(id).unwrap();
-      toast.success(t('toast.appointmentDeleted'));
+      if (type === "record") {
+        await deleteRecord(id).unwrap();
+        toast.success(t('common.success'));
+      } else if (type === "prescription") {
+        await deletePrescription(id).unwrap();
+        toast.success(t('common.success'));
+      } else if (type === "appointment") {
+        await deleteAppointment(id).unwrap();
+        toast.success(t('toast.appointmentDeleted'));
+      }
+      setDeleteConfig(null);
     } catch (error: any) {
       toast.error(error?.data?.message || t('common.error'));
     }
@@ -337,7 +334,7 @@ export default function PatientDetailPage() {
                           View Details
                         </Link>
                         <button
-                          onClick={() => handleDeleteRecord(record._id)}
+                          onClick={() => setDeleteConfig({ id: record._id, type: "record" })}
                           className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-200 transition-all"
                           title="Delete Record"
                         >
@@ -389,7 +386,7 @@ export default function PatientDetailPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeletePrescription(prescription._id);
+                            setDeleteConfig({ id: prescription._id, type: "prescription" });
                           }}
                           className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-200 transition-all"
                           title="Delete Prescription"
@@ -459,7 +456,7 @@ export default function PatientDetailPage() {
                         {appointment.status}
                       </span>
                       <button
-                        onClick={() => handleDeleteAppointment(appointment._id)}
+                        onClick={() => setDeleteConfig({ id: appointment._id, type: "appointment" })}
                         className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-200 transition-all"
                         title="Delete Appointment"
                       >
@@ -473,6 +470,13 @@ export default function PatientDetailPage() {
           )}
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={!!deleteConfig}
+        onClose={() => setDeleteConfig(null)}
+        onConfirm={handleDeleteConfirm}
+        title={t('common.delete')}
+        message={t('doctor.patients.confirmDelete', { name: '' }).replace('{name}', '')}
+      />
     </div>
   );
 }

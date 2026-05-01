@@ -51,6 +51,7 @@ exports.submitReview = asyncHandler(async (req, res) => {
         comment: comment,
         ratedAt: new Date()
     };
+    appointment.reviewId = review._id;
     await appointment.save();
 
     // 5. Update Doctor's average rating and total reviews

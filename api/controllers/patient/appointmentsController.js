@@ -43,7 +43,7 @@ exports.getAppointments = asyncHandler(async (req, res) => {
       }
     },
     { $project: { review: 0 } },
-    { $sort: { dateTime: view === 'upcoming' ? 1 : -1 } }
+    { $sort: { dateTime: -1 } }
   ]);
 
   // Manually populate since aggregate doesn't support model populate easily
@@ -53,7 +53,8 @@ exports.getAppointments = asyncHandler(async (req, res) => {
       select: 'name email photo',
       populate: { path: 'doctorProfile', select: 'specialization' }
     },
-    { path: 'clinicId', select: 'name address phone' }
+    { path: 'clinicId', select: 'name address phone' },
+    { path: 'prescriptionId' }
   ]);
 
   const doctorUserIds = [...new Set(
@@ -118,7 +119,7 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
 
   function parseDateTime(dateStr, timeStr) {
     if (!timeStr || !dateStr) return new Date(NaN);
-    
+
     // Check if time is in 12h format (e.g. "09:00 AM")
     const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
     if (match) {
@@ -127,12 +128,12 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
       minutes = parseInt(minutes, 10);
       if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
       if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
-      
+
       const date = new Date(dateStr);
       date.setHours(hours, minutes, 0, 0);
       return date;
     }
-    
+
     return new Date(`${dateStr} ${timeStr}`);
   }
 
@@ -469,7 +470,7 @@ exports.reserveSlot = asyncHandler(async (req, res) => {
 
   function parseDateTime(dateStr, timeStr) {
     if (!timeStr || !dateStr) return new Date(NaN);
-    
+
     // Check if time is in 12h format (e.g. "09:00 AM")
     const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
     if (match) {
@@ -478,12 +479,12 @@ exports.reserveSlot = asyncHandler(async (req, res) => {
       minutes = parseInt(minutes, 10);
       if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
       if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
-      
+
       const date = new Date(dateStr);
       date.setHours(hours, minutes, 0, 0);
       return date;
     }
-    
+
     return new Date(`${dateStr} ${timeStr}`);
   }
 

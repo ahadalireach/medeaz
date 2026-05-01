@@ -10,12 +10,12 @@ export default function NotFound() {
         <div className="w-full max-w-[440px]">
           <div className="flex flex-col items-center text-center">
             <Image
-              src="/logo.png"
-              alt="medeaz"
-              width={56}
-              height={56}
+              src="/medeaz.jpeg"
+              alt="Medeaz Logo"
+              width={64}
+              height={64}
               priority
-              className="h-24 w-24 object-contain drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
+              className="h-24 w-24 rounded-lg object-cover drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
             />
 
             <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary-muted px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">

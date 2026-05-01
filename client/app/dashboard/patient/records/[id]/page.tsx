@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import NextImage from "next/image";
-import { useGetRecordDetailQuery } from "@/store/api/patientApi";
+import { useDeleteRecordMutation, useGetRecordDetailQuery } from "@/store/api/patientApi";
 import {
   ArrowLeft,
   Calendar,
@@ -20,18 +20,21 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+import { toast } from "react-hot-toast";
+import { useFormatter, useTranslations } from "next-intl";
 
 export default function RecordDetailPage() {
   const t = useTranslations();
   const format = useFormatter();
-  const locale = useLocale();
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { data, isLoading } = useGetRecordDetailQuery(id);
+  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
   const prescription = data?.data;
 
   const formatDate = (dateString: string) => {
@@ -46,6 +49,16 @@ export default function RecordDetailPage() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteRecord(id).unwrap();
+      toast.success(t("common.success") || "Record deleted");
+      router.push("/dashboard/patient/records");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to delete record");
+    }
   };
 
   if (isLoading) {
@@ -72,33 +85,43 @@ export default function RecordDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between print:hidden">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-text-secondary hover:text-text-primary :text-white transition-colors"
+          className="flex items-center gap-2 text-text-secondary hover:text-text-primary :text-white transition-colors self-start"
         >
           <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
           <span className="font-medium">{t("prescription.backToRecords")}</span>
         </button>
-        <Button
-          onClick={handlePrint}
-          variant="outline"
-          className="bg-white border-black/10 h-11 px-6 text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
-        >
-          <Printer className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-          {t("prescription.printPrescription")}
-        </Button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full sm:w-auto">
+          <Button
+            onClick={() => setIsDeleteModalOpen(true)}
+            disabled={isDeleting}
+            variant="outline"
+            className="w-full bg-white border-red-200 text-red-600 h-10 sm:h-11 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest hover:bg-red-50"
+          >
+            {t("patient.records.deleteRecord")}
+          </Button>
+          <Button
+            onClick={handlePrint}
+            variant="outline"
+            className="w-full bg-white border-black/10 h-10 sm:h-11 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest sm:hover:scale-105 transition-all"
+          >
+            <Printer className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+            {t("prescription.printPrescription")}
+          </Button>
+        </div>
       </div>
 
       {/* Prescription Details */}
-      <div className="rounded-[2.5rem] border border-black/5 bg-white p-8 sm:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+      <div className="rounded-3xl sm:rounded-[2.5rem] border border-black/5 bg-white p-4 sm:p-8 lg:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
         {/* Header Section */}
         <div className="mb-8 border-b border-border-light pb-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-text-primary print:text-2xl">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary print:text-2xl">
                 {t("prescription.medicalPrescription")}
               </h1>
               <p className="mt-2 flex items-center gap-2 text-sm text-text-secondary print:text-xs">
@@ -106,30 +129,12 @@ export default function RecordDetailPage() {
                 {formatDate(prescription.createdAt)}
               </p>
             </div>
-            <div className="shrink-0">
-              <NextImage
-                src="/logo-light.svg"
-                alt="Medeaz"
-                width={120}
-                height={40}
-                priority
-                className="print:block"
-              />
-              <NextImage
-                src="/logo-dark.svg"
-                alt="Medeaz"
-                width={120}
-                height={40}
-                priority
-                className="hidden print:hidden"
-              />
-            </div>
           </div>
         </div>
 
         {/* Doctor & Clinic Info - Only for prescriptions */}
         {prescription.type !== "document" && (
-          <div className="mb-8 grid gap-6 md:grid-cols-2 print:grid-cols-2 print:mb-6">
+          <div className="mb-8 grid gap-4 sm:gap-6 md:grid-cols-2 print:grid-cols-2 print:mb-6">
             <div className="rounded-lg border border-border-light p-4 print:border-border-light">
               <p className="mb-3 text-xs font-semibold uppercase text-text-secondary print:text-[10px]">
                 {t("prescription.doctorInfo")}
@@ -160,17 +165,17 @@ export default function RecordDetailPage() {
                   <Building2 className="h-4 w-4 text-primary" />
                   {prescription.clinicId?.name}
                 </p>
-                <p className="text-sm text-text-secondary print:text-xs">
+                <p className="text-xs sm:text-sm text-text-secondary print:text-xs wrap-break-word">
                   {prescription.clinicId?.address}
                 </p>
                 {prescription.clinicId?.phone && (
-                  <p className="flex items-center gap-2 text-xs text-text-secondary print:text-[9px]">
+                  <p className="flex items-center gap-2 text-xs text-text-secondary print:text-[9px] break-all">
                     <Phone className="h-3 w-3" />
                     {prescription.clinicId.phone}
                   </p>
                 )}
                 {prescription.clinicId?.email && (
-                  <p className="flex items-center gap-2 text-xs text-text-secondary print:text-[9px]">
+                  <p className="flex items-center gap-2 text-xs text-text-secondary print:text-[9px] break-all">
                     <Mail className="h-3 w-3" />
                     {prescription.clinicId.email}
                   </p>
@@ -185,12 +190,12 @@ export default function RecordDetailPage() {
           <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary print:mb-2 border-b border-border-light pb-2 print:border-border-light">
             {t("prescription.patientInfo")}
           </p>
-          <div className="flex flex-wrap items-center gap-x-10 gap-y-2 pt-1 print:pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-x-10 pt-1 print:pt-0">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase text-text-secondary print:text-text-secondary">
                 {t("form.name")}:
               </span>
-              <span className="text-sm font-black text-text-primary print:text-sm">
+              <span className="text-sm font-black text-text-primary print:text-sm wrap-break-word">
                 {prescription.patientId?.name || "N/A"}
               </span>
             </div>
@@ -408,6 +413,13 @@ export default function RecordDetailPage() {
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title={t("patient.records.deleteRecord")}
+        message={t("patient.records.confirmDelete")}
+      />
     </div>
   );
 }

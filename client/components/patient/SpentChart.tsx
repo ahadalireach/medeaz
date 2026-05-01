@@ -43,7 +43,7 @@ export default function SpentChart({ data }: SpentChartProps) {
                 dataKey="label" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#78716C', fontSize: 9, fontWeight: 'bold' }}
+                tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 'bold' }}
                 interval="preserveStartEnd"
                 tickFormatter={(value) => {
                     const parts = value.split(/[ -]/);
@@ -56,9 +56,9 @@ export default function SpentChart({ data }: SpentChartProps) {
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#78716C', fontSize: 10, fontWeight: 'bold' }}
+                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
                 tickFormatter={(value) => `${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
-                label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#78716C", fontSize: 10, fontWeight: "bold", offset: 10 }}
+                label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10, fontWeight: "bold", offset: 10 }}
               />
               <Tooltip 
                 contentStyle={{
@@ -67,8 +67,8 @@ export default function SpentChart({ data }: SpentChartProps) {
                    borderRadius: "16px",
                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                 }}
-                itemStyle={{ color: "#0F4C5C", fontWeight: 'bold', fontSize: '12px' }}
-                labelStyle={{ color: "#78716C", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
+                itemStyle={{ color: "#FFFFFF", fontWeight: 'bold', fontSize: '12px' }}
+                labelStyle={{ color: "#FFFFFF", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
                 labelFormatter={(value: any) => {
                     const parts = value.split(/[ -]/);
                     if (/^\d+$/.test(parts[0])) return value;

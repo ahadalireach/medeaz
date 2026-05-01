@@ -42,6 +42,12 @@ const prescriptionSchema = new mongoose.Schema({
     ref: 'Appointment',
     default: null
   },
+  clinicId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Clinic',
+    default: null,
+    index: true
+  },
   diagnosis: {
     type: String,
     required: true,
@@ -64,6 +70,22 @@ const prescriptionSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  followUpDate: {
+    type: Date,
+    default: null
+  },
+  consultationFee: {
+    type: Number,
+    default: 0
+  },
+  medicineCost: {
+    type: Number,
+    default: 0
+  },
+  totalCost: {
+    type: Number,
+    default: 0
+  },
   status: {
     type: String,
     enum: ['draft', 'finalized', 'modified'],
@@ -82,14 +104,22 @@ const prescriptionSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Round fees to whole numbers before saving
+prescriptionSchema.pre('save', function () {
+  if (this.consultationFee !== undefined) this.consultationFee = Math.round(this.consultationFee);
+  if (this.medicineCost !== undefined) this.medicineCost = Math.round(this.medicineCost);
+  if (this.totalCost !== undefined) this.totalCost = Math.round(this.totalCost);
+});
+
 // Indexes for efficient queries
 prescriptionSchema.index({ doctorId: 1, createdAt: -1 });
 prescriptionSchema.index({ patientId: 1, createdAt: -1 });
+prescriptionSchema.index({ clinicId: 1, createdAt: -1 });
 prescriptionSchema.index({ appointmentId: 1 });
 prescriptionSchema.index({ status: 1 });
 
 // Virtual for prescription summary
-prescriptionSchema.virtual('medicineCount').get(function() {
+prescriptionSchema.virtual('medicineCount').get(function () {
   return this.medicines.length;
 });
 

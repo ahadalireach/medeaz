@@ -13,6 +13,7 @@ import { Bell } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { patientApi } from "@/store/api/patientApi";
+import { chatApi } from "@/store/api/chatApi";
 
 export default function NotificationProvider({
   children,
@@ -251,8 +252,40 @@ export default function NotificationProvider({
         socket.off("notification:unread_flush");
         socket.off("appointment_started");
         socket.off("prescription_ready");
+        socket.off("new_message");
+        socket.off("conversation_deleted");
         socket.off("connect", handleConnect);
         disconnectSocket();
+      };
+    }
+  }, [user, dispatch, pathname]);
+
+  useEffect(() => {
+    if (user?._id || user?.id) {
+      const handleNewMessage = (data: any) => {
+        // Invalidate chat queries to refresh conversation list and unread counts
+        dispatch(chatApi.util.invalidateTags(["Conversations", "Messages"]));
+
+        // If not in chat, show a toast
+        if (!pathname.includes("/chat")) {
+          const senderName = data.senderName || "Someone";
+          toast.success(`New message from ${senderName}`, {
+            icon: "💬",
+            id: `msg-${data.conversationId}`, // Prevent duplicate toasts for same conversation
+          });
+        }
+      };
+
+      const handleConversationDeleted = (data: any) => {
+        dispatch(chatApi.util.invalidateTags(["Conversations", "Messages"]));
+      };
+
+      socket.on("new_message", handleNewMessage);
+      socket.on("conversation_deleted", handleConversationDeleted);
+
+      return () => {
+        socket.off("new_message", handleNewMessage);
+        socket.off("conversation_deleted", handleConversationDeleted);
       };
     }
   }, [user, dispatch, pathname]);

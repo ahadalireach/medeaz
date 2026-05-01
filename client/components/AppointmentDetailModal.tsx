@@ -2,7 +2,6 @@
 
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import {
     Calendar,
     Activity,
@@ -79,24 +78,15 @@ export default function AppointmentDetailModal({
         if (!photo) return "";
         const trimmed = String(photo).trim();
         if (!trimmed) return "";
-        if (/^https?:\/\//i.test(trimmed)) return trimmed;
-
-        const baseApi = process.env.NEXT_PUBLIC_API_URL || "";
-        const defaultApiOrigin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:5002";
-        const baseOrigin = baseApi ? baseApi.replace(/\/api\/?$/, "") : defaultApiOrigin;
-        if (!baseOrigin) return "";
-
-        const normalizedPath = trimmed.startsWith("/")
-            ? trimmed
-            : trimmed.startsWith("uploads/")
-                ? `/${trimmed}`
-                : `/uploads/${trimmed}`;
-        try {
-            return new URL(normalizedPath, baseOrigin).toString();
-        } catch {
-            return "";
-        }
+        if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("data:")) return trimmed;
+        const base = (
+            process.env.NEXT_PUBLIC_SOCKET_URL ||
+            (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "")
+        );
+        const path = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+        return `${base}${path}`;
     };
+
 
     const patientPhotoUrl = resolveImageUrl(appointment?.patient?.photo);
     const doctorPhotoUrl = resolveImageUrl(appointment?.doctor?.photo);
@@ -142,55 +132,52 @@ export default function AppointmentDetailModal({
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Patient Section */}
                         <div className="space-y-4 p-6 rounded-4xl bg-white border border-border-light">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mb-4">
                                 <UserIcon className="h-5 w-5 text-primary" />
                                 <h3 className="text-lg font-black text-text-primary">{t('clinic.appointments.patient')}</h3>
                             </div>
 
-                            <div className="flex items-center gap-4 py-2">
-                                <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-border-light bg-background flex items-center justify-center">
-                                    {appointment.patient?.photo ? (
-                                        patientPhotoUrl ? (
-                                            <div className="relative h-full w-full">
-                                                <UserIcon className="h-6 w-6 text-text-secondary absolute inset-0 m-auto" />
-                                                <img
-                                                    src={patientPhotoUrl}
-                                                    alt={appointment.patient.name || t('clinic.appointments.patient')}
-                                                    className="h-full w-full object-cover relative z-10"
-                                                    onError={(e) => {
-                                                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                                                    }}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <UserIcon className="h-6 w-6 text-text-secondary" />
-                                        )
+                            <div className="flex items-center gap-4">
+                                {/* Patient Avatar — 64px, with initials fallback */}
+                                <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-border-light bg-primary/10 flex items-center justify-center shrink-0">
+                                    {patientPhotoUrl ? (
+                                        <img
+                                            src={patientPhotoUrl}
+                                            alt={appointment.patient?.name || t('clinic.appointments.patient')}
+                                            className="h-full w-full object-cover"
+                                            onError={(e) => {
+                                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                                                (e.currentTarget.parentElement as HTMLElement).innerHTML = `<span class="text-xl font-black text-primary">${(appointment.patient?.name || "?").charAt(0).toUpperCase()}</span>`;
+                                            }}
+                                        />
                                     ) : (
-                                        <UserIcon className="h-6 w-6 text-text-secondary" />
+                                        <span className="text-xl font-black text-primary">
+                                            {(appointment.patient?.name || "?").charAt(0).toUpperCase()}
+                                        </span>
                                     )}
                                 </div>
-                                <div>
-                                    <p className="font-bold text-text-primary">{appointment.patient?.name}</p>
-                                    <p className="text-sm text-text-secondary">{appointment.patient?.email || t('common.noData')}</p>
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-black text-text-primary text-base truncate">{appointment.patient?.name || t('common.noData')}</p>
+                                    <p className="text-sm text-text-secondary truncate">{appointment.patient?.email || t('common.noData')}</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 pt-2">
+                            <div className="grid grid-cols-2 gap-3 pt-2">
                                 <div className="p-3 bg-background rounded-2xl">
                                     <p className="text-[10px] font-black text-text-secondary uppercase tracking-tighter">{t('patient.profile.bloodGroup')}</p>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         <Droplet className="h-3 w-3 text-red-500" />
-                                        <span className="font-bold text-text-primary">{appointment.patient?.bloodGroup || "O+"}</span>
+                                        <span className="font-bold text-text-primary">{appointment.patient?.bloodGroup || "—"}</span>
                                     </div>
                                 </div>
                                 <div className="p-3 bg-background rounded-2xl">
                                     <p className="text-[10px] font-black text-text-secondary uppercase tracking-tighter">{t('form.phone')}</p>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         <PhoneVolumeIcon className="h-3 w-3 text-text-secondary" />
-                                        <span className="font-bold text-text-primary break-all">{appointment.patient?.contact || t('common.noData')}</span>
+                                        <span className="font-bold text-text-primary break-all text-sm">{appointment.patient?.contact || t('common.noData')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -198,137 +185,136 @@ export default function AppointmentDetailModal({
 
                         {/* Doctor Section */}
                         <div className="space-y-4 p-6 rounded-4xl bg-white border border-border-light">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mb-4">
                                 <Activity className="h-5 w-5 text-primary" />
                                 <h3 className="text-lg font-black text-text-primary">{t('clinic.appointments.doctor')}</h3>
                             </div>
 
-                            <div className="flex items-center gap-4 py-2">
-                                <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-border-light bg-background flex items-center justify-center">
-                                    {appointment.doctor?.photo ? (
-                                        doctorPhotoUrl ? (
-                                            <div className="relative h-full w-full">
-                                                <UserIcon className="h-6 w-6 text-text-secondary absolute inset-0 m-auto" />
-                                                <img
-                                                    src={doctorPhotoUrl}
-                                                    alt={appointment.doctor.name || t('appointment.doctor')}
-                                                    className="h-full w-full object-cover relative z-10"
-                                                    onError={(e) => {
-                                                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                                                    }}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <UserIcon className="h-6 w-6 text-text-secondary" />
-                                        )
+                            <div className="flex items-center gap-4">
+                                {/* Doctor Avatar — 64px, with initials fallback */}
+                                <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-border-light bg-primary/10 flex items-center justify-center shrink-0">
+                                    {doctorPhotoUrl ? (
+                                        <img
+                                            src={doctorPhotoUrl}
+                                            alt={appointment.doctor?.name || t('clinic.appointments.doctor')}
+                                            className="h-full w-full object-cover"
+                                            onError={(e) => {
+                                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                                                (e.currentTarget.parentElement as HTMLElement).innerHTML = `<span class="text-xl font-black text-primary">${(appointment.doctor?.name || "D").charAt(0).toUpperCase()}</span>`;
+                                            }}
+                                        />
                                     ) : (
-                                        <UserIcon className="h-6 w-6 text-text-secondary" />
+                                        <span className="text-xl font-black text-primary">
+                                            {(appointment.doctor?.name || "D").charAt(0).toUpperCase()}
+                                        </span>
                                     )}
                                 </div>
-                                <div>
-                                    <p className="font-bold text-text-primary">
-                                        {t('patient.bookAppointmentPage.doctorPrefix')} {appointment.doctor?.name}
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-black text-text-primary text-base">
+                                        {t('patient.bookAppointmentPage.doctorPrefix')} {appointment.doctor?.name || t('common.noData')}
                                     </p>
-                                    <p className="text-sm text-primary font-bold">{appointment.doctor?.specialization}</p>
+                                    <p className="text-sm text-primary font-bold">{appointment.doctor?.specialization || "—"}</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2 mt-4 text-sm font-medium text-text-secondary">
-                                <MapPinIcon className="h-4 w-4 shrink-0 text-text-secondary" />
-                                <span className="line-clamp-1">{clinicName}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
-                                <MapPinIcon className="h-4 w-4 shrink-0 text-text-secondary" />
-                                <span className="line-clamp-1">{clinicAddress}</span>
+                            <div className="space-y-2 pt-2">
+                                <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                    <MapPinIcon className="h-4 w-4 shrink-0 text-text-secondary" />
+                                    <span className="line-clamp-1">{clinicName}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                    <MapPinIcon className="h-4 w-4 shrink-0 text-text-secondary" />
+                                    <span className="line-clamp-1">{clinicAddress}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Prescription Section */}
-                    <div className="p-8 rounded-[2.5rem] bg-ink-soft text-white relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32" />
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl -ml-24 -mb-24" />
-
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
-                                        <Pill className="h-6 w-6 text-primary" />
-                                    </div>
-                                    <h3 className="text-xl font-black tracking-tight">{t('doctor.prescriptions.title')}</h3>
+                    {/* Prescription Section — white card, visible */}
+                    <div className="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-primary/10 rounded-xl">
+                                    <Pill className="h-5 w-5 text-primary" />
                                 </div>
-                                {appointment.prescription && (
-                                    <Button
-                                        onClick={handleDownloadPDF}
-                                        size="sm"
-                                        className="bg-white/10 hover:bg-white/20 border-white/10 text-white"
-                                    >
-                                        <DownloadIcon className="h-4 w-4 mr-2" />
-                                        {t('common.view')}
-                                    </Button>
-                                )}
+                                <h3 className="text-lg font-bold text-gray-900">{t('doctor.prescriptions.title')}</h3>
                             </div>
+                            {(appointment.prescription || appointment.prescriptionId) && (
+                                <button
+                                    onClick={handleDownloadPDF}
+                                    className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                                >
+                                    <DownloadIcon className="h-3.5 w-3.5" />
+                                    {t('common.view')}
+                                </button>
+                            )}
+                        </div>
 
-                            {!appointment.prescription ? (
-                                <div className="py-8 flex flex-col items-center justify-center bg-white/5 rounded-4xl border border-white/5">
-                                    <FileDescriptionIcon className="h-10 w-10 text-white/20 mb-3" />
-                                    <p className="font-bold text-white/40">{t('doctor.prescriptions.noPrescriptions')}</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-6">
+                        {(() => {
+                            const rx = appointment.prescription || appointment.prescriptionId;
+                            if (!rx) {
+                                return (
+                                    <div className="py-8 flex flex-col items-center justify-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                        <FileDescriptionIcon className="h-10 w-10 text-gray-300 mb-3" />
+                                        <p className="font-semibold text-gray-400">{t('doctor.prescriptions.noPrescriptions')}</p>
+                                    </div>
+                                );
+                            }
+                            return (
+                                <div className="space-y-4">
                                     {/* Diagnosis */}
-                                    <div className="p-5 bg-white/5 rounded-3xl border border-white/5 backdrop-blur-sm">
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-2">{t('doctor.diagnosis')}</p>
-                                        <p className="text-lg font-bold leading-relaxed">{appointment.prescription.diagnosis}</p>
+                                    <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
+                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1.5">{t('doctor.diagnosis')}</p>
+                                        <p className="font-bold text-gray-900 text-base">{rx.diagnosis || '—'}</p>
                                     </div>
 
-                                    {/* Medicines Grid */}
-                                    <div>
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-3 ml-4">{t('doctor.prescriptions.table.medicines')}</p>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            {appointment.prescription.medicines?.map((med: any, idx: number) => (
-                                                <div key={idx} className="p-4 bg-white/5 rounded-3xl border border-white/5 flex items-center gap-3 group/med hover:bg-white/10 transition-colors">
-                                                    <div className="h-3 w-3 rounded-full bg-primary shadow-[0_0_10px_rgba(20,184,166,0.5)]" />
-                                                    <div>
-                                                        <p className="font-black text-sm">{med.name}</p>
-                                                        <p className="text-xs text-white/40 font-bold">{med.dosage} — {med.duration}</p>
+                                    {/* Medicines */}
+                                    {rx.medicines?.length > 0 && (
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">{t('doctor.prescriptions.table.medicines')}</p>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                {rx.medicines.map((med: any, idx: number) => (
+                                                    <div key={idx} className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center gap-3">
+                                                        <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 text-sm">{med.name}</p>
+                                                            <p className="text-xs text-gray-500">{med.dosage} — {med.duration}</p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
-                                    {/* Follow Up & Notes */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="p-5 bg-white/5 rounded-3xl border border-white/5">
-                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">{t('doctor.notes')}</p>
-                                            <p className="text-xs text-white/60 font-medium leading-relaxed line-clamp-2">
-                                                "{appointment.prescription.notes || t('common.noData')}"
-                                            </p>
+                                    {/* Follow-up + Notes row */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">{t('doctor.notes')}</p>
+                                            <p className="text-sm text-gray-700 leading-relaxed">{rx.notes || '—'}</p>
                                         </div>
-                                        <div className="p-5 bg-white/5 rounded-3xl border border-white/5 flex flex-col justify-center">
-                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">{t('doctor.followUp')}</p>
+                                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5">{t('doctor.followUp')}</p>
                                             <div className="flex items-center gap-2">
                                                 <Calendar className="h-4 w-4 text-primary" />
-                                                <p className="font-black text-lg">
-                                                    {appointment.prescription.followUpDate ? formatIntl.dateTime(new Date(appointment.prescription.followUpDate), { dateStyle: 'medium' }) : t('common.noData')}
+                                                <p className="font-bold text-gray-900 text-sm">
+                                                    {rx.followUpDate ? formatIntl.dateTime(new Date(rx.followUpDate), { dateStyle: 'medium' }) : '—'}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Consultation Fees */}
-                                    <div className="pt-2 flex justify-end">
-                                        <div className="px-6 py-3 bg-primary rounded-2xl shadow-[0_8px_30px_rgb(20,184,166,0.3)] text-right">
-                                            <p className="text-[10px] font-black text-primary/70 uppercase tracking-widest leading-none">{t('doctor.profile.consultationFee')}</p>
-                                            <p className="text-2xl font-black mt-1">
-                                                {appointment.prescription.totalCost?.toLocaleString() || appointment.prescription.consultationFee?.toLocaleString() || '0'} {t('common.pkr')}
+                                    {/* Fees */}
+                                    <div className="flex justify-end">
+                                        <div className="px-5 py-3 bg-primary rounded-xl text-white text-right">
+                                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">{t('doctor.profile.consultationFee')}</p>
+                                            <p className="text-xl font-black mt-0.5">
+                                                {(rx.totalCost || rx.consultationFee || 0).toLocaleString()} {t('common.pkr')}
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-                            )}
-                        </div>
+                            );
+                        })()}
                     </div>
                 </div>
             )}

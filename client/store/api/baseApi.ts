@@ -1,6 +1,7 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "../store";
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { setAccessToken } from "../slices/authSlice";
 
 const baseFetchQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api",
@@ -49,6 +50,7 @@ export const baseQuery: BaseQueryFn<
         if (typeof window !== "undefined") {
           localStorage.setItem("accessToken", data.accessToken);
         }
+        api.dispatch(setAccessToken(data.accessToken));
 
         // Retry the original request with the new token
         result = await baseFetchQuery(args, api, extraOptions);

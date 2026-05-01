@@ -150,8 +150,11 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
     const resolveNotificationText = (n: any) => {
         const translateKey = (key?: string, params?: Record<string, any>) => {
             if (!key) return "";
+            const normalized = String(key).startsWith('notifications.')
+                ? String(key)
+                : `notifications.${key}`;
             try {
-                return t(`notifications.${key}`, params || {});
+                return t(normalized as any, params || {});
             } catch {
                 return "";
             }

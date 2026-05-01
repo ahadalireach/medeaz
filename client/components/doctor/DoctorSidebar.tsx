@@ -7,17 +7,18 @@ import { Calendar, MessageSquare, ChevronLeft, ChevronRight, HeartPulse, LogOut 
 import { useGetConversationsQuery } from "@/store/api/chatApi";
 import { logout } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
+import NextImage from "next/image";
 import LayoutDashboardIcon from "@/icons/layout-dashboard-icon";
 import UsersIcon from "@/icons/users-icon";
 import ClockIcon from "@/icons/clock-icon";
 import UserIcon from "@/icons/user-icon";
-import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { RootState } from "@/store/store";
 import DescriptionIcon from "@/icons/file-description-icon";
 import { useTranslations } from "next-intl";
+import { useChatSocket } from "@/providers/ChatSocketProvider";
 
 export default function DoctorSidebar() {
     const t = useTranslations();
@@ -43,10 +44,24 @@ export default function DoctorSidebar() {
         { href: "/dashboard/doctor/profile", label: t('nav.profile'), icon: UserIcon },
     ];
 
-    const { data: conversationsData } = useGetConversationsQuery({ viewerRole: 'doctor' }, {
+    const { data: conversationsData, refetch } = useGetConversationsQuery({ viewerRole: 'doctor' }, {
         pollingInterval: 30000,
         skip: !mounted
     });
+    const { onConversationUpdated, onNewMessage } = useChatSocket();
+
+    useEffect(() => {
+        const unsubConversation = onConversationUpdated?.(() => {
+            refetch();
+        });
+        const unsubMessage = onNewMessage?.(() => {
+            refetch();
+        });
+        return () => {
+            unsubConversation?.();
+            unsubMessage?.();
+        };
+    }, [onConversationUpdated, onNewMessage, refetch]);
 
     const totalUnread = conversationsData?.data?.reduce((acc: number, conv: any) => acc + (conv.unreadCount || 0), 0) || 0;
 
@@ -70,33 +85,44 @@ export default function DoctorSidebar() {
                 onClick={() => dispatch(toggleSidebar())}
                 className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full shadow-lg border-2 border-white dark:border-[#18181b] z-50 hover:scale-110 transition-transform hidden lg:block`}
             >
-                {t.raw('nav.navigation') === 'نیویگیشن' 
+                {t.raw('nav.navigation') === 'نیویگیشن'
                     ? (isCollapsed ? <ChevronLeft size={14} strokeWidth={3} /> : <ChevronRight size={14} strokeWidth={3} />)
                     : (isCollapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />)
                 }
             </button>
 
             <div className={`px-5 mb-8 ${isCollapsed ? 'opacity-0 scale-0 overflow-hidden h-0' : 'opacity-100 scale-100 pt-2 transition-all shadow-none'}`}>
-                <Link href="/dashboard/doctor" className="flex items-center gap-2.5 group">
-                    <Image
-                        src={mounted && theme === 'dark' ? "/logo-dark.svg" : "/logo-light.svg"}
-                        alt="MedEaz"
-                        width={100}
-                        height={34}
+                <Link
+                    href="/dashboard/doctor"
+                    className="flex items-center gap-2 group"
+                >
+                    <NextImage
+                        src="/medeaz.jpeg"
+                        alt="Medeaz Logo"
+                        width={36}
+                        height={36}
                         priority
-                        className="group-hover:scale-105 transition-all"
+                        className="h-9 w-9 rounded-lg object-cover"
                     />
+                    <span className="font-display text-[22px] leading-none text-text-primary tracking-tight">
+                        Medeaz
+                    </span>
                 </Link>
-                <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] leading-none uppercase tracking-widest mt-2 px-1 text-nowrap">
+                <p className="text-[10px] font-bold leading-none uppercase tracking-widest mt-2 px-1 text-nowrap" style={{ color: '#00b495' }}>
                     {t('nav.doctorPortal')}
                 </p>
             </div>
 
             {isCollapsed && (
                 <div className="flex justify-center mb-8">
-                    <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                        <HeartPulse size={20} />
-                    </div>
+                    <Link href="/dashboard/doctor" className="h-10 w-10 relative group">
+                        <NextImage
+                            src="/medeaz.jpeg"
+                            alt="Medeaz"
+                            fill
+                            className="object-cover rounded-lg shadow-md transition-transform group-hover:scale-110"
+                        />
+                    </Link>
                 </div>
             )}
 
@@ -113,7 +139,7 @@ export default function DoctorSidebar() {
                         >
                             <Icon size={18} strokeWidth={isActive(link.href) ? 2.5 : 2} className="shrink-0" />
                             {!isCollapsed && <span>{link.label}</span>}
-                            {link.label === "Chat" && totalUnread > 0 && (
+                            {link.href.includes('/chat') && totalUnread > 0 && (
                                 <span className={`${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-[#18181b]`}>
                                     {totalUnread > 9 ? '9+' : totalUnread}
                                 </span>
@@ -134,7 +160,7 @@ export default function DoctorSidebar() {
                 </button>
 
                 {!isCollapsed && (
-                    <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] uppercase tracking-[0.2em] px-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] px-4 text-text-muted">
                         MEDEAZ HEALTHCARE
                     </p>
                 )}

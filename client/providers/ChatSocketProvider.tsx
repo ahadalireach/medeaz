@@ -2,9 +2,10 @@
 
 import { createContext, useContext, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { usePathname } from 'next/navigation';
 import { RootState } from '@/store/store';
+import { addNotification } from '@/store/slices/notificationSlice';
 
 const ChatSocketContext = createContext<any>(null);
 
@@ -13,6 +14,7 @@ export function ChatSocketProvider({ children }: { children: React.ReactNode }) 
   const user = useSelector((state: RootState) => state.auth.user);
   const socketRef = useRef<Socket | null>(null);
   const pathname = usePathname();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!token) return;
@@ -40,10 +42,28 @@ export function ChatSocketProvider({ children }: { children: React.ReactNode }) 
       }
     });
 
+    // Real-time notification listener — dispatches to Redux so bell count + panel update instantly
+    socketRef.current.on('notification', (data: any) => {
+      dispatch(addNotification({
+        id: data.id || data._id || String(Date.now()),
+        title: data.title,
+        message: data.message,
+        titleKey: data.titleKey,
+        bodyKey: data.bodyKey,
+        bodyParams: data.bodyParams,
+        type: data.type || 'info',
+        read: false,
+        createdAt: data.createdAt || new Date().toISOString(),
+        actionUrl: data.actionUrl || data.link,
+        portal: data.portal,
+      }));
+    });
+
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [token, user?._id, pathname]);
+  }, [token, user?._id, pathname, dispatch]);
+
 
   const joinConversation = (conversationId: string) => {
     socketRef.current?.emit('join_conversation', { conversationId });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useGetRecordsQuery, useUploadRecordMutation, useDeleteRecordMutation } from "@/store/api/patientApi";
 import Link from "next/link";
 import { FileText, Calendar, User, Building2, Search, Plus, Upload, X, Trash2, FileCheck, AlertCircle } from "lucide-react";
@@ -74,9 +75,13 @@ function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 transition-opacity animate-in fade-in duration-300">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-7 w-full max-w-xl border border-black/5 animate-in zoom-in-95 duration-300 relative">
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 m-0 p-4" style={{ zIndex: 10000 }} aria-modal="true" role="dialog">
+      <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" onClick={onClose} />
+      <div className="relative flex min-h-full items-center justify-center">
+        <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-7 w-full max-w-xl border border-black/5 animate-in zoom-in-95 duration-300 relative">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-2xl font-black text-text-primary tracking-tight">{t('patient.records.uploadTitle')}</h3>
@@ -164,8 +169,10 @@ function UploadModal({ isOpen, onClose }: UploadModalProps) {
             {isLoading ? t('patient.records.uploading') : t('patient.records.saveVault')}
           </Button>
         </form>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -173,7 +180,7 @@ import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 
 export default function RecordsPage() {
   const t = useTranslations();
-  const { data, isLoading, refetch, isFetching } = useGetRecordsQuery({ limit: 60 });
+  const { data, isLoading, refetch, isFetching } = useGetRecordsQuery({ limit: 40 });
   const [deleteRecord] = useDeleteRecordMutation();
   const [searchTerm, setSearchTerm] = useState("");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -181,11 +188,20 @@ export default function RecordsPage() {
 
   const records = data?.data || [];
 
-  const filteredRecords = records.filter((record: any) =>
-    (record.diagnosis || record.chiefComplaint)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.doctorId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.clinicId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRecords = records.filter((record: any) => {
+    if (!record) return false;
+    const searchLower = searchTerm.toLowerCase();
+    
+    const diagnosis = (record.diagnosis || record.chiefComplaint || "").toLowerCase();
+    const doctor = (record.doctorId?.name || record.externalDoctorName || "").toLowerCase();
+    const clinic = (record.clinicId?.name || record.externalClinicName || "").toLowerCase();
+    
+    const diagnosisMatch = diagnosis.includes(searchLower);
+    const doctorMatch = doctor.includes(searchLower);
+    const clinicMatch = clinic.includes(searchLower);
+    
+    return diagnosisMatch || doctorMatch || clinicMatch;
+  });
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
@@ -312,18 +328,17 @@ export default function RecordsPage() {
                       return <span className="bg-[#0F4C5C]/10 text-[#0F4C5C] border-[#0F4C5C]/20 border px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">{t('patient.records.valid')}</span>;
                     })()}
                     <div className="flex items-center gap-2">
-                      {(!record.doctorId || record.doctorId?._id === data?.userId) && (
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setDeleteId(record._id);
-                          }}
-                          className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all group"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setDeleteId(record._id);
+                        }}
+                        className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all group"
+                        title={t('patient.records.deleteRecord')}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
                       <div className="h-10 px-6 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
                         {t('common.view')}
                       </div>

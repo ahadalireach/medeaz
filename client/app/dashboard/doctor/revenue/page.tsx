@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useDeleteRevenueHistoryRecordMutation, useGetRevenueHistoryQuery, useClearRevenueHistoryMutation } from "@/store/api/doctorApi";
 import { useTranslations } from "next-intl";
 import { Trash2, Loader2 } from "lucide-react";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import toast from "react-hot-toast";
 
 export default function DoctorRevenuePage() {
@@ -11,6 +12,7 @@ export default function DoctorRevenuePage() {
   const { data, isLoading, refetch } = useGetRevenueHistoryQuery({ page: 1, limit: 200 });
   const [deleteRecord] = useDeleteRevenueHistoryRecordMutation();
   const [clearAll, { isLoading: clearing }] = useClearRevenueHistoryMutation();
+  const [showClearModal, setShowClearModal] = useState(false);
 
   // Track which specific row(s) are being deleted
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
@@ -38,6 +40,10 @@ export default function DoctorRevenuePage() {
   };
 
   const onClear = async () => {
+    setShowClearModal(true);
+  };
+
+  const handleConfirmClear = async () => {
     try {
       await clearAll().unwrap();
       toast.success(t("doctor.revenueHistory.cleared"));
@@ -57,10 +63,14 @@ export default function DoctorRevenuePage() {
         <button
           onClick={onClear}
           disabled={clearing || !entries.length}
-          className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 disabled:opacity-50 transition-opacity"
         >
-          <Trash2 className="h-4 w-4" />
-          {t("doctor.revenueHistory.deleteAll")}
+          {clearing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Trash2 className="h-4 w-4" />
+          )}
+          {clearing ? (t("common.loading") || "Clearing...") : t("doctor.revenueHistory.deleteAll")}
         </button>
       </div>
 
@@ -116,6 +126,15 @@ export default function DoctorRevenuePage() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmationModal
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={handleConfirmClear}
+        title={t("doctor.revenueHistory.deleteAll")}
+        message={t("doctor.revenueHistory.clearConfirm") || "Delete all revenue history records? This cannot be undone."}
+        confirmText={t("common.delete")}
+      />
     </div>
   );
 }

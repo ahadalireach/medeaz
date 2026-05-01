@@ -82,9 +82,9 @@ export default function DoctorRevenueChart() {
                 {isLoading ? (
                     <div className="h-64 bg-gray-50 dark:bg-white/5 rounded-4xl animate-pulse"></div>
                 ) : (
-                    <div className="h-70 w-full">
+                    <div className="h-[280px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 45, bottom: 20 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />
                                 <XAxis
                                     dataKey="label"
@@ -119,8 +119,8 @@ export default function DoctorRevenueChart() {
                                         borderRadius: "16px",
                                         boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                                     }}
-                                    itemStyle={{ color: "#00b495", fontWeight: 'bold', fontSize: '12px' }}
-                                    labelStyle={{ color: "#94a3b8", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
+                                    itemStyle={{ color: "#FFFFFF", fontWeight: 'bold', fontSize: '12px' }}
+                                    labelStyle={{ color: "#FFFFFF", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
                                     labelFormatter={(val: any) => {
                                         if (period === 'day') return getDayLabel(val);
                                         return getMonthLabel(val);

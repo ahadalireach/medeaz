@@ -14,7 +14,7 @@ import { Users, Plus, Edit, Trash2, FileText } from "lucide-react";
 import PenIcon from "@/icons/pen-icon";
 import TrashIcon from "@/icons/trash-icon";
 import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { useTranslations } from "next-intl";
@@ -385,7 +385,7 @@ export default function FamilyPage() {
         </form>
       </Modal>
 
-      <ConfirmModal
+      <ConfirmationModal
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}

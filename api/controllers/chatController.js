@@ -143,6 +143,15 @@ const deleteConversation = async (req, res) => {
   await Message.deleteMany({ conversationId });
   await Conversation.findByIdAndDelete(conversationId);
 
+  // Notify participants via socket
+  const io = require('../config/socket').getIO();
+  if (io) {
+    const participants = [conversation.doctorId.toString(), conversation.patientId.toString()];
+    participants.forEach(pId => {
+      io.to(pId).emit('conversation_deleted', { conversationId });
+    });
+  }
+
   res.json({ success: true, message: 'Conversation deleted' });
 };
 
