@@ -312,7 +312,20 @@
     "typeEmailToSearch": "تلاش کے لیے ڈاکٹر کا ای میل درج کریں",
     "visualIdentity": "بصری شناخت اور لوگو",
     "noDoctorsFound": "اس ای میل کے ساتھ کوئی ڈاکٹر نہیں ملا",
-    "doctorNotFound": "سسٹم میں ڈاکٹر نہیں ملا"
+    "doctorNotFound": "سسٹم میں ڈاکٹر نہیں ملا",
+    "revenueHistory": {
+      "title": "آمدنی کی تاریخ",
+      "subtitle": "تمام آمدنی اور لین دین کو ٹریک کریں",
+      "deleteAll": "تمام حذف کریں",
+      "totalEarned": "کل آمدنی",
+      "date": "تاریخ",
+      "patient": "مریض",
+      "doctor": "ڈاکٹر",
+      "consultationFee": "مشاورت فیس",
+      "medicineCost": "ادویات کی قیمت",
+      "total": "کل",
+      "earned": "حاصل شدہ"
+    }
   },
   "patient": {
     "doctorProfile": {

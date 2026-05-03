@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useGetConversationsQuery, useStartConversationMutation } from '@/store/api/chatApi';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -12,7 +12,7 @@ import { useChatSocket } from '@/providers/ChatSocketProvider';
 import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 
-export default function DoctorChatPage() {
+function ChatContent() {
   const t = useTranslations();
   const { data, isLoading, refetch } = useGetConversationsQuery({ viewerRole: 'doctor' });
   const [startConversation] = useStartConversationMutation();
@@ -98,5 +98,13 @@ export default function DoctorChatPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function DoctorChatPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-text-secondary">Loading chat...</div>}>
+      <ChatContent />
+    </Suspense>
   );
 }
