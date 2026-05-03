@@ -1,2 +1,16 @@
 .next/
-node_modules/经营
+node_modules/
+out/
+coverage/
+.vercel/
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+*.log
+*.tsbuildinfo
+.DS_Store
