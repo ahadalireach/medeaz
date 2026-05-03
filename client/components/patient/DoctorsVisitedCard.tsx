@@ -29,7 +29,7 @@ export default function DoctorsVisitedCard({ doctors }: DoctorsVisitedCardProps)
       </CardHeader>
       <CardContent>
         {doctors.length === 0 ? (
-          <p className="text-sm text-text-secondary py-2">
+          <p className="text-sm text-text-primary py-2">
             {t('common.noResults')}
           </p>
         ) : (
@@ -58,7 +58,7 @@ export default function DoctorsVisitedCard({ doctors }: DoctorsVisitedCardProps)
                   <p className="font-bold text-text-primary group-hover:text-primary transition-colors">
                     {t('patient.bookAppointmentPage.doctorPrefix')} {doctor.name}
                   </p>
-                  <p className="text-sm font-medium text-text-secondary">
+                  <p className="text-sm font-medium text-text-primary">
                     {doctor.specialization}
                   </p>
                   <p className="text-xs font-bold uppercase tracking-wider text-primary mt-1">

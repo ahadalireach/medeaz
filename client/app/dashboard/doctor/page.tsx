@@ -51,7 +51,7 @@ export default function DoctorDashboard() {
         monthlyRevenue={monthlyRevenue}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
         <Card>
           <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <CardTitle className="text-xl">{t('doctor.dashboard.todaysAppointments')}</CardTitle>
@@ -65,7 +65,7 @@ export default function DoctorDashboard() {
                 <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-6 text-gray-400 group-hover:scale-110 transition-transform">
                   <AlarmClockPlusIcon className="w-8 h-8" />
                 </div>
-                  <p className="text-sm font-bold text-gray-500 dark:text-[#a1a1aa] uppercase tracking-widest">{t('doctor.dashboard.queueClear')}</p>
+                  <p className="text-sm font-bold text-gray-500 dark:text-[#a1a1aa] tracking-widest">{t('doctor.dashboard.queueClear')}</p>
                   <p className="text-[10px] font-medium text-gray-400 mt-1">{t('doctor.dashboard.checkBackLater')}</p>
               </div>
             ) : (
@@ -92,7 +92,7 @@ export default function DoctorDashboard() {
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
                           <span className="font-bold">{new Date(appointment.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           <span className="hidden sm:inline">•</span>
-                          <span className="font-semibold uppercase bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md sm:bg-transparent sm:p-0">{appointment.status}</span>
+                          <span className="font-semibold bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md sm:bg-transparent sm:p-0">{appointment.status}</span>
                         </div>
                       </div>
                     </div>
@@ -107,7 +107,7 @@ export default function DoctorDashboard() {
               </div>
             )}
             {todayQueue.length > 5 && (
-              <Link href="/dashboard/doctor/appointments" className="mt-4 block text-center py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-sm font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <Link href="/dashboard/doctor/appointments" className="mt-4 block text-center py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-sm font-bold text-gray-500 tracking-wider hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                 + {todayQueue.length - 5} {t('common.viewAll')}
               </Link>
             )}

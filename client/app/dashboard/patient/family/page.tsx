@@ -212,7 +212,7 @@ export default function FamilyPage() {
               <div className="space-y-2 text-sm">
                 {member.dob && (
                   <div className="flex justify-between">
-                    <span className="text-text-secondary">Date of Birth:</span>
+                    <span className="text-text-secondary">{t('form.dob')}:</span>
                     <span className="font-medium text-text-primary">
                       {new Date(member.dob).toLocaleDateString()}
                     </span>
@@ -220,7 +220,7 @@ export default function FamilyPage() {
                 )}
                 {member.bloodGroup && (
                   <div className="flex justify-between">
-                    <span className="text-text-secondary">Blood Group:</span>
+                    <span className="text-text-secondary">{t('patient.bloodGroup')}:</span>
                     <span className="font-medium text-text-primary">
                       {member.bloodGroup}
                     </span>
@@ -228,7 +228,7 @@ export default function FamilyPage() {
                 )}
                 {member.allergies && member.allergies.length > 0 && (
                   <div>
-                    <span className="text-text-secondary">Allergies:</span>
+                    <span className="text-text-secondary">{t('patient.allergies')}:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {member.allergies.map((allergy: string, idx: number) => (
                         <span
@@ -248,7 +248,7 @@ export default function FamilyPage() {
                 className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
               >
                 <FileText className="h-4 w-4" />
-                View Medical Records
+                {t('patient.family.viewRecord')}
               </Link>
             </div>
           ))}
@@ -267,10 +267,10 @@ export default function FamilyPage() {
               {newPhotoBase64 ? (
                 <img src={newPhotoBase64} alt="Preview" className="h-full w-full object-cover" />
               ) : (
-                <Users className="h-8 w-8 text-text-secondary" />
+                <Users className="h-8 w-8 text-text-primary opacity-20" />
               )}
               <label htmlFor="new-photo" className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                <span className="text-white text-[10px] font-semibold">Upload</span>
+                <span className="text-white text-[10px] font-bold uppercase">{t('patient.family.upload')}</span>
               </label>
               <input
                 id="new-photo"
@@ -287,19 +287,48 @@ export default function FamilyPage() {
                 }}
               />
             </div>
-            <span className="text-xs text-text-secondary">Profile Picture (Optional)</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-text-primary">
+              {t('patient.family.profilePicture')} <span className="opacity-50">{t('patient.family.optional')}</span>
+            </span>
           </div>
 
-          <Input label={t('form.name')} placeholder="Full name" error={errors.name?.message} {...register("name", { required: t('form.required') })} />
-          <Input label={t('patient.relation')} placeholder="e.g., Spouse, Child, Parent" error={errors.relation?.message} {...register("relation", { required: t('form.required') })} />
-          <Input label={t('form.dob')} type="date" {...register("dob")} />
-          <Input label={t('patient.bloodGroup')} placeholder="e.g., A+, B-, O+" {...register("bloodGroup")} />
-          <Input label={t('patient.allergies')} placeholder="Comma separated, e.g., Peanuts, Penicillin" {...register("allergies")} />
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => { setShowAddModal(false); reset(); }}>
+          <Input 
+            label={t('form.name')} 
+            placeholder={t('form.fullName')} 
+            error={errors.name?.message} 
+            {...register("name", { required: t('form.required') })} 
+            className="rounded-2xl"
+          />
+          <Input 
+            label={t('patient.relation')} 
+            placeholder={t('patient.family.relationPlaceholder')} 
+            error={errors.relation?.message} 
+            {...register("relation", { required: t('form.required') })} 
+            className="rounded-2xl"
+          />
+          <Input 
+            label={t('form.dob')} 
+            type="date" 
+            {...register("dob")} 
+            className="rounded-2xl"
+          />
+          <Input 
+            label={t('patient.bloodGroup')} 
+            placeholder={t('patient.family.bloodGroupPlaceholder')} 
+            {...register("bloodGroup")} 
+            className="rounded-2xl"
+          />
+          <Input 
+            label={t('patient.allergies')} 
+            placeholder={t('patient.family.allergiesPlaceholder')} 
+            {...register("allergies")} 
+            className="rounded-2xl"
+          />
+          <div className="flex justify-end gap-3 pt-6 border-t border-black/5">
+            <Button type="button" variant="outline" onClick={() => { setShowAddModal(false); reset(); }} className="rounded-xl px-8 h-12 font-black uppercase tracking-widest text-[10px]">
               {t('common.cancel')}
             </Button>
-            <Button type="submit">{t('patient.addFamilyMember')}</Button>
+            <Button type="submit" className="rounded-xl px-8 h-12 font-black uppercase tracking-widest text-[10px]">{t('patient.addFamilyMember')}</Button>
           </div>
         </form>
       </Modal>
@@ -319,10 +348,10 @@ export default function FamilyPage() {
               {editPhotoBase64 ? (
                 <img src={editPhotoBase64} alt="Preview" className="h-full w-full object-cover" />
               ) : (
-                <Users className="h-8 w-8 text-text-secondary" />
+                <Users className="h-8 w-8 text-text-primary opacity-20" />
               )}
               <label htmlFor="edit-photo" className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                <span className="text-white text-[10px] font-semibold">Update</span>
+                <span className="text-white text-[10px] font-bold uppercase">{t('patient.family.update')}</span>
               </label>
               <input
                 id="edit-photo"
@@ -339,7 +368,7 @@ export default function FamilyPage() {
                 }}
               />
             </div>
-            <span className="text-xs text-text-secondary">Profile Picture</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-text-primary">{t('patient.family.profilePicture')}</span>
           </div>
 
           <Input
@@ -347,29 +376,34 @@ export default function FamilyPage() {
             placeholder={t('form.fullName')}
             error={errorsEdit.name?.message}
             {...registerEdit("name", { required: t('form.required') })}
+            className="rounded-2xl"
           />
           <Input
             label={t('patient.relation')}
-            placeholder="e.g., Spouse, Child, Parent"
+            placeholder={t('patient.family.relationPlaceholder')}
             error={errorsEdit.relation?.message}
             {...registerEdit("relation", { required: t('form.required') })}
+            className="rounded-2xl"
           />
           <Input
             label={t('form.dob')}
             type="date"
             {...registerEdit("dob")}
+            className="rounded-2xl"
           />
           <Input
             label={t('patient.bloodGroup')}
-            placeholder="e.g., A+, B-, O+"
+            placeholder={t('patient.family.bloodGroupPlaceholder')}
             {...registerEdit("bloodGroup")}
+            className="rounded-2xl"
           />
           <Input
             label={t('patient.allergies')}
-            placeholder="Comma separated, e.g., Peanuts, Penicillin"
+            placeholder={t('patient.family.allergiesPlaceholder')}
             {...registerEdit("allergies")}
+            className="rounded-2xl"
           />
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-6 border-t border-black/5">
             <Button
               type="button"
               variant="outline"
@@ -377,10 +411,11 @@ export default function FamilyPage() {
                 setEditingMember(null);
                 resetEdit();
               }}
+              className="rounded-xl px-8 h-12 font-black uppercase tracking-widest text-[10px]"
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
-            <Button type="submit">Update Member</Button>
+            <Button type="submit" className="rounded-xl px-8 h-12 font-black uppercase tracking-widest text-[10px]">{t('patient.family.updateMember')}</Button>
           </div>
         </form>
       </Modal>

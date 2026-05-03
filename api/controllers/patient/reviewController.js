@@ -5,6 +5,7 @@ const Review = require('../../models/Review');
 const Appointment = require('../../models/Appointment');
 const Doctor = require('../../models/Doctor');
 const Patient = require('../../models/Patient');
+const Notification = require('../../models/Notification');
 
 /**
  * @desc    Submit a review for a completed appointment
@@ -66,6 +67,27 @@ exports.submitReview = asyncHandler(async (req, res) => {
             totalReviews: totalReviews,
         }
     );
+
+    // 6. Create Notification for Doctor
+    const patientName = patientProfile.name || req.user.name || "A patient";
+    const notification = await Notification.create({
+        recipient: doctorId,
+        sender: req.user._id,
+        title: "New Review Received",
+        message: `${patientName} has submitted a ${rating}-star review for your appointment.`,
+        titleKey: "notification.newReview.title",
+        bodyKey: "notification.newReview.body",
+        bodyParams: { patientName, rating },
+        type: "review",
+        portal: "doctor",
+        link: "/dashboard/doctor/reviews"
+    });
+
+    // 7. Emit Socket Event
+    const io = req.app.get("io");
+    if (io) {
+        io.to(doctorId.toString()).emit("notification", notification);
+    }
 
     res.status(201).json(new ApiResponse(201, review, "Review submitted successfully"));
 });
@@ -156,6 +178,27 @@ exports.updateReview = asyncHandler(async (req, res) => {
             totalReviews: totalReviews,
         }
     );
+
+    // 5. Create Notification for Doctor
+    const patientName = patientProfile.name || req.user.name || "A patient";
+    const notification = await Notification.create({
+        recipient: review.doctorId,
+        sender: req.user._id,
+        title: "Review Updated",
+        message: `${patientName} has updated their review to ${rating} stars.`,
+        titleKey: "notification.updateReview.title",
+        bodyKey: "notification.updateReview.body",
+        bodyParams: { patientName, rating },
+        type: "review",
+        portal: "doctor",
+        link: "/dashboard/doctor/reviews"
+    });
+
+    // 6. Emit Socket Event
+    const io = req.app.get("io");
+    if (io) {
+        io.to(review.doctorId.toString()).emit("notification", notification);
+    }
 
     res.status(200).json(new ApiResponse(200, review, "Review updated successfully"));
 });

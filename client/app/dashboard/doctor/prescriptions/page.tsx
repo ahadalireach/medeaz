@@ -1,8 +1,9 @@
 "use client";
 
-import { useGetPrescriptionsQuery, useDeletePrescriptionMutation } from "@/store/api/doctorApi";
+import { useGetPrescriptionsQuery, useDeletePrescriptionMutation, useGetPrescriptionByIdQuery } from "@/store/api/doctorApi";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus, FileText, Calendar, User, Pill, Download, Trash2, AlertTriangle, Loader } from "lucide-react";
 import TrashIcon from "@/icons/trash-icon";
 import DownloadIcon from "@/icons/download-icon";
@@ -40,8 +41,10 @@ function downloadPrescriptionPDF(
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { background: #fff !important; color-scheme: light !important; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #fff !important; color: #111 !important; padding: 40px; }
-    @media print { body { padding: 20px; } @page { margin: 20mm; } }
-    @media print { html, body { background: white !important; color: black !important; } }
+    @media print { 
+      @page { margin: 0; } 
+      body { padding: 1.6cm; background: white !important; color: black !important; } 
+    }
     .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #00b495; }
     .brand { font-size: 24px; font-weight: 800; color: #00b495 !important; letter-spacing: -0.5px; }
     .brand span { color: #111 !important; }
@@ -56,32 +59,39 @@ function downloadPrescriptionPDF(
     tbody td { background: #fff !important; color: #111 !important; }
     .notes { background: #f9fafb !important; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; font-size: 13px; color: #111 !important; line-height: 1.6; margin-top: 8px; }
     .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 11px; color: #4b5563 !important; }
-    .sig-line { margin-top: 40px; border-top: 1px solid #111; width: 200px; padding-top: 6px; font-size: 12px; color: #374151 !important; }
+    .sig-line { margin-top: 60px; border-top: 2px solid #111; width: 220px; padding-top: 8px; font-size: 13px; font-weight: 700; color: #111 !important; text-align: center; }
+    .prescription-title { font-size: 28px; font-weight: 900; color: #111; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+    .meta-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 13px; color: #4b5563; }
+    .meta-item b { color: #111; min-width: 80px; }
   </style>
 </head>
 <body>
   <div class="header">
     <div>
-      <div class="brand">Med<span>eaz</span></div>
-      <div style="font-size:12px;color:#374151;margin-top:4px">${labels.digitalHealthcarePlatform}</div>
+      <div class="brand">MEDE<span>AZ</span></div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px;font-weight:600">${labels.digitalHealthcarePlatform}</div>
     </div>
     <div class="date">
-      <div style="font-weight:600;color:#111">${labels.medicalPrescription}</div>
-      <div style="margin-top:4px">${date}</div>
+      <div style="font-weight:800;color:#111;font-size:14px">${labels.issueDate}</div>
+      <div>${date}</div>
     </div>
   </div>
 
-  <div style="display:flex;gap:40px;margin-bottom:24px">
-    <div class="section" style="flex:1">
-      <div class="section-title">${labels.patient}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:32px">
+    <div class="section">
+      <div class="section-title">${labels.patientInfo}</div>
       <div class="patient-name">${prescription.patientId?.name || labels.unknownPatient}</div>
+      <div class="patient-email">${prescription.patientId?.email || ''}</div>
+      ${prescription.patientId?.phone ? `<div class="patient-email">${prescription.patientId.phone}</div>` : ''}
     </div>
-    <div class="section" style="flex:1">
+    <div class="section">
       <div class="section-title">${labels.healthcareProvider}</div>
-      <div style="font-size:16px;font-weight:700;color:#111 !important">Dr. ${prescription.doctorId?.name || labels.medicalProfessional}</div>
-      <div style="font-size:13px;color:#374151;margin-top:2px">${prescription.clinicId?.name || labels.privateClinic}</div>
+      <div style="font-size:20px;font-weight:800;color:#111 !important;margin-bottom:4px">Dr. ${prescription.doctorId?.name || labels.medicalProfessional}</div>
+      <div style="font-size:14px;font-weight:700;color:#00b495 !important">${prescription.clinicId?.name || labels.privateClinic}</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:2px">${prescription.clinicId?.address || ''}</div>
     </div>
   </div>
+
   <div class="section">
     <div class="section-title">${labels.diagnosis}</div>
     <div class="diagnosis-box">${prescription.diagnosis || labels.notSpecified}</div>
@@ -89,7 +99,7 @@ function downloadPrescriptionPDF(
 
   ${medicines.length > 0 ? `
   <div class="section">
-    <div class="section-title">${labels.prescribedMedicines} (${medicines.length})</div>
+    <div class="section-title">${labels.prescribedMedicines}</div>
     <table>
       <thead>
         <tr>
@@ -107,29 +117,35 @@ function downloadPrescriptionPDF(
   </div>` : ''}
 
   ${prescription.consultationFee || prescription.medicineCost || prescription.totalCost ? `
-  <div class="section">
+  <div class="section" style="break-inside: avoid">
     <div class="section-title">${labels.paymentDetails}</div>
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:16px;border-radius:12px;margin-top:8px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="color:#374151;font-size:13px">${labels.consultationFee}:</span>
-        <span style="color:#111;font-weight:700;font-size:13px">${pkrLabel} ${Math.round(prescription.consultationFee || 0).toLocaleString()}</span>
+    <div style="background:#f8fafc !important;border:1px solid #e2e8f0;padding:20px;border-radius:16px;margin-top:8px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <span style="color:#4b5563;font-size:14px;font-weight:600">${labels.consultationFee}</span>
+        <span style="color:#111;font-weight:700;font-size:14px">${pkrLabel} ${Math.round(prescription.consultationFee || 0).toLocaleString()}</span>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="color:#374151;font-size:13px">${labels.medicineCost}:</span>
-        <span style="color:#111;font-weight:700;font-size:13px">${pkrLabel} ${Math.round(prescription.medicineCost || 0).toLocaleString()}</span>
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <span style="color:#4b5563;font-size:14px;font-weight:600">${labels.medicineCost}</span>
+        <span style="color:#111;font-weight:700;font-size:14px">${pkrLabel} ${Math.round(prescription.medicineCost || 0).toLocaleString()}</span>
       </div>
-      <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1.5px solid #86efac;margin-top:4px">
-        <span style="color:#000;font-weight:800;font-size:14px">${labels.totalAmount}:</span>
-        <span style="color:#000;font-weight:900;font-size:18px">${pkrLabel} ${Math.round(prescription.totalCost || 0).toLocaleString()}</span>
+      <div style="display:flex;justify-content:space-between;padding-top:12px;border-top:2px dashed #e2e8f0;margin-top:8px">
+        <span style="color:#111;font-weight:900;font-size:16px;text-transform:uppercase">${labels.totalAmount}</span>
+        <span style="color:#00b495;font-weight:900;font-size:22px">${pkrLabel} ${Math.round(prescription.totalCost || 0).toLocaleString()}</span>
       </div>
     </div>
   </div>` : ''}
 
+  <div style="margin-top:80px;display:flex;justify-content:flex-end">
+    <div class="sig-line">
+      ${labels.authorizedSignatory}<br/>
+      <span style="font-size:10px;font-weight:500;color:#6b7280;margin-top:4px;display:block">${labels.doctorSignature}</span>
+    </div>
+  </div>
+
   <div class="footer">
-    <div>${labels.generatedVia} &bull; ${date}</div>
+    <div>${labels.generatedVia} Medeaz ${labels.digitalHealthcarePlatform}</div>
     <div>${labels.officialMedicalRecord}</div>
   </div>
-  <div class="sig-line">${labels.authorizedSignatory}</div>
 </body>
 </html>`;
 
@@ -146,7 +162,34 @@ import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 export default function PrescriptionsPage() {
   const t = useTranslations();
   const locale = useLocale();
-  const { data, isLoading } = useGetPrescriptionsQuery({ limit: 50 });
+  const searchParams = useSearchParams();
+  const searchId = searchParams.get("search");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    if (searchId) {
+      setSearchQuery(searchId);
+      setDebouncedSearch(searchId);
+    }
+  }, [searchId]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const { data, isLoading, isFetching } = useGetPrescriptionsQuery({ 
+    limit: 50,
+    search: (debouncedSearch && debouncedSearch !== searchId) ? debouncedSearch : undefined
+  });
+
+  const { data: specificPrescription, isLoading: isLoadingSpecific } = useGetPrescriptionByIdQuery(searchId, { 
+    skip: !searchId || (data?.data?.prescriptions || []).some((p: any) => p._id === searchId)
+  });
+
   const [deletePrescription] = useDeletePrescriptionMutation();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; patientName: string }>({ open: false, id: '', patientName: '' });
 
@@ -162,8 +205,12 @@ export default function PrescriptionsPage() {
     }
   };
 
-  const prescriptions = data?.data?.prescriptions || [];
-  const [searchQuery, setSearchQuery] = useState("");
+  const prescriptions = [...(data?.data?.prescriptions || [])];
+  
+  if (specificPrescription?.data && !prescriptions.some(p => p._id === specificPrescription.data._id)) {
+    prescriptions.unshift(specificPrescription.data);
+  }
+
   const prescriptionPdfLabels = {
     medicalPrescription: t('prescription.medicalPrescription'),
     digitalHealthcarePlatform: t('prescription.digitalHealthcarePlatform'),
@@ -190,12 +237,16 @@ export default function PrescriptionsPage() {
     notSpecified: t('prescription.notSpecified'),
   };
 
+  // If we have a specific search ID and it's not in the list, we could fetch it directly
+  // But for now, the server-side search should handle it if the backend supports searching by ID.
+  // We'll keep the client-side filter as a secondary layer.
   const filteredPrescriptions = prescriptions.filter((px: any) =>
     px.patientId?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    px.diagnosis?.toLowerCase().includes(searchQuery.toLowerCase())
+    px.diagnosis?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    px._id === searchQuery
   );
 
-  if (isLoading) {
+  if (isLoading || (searchId && isLoadingSpecific)) {
     return <TableSkeleton rows={8} />;
   }
 
@@ -229,8 +280,13 @@ export default function PrescriptionsPage() {
               placeholder={t('common.search') + ' (' + t('doctor.patientName') + ', ' + t('doctor.diagnosis') + ')...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#18181b] border border-black/5 dark:border-white/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm"
+              className="w-full pl-12 pr-12 py-3 bg-white dark:bg-[#18181b] border border-black/5 dark:border-white/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm"
             />
+            {isFetching && (
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                <Loader className="h-4 w-4 text-primary animate-spin" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -291,7 +347,7 @@ export default function PrescriptionsPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-border-light">
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{t('doctor.diagnosis')}</p>
                         <p className="font-bold text-gray-900 dark:text-white text-sm">
@@ -316,12 +372,12 @@ export default function PrescriptionsPage() {
                     </div>
 
                     {prescription.notes && (
-                      <div className="px-5 py-4 bg-orange-50/30 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20">
-                        <p className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                      <div className="px-5 py-4 bg-white dark:bg-zinc-900 rounded-2xl border border-border-light">
+                        <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                           <AlertTriangle className="h-3 w-3" />
                           {t('doctor.notes')}
                         </p>
-                        <p className="text-gray-700 dark:text-gray-300 text-sm font-medium leading-relaxed">{prescription.notes}</p>
+                        <p className="text-text-primary text-sm font-bold leading-relaxed">{prescription.notes}</p>
                       </div>
                     )}
                   </div>

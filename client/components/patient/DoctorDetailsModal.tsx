@@ -285,7 +285,7 @@ export default function DoctorDetailsModal({
               </span>
             </div>
             <p className="text-xs md:text-sm font-bold text-text-primary">
-              {t("contactViaChat")}
+              {doctor.phoneNumber || doctor.userId?.phone || t("contactViaChat")}
             </p>
           </div>
         </div>

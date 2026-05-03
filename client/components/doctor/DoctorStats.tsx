@@ -73,15 +73,15 @@ export default function DoctorStats({
                         className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] transition-all hover:border-primary/30 group shadow-sm flex items-center justify-between min-h-[100px] sm:min-h-[120px] relative"
                     >
                         <div className="flex flex-col justify-center min-w-0 flex-1">
-                            <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
+                            <p className="text-[12px] sm:text-[14px] font-bold text-text-primary dark:text-text-primary tracking-widest mb-1">
                                 {stat.label}
                             </p>
                             <div className="flex items-baseline gap-1.5 min-w-0">
                                 {isRevenue && (
-                                    <span className="text-sm font-bold text-gray-400 shrink-0">{t('common.pkr')}</span>
+                                    <span className="text-sm font-bold text-text-primary shrink-0">{t('common.pkr')}</span>
                                 )}
                                 <p className={cn(
-                                    "text-lg sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white tracking-tight",
+                                    "text-2xl sm:text-3xl font-black text-text-primary dark:text-white tracking-tight",
                                     isRevenue ? "" : "whitespace-nowrap truncate"
                                 )}>
                                     {typeof stat.value === 'string' && stat.value.startsWith(`${t('common.pkr')} `)

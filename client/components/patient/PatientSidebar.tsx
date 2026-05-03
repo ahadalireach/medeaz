@@ -82,7 +82,7 @@ export default function PatientSidebar() {
   };
 
   return (
-    <aside className={`lens-sidebar sticky top-0 self-start hidden lg:flex relative ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
+    <aside className={`lens-sidebar self-start hidden lg:flex flex-col h-screen overflow-y-auto ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
       <button
         onClick={() => dispatch(toggleSidebar())}
         className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full shadow-lg border-2 border-white  z-50 hover:scale-110 transition-transform hidden lg:block`}
@@ -107,7 +107,7 @@ export default function PatientSidebar() {
             Medeaz
           </span>
         </Link>
-        <p className="text-[10px] font-bold leading-none uppercase tracking-widest mt-3 px-1 text-nowrap" style={{ color: '#00b495' }}>
+        <p className="text-[10px] font-bold leading-none tracking-widest mt-3 px-1 text-nowrap" style={{ color: '#00b495' }}>
           {t('nav.patientPortal')}
         </p>
       </div>
@@ -148,10 +148,10 @@ export default function PatientSidebar() {
         })}
       </nav>
 
-      <div className="mt-auto px-5 py-6 space-y-4">
+      <div className={`px-5 py-4 space-y-4 ${isCollapsed ? 'flex justify-center' : ''}`}>
         <button
           onClick={handleLogout}
-          className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-bold transition-all text-red-500 hover:bg-red-500/10 ${isCollapsed ? 'justify-center px-0' : ''}`}
+          className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-bold transition-all text-red-500 hover:bg-red-500/10 ${isCollapsed ? 'justify-center px-0 w-10' : ''}`}
           title={isCollapsed ? t('nav.signOut') : ""}
         >
           <LogOut size={18} strokeWidth={2.5} className="shrink-0" />
@@ -159,8 +159,8 @@ export default function PatientSidebar() {
         </button>
 
         {!isCollapsed && (
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] px-4 text-text-muted">
-              MEDEAZ HEALTHCARE
+          <p className="text-[10px] font-bold tracking-[0.2em] px-4 text-text-muted mt-8">
+              Medeaz Healthcare
           </p>
         )}
       </div>

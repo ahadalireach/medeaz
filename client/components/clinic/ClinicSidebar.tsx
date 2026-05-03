@@ -127,7 +127,7 @@ export default function ClinicSidebar() {
             Medeaz
           </span>
         </Link>
-        <p className="text-[10px] font-bold text-text-secondary leading-none uppercase tracking-widest mt-3 px-1 text-nowrap">
+        <p className="text-[10px] font-bold text-text-secondary leading-none tracking-widest mt-3 px-1 text-nowrap">
           {t("nav.clinicPortal")}
         </p>
       </div>
@@ -180,8 +180,8 @@ export default function ClinicSidebar() {
         </button>
 
         {!isCollapsed && (
-          <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] px-4">
-            MEDEAZ HEALTHCARE
+          <p className="text-[10px] font-bold text-text-secondary tracking-[0.2em] px-4">
+            Medeaz Healthcare
           </p>
         )}
       </div>

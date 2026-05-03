@@ -108,7 +108,7 @@ export default function DoctorSidebar() {
                         Medeaz
                     </span>
                 </Link>
-                <p className="text-[10px] font-bold leading-none uppercase tracking-widest mt-2 px-1 text-nowrap" style={{ color: '#00b495' }}>
+                <p className="text-[10px] font-bold leading-none tracking-widest mt-2 px-1 text-nowrap" style={{ color: '#00b495' }}>
                     {t('nav.doctorPortal')}
                 </p>
             </div>
@@ -160,8 +160,8 @@ export default function DoctorSidebar() {
                 </button>
 
                 {!isCollapsed && (
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] px-4 text-text-muted">
-                        MEDEAZ HEALTHCARE
+                    <p className="text-[10px] font-bold tracking-[0.2em] px-4 text-text-muted">
+                        Medeaz Healthcare
                     </p>
                 )}
             </div>

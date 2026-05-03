@@ -38,6 +38,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const user = useSelector((state: any) => state.auth.user);
     const { unreadCount } = useSelector((state: any) => state.notifications);
+    const settingsLabel = t.has('nav.settings') ? t('nav.settings') : 'Settings';
     const { data: notificationsData } = useGetNotificationsQuery("doctor", { skip: !mounted });
     const dispatch = useDispatch();
     const router = useRouter();
@@ -180,7 +181,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                                 );
                             })}
 
-                            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-8 mb-2">{t('nav.settings')}</p>
+                            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-8 mb-2">{settingsLabel}</p>
                             <Link
                                 href="/dashboard/doctor/profile"
                                 onClick={() => setIsMenuOpen(false)}

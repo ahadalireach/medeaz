@@ -6,6 +6,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { usePathname } from 'next/navigation';
 import { RootState } from '@/store/store';
 import { addNotification } from '@/store/slices/notificationSlice';
+import { patientApi } from '@/store/api/patientApi';
+import { doctorApi } from '@/store/api/doctorApi';
 
 const ChatSocketContext = createContext<any>(null);
 
@@ -55,8 +57,26 @@ export function ChatSocketProvider({ children }: { children: React.ReactNode }) 
         read: false,
         createdAt: data.createdAt || new Date().toISOString(),
         actionUrl: data.actionUrl || data.link,
-        portal: data.portal,
       }));
+    });
+
+    // Handle new connection requests for patients
+    socketRef.current.on('new_connection_request', (data: any) => {
+      // Invalidate connections tag to refresh the list
+      // @ts-ignore
+      dispatch(patientApi.util.invalidateTags(['Connections']));
+      
+      // Also show a toast if available, or just rely on the notification if it's sent as one
+      console.log('New connection request received:', data);
+    });
+
+    // Handle connection request handled for doctors/clinics
+    socketRef.current.on('connection_request_handled', (data: any) => {
+      // Invalidate patients tag to refresh the list
+      // @ts-ignore
+      dispatch(doctorApi.util.invalidateTags(['Patients']));
+      
+      console.log('Connection request handled:', data);
     });
 
     return () => {

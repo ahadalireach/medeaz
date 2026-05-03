@@ -31,7 +31,7 @@ export default function UpcomingFollowUpsWidget({ followUps }: { followUps: any[
                                 <p className="font-semibold text-text-primary">
                                     Follow-up for {followUp.diagnosis}
                                 </p>
-                                <div className="mt-1 flex items-center gap-2 text-sm text-text-secondary">
+                                <div className="mt-1 flex items-center gap-2 text-sm text-text-primary">
                                     <Stethoscope className="h-3.5 w-3.5" />
                                     <span>Dr. {followUp.doctorId?.doctorProfile?.fullName || followUp.doctorId?.name || "Doctor"}</span>
                                 </div>
@@ -43,7 +43,7 @@ export default function UpcomingFollowUpsWidget({ followUps }: { followUps: any[
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4 text-xs font-medium text-text-secondary">
+                        <div className="flex items-center gap-4 text-xs font-medium text-text-primary">
                             {followUp.clinicId && (
                                 <div className="flex items-center gap-1">
                                     <Building2 className="h-3.5 w-3.5" />

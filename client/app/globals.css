@@ -428,6 +428,45 @@ html[data-lang="ur"] {
   line-height: 1.6;
 }
 
+/* Increase Urdu font sizes for better readability */
+[data-lang="ur"] h1 {
+  font-size: 1.1em;
+  line-height: 1.5;
+}
+
+[data-lang="ur"] h2 {
+  font-size: 1.08em;
+  line-height: 1.5;
+}
+
+[data-lang="ur"] h3 {
+  font-size: 1.05em;
+  line-height: 1.5;
+}
+
+[data-lang="ur"] h4,
+[data-lang="ur"] h5,
+[data-lang="ur"] h6 {
+  font-size: 1.02em;
+  line-height: 1.5;
+}
+
+[data-lang="ur"] p,
+[data-lang="ur"] div,
+[data-lang="ur"] span,
+[data-lang="ur"] li {
+  font-size: 1em;
+  line-height: 1.7;
+}
+
+[data-lang="ur"] button,
+[data-lang="ur"] input,
+[data-lang="ur"] textarea,
+[data-lang="ur"] select,
+[data-lang="ur"] label {
+  font-size: 1em;
+}
+
 /* Recharts Visibility Fixes - Standardized across all dashboards */
 .recharts-tooltip-wrapper .recharts-default-tooltip {
   @apply !bg-[#0F4C5C] !border-none !rounded-xl !shadow-2xl !p-4 !backdrop-blur-md;

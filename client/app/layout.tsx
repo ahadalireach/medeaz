@@ -59,7 +59,10 @@ export default function RootLayout({
         <StoreProvider>
           <LanguageProvider>
             {children}
-            <Toaster />
+            <Toaster
+              containerStyle={{ zIndex: 99999 }}
+              toastOptions={{ style: { zIndex: 99999 } }}
+            />
           </LanguageProvider>
         </StoreProvider>
       </body>

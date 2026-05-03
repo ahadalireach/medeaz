@@ -42,7 +42,7 @@ export default function DoctorStatsModal({
                 <Calendar className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-text-primary uppercase tracking-widest">
                   {t('clinic.doctorPortal.appointmentsCompleted')}
                 </p>
                 <p className="text-2xl font-black text-text-primary">
@@ -58,7 +58,7 @@ export default function DoctorStatsModal({
                 <Clock className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-text-primary uppercase tracking-widest">
                   {t('clinic.doctorPortal.avgVisitTime')}
                 </p>
                 <p className="text-2xl font-black text-text-primary">
@@ -74,7 +74,7 @@ export default function DoctorStatsModal({
                 <DollarSign className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-text-primary uppercase tracking-widest">
                    {t('clinic.totalRevenue')}
                 </p>
                 <p className="text-2xl font-black text-text-primary">
@@ -91,7 +91,7 @@ export default function DoctorStatsModal({
                   <Star className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+                  <p className="text-[10px] font-bold text-text-primary uppercase tracking-widest">
                     {t('clinic.doctorPortal.patientSatisfaction')}
                   </p>
                   <p className="text-2xl font-black text-text-primary">

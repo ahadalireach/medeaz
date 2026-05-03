@@ -38,14 +38,14 @@ export default function RevenueChart() {
         <div>
           <CardTitle className="text-xl">{t('analytics.revenueByPeriod')}</CardTitle>
         </div>
-        <div className="flex bg-background p-1 rounded-2xl border border-black/5">
+        <div className="flex bg-surface p-1 rounded-2xl border border-black/5">
           {(["week", "month", "year"] as const).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p
                 ? "bg-white  text-primary shadow-sm"
-                : "text-text-secondary hover:text-text-secondary :text-white/70"
+                : "text-text-primary hover:text-text-primary :text-white/70"
                 }`}
             >
               {t(`analytics.${p}`)}
@@ -56,7 +56,7 @@ export default function RevenueChart() {
 
       <CardContent>
         {isLoading ? (
-          <div className="h-72 bg-background rounded-[2rem] animate-pulse"></div>
+          <div className="h-72 bg-surface rounded-[2rem] animate-pulse"></div>
         ) : (
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">

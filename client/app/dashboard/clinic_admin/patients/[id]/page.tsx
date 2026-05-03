@@ -9,7 +9,7 @@ export default function PatientProfilePage() {
 
   return (
     <div className="space-y-6">
-      <PatientProfileView patientId={patientId} />
+      <PatientProfileView patientId={patientId} hideDownload={true} />
     </div>
   );
 }

@@ -51,6 +51,8 @@ export default function DoctorRevenueChart() {
         return t.has(translationKey) ? t(translationKey) : raw;
     };
 
+    const totalRevenueLabel = t.has('analytics.totalRevenue') ? t('analytics.totalRevenue') : 'Total Revenue';
+
     return (
         <Card className="overflow-hidden">
             <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -69,7 +71,7 @@ export default function DoctorRevenueChart() {
                             onClick={() => setPeriod(p.id as any)}
                             className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p.id
                                 ? "bg-white dark:bg-white/10 text-primary shadow-sm"
-                                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                : "text-text-primary hover:text-gray-600 dark:hover:text-gray-200"
                                 }`}
                         >
                             {p.label}
@@ -125,7 +127,7 @@ export default function DoctorRevenueChart() {
                                         if (period === 'day') return getDayLabel(val);
                                         return getMonthLabel(val);
                                     }}
-                                    formatter={(value: any) => [`${value?.toLocaleString()} ${t('common.pkr')}`, t('analytics.totalRevenue')]}
+                                    formatter={(value: any) => [`${value?.toLocaleString()} ${t('common.pkr')}`, totalRevenueLabel]}
                                 />
                                 <Bar
                                     dataKey="revenue"

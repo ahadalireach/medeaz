@@ -48,9 +48,9 @@ export default function DoctorLayout({
 
   return (
     <ChatSocketProvider>
-      <div className="flex flex-col min-h-screen relative" style={{ background: '#f6f8f8' }}>
+      <div className="flex flex-col min-h-screen relative print:block" style={{ background: '#f6f8f8' }}>
         {/* Inline background pattern — absolute inside relative works, fixed -z-10 does NOT due to body paint */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none select-none z-0" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <svg className="absolute inset-0 w-full h-full pointer-events-none select-none z-0 print:hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden>
           <defs>
             <pattern id="doc-diag" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
               <line x1="0" y1="0" x2="0" y2="60" stroke="#0F4C5C" strokeWidth="0.6"/>
@@ -82,18 +82,24 @@ export default function DoctorLayout({
           <rect width="100%" height="100%" fill="url(#doc-diag)" opacity="0.1"/>
           <rect width="100%" height="100%" fill="url(#doc-icons)" opacity="0.18"/>
         </svg>
-        <div className="relative z-10 flex flex-1 transition-colors duration-300 w-full">
-          <DoctorSidebar />
-          <div className="flex-1 flex flex-col">
-            <DoctorTopbar title={t('nav.doctorDashboard')} />
+        <div className="relative z-10 flex flex-1 transition-colors duration-300 w-full print:block">
+          <div className="print:hidden">
+            <DoctorSidebar />
+          </div>
+          <div className="flex-1 flex flex-col print:block">
+            <div className="print:hidden">
+              <DoctorTopbar title={t('nav.doctorDashboard')} />
+            </div>
             <OnboardingGate role="doctor">
-              <main className="flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300">
-                <div className="max-w-7xl mx-auto">
+              <main className="flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 print:p-0 print:m-0">
+                <div className="max-w-7xl mx-auto print:max-w-none">
                   {children}
                 </div>
               </main>
             </OnboardingGate>
-            <Footer/>
+            <div className="print:hidden">
+              <Footer/>
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useCreatePatientMutation, useSearchPatientsQuery } from "@/store/api/doctorApi";
+import { useCreatePatientMutation, useSearchPatientsQuery, useFindPatientByEmailQuery } from "@/store/api/doctorApi";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, User, Mail, Phone, Calendar, Droplet, MapPin, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -13,7 +13,8 @@ export default function NewPatientPage() {
   const router = useRouter();
   const [createPatient, { isLoading }] = useCreatePatientMutation();
   const [activeTab, setActiveTab] = useState<'create' | 'link'>('create');
-  
+  const [imageError, setImageError] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,10 +27,10 @@ export default function NewPatientPage() {
     photo: "",
   });
 
-  const { data: searchData, isFetching: isSearching } = useSearchPatientsQuery(formData.email, {
+  const { data: searchData, isFetching: isSearching } = useFindPatientByEmailQuery(formData.email, {
     skip: activeTab !== 'link' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
   });
-  const foundPatient = searchData?.data?.[0];
+  const foundPatient = searchData?.data?.found ? searchData?.data?.patient : null;
 
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
@@ -55,6 +56,7 @@ export default function NewPatientPage() {
   const set = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
+    if (field === 'email') setImageError(false);
   };
 
   const validateLink = () => {
@@ -170,21 +172,19 @@ export default function NewPatientPage() {
       <div className="flex gap-2 p-1.5 bg-gray-100 dark:bg-gray-800/50 rounded-2xl w-fit border border-gray-200 dark:border-gray-700">
         <button
           onClick={() => setActiveTab('create')}
-          className={`px-6 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${
-            activeTab === 'create' 
-            ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' 
+          className={`px-6 py-2 rounded-xl text-sm font-bold tracking-wider transition-all ${activeTab === 'create'
+            ? 'bg-white dark:bg-gray-700 text-primary shadow-sm'
             : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
+            }`}
         >
           {t('doctor.patients.newPage.createNew')}
         </button>
         <button
           onClick={() => setActiveTab('link')}
-          className={`px-6 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${
-            activeTab === 'link' 
-            ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' 
+          className={`px-6 py-2 rounded-xl text-sm font-bold tracking-wider transition-all ${activeTab === 'link'
+            ? 'bg-white dark:bg-gray-700 text-primary shadow-sm'
             : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
+            }`}
         >
           {t('doctor.patients.newPage.linkExisting')}
         </button>
@@ -195,7 +195,7 @@ export default function NewPatientPage() {
         <div className="space-y-6">
           {activeTab === 'link' ? (
             <div className="py-4">
-              <label className="block text-sm font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-tighter">
+              <label className="block text-sm font-bold text-gray-400 dark:text-gray-500 mb-3 tracking-tighter">
                 {t('doctor.patients.newPage.registeredEmail')} <span className="text-primary">*</span>
               </label>
               <div className="relative">
@@ -217,23 +217,30 @@ export default function NewPatientPage() {
               {foundPatient && (
                 <div className="mt-6 flex items-center gap-5 p-5 bg-primary/5 rounded-3xl border-2 border-primary/20 animate-in slide-in-from-top-4 duration-500 shadow-sm shadow-primary/5">
                   <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-sm shrink-0">
-                    {foundPatient.photo ? (
-                      <img src={foundPatient.photo.startsWith('http') ? foundPatient.photo : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${foundPatient.photo}`} alt="" className="h-full w-full object-cover" />
+                    {!imageError && (foundPatient.photo || foundPatient.profilePhoto) ? (
+                      <img 
+                        src={(foundPatient.photo || foundPatient.profilePhoto).startsWith('http') 
+                          ? (foundPatient.photo || foundPatient.profilePhoto) 
+                          : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${(foundPatient.photo || foundPatient.profilePhoto).startsWith('/') ? (foundPatient.photo || foundPatient.profilePhoto).substring(1) : (foundPatient.photo || foundPatient.profilePhoto)}`} 
+                        alt={foundPatient.name}
+                        onError={() => setImageError(true)}
+                        className="h-full w-full object-cover" 
+                      />
                     ) : (
-                      <div className="h-full w-full bg-primary/10 flex items-center justify-center text-primary">
-                        <User className="h-8 w-8" />
+                      <div className="h-full w-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl">
+                        {foundPatient.name?.charAt(0).toUpperCase() || <User className="h-8 w-8" />}
                       </div>
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <h4 className="font-bold text-gray-900 dark:text-white text-lg tracking-tight truncate">{foundPatient.name}</h4>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                      <p className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1">
+                      <p className="text-xs font-bold text-primary  tracking-wider flex items-center gap-1">
                         <Mail className="h-3 w-3" />
                         {foundPatient.email}
                       </p>
                       {foundPatient.phone && (
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                        <p className="text-xs font-bold text-slate-500  tracking-wider flex items-center gap-1">
                           <Phone className="h-3 w-3" />
                           {foundPatient.phone}
                         </p>
@@ -241,14 +248,14 @@ export default function NewPatientPage() {
                     </div>
                   </div>
                   <div className="hidden sm:block">
-                    <span className="bg-primary text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-md shadow-primary/20">{t('doctor.patients.newPage.memberFound')}</span>
+                    <span className="bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wider shadow-md shadow-primary/20">{t('doctor.patients.newPage.memberFound')}</span>
                   </div>
                 </div>
               )}
 
               <p className="mt-4 text-xs font-medium text-slate-500 ">
-                {foundPatient 
-                  ? t('doctor.patients.newPage.patientFoundApprove') 
+                {foundPatient
+                  ? t('doctor.patients.newPage.patientFoundApprove')
                   : t('doctor.patients.newPage.searchPatientApprove')}
               </p>
             </div>
@@ -425,17 +432,17 @@ export default function NewPatientPage() {
           )}
 
           {/* Buttons */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-3 pt-4">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-fit px-10 py-3.5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all disabled:opacity-50 whitespace-nowrap text-sm sm:text-base"
+              className="w-fit px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all disabled:opacity-50 whitespace-nowrap text-xs"
             >
               {isLoading ? t('doctor.patients.newPage.processing') : activeTab === 'create' ? t('doctor.patients.newPage.enlistNewPatient') : t('doctor.patients.newPage.sendConnectionRequest')}
             </button>
             <Link
               href="/dashboard/doctor/patients"
-              className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+              className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-xs"
             >
               {t('common.cancel')}
             </Link>

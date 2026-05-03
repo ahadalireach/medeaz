@@ -81,94 +81,103 @@ function UploadModal({ isOpen, onClose }: UploadModalProps) {
     <div className="fixed inset-0 z-50 m-0 p-4" style={{ zIndex: 10000 }} aria-modal="true" role="dialog">
       <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" onClick={onClose} />
       <div className="relative flex min-h-full items-center justify-center">
-        <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-7 w-full max-w-xl border border-black/5 animate-in zoom-in-95 duration-300 relative">
-        <div className="flex items-center justify-between mb-8">
+        <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-7 w-full max-w-md border border-black/5 animate-in zoom-in-95 duration-300 relative overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="flex items-center justify-between mb-8 shrink-0">
           <div>
             <h3 className="text-2xl font-black text-text-primary tracking-tight">{t('patient.records.uploadTitle')}</h3>
             <p className="text-sm font-bold text-text-secondary uppercase tracking-widest mt-1">{t('patient.records.newEntry')}</p>
           </div>
-          <button onClick={onClose} className="h-10 w-10 rounded-full hover:bg-surface :bg-white/5 flex items-center justify-center transition-colors">
+          <button onClick={onClose} className="h-10 w-10 rounded-full hover:bg-surface flex items-center justify-center transition-colors">
             <XIcon className="h-5 w-5 text-text-secondary" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-1">{t('form.name')}</label>
-            <input
-              type="text"
-              placeholder={t('patient.records.placeholders.title')}
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full rounded-2xl border-black/5 bg-background p-4 text-sm font-medium focus:ring-primary focus:border-primary transition-all"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+        <div className="flex-1 overflow-y-auto pr-2 -mr-2 scrollbar-hide">
+          <form id="upload-record-form" onSubmit={handleSubmit} className="space-y-3 pb-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-1">{t('patient.records.recordType')}</label>
-              <select
-                value={formData.recordType}
-                onChange={(e) => setFormData({ ...formData, recordType: e.target.value })}
-                className="w-full rounded-2xl border-black/5 bg-background p-4 text-sm font-medium focus:ring-primary focus:border-primary transition-all appearance-none"
-              >
-                <option value="Lab Report">{t('patient.records.categories.lab')}</option>
-                <option value="Imaging (X-Ray/MRI)">{t('patient.records.categories.imaging')}</option>
-                <option value="Vaccination">{t('patient.records.categories.vaccination')}</option>
-                <option value="Prescription">{t('patient.records.categories.prescription')}</option>
-                <option value="Discharge Summary">{t('patient.records.categories.discharge')}</option>
-                <option value="Other">{t('patient.records.categories.other')}</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-1">{t('patient.records.recordDate')}</label>
+              <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-1">{t('form.name')}</label>
               <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full rounded-2xl border-black/5 bg-background p-4 text-sm font-medium focus:ring-primary focus:border-primary transition-all"
+                type="text"
+                placeholder={t('patient.records.placeholders.title')}
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full rounded-2xl border-black/5 bg-background p-3 text-sm font-medium focus:ring-primary focus:border-primary transition-all"
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-1">{t('patient.records.notes')}</label>
-            <textarea
-              placeholder={t('patient.records.placeholders.notes')}
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full rounded-2xl border-black/5 bg-background p-4 text-sm font-medium focus:ring-primary focus:border-primary transition-all h-24 resize-none"
-            />
-          </div>
-
-          <div className="relative group">
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            />
-            <div className={`p-8 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all ${formData.fileUrl ? 'border-primary bg-primary/5' : 'border-black/5  bg-background  group-hover:border-primary/50'}`}>
-              {formData.fileUrl ? (
-                <div className="relative group w-full h-32">
-                   <img src={formData.fileUrl} alt="Preview" className="w-full h-full object-contain rounded-xl" />
-                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
-                      <p className="text-white text-xs font-bold">{t('common.edit')}</p>
-                   </div>
-                </div>
-              ) : (
-                <>
-                  <Upload className="h-8 w-8 mb-2 text-text-secondary" />
-                  <p className="text-sm font-bold text-text-primary">{t('patient.records.dragDrop')}</p>
-                  <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-1">{t('patient.records.supportedFormats')}</p>
-                </>
-              )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-1">{t('patient.records.recordType')}</label>
+                <select
+                  value={formData.recordType}
+                  onChange={(e) => setFormData({ ...formData, recordType: e.target.value })}
+                  className="w-full rounded-2xl border-black/5 bg-background p-3 text-sm font-medium focus:ring-primary focus:border-primary transition-all appearance-none"
+                >
+                  <option value="Lab Report">{t('patient.records.categories.lab')}</option>
+                  <option value="Imaging (X-Ray/MRI)">{t('patient.records.categories.imaging')}</option>
+                  <option value="Vaccination">{t('patient.records.categories.vaccination')}</option>
+                  <option value="Prescription">{t('patient.records.categories.prescription')}</option>
+                  <option value="Discharge Summary">{t('patient.records.categories.discharge')}</option>
+                  <option value="Other">{t('patient.records.categories.other')}</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-1">{t('patient.records.recordDate')}</label>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  className="w-full rounded-2xl border-black/5 bg-background p-3 text-sm font-medium focus:ring-primary focus:border-primary transition-all"
+                />
+              </div>
             </div>
-          </div>
 
-          <Button type="submit" disabled={isLoading} className="w-full h-14 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-1">{t('patient.records.notes')}</label>
+              <textarea
+                placeholder={t('patient.records.placeholders.notes')}
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                className="w-full rounded-2xl border-black/5 bg-background p-3 text-sm font-medium focus:ring-primary focus:border-primary transition-all h-20 resize-none"
+              />
+            </div>
+
+            <div className="relative group">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              <div className={`p-5 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all ${formData.fileUrl ? 'border-primary bg-primary/5' : 'border-black/5  bg-background  group-hover:border-primary/50'}`}>
+                {formData.fileUrl ? (
+                  <div className="relative group w-full h-28">
+                     <img src={formData.fileUrl} alt="Preview" className="w-full h-full object-contain rounded-xl" />
+                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                        <p className="text-white text-xs font-bold">{t('common.edit')}</p>
+                     </div>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 mb-2 text-text-secondary" />
+                    <p className="text-sm font-bold text-text-primary">{t('patient.records.dragDrop')}</p>
+                    <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-1">{t('patient.records.supportedFormats')}</p>
+                  </>
+                )}
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div className="pt-6 shrink-0">
+          <Button 
+            type="submit" 
+            form="upload-record-form"
+            disabled={isLoading} 
+            className="w-full h-14 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
+          >
             {isLoading ? t('patient.records.uploading') : t('patient.records.saveVault')}
           </Button>
-        </form>
+        </div>
         </div>
       </div>
     </div>,

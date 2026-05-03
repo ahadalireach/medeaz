@@ -14,7 +14,7 @@ exports.getDoctors = asyncHandler(async (req, res) => {
     path: "doctors",
     populate: {
       path: "userId",
-      select: "name email photo",
+      select: "name email photo phone",
     },
   });
 
@@ -162,10 +162,14 @@ exports.getDoctorStats = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Clinic not found for this user");
   }
 
-  const doctor = await Doctor.findById(id);
+  // Try finding by Doctor ID first, then by User ID
+  let doctor = await Doctor.findById(id);
+  if (!doctor) {
+    doctor = await Doctor.findOne({ userId: id });
+  }
 
   if (!doctor) {
-    throw new ApiError(404, "Doctor not found");
+    throw new ApiError(404, `Doctor not found with ID: ${id}`);
   }
 
   const completedAppointments = await Appointment.countDocuments({

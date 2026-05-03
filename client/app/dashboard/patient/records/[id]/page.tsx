@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRef, useState, useEffect } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import NextImage from "next/image";
 import { useDeleteRecordMutation, useGetRecordDetailQuery } from "@/store/api/patientApi";
 import {
@@ -30,12 +30,20 @@ export default function RecordDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
+  const printableRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { data, isLoading } = useGetRecordDetailQuery(id);
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
   const prescription = data?.data;
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!isLoading && prescription && searchParams.get("print") === "true") {
+      handlePrint();
+    }
+  }, [isLoading, prescription, searchParams]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -47,8 +55,76 @@ export default function RecordDetailPage() {
     });
   };
 
+  const getGenderLabel = (gender?: string) => {
+    if (!gender) return "N/A";
+    const key = `form.${gender.toLowerCase()}`;
+    return t.has(key) ? t(key) : gender;
+  };
+
+  const patientInfoLabel = t.has("prescription.patientInfo") ? t("prescription.patientInfo") : t("patient.profile.info");
+  const issueDateLabel = t.has("prescription.issueDate") ? t("prescription.issueDate") : "Issue Date";
+  const doctorSignatureLabel = t.has("prescription.doctorSignature") ? t("prescription.doctorSignature") : "Doctor Signature";
+
   const handlePrint = () => {
-    window.print();
+    const printWindow = window.open("", "_blank", "noopener,noreferrer,width=900,height=700");
+
+    if (!printWindow || !printableRef.current) {
+      window.print();
+      return;
+    }
+
+    const copiedHead = document.head.innerHTML;
+    const printableContent = printableRef.current.outerHTML;
+
+    printWindow.document.open();
+    printWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <title>${document.title}</title>
+          ${copiedHead}
+          <style>
+            @media print {
+              @page { size: auto; margin: 15mm; }
+              body { background: white !important; padding: 0 !important; margin: 0 !important; }
+              .print\\:hidden { display: none !important; }
+              .print\\:block { display: block !important; }
+              .print\\:border-none { border: none !important; }
+              .print\\:shadow-none { box-shadow: none !important; }
+              .print\\:p-0 { padding: 0 !important; }
+              .print\\:mb-0 { margin-bottom: 0 !important; }
+              .print\\:mb-2 { margin-bottom: 0.5rem !important; }
+              .print\\:mb-6 { margin-bottom: 1.5rem !important; }
+              .print\\:pt-0 { padding-top: 0 !important; }
+              .print\\:text-sm { font-size: 0.875rem !important; }
+              .print\\:text-xs { font-size: 0.75rem !important; }
+              .print\\:text-\\[9px\\] { font-size: 9px !important; }
+              .print\\:text-\\[10px\\] { font-size: 10px !important; }
+              .print\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+              .print\\:break-inside-avoid { break-inside: avoid !important; }
+              
+              /* Ensure colors are printed */
+              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              
+              /* Signature block alignment */
+              .min-w-50 { min-width: 200px !important; }
+            }
+          </style>
+        </head>
+        <body class="bg-white">
+          <div class="p-8">
+            ${printableContent}
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
   };
 
   const handleDelete = async () => {
@@ -116,7 +192,7 @@ export default function RecordDetailPage() {
       </div>
 
       {/* Prescription Details */}
-      <div className="rounded-3xl sm:rounded-[2.5rem] border border-black/5 bg-white p-4 sm:p-8 lg:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+      <div ref={printableRef} className="rounded-3xl sm:rounded-[2.5rem] border border-black/5 bg-white p-4 sm:p-8 lg:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
         {/* Header Section */}
         <div className="mb-8 border-b border-border-light pb-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
@@ -188,7 +264,7 @@ export default function RecordDetailPage() {
         {/* Patient Info - Single line for print */}
         <div className="mb-8 rounded-lg border border-border-light p-6 print:mb-6 print:border-none print:p-0">
           <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary print:mb-2 border-b border-border-light pb-2 print:border-border-light">
-            {t("prescription.patientInfo")}
+            {patientInfoLabel}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-x-10 pt-1 print:pt-0">
             <div className="flex items-center gap-2">
@@ -204,9 +280,7 @@ export default function RecordDetailPage() {
                 {t("form.gender")}:
               </span>
               <span className="text-sm font-bold text-text-primary capitalize print:text-sm">
-                {prescription.patientId?.gender
-                  ? t(`form.${prescription.patientId.gender}`)
-                  : "N/A"}
+                {getGenderLabel(prescription.patientId?.gender)}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -304,7 +378,7 @@ export default function RecordDetailPage() {
                   (attachment: any, index: number) => (
                     <div
                       key={index}
-                      className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border-light bg-background group cursor-pointer"
+                      className="relative aspect-4/3 overflow-hidden rounded-2xl border border-border-light bg-background group cursor-pointer"
                       onClick={() => setSelectedImage(attachment.fileUrl)}
                     >
                       <NextImage
@@ -329,7 +403,7 @@ export default function RecordDetailPage() {
                 title={t("prescription.uploadedDocuments")}
                 size="xl"
               >
-                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-black flex items-center justify-center">
+                <div className="relative w-full aspect-4/3 rounded-2xl overflow-hidden bg-black flex items-center justify-center">
                   {selectedImage && (
                     <NextImage
                       src={selectedImage}
@@ -380,7 +454,7 @@ export default function RecordDetailPage() {
                       <img
                         src={attachment.fileUrl}
                         alt={attachment.fileName || `Attachment ${index + 1}`}
-                        className="w-full h-auto max-h-[260px] object-contain"
+                        className="w-full h-auto max-h-65 object-contain"
                       />
                       <p className="mt-1 text-[10px] text-text-secondary">
                         {attachment.fileName || `Attachment ${index + 1}`}
@@ -398,16 +472,16 @@ export default function RecordDetailPage() {
           <div className="flex justify-between items-end">
             <div className="space-y-1">
               <p className="text-[10px] font-bold uppercase text-text-secondary">
-                {t("prescription.issueDate")}
+                {issueDateLabel}
               </p>
               <p className="text-sm font-bold">
                 {formatDate(prescription.createdAt)}
               </p>
             </div>
-            <div className="text-center min-w-[200px] space-y-4">
+            <div className="text-center min-w-50 space-y-4">
               <div className="h-px bg-ink-soft w-full mb-1"></div>
               <p className="text-sm font-black uppercase tracking-[0.2em] mb-4">
-                {t("prescription.doctorSignature")}
+                {doctorSignatureLabel}
               </p>
             </div>
           </div>

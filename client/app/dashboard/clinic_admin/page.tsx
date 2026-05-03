@@ -15,14 +15,16 @@ export default function ClinicDashboard() {
         <h1 className="text-3xl font-bold text-text-primary">
           {t('nav.dashboard')}
         </h1>
-        <p className="text-text-secondary mt-2 text-lg font-medium">
-          {t('clinic.dashboard.welcomeBack')} {user?.name?.split(' ')[0] || 'Member'}
-        </p>
+        {user && (
+          <p className="text-text-secondary mt-2 text-lg font-medium">
+            {t('clinic.dashboard.welcomeBack')} {user.name?.split(' ')[0] || 'Member'}
+          </p>
+        )}
       </div>
 
       <OverviewCards />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
         <PatientFlowChart />
         <RevenueChart />
       </div>

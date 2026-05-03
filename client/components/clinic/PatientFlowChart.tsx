@@ -20,7 +20,7 @@ export default function PatientFlowChart() {
 
   if (isLoading) {
     return (
-      <div className="h-80 bg-background rounded-[2.5rem] animate-pulse"></div>
+      <div className="h-80 bg-surface rounded-[2.5rem] animate-pulse"></div>
     );
   }
 
@@ -36,7 +36,7 @@ export default function PatientFlowChart() {
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="text-xl">{t('clinic.dashboard.todaysOverview')}</CardTitle>
-        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-1">
+        <p className="text-[10px] font-bold text-text-primary tracking-widest mt-1">
           {t('analytics.patientFlow')}
         </p>
       </CardHeader>

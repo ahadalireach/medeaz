@@ -23,7 +23,7 @@ export default function SpentChart({ data }: SpentChartProps) {
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="text-xl">{t('patient.revenue.title')}</CardTitle>
-        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-1">
+        <p className="text-[10px] font-bold text-text-primary uppercase tracking-widest mt-1">
           {t('patient.revenue.subtitle')}
         </p>
       </CardHeader>

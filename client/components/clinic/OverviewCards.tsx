@@ -49,7 +49,7 @@ export default function OverviewCards() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] animate-pulse min-h-[120px]">
             <div className="flex items-center justify-between">
@@ -66,7 +66,7 @@ export default function OverviewCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
       {stats.map((stat) => {
         const Icon = stat.icon;
         
@@ -87,14 +87,14 @@ export default function OverviewCards() {
           >
             <div className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] transition-all hover:border-primary/30 shadow-sm flex items-center justify-between min-h-[100px] sm:min-h-[120px] relative overflow-hidden">
               <div className="flex flex-col justify-center min-w-0 flex-1">
-                <p className="text-[9px] sm:text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">
+                <p className="text-[11px] sm:text-[12px] font-bold text-text-primary tracking-widest mb-1">
                   {stat.label}
                 </p>
                 <div className="flex items-baseline gap-1.5 min-w-0">
                   {stat.isAmount && (
-                    <span className="text-sm font-bold text-text-secondary shrink-0">{t('common.pkr')}</span>
+                    <span className="text-sm font-bold text-text-primary shrink-0">{t('common.pkr')}</span>
                   )}
-                  <p className="text-lg sm:text-xl lg:text-2xl font-black text-text-primary tracking-tight truncate">
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-black text-text-primary tracking-tight truncate">
                     {stat.value}
                   </p>
                 </div>

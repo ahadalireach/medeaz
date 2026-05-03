@@ -98,7 +98,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
       <CardContent>
         {appointments.length === 0 ? (
           <div className="text-center py-8">
-            <p className="mb-4 text-sm text-text-secondary">
+            <p className="mb-4 text-sm text-text-primary">
               {t('patient.dashboard.noUpcoming')}
             </p>
             <Link
@@ -120,7 +120,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
                     <p className="font-bold text-text-primary">
                       {t('patient.bookAppointmentPage.doctorPrefix')} {getDoctorName(appointment)}
                     </p>
-                    <p className="text-sm font-medium text-text-secondary">
+                    <p className="text-sm font-medium text-text-primary">
                       {appointment.doctorId?.doctorProfile?.specialization || t('appointment.doctor')}
                     </p>
                   </div>
@@ -130,7 +130,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
                     {getStatusLabel(appointment.status)}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-text-secondary flex-wrap font-medium">
+                <div className="flex items-center gap-4 text-sm text-text-primary flex-wrap font-medium">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-4 w-4 text-primary" />
                     {appointment.dateTime ? formatDate(appointment.dateTime) : "TBD"}
@@ -141,7 +141,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
                   </div>
                 </div>
                 {appointment.clinicId?.name && (
-                  <div className="mt-3 space-y-1 text-xs font-bold text-text-secondary">
+                  <div className="mt-3 space-y-1 text-xs font-bold text-text-primary">
                     <div className="flex items-center gap-1.5">
                       <Building2 className="h-3.5 w-3.5" />
                       {appointment.clinicId.name}
@@ -153,7 +153,7 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
                   </div>
                 )}
                 {!appointment.clinicId?.name && (
-                  <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-text-secondary">
+                  <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-text-primary">
                     <Building2 className="h-3.5 w-3.5" />
                     {t('appointment.clinic')}
                   </div>

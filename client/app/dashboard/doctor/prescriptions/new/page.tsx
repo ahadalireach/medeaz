@@ -360,7 +360,7 @@ function NewPrescriptionInner() {
             1
           </div>
           <span className="font-semibold text-xs md:text-base hidden sm:inline">{t('doctor.prescriptions.selectPatient')}</span>
-          <span className="font-semibold text-xs sm:hidden">{t('common.filter')}</span>
+          <span className="font-semibold text-xs sm:hidden">{t('common.filter.all')}</span>
         </div>
         <div className="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 min-w-5"></div>
         <div className={`flex items-center gap-1 md:gap-2 ${step === "record" ? "text-primary" : step === "review" ? "text-green-600" : "text-gray-500 dark:text-gray-400"}`}>

@@ -52,7 +52,7 @@ export default function RecentPrescriptions({ prescriptions }: RecentPrescriptio
       </CardHeader>
       <CardContent>
         {prescriptions.length === 0 ? (
-          <p className="text-sm text-text-secondary py-4">
+          <p className="text-sm text-text-primary py-4">
             {t('patient.records.noRecords')}
           </p>
         ) : (
@@ -68,17 +68,17 @@ export default function RecentPrescriptions({ prescriptions }: RecentPrescriptio
                     <p className="mt-1 text-sm font-bold text-text-primary">
                       {prescription.diagnosis}
                     </p>
-                    <p className="mt-1.5 text-[13px] font-semibold text-text-secondary leading-tight">
+                    <p className="mt-1.5 text-[13px] font-semibold text-text-primary leading-tight">
                       {t('patient.bookAppointmentPage.doctorPrefix')} {prescription.doctorId?.doctorProfile?.fullName || prescription.doctorId?.name}
                     </p>
-                    <p className="text-[11px] font-medium text-text-secondary italic">
+                    <p className="text-[11px] font-medium text-text-primary italic">
                       {prescription.doctorId?.doctorProfile?.specialization || t('appointment.doctor')}
                     </p>
                     <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-black/5 pt-3">
                       <span className="text-[10px] sm:text-xs font-black text-primary uppercase tracking-widest truncate max-w-[120px] sm:max-w-[150px]">
                         {prescription.clinicId?.name}
                       </span>
-                      <span className="text-[10px] sm:text-xs font-bold text-text-secondary shrink-0">
+                      <span className="text-[10px] sm:text-xs font-bold text-text-primary shrink-0">
                         {formatDate(prescription.createdAt)}
                       </span>
                     </div>

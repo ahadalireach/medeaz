@@ -89,9 +89,9 @@ const PAKISTANI_CITIES = [
 ].sort();
 
 const MEDICAL_SPECIALTIES = [
-    "General Physician", "Cardiologist", "Dermatologist", "Pediatrician", 
-    "Orthopedic Surgeon", "Gynecologist", "Neurologist", "Ophthalmologist", 
-    "ENT Specialist", "Psychiatrist", "Radiologist", "Urologist", 
+    "General Physician", "Cardiologist", "Dermatologist", "Pediatrician",
+    "Orthopedic Surgeon", "Gynecologist", "Neurologist", "Ophthalmologist",
+    "ENT Specialist", "Psychiatrist", "Radiologist", "Urologist",
     "Dentist", "Nutritionist", "Homeopath", "Physiotherapist"
 ].sort();
 
@@ -231,10 +231,10 @@ export default function DoctorProfilePage() {
                     <p className="text-gray-500 dark:text-gray-400 mt-1 text-center sm:text-left">{t('doctor.profile.subtitle')}</p>
                 </div>
                 {profileData?.data?.isVerified && (
-                  <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full border border-primary/20">
-                      <ShieldCheckIcon size={16} />
-                      <span className="text-xs font-bold uppercase tracking-wider">{t('doctor.profile.verified')}</span>
-                  </div>
+                    <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full border border-primary/20">
+                        <ShieldCheckIcon size={16} />
+                        <span className="text-xs font-bold uppercase tracking-wider">{t('doctor.profile.verified')}</span>
+                    </div>
                 )}
             </div>
 
@@ -280,7 +280,7 @@ export default function DoctorProfilePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col space-y-1">
                                 <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">{t('doctor.profile.specialization')}</label>
-                                <select 
+                                <select
                                     {...register("specialization")}
                                     className="lens-input h-11"
                                 >
@@ -323,13 +323,14 @@ export default function DoctorProfilePage() {
                             <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
                                 <UserCheckIcon size={20} className="text-primary" />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.profile.education')}</h2>
+                            <h2 className="text-xl font-black text-text-primary tracking-tighter">{t('doctor.profile.education')}</h2>
                         </div>
                         <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={() => append({ degree: "", institution: "", year: new Date().getFullYear() })}
+                            className="rounded-xl px-6 font-black uppercase tracking-widest text-[10px] border-primary/20 text-primary hover:bg-primary/5 transition-all"
                         >
                             <UserPlusIcon size={16} className="mr-1" /> {t('common.add')}
                         </Button>
@@ -339,10 +340,10 @@ export default function DoctorProfilePage() {
                         {fields.map((field, index) => (
                             <div key={field.id} className="flex flex-col md:flex-row gap-4 p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-black/5 dark:border-white/5 group relative items-end">
                                 <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Input 
-                                        label={t('doctor.profile.educationDegree') || "Degree"} 
-                                        placeholder="e.g. MBBS" 
-                                        {...register(`education.${index}.degree` as const)} 
+                                    <Input
+                                        label={t('doctor.profile.educationDegree') || "Degree"}
+                                        placeholder="e.g. MBBS"
+                                        {...register(`education.${index}.degree` as const)}
                                         className="h-12"
                                     />
                                     <div className="flex flex-col space-y-1 w-full">
@@ -359,11 +360,11 @@ export default function DoctorProfilePage() {
                                             ))}
                                         </select>
                                     </div>
-                                    <Input 
-                                        label={t('doctor.profile.graduationYear') || "Graduation Year"} 
-                                        type="number" 
-                                        placeholder="Year" 
-                                        {...register(`education.${index}.year` as const)} 
+                                    <Input
+                                        label={t('doctor.profile.graduationYear') || "Graduation Year"}
+                                        type="number"
+                                        placeholder="Year"
+                                        {...register(`education.${index}.year` as const)}
                                         className="h-12"
                                     />
                                 </div>

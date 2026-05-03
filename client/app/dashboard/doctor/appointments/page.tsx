@@ -311,13 +311,13 @@ export default function AppointmentsPage() {
               const isRTL = t.raw('nav.navigation') === 'نیویگیشن';
               return (
                 <div key={appointment._id} className="lens-card group relative">
-                  <button
-                    onClick={() => handleOpenDetail(appointment._id)}
+                  <Link
+                    href={`/dashboard/doctor/appointments/${appointment._id}`}
                     className={`absolute top-6 ${isRTL ? 'left-6' : 'right-6'} p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100 hidden lg:flex z-10`}
                     title={t('doctor.appointments.viewDetails')}
                   >
                     <EyeIcon size={20} />
-                  </button>
+                  </Link>
 
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="flex items-start gap-5">
@@ -355,12 +355,12 @@ export default function AppointmentsPage() {
                               <AppointmentTimer startTime={appointment.updatedAt} />
                             </div>
                           )}
-                          <button
-                            onClick={() => handleOpenDetail(appointment._id)}
+                          <Link
+                            href={`/dashboard/doctor/appointments/${appointment._id}`}
                             className="lg:hidden p-1.5 rounded-lg bg-primary/10 text-primary"
                           >
                             <EyeIcon size={16} />
-                          </button>
+                          </Link>
                         </div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] uppercase tracking-widest mt-1">
                           {appointment.patientId?.email || "Private Registry"}

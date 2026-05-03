@@ -56,6 +56,16 @@ exports.handleConnectionRequest = asyncHandler(async (req, res) => {
     portal: request.fromRole === 'doctor' ? 'doctor' : 'clinic_admin'
   });
 
+  // Emit socket event to the requester
+  const io = req.app.get('io');
+  if (io) {
+    io.to(request.fromId.toString()).emit('connection_request_handled', {
+      requestId: request._id,
+      status: status,
+      patientName: req.user.name
+    });
+  }
+
   res.status(200).json(
     new ApiResponse(200, request, `Connection request ${status} successfully`)
   );

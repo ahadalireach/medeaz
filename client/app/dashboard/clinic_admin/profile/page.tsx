@@ -40,10 +40,6 @@ export default function ClinicAdminProfilePage() {
                 )}
               </div>
               <h2 className="text-2xl font-bold text-text-primary">{currentUser.name}</h2>
-              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
-                <ShieldCheck className="h-3 w-3" />
-                {t('clinic.profile.role')}
-              </div>
             </div>
 
             <div className="mt-8 space-y-4">
@@ -62,7 +58,7 @@ export default function ClinicAdminProfilePage() {
                   <Phone className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-xs text-text-secondary">{t('doctor.profile.phone')}</p>
+                  <p className="text-xs text-text-secondary">{t('clinic.profile.phone')}</p>
                   <p className="font-semibold text-text-primary">{currentUser.phone || t('clinic.profile.notProvided')}</p>
                 </div>
               </div>
@@ -90,7 +86,7 @@ export default function ClinicAdminProfilePage() {
               {t('clinic.profile.securityNote')}
             </p>
             <div className="flex gap-4">
-              <button 
+              <button
                 className="px-6 py-3 rounded-2xl bg-primary text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
                 onClick={() => window.location.href = '/dashboard/clinic_admin/settings'}
               >

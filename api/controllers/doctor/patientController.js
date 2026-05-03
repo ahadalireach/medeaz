@@ -6,6 +6,8 @@ const Appointment = require('../../models/Appointment');
 const asyncHandler = require('../../utils/asyncHandler');
 const ApiError = require('../../utils/ApiError');
 const ApiResponse = require('../../utils/ApiResponse');
+const ConnectionRequest = require('../../models/ConnectionRequest');
+const Doctor = require('../../models/Doctor');
 
 /**
  * @desc    Get all patients for the logged-in doctor
@@ -22,7 +24,12 @@ exports.getPatients = asyncHandler(async (req, res) => {
   const createdPatients = await Patient.find({ createdBy: doctorId }).distinct('userId');
   
   // Combine and get unique patient IDs
-  const patientIds = [...new Set([...appointments, ...prescriptions, ...createdPatients])];
+  const approvedRequests = await ConnectionRequest.find({
+    fromId: doctorId,
+    status: 'approved'
+  }).distinct('toPatientId');
+  
+  const patientIds = [...new Set([...appointments, ...prescriptions, ...createdPatients, ...approvedRequests])];
 
   let filter = {
     _id: { $in: patientIds },
@@ -57,7 +64,8 @@ exports.getPatients = asyncHandler(async (req, res) => {
         ...patient.toObject(),
         patientProfile,
         lastVisit: lastAppointment?.dateTime,
-        lastAppointmentStatus: lastAppointment?.status
+        lastAppointmentStatus: lastAppointment?.status,
+        isAdded: true
       };
     })
   );
@@ -95,7 +103,7 @@ exports.getPatientById = asyncHandler(async (req, res) => {
   }
 
   const patient = await User.findOne({ _id: patientId, roles: 'patient' })
-    .select('name email phone createdAt');
+    .select('name email phone createdAt photo');
 
   if (!patient) {
     throw new ApiError(404, 'Patient not found');
@@ -171,12 +179,67 @@ exports.searchPatients = asyncHandler(async (req, res) => {
       { email: { $regex: query, $options: 'i' } }
     ]
   })
-    .select('name email phone')
+    .select('name email phone photo')
     .limit(10);
 
-  res.status(200).json(
-    new ApiResponse(200, patients, 'Search results fetched successfully')
+  const enrichedPatients = await Promise.all(
+    patients.map(async (patient) => {
+        const totalVisits = await Appointment.countDocuments({ 
+            doctorId, 
+            patientId: patient._id, 
+            status: 'completed' 
+        });
+        const profile = await Patient.findOne({ userId: patient._id });
+        return { 
+          ...patient.toObject(), 
+          totalVisits,
+          gender: profile?.gender,
+          profilePhoto: profile?.profilePhoto
+        };
+    })
   );
+
+  res.status(200).json(new ApiResponse(200, { patients: enrichedPatients }, 'Search results fetched successfully'));
+});
+
+/**
+ * @desc    Find an existing patient by exact email (for linking)
+ * @route   GET /api/doctor/patients/find
+ * @access  Private (Doctor only)
+ */
+exports.findPatientByEmail = asyncHandler(async (req, res) => {
+  const { email } = req.query;
+  
+  if (!email) {
+    throw new ApiError(400, 'Email is required');
+  }
+
+  const patient = await User.findOne({ email, roles: 'patient' })
+    .select('name email phone photo');
+
+  if (!patient) {
+    return res.status(200).json(new ApiResponse(200, { found: false }, 'Patient not found'));
+  }
+
+  const profile = await Patient.findOne({ userId: patient._id });
+  const doctorId = req.user._id;
+
+  // Check if already in doctor's list
+  const appointments = await Appointment.findOne({ doctorId, patientId: patient._id });
+  const prescriptions = await Prescription.findOne({ doctorId, patientId: patient._id });
+  const created = await Patient.findOne({ userId: patient._id, createdBy: doctorId });
+  const approved = await ConnectionRequest.findOne({ fromId: doctorId, toPatientId: patient._id, status: 'approved' });
+  const pending = await ConnectionRequest.findOne({ fromId: doctorId, toPatientId: patient._id, status: 'pending' });
+
+  res.status(200).json(new ApiResponse(200, {
+    found: true,
+    patient: {
+      ...patient.toObject(),
+      profilePhoto: profile?.profilePhoto || patient.photo,
+      isAdded: !!(appointments || prescriptions || created || approved),
+      isPending: !!pending
+    }
+  }, 'Patient found successfully'));
 });
 
 /**
@@ -187,9 +250,60 @@ exports.searchPatients = asyncHandler(async (req, res) => {
 exports.createPatient = asyncHandler(async (req, res) => {
   const { name, email, phone, dateOfBirth, gender, bloodGroup, address } = req.body;
 
-  // Validation
-  if (!name || !email) {
-    throw new ApiError(400, 'Name and email are required');
+  if (!email) {
+    throw new ApiError(400, 'Email is required');
+  }
+
+  // If only email is provided, handle as "Link Existing"
+  if (!name) {
+    const existingUser = await User.findOne({ email, roles: 'patient' });
+    if (!existingUser) {
+      throw new ApiError(400, 'Patient not found with this email. Please create a new record instead.');
+    }
+
+    // Check if a connection already exists
+    const doctor = await Doctor.findOne({ userId: req.user._id });
+    
+    // Check for existing pending/approved request
+    const existingRequest = await ConnectionRequest.findOne({
+      fromId: req.user._id,
+      toPatientId: existingUser._id
+    });
+
+    if (existingRequest) {
+      if (existingRequest.status === 'approved') {
+        return res.status(200).json(new ApiResponse(200, { 
+          isRequestSent: false,
+          patient: existingUser 
+        }, 'Patient is already in your list.'));
+      }
+      return res.status(200).json(new ApiResponse(200, { 
+        isRequestSent: true,
+        patient: existingUser 
+      }, 'A connection request is already pending.'));
+    }
+
+    // Create a new connection request
+    const newRequest = await ConnectionRequest.create({
+      fromId: req.user._id,
+      fromRole: 'doctor',
+      fromName: req.user.name,
+      toPatientId: existingUser._id,
+      status: 'pending',
+      clinicId: doctor?.clinicId
+    });
+
+    // Emit socket event to the patient
+    const io = req.app.get('io');
+    if (io) {
+      io.to(existingUser._id.toString()).emit('new_connection_request', newRequest);
+    }
+
+    return res.status(200).json(new ApiResponse(200, { 
+      isRequestSent: true, 
+      patient: existingUser,
+      requestId: newRequest._id
+    }, 'Connection request sent successfully'));
   }
 
   // Validate name length
@@ -252,7 +366,7 @@ exports.createPatient = asyncHandler(async (req, res) => {
   // Create patient profile
   const patientProfile = await Patient.create({
     userId: user._id,
-    dateOfBirth: dateOfBirth || null,
+    dob: dateOfBirth || null,
     gender: gender || 'other',
     bloodGroup: bloodGroup || null,
     address: address || null,
