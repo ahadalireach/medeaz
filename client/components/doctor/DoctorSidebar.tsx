@@ -18,6 +18,7 @@ import { toggleSidebar } from "@/store/slices/uiSlice";
 import { RootState } from "@/store/store";
 import DescriptionIcon from "@/icons/file-description-icon";
 import { useTranslations } from "next-intl";
+import { useChatSocket } from "@/providers/ChatSocketProvider";
 
 export default function DoctorSidebar() {
     const t = useTranslations();
@@ -43,10 +44,24 @@ export default function DoctorSidebar() {
         { href: "/dashboard/doctor/profile", label: t('nav.profile'), icon: UserIcon },
     ];
 
-    const { data: conversationsData } = useGetConversationsQuery({ viewerRole: 'doctor' }, {
+    const { data: conversationsData, refetch } = useGetConversationsQuery({ viewerRole: 'doctor' }, {
         pollingInterval: 30000,
         skip: !mounted
     });
+    const { onConversationUpdated, onNewMessage } = useChatSocket();
+
+    useEffect(() => {
+        const unsubConversation = onConversationUpdated?.(() => {
+            refetch();
+        });
+        const unsubMessage = onNewMessage?.(() => {
+            refetch();
+        });
+        return () => {
+            unsubConversation?.();
+            unsubMessage?.();
+        };
+    }, [onConversationUpdated, onNewMessage, refetch]);
 
     const totalUnread = conversationsData?.data?.reduce((acc: number, conv: any) => acc + (conv.unreadCount || 0), 0) || 0;
 
@@ -82,27 +97,32 @@ export default function DoctorSidebar() {
                     className="flex items-center gap-2 group"
                 >
                     <NextImage
-                        src="/logo.png"
-                        alt="Medeaz"
+                        src="/medeaz.jpeg"
+                        alt="Medeaz Logo"
                         width={36}
                         height={36}
                         priority
-                        className="h-9 w-9 object-contain"
+                        className="h-9 w-9 rounded-lg object-cover"
                     />
                     <span className="font-display text-[22px] leading-none text-text-primary tracking-tight">
                         Medeaz
                     </span>
                 </Link>
-                <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] leading-none uppercase tracking-widest mt-2 px-1 text-nowrap">
+                <p className="text-[10px] font-bold leading-none tracking-widest mt-2 px-1 text-nowrap" style={{ color: '#00b495' }}>
                     {t('nav.doctorPortal')}
                 </p>
             </div>
 
             {isCollapsed && (
                 <div className="flex justify-center mb-8">
-                    <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                        <HeartPulse size={20} />
-                    </div>
+                    <Link href="/dashboard/doctor" className="h-10 w-10 relative group">
+                        <NextImage
+                            src="/medeaz.jpeg"
+                            alt="Medeaz"
+                            fill
+                            className="object-cover rounded-lg shadow-md transition-transform group-hover:scale-110"
+                        />
+                    </Link>
                 </div>
             )}
 
@@ -119,7 +139,7 @@ export default function DoctorSidebar() {
                         >
                             <Icon size={18} strokeWidth={isActive(link.href) ? 2.5 : 2} className="shrink-0" />
                             {!isCollapsed && <span>{link.label}</span>}
-                            {link.label === "Chat" && totalUnread > 0 && (
+                            {link.href.includes('/chat') && totalUnread > 0 && (
                                 <span className={`${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-[#18181b]`}>
                                     {totalUnread > 9 ? '9+' : totalUnread}
                                 </span>
@@ -140,8 +160,8 @@ export default function DoctorSidebar() {
                 </button>
 
                 {!isCollapsed && (
-                    <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] uppercase tracking-[0.2em] px-4">
-                        MEDEAZ HEALTHCARE
+                    <p className="text-[10px] font-bold tracking-[0.2em] px-4 text-text-muted">
+                        Medeaz Healthcare
                     </p>
                 )}
             </div>

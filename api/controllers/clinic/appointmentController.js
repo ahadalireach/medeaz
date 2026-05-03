@@ -10,7 +10,7 @@ exports.getAppointments = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Clinic not found for this user");
   }
   const clinicId = userClinic._id;
-  const { doctorId, status, from, to } = req.query;
+  const { doctorId, status, from, to, patientId } = req.query;
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
   const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 100);
 
@@ -19,6 +19,7 @@ exports.getAppointments = asyncHandler(async (req, res) => {
   };
 
   if (doctorId) filter.doctorId = doctorId;
+  if (patientId) filter.patientId = patientId;
   if (status) filter.status = status;
 
   if (from || to) {

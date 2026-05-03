@@ -1,9 +1,10 @@
 const Prescription = require('../../models/Prescription');
-const MedicalRecord = require('../../models/MedicalRecord');
 const Appointment = require('../../models/Appointment');
+const Doctor = require('../../models/Doctor');
 const asyncHandler = require('../../utils/asyncHandler');
 const ApiError = require('../../utils/ApiError');
 const ApiResponse = require('../../utils/ApiResponse');
+const { updateRevenue } = require('../../utils/revenue');
 
 /**
  * @desc    Get all prescriptions for the logged-in doctor
@@ -11,59 +12,36 @@ const ApiResponse = require('../../utils/ApiResponse');
  * @access  Private (Doctor only)
  */
 exports.getPrescriptions = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, status, patientId, search } = req.query;
   const doctorId = req.user._id;
+  const { patientId, status } = req.query;
 
-  const filter = { doctorId };
-  
-  if (status) filter.status = status;
-  if (patientId) filter.patientId = patientId;
-  
-  const query = Prescription.find(filter)
-    .populate('patientId', 'name email')
-    .populate('appointmentId', 'dateTime status')
-    .sort({ createdAt: -1 })
-    .limit(parseInt(limit))
-    .skip((parseInt(page) - 1) * parseInt(limit));
+  const query = { doctorId };
+  if (patientId) query.patientId = patientId;
+  if (status) query.status = status;
 
-  const prescriptions = await query;
-  const total = await Prescription.countDocuments(filter);
+  const prescriptions = await Prescription.find(query)
+    .populate('patientId', 'name email phone')
+    .sort({ createdAt: -1 });
 
-  res.status(200).json(
-    new ApiResponse(200, {
-      prescriptions,
-      pagination: {
-        total,
-        page: parseInt(page),
-        pages: Math.ceil(total / parseInt(limit))
-      }
-    }, 'Prescriptions fetched successfully')
-  );
+  res.status(200).json(new ApiResponse(200, prescriptions, 'Prescriptions fetched successfully'));
 });
 
 /**
- * @desc    Get a single prescription by ID
+ * @desc    Get prescription by ID
  * @route   GET /api/doctor/prescriptions/:id
  * @access  Private (Doctor only)
  */
 exports.getPrescriptionById = asyncHandler(async (req, res) => {
-  const prescription = await Prescription.findById(req.params.id)
-    .populate('patientId', 'name email phone dob')
-    .populate('doctorId', 'name email specialization')
-    .populate('appointmentId');
+  const prescription = await Prescription.findOne({
+    _id: req.params.id,
+    doctorId: req.user._id
+  }).populate('patientId', 'name email phone');
 
   if (!prescription) {
     throw new ApiError(404, 'Prescription not found');
   }
 
-  // Verify doctor owns this prescription
-  if (prescription.doctorId._id.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, 'You do not have permission to view this prescription');
-  }
-
-  res.status(200).json(
-    new ApiResponse(200, prescription, 'Prescription fetched successfully')
-  );
+  res.status(200).json(new ApiResponse(200, prescription, 'Prescription fetched successfully'));
 });
 
 /**
@@ -72,99 +50,67 @@ exports.getPrescriptionById = asyncHandler(async (req, res) => {
  * @access  Private (Doctor only)
  */
 exports.createPrescription = asyncHandler(async (req, res) => {
-  const {
-    patientId,
-    appointmentId,
-    diagnosis,
-    medicines,
-    notes,
-    rawTranscript,
-    audioUrl,
-    status
-  } = req.body;
+  const { patientId, appointmentId, diagnosis, medicines, notes, consultationFee, medicineCost, totalCost, followUpDate } = req.body;
+  const doctorId = req.user._id;
+
+  if (!patientId || !diagnosis) {
+    throw new ApiError(400, 'Patient ID and diagnosis are required');
+  }
+
+  // Get doctor's clinic info
+  const doctor = await Doctor.findOne({ userId: doctorId });
 
   const prescription = await Prescription.create({
-    doctorId: req.user._id,
+    doctorId,
     patientId,
     appointmentId,
+    clinicId: doctor?.clinicId || null,
     diagnosis,
-    medicines,
-    notes,
-    rawTranscript,
-    audioUrl,
-    status: status || 'finalized',
-    createdBy: req.user._id
+    medicines: medicines || [],
+    notes: notes || '',
+    consultationFee: consultationFee || 0,
+    medicineCost: medicineCost || 0,
+    totalCost: totalCost || 0,
+    followUpDate,
+    createdBy: doctorId,
+    status: 'finalized'
   });
 
-  // Create corresponding medical record
-  const medicalRecord = await MedicalRecord.create({
-    patientId,
-    doctorId: req.user._id,
-    appointmentId,
-    prescriptionId: prescription._id,
-    visitDate: new Date(),
-    chiefComplaint: req.body.chiefComplaint || diagnosis,
-    diagnosis,
-    notes
-  });
-
-  // Update appointment status if linked
-  if (appointmentId) {
-    await Appointment.findByIdAndUpdate(appointmentId, {
-      status: 'completed',
-      completedAt: new Date()
+  // Update revenue if totalCost is provided
+  if (totalCost > 0) {
+    await updateRevenue(doctorId, totalCost, doctor?.clinicId, patientId, { 
+        source: 'prescription', 
+        sourceId: prescription._id 
     });
   }
 
-  const populatedPrescription = await Prescription.findById(prescription._id)
-    .populate('patientId', 'name email')
-    .populate('appointmentId');
+  // If there's an appointment, mark it as completed
+  if (appointmentId) {
+    await Appointment.findByIdAndUpdate(appointmentId, { status: 'completed' });
+  }
 
-  res.status(201).json(
-    new ApiResponse(201, populatedPrescription, 'Prescription created successfully')
-  );
+  res.status(201).json(new ApiResponse(201, prescription, 'Prescription created successfully'));
 });
 
 /**
- * @desc    Update an existing prescription
+ * @desc    Update a prescription
  * @route   PUT /api/doctor/prescriptions/:id
  * @access  Private (Doctor only)
  */
 exports.updatePrescription = asyncHandler(async (req, res) => {
-  const prescription = await Prescription.findById(req.params.id);
+  const { diagnosis, medicines, notes, consultationFee, medicineCost, totalCost, followUpDate, status } = req.body;
+  
+  const prescription = await Prescription.findOneAndUpdate(
+    { _id: req.params.id, doctorId: req.user._id },
+    { diagnosis, medicines, notes, consultationFee, medicineCost, totalCost, followUpDate, status, lastModifiedBy: req.user._id },
+    { new: true, runValidators: true }
+  );
 
   if (!prescription) {
     throw new ApiError(404, 'Prescription not found');
   }
 
-  // Verify doctor owns this prescription
-  if (prescription.doctorId.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, 'You do not have permission to update this prescription');
-  }
-
-  const {
-    diagnosis,
-    medicines,
-    notes,
-    status
-  } = req.body;
-
-  if (diagnosis) prescription.diagnosis = diagnosis;
-  if (medicines) prescription.medicines = medicines;
-  if (notes !== undefined) prescription.notes = notes;
-  if (status) prescription.status = status;
-  
-  prescription.lastModifiedBy = req.user._id;
-
-  await prescription.save();
-
-  const updatedPrescription = await Prescription.findById(prescription._id)
-    .populate('patientId', 'name email')
-    .populate('appointmentId');
-
-  res.status(200).json(
-    new ApiResponse(200, updatedPrescription, 'Prescription updated successfully')
-  );
+  res.status(200).json(new ApiResponse(200, prescription, 'Prescription updated successfully'));
 });
 
 /**
@@ -173,20 +119,14 @@ exports.updatePrescription = asyncHandler(async (req, res) => {
  * @access  Private (Doctor only)
  */
 exports.deletePrescription = asyncHandler(async (req, res) => {
-  const prescription = await Prescription.findById(req.params.id);
+  const prescription = await Prescription.findOneAndDelete({
+    _id: req.params.id,
+    doctorId: req.user._id
+  });
 
   if (!prescription) {
     throw new ApiError(404, 'Prescription not found');
   }
 
-  // Verify doctor owns this prescription
-  if (prescription.doctorId.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, 'You do not have permission to delete this prescription');
-  }
-
-  await prescription.deleteOne();
-
-  res.status(200).json(
-    new ApiResponse(200, null, 'Prescription deleted successfully')
-  );
+  res.status(200).json(new ApiResponse(200, null, 'Prescription deleted successfully'));
 });

@@ -7,10 +7,7 @@ import { ArrowLeft, ArrowRight, Check, Calendar, Clock, User, Building2, Search 
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
 import { SuccessModal } from "@/components/ui/SuccessModal";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
-
-// Generate dynamic timeSlots based on doctor schedule inline instead
 
 const steps = (t: any) => [
   { id: 1, name: t('patient.bookAppointmentPage.steps.clinic'), icon: Building2 },
@@ -106,22 +103,22 @@ export default function BookAppointmentPage() {
     const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     const dayName = dayNames[date.getDay()];
     const slots24h = doctorSchedule[dayName] || [];
-    
+
     // Filter for future slots if the appointment is for today
     const now = new Date();
     const isToday = formData.appointmentDate === now.toLocaleDateString('en-CA');
-    
+
     let filteredSlots = [...slots24h].sort();
-    
+
     if (isToday) {
       const currentHour = now.getHours();
       const currentMin = now.getMinutes();
-      
+
       filteredSlots = filteredSlots.filter(slot => {
         // Handle both "HH:mm" and "hh:mm AM" formats
         let hour = 0;
         let minute = 0;
-        
+
         if (slot.includes("AM") || slot.includes("PM")) {
           const [time, ampm] = slot.split(" ");
           const [h, m] = time.split(":").map(Number);
@@ -132,7 +129,7 @@ export default function BookAppointmentPage() {
           hour = h;
           minute = m;
         }
-        
+
         if (hour > currentHour) return true;
         if (hour === currentHour && minute > currentMin) return true;
         return false;
@@ -165,9 +162,9 @@ export default function BookAppointmentPage() {
   const filteredClinics = clinics.filter((c: any) => {
     const searchLower = searchQuery.toLowerCase();
     const matchesClinic = c.name?.toLowerCase().includes(searchLower) ||
-                          c.address?.toLowerCase().includes(searchLower);
-    
-    const matchesDoctor = c.doctors?.some((d: any) => 
+      c.address?.toLowerCase().includes(searchLower);
+
+    const matchesDoctor = c.doctors?.some((d: any) =>
       (d.fullName || d.userId?.name || "").toLowerCase().includes(searchLower) ||
       (d.specialization || "").toLowerCase().includes(searchLower)
     );
@@ -356,11 +353,11 @@ export default function BookAppointmentPage() {
                   className="w-full rounded-xl border border-border-light bg-white pl-10 pr-4 py-3 text-text-primary focus:border-primary focus:outline-none"
                 />
               </div>
-              <button 
+              <button
                 onClick={handleNext}
                 className="h-12 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all"
               >
-                {t('patient.bookAppointmentPage.findSpecialists')}
+                {t('patient.bookAppointmentPage.findClinic')}
               </button>
             </div>
             {loadingClinics ? (
@@ -487,10 +484,10 @@ export default function BookAppointmentPage() {
                         disabled={isBooked}
                         onClick={() => setFormData({ ...formData, appointmentTime: formatTo12Hour(slot) })}
                         className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${formData.appointmentTime === formatTo12Hour(slot)
-                            ? "border-primary bg-primary text-white font-bold"
-                            : isBooked
-                              ? "border-border-light bg-background text-white/70    cursor-not-allowed line-through"
-                              : "border-border-light text-text-primary hover:border-border   :border-border"
+                          ? "border-primary bg-primary text-white font-bold"
+                          : isBooked
+                            ? "border-border-light bg-background text-white/70    cursor-not-allowed line-through"
+                            : "border-border-light text-text-primary hover:border-border   :border-border"
                           }`}
                       >
                         {formatTo12Hour(slot)}

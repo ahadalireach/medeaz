@@ -22,7 +22,7 @@ export default function PatientDashboard() {
         <h1 className="text-3xl font-bold text-text-primary">
           {t('nav.dashboard')}
         </h1>
-        <p className="text-text-secondary mt-2 text-lg font-medium">
+        <p className="text-text-primary mt-2 text-lg font-medium">
           {t('patient.dashboard.welcomeBack')} {user?.name?.split(' ')[0] || 'Member'}
         </p>
       </div>
@@ -48,12 +48,12 @@ export default function PatientDashboard() {
             totalSpent={data?.data?.totalSpent || 0}
           />
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
             <SpentChart data={data?.data?.spendingTrend || []} />
             <DoctorsVisitedCard doctors={data?.data?.doctorsVisited || []} />
           </div>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
             <UpcomingAppointmentsWidget appointments={data?.data?.upcomingAppointments || []} />
             <RecentPrescriptions prescriptions={data?.data?.recentPrescriptions || []} />
           </div>

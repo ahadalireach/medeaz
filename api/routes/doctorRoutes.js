@@ -26,6 +26,7 @@ router.delete('/prescriptions/:id', prescriptionController.deletePrescription);
 router.get('/patients', patientController.getPatients);
 router.post('/patients', patientController.createPatient);
 router.get('/patients/search', patientController.searchPatients);
+router.get('/patients/find', patientController.findPatientByEmail);
 router.get('/patients/:id', patientController.getPatientById);
 router.delete('/patients/:id', patientController.deletePatient);
 

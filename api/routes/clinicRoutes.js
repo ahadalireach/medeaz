@@ -30,6 +30,7 @@ router.use(attachClinicId);
 router.get("/analytics/overview", analyticsController.getOverview);
 router.get("/analytics/patient-flow", analyticsController.getPatientFlow);
 router.get("/analytics/revenue", analyticsController.getRevenue);
+router.get("/analytics/revenue-history", analyticsController.getRevenueHistory);
 
 router.get("/doctors", doctorController.getDoctors);
 router.get("/doctors/search", doctorController.searchDoctorByEmail);

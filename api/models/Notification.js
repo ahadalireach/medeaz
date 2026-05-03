@@ -21,8 +21,7 @@ const notificationSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ["info", "success", "warning", "error"],
-            default: "info",
+            required: true,
         },
         link: {
             type: String,
@@ -35,6 +34,16 @@ const notificationSchema = new mongoose.Schema(
             type: String,
             enum: ["patient", "doctor", "clinic_admin", "general"],
             default: "general",
+        },
+        titleKey: {
+            type: String,
+        },
+        bodyKey: {
+            type: String,
+        },
+        bodyParams: {
+            type: mongoose.Schema.Types.Mixed,
+            default: {},
         },
     },
     { timestamps: true }

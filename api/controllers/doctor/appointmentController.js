@@ -79,7 +79,7 @@ exports.createAppointment = asyncHandler(async (req, res) => {
   });
 
   const populatedAppointment = await Appointment.findById(appointment._id)
-    .populate('patientId', 'name email phone')
+    .populate('patientId', 'name email phone photo')
     .populate('clinicId', 'name address');
 
   res.status(201).json(
@@ -112,9 +112,9 @@ exports.getAppointments = asyncHandler(async (req, res) => {
   }
 
   const appointments = await Appointment.find(filter)
-    .populate('patientId', 'name email phone')
+    .populate('patientId', 'name email phone photo')
     .populate('clinicId', 'name address')
-    .sort({ dateTime: 1 })
+    .sort({ dateTime: -1 })
     .limit(parseInt(limit))
     .skip((parseInt(page) - 1) * parseInt(limit));
 
@@ -149,9 +149,9 @@ exports.getTodayQueue = asyncHandler(async (req, res) => {
     doctorId,
     dateTime: { $gte: today, $lte: endOfDay }
   })
-    .populate('patientId', 'name email phone')
+    .populate('patientId', 'name email phone photo')
     .populate('clinicId', 'name')
-    .sort({ dateTime: 1 });
+    .sort({ dateTime: -1 });
 
   const stats = {
     total: appointments.length,

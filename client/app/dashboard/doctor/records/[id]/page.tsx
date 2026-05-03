@@ -1,15 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
-import { ArrowLeft, Calendar, FileText, MapPin, User } from "lucide-react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { ArrowLeft, Calendar, FileText, MapPin, User, Printer } from "lucide-react";
 import { useGetRecordByIdQuery, useGetPrescriptionByIdQuery } from "@/store/api/doctorApi";
+import { useRef, useEffect } from "react";
+import { Button } from "@/components/ui/Button";
 
 export default function DoctorRecordDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const id = params?.id as string;
   const type = searchParams.get("type");
+  const printableRef = useRef<HTMLDivElement>(null);
+
   const { data: recordData, isLoading: isRecordLoading } = useGetRecordByIdQuery(id, {
     skip: type === "prescription",
   });
@@ -19,6 +24,20 @@ export default function DoctorRecordDetailPage() {
 
   const record = recordData?.data || prescriptionData?.data;
   const isLoading = isRecordLoading || isPrescriptionLoading;
+
+  const handlePrint = () => {
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoading && record && searchParams.get("print") === "true") {
+      setTimeout(() => {
+        handlePrint();
+      }, 500);
+    }
+  }, [isLoading, record, searchParams]);
 
   if (isLoading) {
     return (
@@ -44,12 +63,39 @@ export default function DoctorRecordDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Link href="/dashboard/doctor/patients" className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-primary">
-        <ArrowLeft className="h-4 w-4" />
-        Back to Patients
-      </Link>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { 
+            margin: 0; 
+          }
+          body { 
+            margin: 1.6cm; 
+            -webkit-print-color-adjust: exact;
+          }
+          .print-hidden { 
+            display: none !important; 
+          }
+        }
+      `}} />
+      <div className="flex items-center justify-between print:hidden">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </button>
+        <Button
+          onClick={handlePrint}
+          variant="outline"
+          className="bg-white border-black/10 h-10 px-4 text-[10px] font-black uppercase tracking-widest"
+        >
+          <Printer className="mr-2 h-4 w-4" />
+          Print Record
+        </Button>
+      </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-[#1a1a1a]">
+      <div ref={printableRef} className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-[#1a1a1a] print:border-none print:shadow-none print:p-0">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{record.diagnosis || "Medical Record"}</h1>
         <div className="mt-3 grid gap-2 text-sm text-gray-600 dark:text-gray-300">
           <p className="inline-flex items-center gap-2"><Calendar className="h-4 w-4" /> {new Date(record.visitDate || record.createdAt).toLocaleString()}</p>

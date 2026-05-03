@@ -29,7 +29,7 @@ export default function DoctorsVisitedCard({ doctors }: DoctorsVisitedCardProps)
       </CardHeader>
       <CardContent>
         {doctors.length === 0 ? (
-          <p className="text-sm text-text-secondary py-2">
+          <p className="text-sm text-text-primary py-2">
             {t('common.noResults')}
           </p>
         ) : (
@@ -40,22 +40,25 @@ export default function DoctorsVisitedCard({ doctors }: DoctorsVisitedCardProps)
                 onClick={() => setSelectedDoctorId(doctor._id)}
                 className="w-full text-start flex items-start gap-3 rounded-2xl border border-border-light p-4 hover:bg-background :bg-ink-soft/50 transition-all hover:border-primary/30 hover:shadow-md group"
               >
-                <div className="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-black/5 bg-background flex items-center justify-center transition-transform group-hover:scale-105">
-                  {(doctor as any).photo ? (
-                    <img
-                      src={(doctor as any).photo.startsWith('http') ? (doctor as any).photo : `${process.env.NEXT_PUBLIC_API_URL}${(doctor as any).photo}`}
-                      alt={doctor.name || "Doctor"}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <User className="h-6 w-6 text-text-secondary" />
-                  )}
+                <div className="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-black/5 bg-background flex items-center justify-center transition-transform group-hover:scale-105 relative">
+                  <img
+                    src={(doctor as any).photo ? 
+                      (((doctor as any).photo.startsWith('http') || (doctor as any).photo.startsWith('data:')) ? (doctor as any).photo : 
+                      `${process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'}${((doctor as any).photo.startsWith('/') ? '' : '/')}${(doctor as any).photo}`)
+                      : "/medeaz.jpeg"}
+                    alt={doctor.name || "Doctor"}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/medeaz.jpeg";
+                    }}
+                  />
                 </div>
                 <div className="flex-1">
                   <p className="font-bold text-text-primary group-hover:text-primary transition-colors">
                     {t('patient.bookAppointmentPage.doctorPrefix')} {doctor.name}
                   </p>
-                  <p className="text-sm font-medium text-text-secondary">
+                  <p className="text-sm font-medium text-text-primary">
                     {doctor.specialization}
                   </p>
                   <p className="text-xs font-bold uppercase tracking-wider text-primary mt-1">

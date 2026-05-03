@@ -38,14 +38,14 @@ export default function RevenueChart() {
         <div>
           <CardTitle className="text-xl">{t('analytics.revenueByPeriod')}</CardTitle>
         </div>
-        <div className="flex bg-background p-1 rounded-2xl border border-black/5">
+        <div className="flex bg-surface p-1 rounded-2xl border border-black/5">
           {(["week", "month", "year"] as const).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p
                 ? "bg-white  text-primary shadow-sm"
-                : "text-text-secondary hover:text-text-secondary :text-white/70"
+                : "text-text-primary hover:text-text-primary :text-white/70"
                 }`}
             >
               {t(`analytics.${p}`)}
@@ -56,7 +56,7 @@ export default function RevenueChart() {
 
       <CardContent>
         {isLoading ? (
-          <div className="h-72 bg-background rounded-[2rem] animate-pulse"></div>
+          <div className="h-72 bg-surface rounded-[2rem] animate-pulse"></div>
         ) : (
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -72,7 +72,7 @@ export default function RevenueChart() {
                   dataKey="date" 
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#78716C', fontSize: 9, fontWeight: 'bold' }} 
+                    tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 'bold' }} 
                     interval="preserveStartEnd"
                   tickFormatter={(val) => formatDateTick(String(val))}
                     dy={10}
@@ -80,9 +80,9 @@ export default function RevenueChart() {
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: '#78716C', fontSize: 10, fontWeight: 'bold' }}
+                  tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
                   tickFormatter={(value) => `${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
-                  label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#78716C", fontSize: 10, fontWeight: "bold", offset: 10 }}
+                  label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10, fontWeight: "bold", offset: 10 }}
                   domain={[0, (data: any) => Math.max(data.max > 15000 ? data.max : (period === 'week' ? 15000 : (period === 'month' ? 100000 : 300000)))]}
                 />
                 <Tooltip
@@ -93,8 +93,8 @@ export default function RevenueChart() {
                     borderRadius: "16px",
                     boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                   }}
-                  itemStyle={{ color: "#0F4C5C", fontWeight: 'bold', fontSize: '12px' }}
-                  labelStyle={{ color: "#78716C", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
+                  itemStyle={{ color: "#FFFFFF", fontWeight: 'bold', fontSize: '12px' }}
+                  labelStyle={{ color: "#FFFFFF", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
                     labelFormatter={(val: any) => formatDateTick(String(val))}
                   formatter={(value: any) => [`${value?.toLocaleString()} ${t('common.pkr')}`, t('analytics.totalRevenue')]}
                 />

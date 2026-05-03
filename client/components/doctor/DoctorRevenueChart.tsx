@@ -51,6 +51,8 @@ export default function DoctorRevenueChart() {
         return t.has(translationKey) ? t(translationKey) : raw;
     };
 
+    const totalRevenueLabel = t.has('analytics.totalRevenue') ? t('analytics.totalRevenue') : 'Total Revenue';
+
     return (
         <Card className="overflow-hidden">
             <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -69,7 +71,7 @@ export default function DoctorRevenueChart() {
                             onClick={() => setPeriod(p.id as any)}
                             className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p.id
                                 ? "bg-white dark:bg-white/10 text-primary shadow-sm"
-                                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                : "text-text-primary hover:text-gray-600 dark:hover:text-gray-200"
                                 }`}
                         >
                             {p.label}
@@ -82,9 +84,9 @@ export default function DoctorRevenueChart() {
                 {isLoading ? (
                     <div className="h-64 bg-gray-50 dark:bg-white/5 rounded-4xl animate-pulse"></div>
                 ) : (
-                    <div className="h-70 w-full">
+                    <div className="h-[280px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 45, bottom: 20 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />
                                 <XAxis
                                     dataKey="label"
@@ -119,13 +121,13 @@ export default function DoctorRevenueChart() {
                                         borderRadius: "16px",
                                         boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                                     }}
-                                    itemStyle={{ color: "#00b495", fontWeight: 'bold', fontSize: '12px' }}
-                                    labelStyle={{ color: "#94a3b8", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
+                                    itemStyle={{ color: "#FFFFFF", fontWeight: 'bold', fontSize: '12px' }}
+                                    labelStyle={{ color: "#FFFFFF", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
                                     labelFormatter={(val: any) => {
                                         if (period === 'day') return getDayLabel(val);
                                         return getMonthLabel(val);
                                     }}
-                                    formatter={(value: any) => [`${value?.toLocaleString()} ${t('common.pkr')}`, t('analytics.totalRevenue')]}
+                                    formatter={(value: any) => [`${value?.toLocaleString()} ${t('common.pkr')}`, totalRevenueLabel]}
                                 />
                                 <Bar
                                     dataKey="revenue"

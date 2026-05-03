@@ -175,7 +175,7 @@ export default function DoctorsList() {
                         <div className="mt-8 pt-6 border-t border-border-light flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t('doctor.profile.consultationFee')}</span>
-                                <span className="text-sm font-extrabold text-text-primary">{(doctor.consultationFee || 1500).toLocaleString()} {t('common.pkr')}</span>
+                                <span className="text-sm font-extrabold text-text-primary">{Math.round(doctor.consultationFee || 1500).toLocaleString()} {t('common.pkr')}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <button

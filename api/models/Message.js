@@ -1,4 +1,9 @@
 const mongoose = require('mongoose');
+const {
+  encryptMessageContent,
+  decryptMessageContent,
+} = require('../utils/messageCrypto');
+
 const messageSchema = new mongoose.Schema({
   conversationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation', required: true },
   senderId: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -11,4 +16,32 @@ const messageSchema = new mongoose.Schema({
   isDelivered: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
+
+messageSchema.pre('save', function () {
+  if (this.isModified('content') && typeof this.content === 'string' && this.content.length > 0) {
+    this.content = encryptMessageContent(this.content);
+  }
+});
+
+messageSchema.methods.getDecryptedContent = function () {
+  return decryptMessageContent(this.content);
+};
+
+const transformMessage = (_doc, ret) => {
+  if (typeof ret.content === 'string') {
+    ret.content = decryptMessageContent(ret.content);
+  }
+  return ret;
+};
+
+messageSchema.set('toJSON', {
+  virtuals: true,
+  transform: transformMessage,
+});
+
+messageSchema.set('toObject', {
+  virtuals: true,
+  transform: transformMessage,
+});
+
 module.exports = mongoose.model('Message', messageSchema);

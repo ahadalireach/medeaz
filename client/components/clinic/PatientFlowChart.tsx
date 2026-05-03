@@ -20,7 +20,7 @@ export default function PatientFlowChart() {
 
   if (isLoading) {
     return (
-      <div className="h-80 bg-background rounded-[2.5rem] animate-pulse"></div>
+      <div className="h-80 bg-surface rounded-[2.5rem] animate-pulse"></div>
     );
   }
 
@@ -36,7 +36,7 @@ export default function PatientFlowChart() {
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="text-xl">{t('clinic.dashboard.todaysOverview')}</CardTitle>
-        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-1">
+        <p className="text-[10px] font-bold text-text-primary tracking-widest mt-1">
           {t('analytics.patientFlow')}
         </p>
       </CardHeader>
@@ -56,18 +56,18 @@ export default function PatientFlowChart() {
                 dataKey="date" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#78716C', fontSize: 8, fontWeight: 'medium' }}
+                tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 'medium' }}
                 interval="preserveStartEnd"
                 tickFormatter={formatAxisDate}
                 height={55}
-                label={{ value: t('common.date'), position: "insideBottom", offset: -5, fill: "#78716C", fontSize: 10, fontWeight: "bold" }}
+                label={{ value: t('common.date'), position: "insideBottom", offset: -5, fill: "#94a3b8", fontSize: 10, fontWeight: "bold" }}
               />
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#78716C', fontSize: 10, fontWeight: 'bold' }}
+                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
                 allowDecimals={false}
-                label={{ value: t('clinic.appointments.patient'), angle: -90, position: "insideLeft", fill: "#78716C", fontSize: 10, fontWeight: "bold" }}
+                label={{ value: t('clinic.appointments.patient'), angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10, fontWeight: "bold" }}
               />
               <Tooltip 
                 contentStyle={{
@@ -76,8 +76,8 @@ export default function PatientFlowChart() {
                   borderRadius: "16px",
                   boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                 }}
-                itemStyle={{ color: "#0F4C5C", fontWeight: 'bold', fontSize: '12px' }}
-                labelStyle={{ color: "#78716C", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
+                itemStyle={{ color: "#FFFFFF", fontWeight: 'bold', fontSize: '12px' }}
+                labelStyle={{ color: "#FFFFFF", marginBottom: '4px', fontSize: '10px', fontWeight: 'bold' }}
                 labelFormatter={(value: any) => formatAxisDate(String(value))}
                 formatter={(value: any) => [value, t('clinic.appointments.patient')]}
               />

@@ -55,22 +55,22 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
 
     return (
         <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-border-light overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
                         <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 text-primary">
                             <Calendar className="h-8 w-8" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-text-secondary mb-1">
+                            <p className="text-xs font-bold uppercase tracking-widest text-text-secondary mb-1">
                                 {t('clinic.dashboard.scheduledFor')}
                             </p>
                             <div className="flex items-center gap-2">
-                                <h2 className="text-2xl font-bold text-text-primary">
+                                <h2 className="text-xl md:text-2xl font-bold text-text-primary">
                                     {format(new Date(appointment.dateTime), "MMMM dd, yyyy")}
                                 </h2>
                                 <span className="text-white/70">•</span>
-                                <p className="text-xl font-medium text-primary">
+                                <p className="text-base md:text-lg font-medium text-primary">
                                     {format(new Date(appointment.dateTime), "h:mm a")}
                                 </p>
                             </div>
@@ -87,7 +87,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Patient Block */}
-                <div className="bg-white p-6 md:p-8 rounded-xl border border-border-light shadow-sm">
+                <div className="bg-white p-6 md:p-8 rounded-2xl border border-border-light shadow-sm">
                     <div className="flex flex-col items-center text-center space-y-4">
                         <div className="h-20 w-20 bg-surface rounded-full flex items-center justify-center text-primary ring-4 ring-blue-50">
                             {appointment.patientId?.photo ? (
@@ -97,10 +97,15 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                             )}
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-text-primary">
+                            <h3 className="text-lg md:text-xl font-bold text-text-primary">
                                 {appointment.patientId?.name || t('common.noData')}
                             </h3>
-                            <p className="text-sm text-text-secondary mt-1">{t('patient.dashboard.viewDetails')}</p>
+                            <Link
+                                href={`/dashboard/clinic_admin/patients/${appointment.patientId?._id}`}
+                                className="mt-1 inline-flex text-sm font-semibold text-primary hover:underline"
+                            >
+                                {t('patient.dashboard.viewDetails')}
+                            </Link>
                         </div>
                         <div className="w-full pt-4 space-y-3">
                             <div className="flex justify-between items-center py-2 border-b border-border-light">
@@ -116,7 +121,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                 </div>
 
                 {/* Doctor Block */}
-                <div className="bg-white p-6 md:p-8 rounded-xl border border-border-light shadow-sm">
+                <div className="bg-white p-6 md:p-8 rounded-2xl border border-border-light shadow-sm">
                     <div className="flex flex-col items-center text-center space-y-4">
                         <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center text-primary ring-4 ring-primary/5">
                             {appointment.doctorId?.photo ? (
@@ -126,8 +131,8 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                             )}
                         </div>
                         <div>
-                            <Link href={`/dashboard/clinic_admin/doctors/${appointment.doctorId?._id}`} className="hover:underline">
-                                <h3 className="text-xl font-bold text-text-primary">
+                            <Link href={`/dashboard/clinic_admin/doctors/${appointment.doctorId?.doctorProfile?._id || appointment.doctorId?._id}?fromAppointment=${appointment._id}`} className="hover:underline">
+                                <h3 className="text-lg md:text-xl font-bold text-text-primary">
                                     {t('common.doctorPrefix')} {appointment.doctor?.fullName || appointment.doctorId?.name || t('common.noData')}
                                 </h3>
                             </Link>
@@ -141,18 +146,18 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                                 <span className="text-sm font-medium text-text-primary">{appointment.doctorId?.email || t('common.noData')}</span>
                             </div>
                             <Link 
-                                href={`/dashboard/clinic_admin/doctors/${appointment.doctorId?._id}`}
-                                className="flex justify-between items-center py-2 hover:bg-background :bg-text-secondary/30 rounded-lg px-2 -mx-2 transition-colors group"
+                                href={`/dashboard/clinic_admin/doctors/${appointment.doctorId?.doctorProfile?._id || appointment.doctorId?._id}?fromAppointment=${appointment._id}`}
+                                className="flex justify-between items-center py-2 hover:bg-background/80 rounded-lg px-2 -mx-2 transition-colors group"
                             >
                                 <span className="text-sm text-text-secondary">{t('clinic.dashboard.viewProfile')}</span>
-                                <span className="text-sm font-bold text-primary group-hover:underline">{t('common.viewAll')} →</span>
+                                <span className="text-sm font-bold text-primary group-hover:underline">{t('common.view')} →</span>
                             </Link>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white p-6 md:p-8 rounded-xl border border-border-light shadow-sm">
+            <div className="bg-white p-6 md:p-8 rounded-2xl border border-border-light shadow-sm">
                 <h3 className="text-lg font-bold text-text-primary mb-6 flex items-center gap-2">
                     <FileText className="h-5 w-5 text-text-secondary" />
                     {t('clinic.dashboard.clinicalFinancialDetails')}
@@ -161,7 +166,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                     <div className="space-y-6">
                         <div>
                             <h4 className="text-sm font-medium text-text-secondary uppercase tracking-wider mb-2">{t('common.patientReason')}</h4>
-                            <div className="bg-background p-4 rounded-lg">
+                            <div className="bg-white border border-border-light p-4 rounded-lg">
                                 <p className="text-text-primary">
                                     "{appointment.reason || t('common.noResults')}"
                                 </p>
@@ -180,7 +185,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                         {appointment.cancellationReason && (
                             <div>
                                 <h4 className="text-sm font-medium text-red-500 uppercase tracking-wider mb-2">{t('common.cancellationReason')}</h4>
-                                <div className="bg-red-50 border border-red-100 p-4 rounded-lg">
+                                <div className="bg-white border border-red-100 p-4 rounded-lg">
                                     <p className="text-red-800">
                                         {appointment.cancellationReason}
                                     </p>
@@ -189,7 +194,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                         )}
                     </div>
                     <div className="space-y-6">
-                        <div className="bg-linear-to-br from-green-50 to-emerald-50 border border-border-light p-6 rounded-xl relative overflow-hidden">
+                        <div className="bg-white border border-border-light p-6 rounded-xl relative overflow-hidden">
                             <div className="absolute right-0 top-0 opacity-10">
                                 <CircleDollarSign className="w-48 h-48 -mr-12 -mt-12 text-primary" />
                             </div>
@@ -214,7 +219,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                         </div>
 
                         {prescription && (
-                            <div className="bg-surface border border-border-light p-6 rounded-xl">
+                            <div className="bg-white border border-border-light p-6 rounded-xl">
                                 <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-2">
                                     <Activity className="h-5 w-5" />
                                     {t('doctor.prescriptions.title')}

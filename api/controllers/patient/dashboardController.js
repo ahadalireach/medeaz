@@ -87,9 +87,12 @@ exports.getDashboard = asyncHandler(async (req, res) => {
     .populate({
       path: 'doctorId',
       select: 'name email photo',
-      populate: { path: 'doctorProfile', select: 'specialization fullName' }
-    })
-    .populate('clinicId', 'name');
+      populate: { 
+        path: 'doctorProfile', 
+        select: 'specialization fullName clinicId',
+        populate: { path: 'clinicId', select: 'name' }
+      }
+    });
 
   const doctorsMap = new Map();
   prescriptions.forEach((prescription) => {
@@ -101,7 +104,7 @@ exports.getDashboard = asyncHandler(async (req, res) => {
           _id: profile._id,
           name: profile.fullName || doc.name,
           specialization: profile.specialization || 'General Physician',
-          clinicName: prescription.clinicId?.name || 'Private Registry',
+          clinicName: profile.clinicId ? profile.clinicId.name : 'Private Practice',
           photo: doc.photo || profile.photo,
         });
       }
@@ -118,8 +121,7 @@ exports.getDashboard = asyncHandler(async (req, res) => {
       path: 'doctorId',
       select: 'name email photo',
       populate: { path: 'doctorProfile', select: 'specialization fullName' }
-    })
-    .populate('clinicId', 'name address');
+    });
 
   // Calculate Total Spent from all completed appointments
   const allCompletedAppointments = await Appointment.find({
@@ -139,7 +141,7 @@ exports.getDashboard = asyncHandler(async (req, res) => {
     dateTime: { $gte: now },
     status: { $in: ['pending', 'confirmed'] },
   })
-    .sort({ dateTime: 1 })
+    .sort({ dateTime: -1 })
     .limit(3)
     .populate({
       path: 'doctorId',
@@ -153,14 +155,13 @@ exports.getDashboard = asyncHandler(async (req, res) => {
     patientId: userId,
     followUpDate: { $gte: now }
   })
-    .sort({ followUpDate: 1 })
+    .sort({ followUpDate: -1 })
     .limit(3)
     .populate({
       path: 'doctorId',
       select: 'name email photo',
       populate: { path: 'doctorProfile', select: 'specialization fullName' }
-    })
-    .populate('clinicId', 'name address');
+    });
 
   // Spending Trend (Last 6 months - Newest First)
   const spendingTrend = [];
@@ -202,4 +203,31 @@ exports.getDashboard = asyncHandler(async (req, res) => {
       spendingTrend
     }, 'Dashboard data fetched successfully')
   );
+});
+
+exports.getSpentHistory = asyncHandler(async (req, res) => {
+  const RevenueEntry = require('../../models/RevenueEntry');
+  const { page = 1, limit = 20 } = req.query;
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const [entries, total] = await Promise.all([
+    RevenueEntry.find({ patientUserId: req.user._id })
+      .sort({ occurredAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .populate('doctorUserId', 'name email')
+      .populate('clinicId', 'name')
+      .lean(),
+    RevenueEntry.countDocuments({ patientUserId: req.user._id }),
+  ]);
+
+  res.status(200).json(new ApiResponse(200, {
+    entries,
+    pagination: {
+      page: Number(page),
+      limit: Number(limit),
+      total,
+      pages: Math.ceil(total / Number(limit)),
+    },
+  }, 'Spent history fetched successfully'));
 });

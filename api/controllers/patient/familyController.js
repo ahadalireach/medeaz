@@ -150,8 +150,8 @@ exports.getFamilyRecords = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Family member not found');
   }
 
-  // Find prescriptions for this family member
-  const records = await Prescription.find({ familyMemberId: memberId })
+  // Find medical records for this family member
+  const records = await MedicalRecord.find({ familyMemberId: memberId })
     .sort({ createdAt: -1 })
     .populate({
       path: 'doctorId',

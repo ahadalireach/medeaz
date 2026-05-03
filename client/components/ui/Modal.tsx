@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import { Button } from "./Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -22,58 +22,77 @@ export function Modal({
   size = "md",
 }: ModalProps) {
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const sizeClasses = {
+  const sizeClasses: Record<string, string> = {
     sm: "max-w-md",
     md: "max-w-lg",
     lg: "max-w-2xl",
     xl: "max-w-4xl",
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+  /**
+   * createPortal renders directly in document.body — completely bypasses all
+   * stacking contexts from layouts (relative+z-index, animate-in, etc.).
+   * This is the ONLY reliable way to center a modal when the app has
+   * complex layout stacking (sidebar, animated wrappers, SVG backgrounds).
+   */
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{ isolation: "isolate" }}
+    >
+      {/* Backdrop — absolute inside the fixed container, doesn't affect flex layout */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
+      {/* Modal panel */}
       <div
-        className={`relative bg-white rounded-2xl shadow-2xl border border-border w-full ${sizeClasses[size]} mx-4 max-h-[90vh] flex flex-col animate-in fade-in zoom-in duration-200`}
+        className={`
+          relative bg-white rounded-2xl shadow-2xl border border-gray-100
+          w-full ${sizeClasses[size]} max-h-[85vh] flex flex-col
+          transition-none
+        `}
+        style={{ animation: "medeazModalIn 0.18s ease both" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-2xl font-semibold text-black">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
+          <h2 className="text-xl font-bold text-gray-900">{title}</h2>
           <button
             onClick={onClose}
-            className="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-surface transition-colors"
+            className="h-8 w-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            aria-label="Close"
           >
-            <X className="h-5 w-5 text-text-secondary" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">{children}</div>
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 min-h-0">
+          {children}
+        </div>
 
-        {/* Footer */}
+        {/* Optional footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 shrink-0">
             {footer}
           </div>
         )}
       </div>
-    </div>
+
+      <style>{`
+        @keyframes medeazModalIn {
+          from { opacity: 0; transform: scale(0.96) translateY(8px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
+    </div>,
+    document.body
   );
 }

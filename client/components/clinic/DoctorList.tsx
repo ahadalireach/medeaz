@@ -93,7 +93,7 @@ export default function DoctorList() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <User className="h-6 w-6 text-text-secondary" />
+                          <User className="h-6 w-6 text-text-primary" />
                         )}
                       </div>
                       <span className="text-sm font-bold text-text-primary">
@@ -116,7 +116,7 @@ export default function DoctorList() {
                         }}
                         className="p-2 hover:bg-surface :bg-text-secondary rounded-lg transition-all"
                       >
-                        <BarChart2 className="h-4 w-4 text-text-secondary" />
+                        <BarChart2 className="h-4 w-4 text-text-primary" />
                       </button>
                       <button
                         onClick={() => {
@@ -136,14 +136,14 @@ export default function DoctorList() {
         </div>
 
         {doctors.length === 0 && (
-          <div className="text-center py-12 text-text-secondary">
+          <div className="text-center py-12 text-text-primary">
             {t('clinic.staff.noStaff')}
           </div>
         )}
 
         {pagination?.pages > 1 && (
           <div className="mt-6 flex items-center justify-between">
-            <p className="text-xs font-semibold text-text-secondary">
+            <p className="text-xs font-semibold text-text-primary">
               Page {pagination.page} of {pagination.pages}
             </p>
             <div className="flex items-center gap-2">

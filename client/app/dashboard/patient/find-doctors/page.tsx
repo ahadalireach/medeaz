@@ -22,6 +22,28 @@ const CITIES = [
 
 import { useTranslations } from "next-intl";
 
+const resolveImageUrl = (photo?: string | null) => {
+    if (!photo) return "";
+    const trimmed = String(photo).trim();
+    if (!trimmed) return "";
+    if (/^(https?:\/\/|data:)/i.test(trimmed)) return trimmed;
+
+    const baseOrigin =
+      process.env.NEXT_PUBLIC_SOCKET_URL ||
+      (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "");
+
+    const normalizedPath = trimmed.startsWith("/")
+      ? trimmed
+      : trimmed.startsWith("uploads/")
+        ? `/${trimmed}`
+        : `/uploads/${trimmed}`;
+    try {
+      return new URL(normalizedPath, baseOrigin).toString();
+    } catch {
+      return "";
+    }
+};
+
 export default function FindDoctorsPage() {
     const t = useTranslations();
     const [filters, setFilters] = useState({
@@ -87,8 +109,7 @@ export default function FindDoctorsPage() {
                         <div>
                             <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">{t('doctor.profile.specialization')}</label>
                             <select
-                                className="lens-input w-full h-12 text-sm appearance-none bg-no-repeat"
-                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundSize: `1.5em 1.5em` }}
+                                className="lens-input w-full h-12 text-sm bg-white"
                                 value={filters.specialization}
                                 onChange={(e) => setFilters({ ...filters, specialization: e.target.value })}
                             >
@@ -103,8 +124,7 @@ export default function FindDoctorsPage() {
                         <div>
                             <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">{t('form.city')}</label>
                             <select
-                                className="lens-input w-full h-12 text-sm appearance-none bg-no-repeat"
-                                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundSize: `1.5em 1.5em` }}
+                                className="lens-input w-full h-12 text-sm bg-white"
                                 value={filters.city}
                                 onChange={(e) => setFilters({ ...filters, city: e.target.value })}
                             >
@@ -196,12 +216,20 @@ export default function FindDoctorsPage() {
                                     <div className="relative">
                                         <div className="w-24 h-24 rounded-2xl overflow-hidden bg-background border-2 border-border-light group-hover:border-primary/30 transition-all flex items-center justify-center">
                                             {doc.userId?.photo ? (
-                                                <img src={doc.userId.photo.startsWith('http') ? doc.userId.photo : `${process.env.NEXT_PUBLIC_API_URL}${doc.userId.photo}`} alt={doc.userId?.name} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-surface">
-                                                    <User size={40} className="text-text-secondary" />
-                                                </div>
-                                            )}
+                                                <img 
+                                                    src={resolveImageUrl(doc.userId.photo)} 
+                                                    alt={doc.userId?.name} 
+                                                    className="w-full h-full object-cover" 
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.style.display = 'none';
+                                                        target.nextElementSibling?.classList.remove('hidden');
+                                                    }}
+                                                />
+                                            ) : null}
+                                            <div className={`w-full h-full flex items-center justify-center bg-surface ${doc.userId?.photo ? 'hidden' : ''}`}>
+                                                <User size={40} className="text-text-secondary" />
+                                            </div>
                                         </div>
                                         {doc.isVerified && (
                                             <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm">
@@ -243,8 +271,7 @@ export default function FindDoctorsPage() {
                                         <p className="text-sm font-bold text-text-primary">{t('patient.findDoctors.yearsCount', { n: doc.experience || 0 })}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">{t('doctor.profile.consultationFee')}</p>
-                                        <p className="text-sm font-bold text-text-primary">{t('common.pkr')} {doc.consultationFee || "TBD"}</p>
+                                        <p className="text-sm font-bold text-text-primary">{t('common.pkr')} {doc.consultationFee ? Math.round(doc.consultationFee).toLocaleString() : "TBD"}</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">{t('patient.findDoctors.clinic')}</p>

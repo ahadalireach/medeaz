@@ -38,6 +38,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const user = useSelector((state: any) => state.auth.user);
     const { unreadCount } = useSelector((state: any) => state.notifications);
+    const settingsLabel = t.has('nav.settings') ? t('nav.settings') : 'Settings';
     const { data: notificationsData } = useGetNotificationsQuery("doctor", { skip: !mounted });
     const dispatch = useDispatch();
     const router = useRouter();
@@ -90,16 +91,16 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                 {/* Logo - ONLY MOBILE */}
                 <Link href="/dashboard/doctor" className="flex items-center gap-2.5 group lg:hidden">
                     <Image
-                        src="/logo.png"
-                        alt="MedEaz"
-                        width={60}
-                        height={20}
+                        src="/medeaz.jpeg"
+                        alt="Medeaz Logo"
+                        width={32}
+                        height={32}
                         priority
-                        className="group-hover:scale-105 transition-all"
+                        className="rounded-lg object-cover group-hover:scale-105 transition-all"
                     />
                 </Link>
 
-                <h1 className="hidden lg:block text-sm font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white">
+                <h1 className="hidden lg:block text-sm font-black uppercase tracking-[0.2em] text-text-primary">
                     {title || t('nav.doctorPortal')}
                 </h1>
 
@@ -108,7 +109,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                     {/* Desktop Notifications */}
                     <button
                         onClick={() => setIsNotificationOpen(true)}
-                        className="h-10 w-10 text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl flex items-center justify-center relative transition-colors cursor-pointer group"
+                        className="h-10 w-10 text-text-secondary hover:bg-black/5 rounded-xl flex items-center justify-center relative transition-colors cursor-pointer group"
                     >
                         <FilledBellIcon className="h-5 w-5" />
                         {(unreadCount > 0 || totalChatUnread > 0) && (
@@ -180,7 +181,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                                 );
                             })}
 
-                            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-8 mb-2">{t('nav.settings')}</p>
+                            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-8 mb-2">{settingsLabel}</p>
                             <Link
                                 href="/dashboard/doctor/profile"
                                 onClick={() => setIsMenuOpen(false)}

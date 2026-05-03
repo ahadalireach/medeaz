@@ -163,6 +163,12 @@ export const doctorApi = createApi({
         params: { query },
       }),
     }),
+    findPatientByEmail: builder.query({
+      query: (email) => ({
+        url: '/doctor/patients/find',
+        params: { email },
+      }),
+    }),
 
     // Prescriptions
     getPrescriptions: builder.query({
@@ -310,6 +316,7 @@ export const {
   useDeleteRecordMutation,
   useCreatePatientMutation,
   useSearchPatientsQuery,
+  useFindPatientByEmailQuery,
   useDeletePatientMutation,
   useGetPatientAppointmentHistoryQuery,
   useGetRecordByIdQuery,

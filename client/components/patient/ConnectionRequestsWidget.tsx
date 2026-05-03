@@ -5,7 +5,9 @@ import { UserPlus, Check, X, Building2, Stethoscope } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function ConnectionRequestsWidget() {
-  const { data, isLoading } = useGetConnectionRequestsQuery(undefined);
+  const { data, isLoading } = useGetConnectionRequestsQuery(undefined, {
+    pollingInterval: 30000, // Poll every 30 seconds
+  });
   const [handleRequest, { isLoading: isProcessing }] = useHandleConnectionRequestMutation();
 
   const requests = data?.data || [];
@@ -30,7 +32,7 @@ export default function ConnectionRequestsWidget() {
         </div>
         <div>
           <h2 className="text-xl font-black text-text-primary tracking-tight">Professional Connections</h2>
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mt-1">Pending Requests</p>
+          <p className="text-xs font-bold text-text-primary uppercase tracking-widest mt-1">Pending Requests</p>
         </div>
       </div>
 
@@ -55,7 +57,7 @@ export default function ConnectionRequestsWidget() {
                     <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md">
                       {request.fromRole}
                     </span>
-                    <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Wants Access</span>
+                    <span className="text-[10px] font-bold text-text-primary uppercase tracking-widest">Wants Access</span>
                   </div>
                 </div>
               </div>
@@ -80,7 +82,7 @@ export default function ConnectionRequestsWidget() {
               </div>
             </div>
             
-            <p className="mt-4 text-xs font-medium text-text-secondary leading-relaxed border-t border-border-light pt-4">
+            <p className="mt-4 text-xs font-medium text-text-primary leading-relaxed border-t border-border-light pt-4">
               Allows this {request.fromRole} to view your medical history, reports, and prescriptions for better care.
             </p>
           </div>

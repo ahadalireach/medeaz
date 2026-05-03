@@ -1,4 +1,4 @@
-import { useGetAppointmentsQuery, useGetAppointmentByIdQuery, useDeleteAppointmentMutation } from "@/store/api/clinicApi";
+import { useGetAppointmentsQuery, useGetAppointmentByIdQuery } from "@/store/api/clinicApi";
 import { format } from "date-fns";
 import { TableSkeleton } from "../ui/Skeleton";
 import { Calendar, Trash2 } from "lucide-react";
@@ -17,7 +17,6 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
   const t = useTranslations();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -29,7 +28,6 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
   const { data: detailData, isLoading: isDetailLoading } = useGetAppointmentByIdQuery(selectedId!, {
     skip: !selectedId,
   });
-  const [deleteAppointment] = useDeleteAppointmentMutation();
 
   const appointments = data?.data?.appointments || [];
   const pagination = data?.data?.pagination;
@@ -54,15 +52,6 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
     return labels[normalized] || normalized.replace(/-/g, " ");
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteAppointment(id).unwrap();
-      toast.success(t('toast.appointmentDeleted'));
-      setDeleteId(null);
-    } catch (err: any) {
-      toast.error(err?.data?.message || t('common.error'));
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
@@ -93,12 +82,12 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border-light">
-                <th className="text-left py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.patient')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.doctor')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.dateTime')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.type')}</th>
-                <th className="text-center py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.status')}</th>
-                <th className="text-right py-4 px-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('clinic.appointments.actions')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.patient')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.doctor')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.dateTime')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.type')}</th>
+                <th className="text-center py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.status')}</th>
+                <th className="text-right py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -109,7 +98,7 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
                 >
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-surface flex items-center justify-center text-text-secondary overflow-hidden">
+                      <div className="h-8 w-8 rounded-full bg-surface flex items-center justify-center text-text-primary overflow-hidden">
                         {appointment.patientId?.photo ? (
                           <img src={appointment.patientId.photo} alt="P" className="h-full w-full object-cover" />
                         ) : (
@@ -122,7 +111,7 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <span className="text-sm font-medium text-text-secondary">
+                    <span className="text-sm font-medium text-text-primary">
                       Dr. {appointment.doctorId?.name || "N/A"}
                     </span>
                   </td>
@@ -133,7 +122,7 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
                       </span>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-xs font-bold text-text-secondary uppercase">
+                  <td className="py-4 px-4 text-xs font-bold text-text-primary uppercase">
                     {appointment.type || "consultation"}
                   </td>
                   <td className="py-4 px-4 text-center">
@@ -142,14 +131,8 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
                   <td className="py-4 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                     <button
-                      onClick={() => setDeleteId(appointment._id)}
-                      className="p-2 rounded-xl bg-surface text-text-secondary hover:text-red-500 hover:bg-red-50 transition-all group/btn active:scale-90"
-                    >
-                      <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />
-                    </button>
-                    <button
                       onClick={() => handleOpenDetail(appointment._id)}
-                      className="p-2 rounded-xl bg-surface text-text-secondary hover:text-primary hover:bg-primary/10 transition-all group/btn"
+                      className="p-2 rounded-xl bg-surface text-text-primary hover:text-primary hover:bg-primary/10 transition-all group/btn"
                     >
                       <EyeIcon size={16} className="group-hover/btn:scale-110 transition-transform" />
                     </button>
@@ -164,13 +147,13 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
         {appointments.length === 0 && (
           <div className="text-center py-20 bg-background rounded-[2.5rem] mt-4 border-2 border-dashed border-border-light">
             <Calendar className="mx-auto h-12 w-12 text-white/70 mb-4 opacity-50" />
-            <p className="text-text-secondary font-bold tracking-tight">{t('clinic.appointments.noAppointments')}</p>
+            <p className="text-text-primary font-bold tracking-tight">{t('clinic.appointments.noAppointments')}</p>
           </div>
         )}
 
         {pagination?.pages > 1 && (
           <div className="mt-6 flex items-center justify-between">
-            <p className="text-xs font-semibold text-text-secondary">
+            <p className="text-xs font-semibold text-text-primary">
               Page {pagination.page} of {pagination.pages}
             </p>
             <div className="flex items-center gap-2">
@@ -198,18 +181,6 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
         onClose={() => setIsModalOpen(false)}
         appointment={detailData?.data}
         loading={isDetailLoading}
-      />
-
-      <ConfirmationModal
-        isOpen={!!deleteId}
-        onClose={() => setDeleteId(null)}
-        onConfirm={() => {
-          if (deleteId) {
-            handleDelete(deleteId);
-          }
-        }}
-        title={t('modal.confirmDelete')}
-        message={t('modal.cannotUndo')}
       />
     </>
   );

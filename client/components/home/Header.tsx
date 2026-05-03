@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 import { Languages } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -12,26 +13,35 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 min-h-20 py-3 flex flex-wrap items-center justify-between gap-y-2">
-        <Link href="/" className="flex items-center gap-2 group">
+      <div 
+        className={cn(
+          "mx-auto px-4 sm:px-6 lg:px-8 min-h-20 py-3 flex items-center justify-between gap-y-2",
+          isUrdu ? "flex-row-reverse" : "flex-row"
+        )} 
+        dir={isUrdu ? "rtl" : "ltr"}
+      >
+        <Link href="/" className={cn("flex items-center gap-3 group shrink-0", isUrdu && "flex-row-reverse")}>
           <Image
-            src="/logo.png"
+            src="/medeaz.jpeg"
             alt="medeaz"
-            width={36}
-            height={36}
+            width={40}
+            height={40}
             priority
-            className="h-8 w-8 sm:h-9 sm:w-9 object-contain"
+            className="h-9 w-9 sm:h-10 sm:w-10 object-contain transition-transform group-hover:scale-105 rounded-lg"
           />
-          <span className="font-display text-[24px] sm:text-[28px] leading-none text-text-primary/90 tracking-tight font-semibold">
+          <span className={cn(
+            "font-display text-[26px] sm:text-[30px] leading-none text-text-primary tracking-tight font-bold",
+            isUrdu && "font-urdu text-[28px]"
+          )}>
             Medeaz
           </span>
         </Link>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 ml-auto">
+        <div className="flex items-center gap-4 sm:gap-6">
           <button
             type="button"
             onClick={toggleLanguage}
-            className="sm:inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border border-black/10 bg-white/60 px-2.5 sm:px-3 py-2 backdrop-blur-sm text-[11px] sm:text-xs font-semibold text-text-primary hover:bg-white/80 transition-colors hidden"
+            className="flex items-center gap-1.5 rounded-xl border border-black/10 bg-white/60 px-3 py-2 backdrop-blur-sm text-[11px] sm:text-xs font-semibold text-text-primary hover:bg-white/80 transition-all active:scale-95 shadow-sm"
             aria-label="Toggle language"
           >
             <Languages className="h-4 w-4 text-text-secondary" />
@@ -58,7 +68,10 @@ export function Header() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-9 sm:h-10 px-3 sm:px-5 text-xs sm:text-sm font-semibold"
+              className={cn(
+                "h-10 px-5 text-sm font-bold transition-all hover:scale-105 active:scale-95",
+                isUrdu && "font-urdu px-7 py-2 text-base leading-relaxed"
+              )}
             >
               {isUrdu ? "لاگ اِن" : "Log In"}
             </Button>
@@ -66,7 +79,10 @@ export function Header() {
           <Link href="/register">
             <Button
               size="sm"
-              className="h-9 sm:h-10 px-3 sm:px-5 text-xs sm:text-sm font-semibold"
+              className={cn(
+                "h-10 px-6 text-sm font-bold transition-all hover:scale-105 active:scale-95 shadow-md",
+                isUrdu && "font-urdu px-8 py-2 text-base leading-relaxed"
+              )}
             >
               {isUrdu ? "شروع کریں" : "Get Started"}
             </Button>

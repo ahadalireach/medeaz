@@ -114,7 +114,7 @@ export default function StaffList() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <User className="h-6 w-6 text-text-secondary" />
+                          <User className="h-6 w-6 text-text-primary" />
                         )}
                       </div>
                       <span className="text-sm font-bold text-text-primary">
@@ -143,7 +143,7 @@ export default function StaffList() {
                         }}
                         className="p-2 hover:bg-surface :bg-text-secondary rounded-lg transition-all group"
                       >
-                        <PenIcon className="h-4 w-4 text-text-secondary" />
+                        <PenIcon className="h-4 w-4 text-text-primary" />
                       </button>
                       <button
                         onClick={() => {
@@ -163,7 +163,7 @@ export default function StaffList() {
         </div>
 
         {staff.length === 0 && (
-          <div className="text-center py-12 text-text-secondary">
+          <div className="text-center py-12 text-text-primary">
             {t('clinic.staff.noStaff')}
           </div>
         )}

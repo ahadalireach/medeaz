@@ -232,7 +232,7 @@ export default function ProfilePage() {
           <form onSubmit={handleSubmit(onUpdateProfile)} className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <Input
-                label={t('doctor.profile.fullName')}
+                label={t('form.fullName')}
                 placeholder="Your full name"
                 error={errors.name?.message}
                 {...register("name", { required: "Name is required" })}
@@ -247,7 +247,7 @@ export default function ProfilePage() {
               />
 
               <Input
-                label={t('doctor.profile.phone')}
+                label={t('form.phone')}
                 type="tel"
                 placeholder="+1 234 567 8900"
                 {...register("contact")}

@@ -22,6 +22,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>('en');
   const [messages, setMessages] = useState<Record<string, any>>(enMessages as Record<string, any>);
   const router = useRouter();
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
 
   useEffect(() => {
     const saved = (localStorage.getItem(STORAGE_KEY) as Language) || 'en';
@@ -29,6 +30,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setMessages(saved === 'ur' ? urMessages : enMessages);
     document.documentElement.dir = saved === 'ur' ? 'rtl' : 'ltr';
     document.documentElement.lang = saved;
+    document.documentElement.setAttribute('data-lang', saved);
+    document.body.className = saved === 'ur' ? 'font-urdu antialiased relative min-h-screen' : 'font-sans antialiased relative min-h-screen';
   }, []);
 
   const toggleLanguage = async () => {
@@ -38,10 +41,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, next);
     document.documentElement.dir = next === 'ur' ? 'rtl' : 'ltr';
     document.documentElement.lang = next;
+    document.documentElement.setAttribute('data-lang', next);
     document.body.className = next === 'ur' ? 'font-urdu antialiased relative min-h-screen' : 'font-sans antialiased relative min-h-screen';
 
     if (accessToken) {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/language`, {
+      await fetch(`${apiBaseUrl}/api/user/language`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

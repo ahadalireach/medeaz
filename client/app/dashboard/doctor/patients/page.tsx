@@ -158,13 +158,15 @@ export default function PatientsPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 min-w-0 flex-1">
-                      <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center text-primary border border-primary/20 shrink-0 overflow-hidden">
+                      <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center text-primary border border-border-light shrink-0 overflow-hidden">
                         {patient.photo ? (
                           <img src={patient.photo} alt="" className="h-full w-full object-cover" />
                         ) : patient.patientProfile?.profilePhoto ? (
                           <img src={patient.patientProfile.profilePhoto} alt="" className="h-full w-full object-cover" />
                         ) : (
-                          <User className="h-8 w-8" />
+                          <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xl">
+                            {patient.name?.charAt(0).toUpperCase() || <User className="h-8 w-8" />}
+                          </div>
                         )}
                       </div>
                       <div className="min-w-0">
@@ -173,11 +175,11 @@ export default function PatientsPage() {
                             {patient.name || "Unnamed Patient"}
                           </h3>
                           {patient.isAdded ? (
-                            <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+                            <span className="bg-white border border-border-light text-text-primary text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                               {t('doctor.patients.myPatient')}
                             </span>
                           ) : (
-                            <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+                            <span className="bg-white border border-border-light text-text-secondary text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                               {t('doctor.patients.external')}
                             </span>
                           )}
@@ -193,14 +195,14 @@ export default function PatientsPage() {
                     </div>
                     <div className="flex flex-col items-end gap-2 text-right pr-20">
                       {patient.isAdded && patient.visitCount > 0 && (
-                          <span className="bg-primary/10 text-primary font-bold rounded-full text-[10px] sm:text-[11px] px-2.5 py-1 uppercase tracking-wider whitespace-nowrap">
-                              {patient.visitCount} {patient.visitCount !== 1 ? t('doctor.patients.visitsPlural') : t('doctor.patients.visits')}
-                          </span>
+                        <span className="bg-white border border-primary/20 text-primary font-bold rounded-full text-[10px] sm:text-[11px] px-2.5 py-1 uppercase tracking-wider whitespace-nowrap">
+                          {patient.visitCount} {patient.visitCount !== 1 ? t('doctor.patients.visitsPlural') : t('doctor.patients.visits')}
+                        </span>
                       )}
                       {patient.lastVisit && (
                         <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider mb-2 whitespace-nowrap">
                           <CalendarIcon className="h-3.5 w-3.5" />
-                            <span>{t('doctor.patients.lastVisit')}: {new Date(patient.lastVisit).toLocaleDateString()}</span>
+                          <span>{t('doctor.patients.lastVisit')}: {new Date(patient.lastVisit).toLocaleDateString()}</span>
                         </div>
                       )}
                     </div>
@@ -217,7 +219,7 @@ export default function PatientsPage() {
                   <button
                     onClick={(e) => handleDeleteClick(e, patient._id, patient.name)}
                     disabled={deletingId === patient._id}
-                    className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all disabled:opacity-50"
+                    className="p-2 bg-white border border-border-light hover:bg-red-50 hover:border-red-100 text-red-600 rounded-lg transition-all disabled:opacity-50"
                     title={t('doctor.patients.deletePatient')}
                   >
                     {deletingId === patient._id ? (
