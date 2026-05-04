@@ -2,7 +2,7 @@
 
 import { useGetPrescriptionsQuery, useDeletePrescriptionMutation, useGetPrescriptionByIdQuery } from "@/store/api/doctorApi";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus, FileText, Calendar, User, Pill, Download, Trash2, AlertTriangle, Loader } from "lucide-react";
 import TrashIcon from "@/icons/trash-icon";
@@ -159,7 +159,7 @@ function downloadPrescriptionPDF(
 
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 
-export default function PrescriptionsPage() {
+function PrescriptionsContent() {
   const t = useTranslations();
   const locale = useLocale();
   const searchParams = useSearchParams();
@@ -237,9 +237,6 @@ export default function PrescriptionsPage() {
     notSpecified: t('prescription.notSpecified'),
   };
 
-  // If we have a specific search ID and it's not in the list, we could fetch it directly
-  // But for now, the server-side search should handle it if the backend supports searching by ID.
-  // We'll keep the client-side filter as a secondary layer.
   const filteredPrescriptions = prescriptions.filter((px: any) =>
     px.patientId?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     px.diagnosis?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -396,5 +393,13 @@ export default function PrescriptionsPage() {
         message={t('doctor.prescriptions.confirmDelete')}
       />
     </>
+  );
+}
+
+export default function PrescriptionsPage() {
+  return (
+    <Suspense fallback={<TableSkeleton rows={8} />}>
+      <PrescriptionsContent />
+    </Suspense>
   );
 }

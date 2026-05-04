@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, FileText, MapPin, User, Printer } from "lucide-react";
 import { useGetRecordByIdQuery, useGetPrescriptionByIdQuery } from "@/store/api/doctorApi";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/Button";
 
-export default function DoctorRecordDetailPage() {
+function RecordDetailContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -131,5 +131,13 @@ export default function DoctorRecordDetailPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function DoctorRecordDetailPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-text-secondary">Loading record details...</div>}>
+      <RecordDetailContent />
+    </Suspense>
   );
 }

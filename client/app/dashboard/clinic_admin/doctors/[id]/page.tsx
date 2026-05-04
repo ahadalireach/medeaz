@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { ArrowLeft, Building2, CalendarDays, Clock3, MapPin, Phone, ShieldCheck, Star, Users } from "lucide-react";
 import { useGetDoctorsQuery, useGetDoctorStatsQuery, useGetSettingsQuery } from "@/store/api/clinicApi";
 
-export default function DoctorDetailPage() {
+function DoctorDetailContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const doctorId = params.id as string;
@@ -167,5 +167,22 @@ export default function DoctorDetailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DoctorDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="space-y-6 animate-pulse">
+        <div className="h-52 bg-surface rounded-3xl" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="h-28 bg-surface rounded-3xl" />
+          <div className="h-28 bg-surface rounded-3xl" />
+          <div className="h-28 bg-surface rounded-3xl" />
+        </div>
+      </div>
+    }>
+      <DoctorDetailContent />
+    </Suspense>
   );
 }

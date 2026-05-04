@@ -312,7 +312,20 @@
     "typeEmailToSearch": "Type a doctor's email to search",
     "visualIdentity": "Visual Identity & Logo",
     "noDoctorsFound": "No doctors found with that email",
-    "doctorNotFound": "Doctor not found in system"
+    "doctorNotFound": "Doctor not found in system",
+    "revenueHistory": {
+      "title": "Revenue History",
+      "subtitle": "Track all earnings and transactions",
+      "deleteAll": "Delete All",
+      "totalEarned": "Total Earned",
+      "date": "Date",
+      "patient": "Patient",
+      "doctor": "Doctor",
+      "consultationFee": "Consultation Fee",
+      "medicineCost": "Medicine Cost",
+      "total": "Total",
+      "earned": "Earned"
+    }
   },
   "patient": {
     "doctorProfile": {

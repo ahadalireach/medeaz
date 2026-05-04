@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import NextImage from "next/image";
 import { useDeleteRecordMutation, useGetRecordDetailQuery } from "@/store/api/patientApi";
@@ -24,7 +24,7 @@ import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { toast } from "react-hot-toast";
 import { useFormatter, useTranslations } from "next-intl";
 
-export default function RecordDetailPage() {
+function RecordDetailContent() {
   const t = useTranslations();
   const format = useFormatter();
   const params = useParams();
@@ -495,5 +495,13 @@ export default function RecordDetailPage() {
         message={t("patient.records.confirmDelete")}
       />
     </div>
+  );
+}
+
+export default function RecordDetailPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-text-secondary">Loading record details...</div>}>
+      <RecordDetailContent />
+    </Suspense>
   );
 }

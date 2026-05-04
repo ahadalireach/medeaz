@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import AppointmentFilters from "@/components/clinic/AppointmentFilters";
 import AppointmentTable from "@/components/clinic/AppointmentTable";
 import { useGetPatientProfileQuery } from "@/store/api/clinicApi";
 import { useTranslations } from "next-intl";
 
-export default function AppointmentsPage() {
+function AppointmentsContent() {
   const t = useTranslations();
   const searchParams = useSearchParams();
   const patientId = searchParams.get("patientId") || "";
@@ -32,5 +32,13 @@ export default function AppointmentsPage() {
       <AppointmentFilters onFilter={setFilters} />
       <AppointmentTable filters={tableFilters} />
     </div>
+  );
+}
+
+export default function AppointmentsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-text-secondary">Loading appointments...</div>}>
+      <AppointmentsContent />
+    </Suspense>
   );
 }
