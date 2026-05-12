@@ -173,7 +173,7 @@ exports.getFamilyRecords = asyncHandler(async (req, res) => {
 exports.addFamilyRecord = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const { memberId } = req.params;
-  const { title, recordType, date, notes, fileUrl } = req.body;
+  const { title, diagnosis, doctorName, clinicName, date, notes, fileUrl } = req.body;
 
   const patient = await Patient.findOne({ userId });
   if (!patient) {
@@ -194,12 +194,14 @@ exports.addFamilyRecord = asyncHandler(async (req, res) => {
     doctorId: userId,
     familyMemberId: familyMember._id,
     visitDate: date || new Date(),
-    chiefComplaint: title || 'Family member uploaded record',
-    diagnosis: recordType || 'Document',
+    chiefComplaint: title || 'Document',
+    diagnosis: diagnosis || 'Document',
+    externalDoctorName: doctorName || '',
+    externalClinicName: clinicName || '',
     notes: notes || '',
     attachments: fileUrl
       ? [{
-          fileName: title || 'Family Medical Record',
+          fileName: title || 'Document',
           fileUrl,
           fileType: 'document',
         }]
@@ -208,5 +210,43 @@ exports.addFamilyRecord = asyncHandler(async (req, res) => {
 
   res.status(201).json(
     new ApiResponse(201, record, 'Family member record added successfully')
+  );
+});
+
+/**
+ * Delete a family member medical record
+ * @route DELETE /api/patient/family/:memberId/records/:recordId
+ * @access Private (Patient only)
+ */
+exports.deleteFamilyRecord = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { memberId, recordId } = req.params;
+
+  const patient = await Patient.findOne({ userId });
+  if (!patient) {
+    throw new ApiError(404, 'Patient profile not found');
+  }
+
+  const familyMember = await FamilyMember.findOne({
+    _id: memberId,
+    patientId: patient._id,
+  });
+
+  if (!familyMember) {
+    throw new ApiError(404, 'Family member not found');
+  }
+
+  const record = await MedicalRecord.findOneAndDelete({
+    _id: recordId,
+    familyMemberId: familyMember._id,
+    patientId: patient._id,
+  });
+
+  if (!record) {
+    throw new ApiError(404, 'Family record not found');
+  }
+
+  res.status(200).json(
+    new ApiResponse(200, null, 'Family record deleted successfully')
   );
 });

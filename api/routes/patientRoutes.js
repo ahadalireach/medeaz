@@ -52,6 +52,7 @@ router.put('/family/:memberId', familyController.editFamilyMember);
 router.delete('/family/:memberId', familyController.deleteFamilyMember);
 router.get('/family/:memberId/records', familyController.getFamilyRecords);
 router.post('/family/:memberId/records', familyController.addFamilyRecord);
+router.delete('/family/:memberId/records/:recordId', familyController.deleteFamilyRecord);
 
 // ========== Profile Routes ==========
 router.get('/profile', profileController.getProfile);

@@ -1,6 +1,7 @@
 const Appointment = require('../../models/Appointment');
 const User = require('../../models/User');
 const Doctor = require('../../models/Doctor');
+const { createNotification } = require('../../utils/notification');
 const asyncHandler = require('../../utils/asyncHandler');
 const ApiError = require('../../utils/ApiError');
 const ApiResponse = require('../../utils/ApiResponse');
@@ -273,6 +274,42 @@ exports.updateAppointmentStatus = asyncHandler(async (req, res) => {
   const updatedAppointment = await Appointment.findById(appointment._id)
     .populate('patientId', 'name email phone')
     .populate('clinicId', 'name');
+
+  // Send notification to patient when doctor updates status (approved/confirmed/cancelled/completed)
+  try {
+    const io = req.app.get('io');
+    const patientId = updatedAppointment.patientId?._id || updatedAppointment.patientId;
+    const doctorUser = await User.findById(req.user._id);
+    const doctorName = doctorUser?.name || 'Doctor';
+    const apptDate = new Date(updatedAppointment.dateTime);
+    const formattedDate = apptDate.toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' });
+
+    let title = 'Appointment Update';
+    let message = `${doctorName} updated your appointment status to ${updatedAppointment.status}.`;
+    if (['confirmed', 'accepted'].includes(updatedAppointment.status)) {
+      title = 'Appointment Confirmed';
+      message = `Your appointment with ${doctorName} is ${updatedAppointment.status} for ${formattedDate}.`;
+    } else if (updatedAppointment.status === 'cancelled') {
+      title = 'Appointment Cancelled';
+      message = `Your appointment with ${doctorName} on ${formattedDate} has been cancelled.`;
+    } else if (updatedAppointment.status === 'completed') {
+      title = 'Appointment Completed';
+      message = `Your appointment with ${doctorName} on ${formattedDate} is marked completed.`;
+    }
+
+    if (patientId) {
+      await createNotification(io, {
+        recipient: patientId,
+        title,
+        message,
+        type: 'info',
+        link: '/dashboard/patient/appointments',
+        portal: 'patient'
+      });
+    }
+  } catch (e) {
+    console.error('Failed to send appointment update notification to patient', e);
+  }
 
   res.status(200).json(
     new ApiResponse(200, updatedAppointment, 'Appointment updated successfully')

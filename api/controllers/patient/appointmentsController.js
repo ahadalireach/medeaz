@@ -229,10 +229,12 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
   if (effectiveClinicId) {
     const clinic = await Clinic.findById(effectiveClinicId);
     if (clinic && clinic.adminId) {
+      const apptDate = new Date(dateTime);
+      const formattedDate = apptDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
       await createNotification(io, {
         recipient: clinic.adminId,
         title: "New Booking at Clinic",
-        message: `A new appointment with Dr. ${doctor.fullName || 'Member'} has been scheduled by ${req.user.name}.`,
+        message: `A new appointment with Dr. ${doctor.fullName || 'Member'} has been scheduled by ${req.user.name} on ${formattedDate}.`,
         type: "info",
         link: "/dashboard/clinic_admin/appointments",
         portal: "clinic_admin"

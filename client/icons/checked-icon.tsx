@@ -10,6 +10,7 @@ const CheckedIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     const [scope, animate] = useAnimate();
 
     const start = async () => {
+      if (!scope || (scope as any).current == null) return;
       await animate(
         "svg",
         {

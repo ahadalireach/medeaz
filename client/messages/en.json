@@ -255,8 +255,12 @@
       "viewProfile": "View Profile",
       "clinicalFinancialDetails": "Clinical & Financial Details"
     },
+      "recordDetails": "Record Details",
     "staff": {
-      "title": "Staff Management",
+      "formTitle": "Document Title",
+      "diagnosis": "Diagnosis",
+      "doctorName": "Doctor Name",
+      "clinicName": "Clinic Name",
       "addStaff": "Add Staff",
       "name": "Name",
       "email": "Email",
@@ -266,9 +270,13 @@
       "noStaff": "No staff members found",
       "photo": "Photo",
       "uploadPhoto": "Upload Photo (Optional)",
+      "document": "Document",
       "deleteConfirm": "Are you sure you want to remove this staff member?",
       "addForm": {
-        "title": "Add Staff Member"
+        "title": "Add Staff Member",
+      "recordDeleted": "Family record deleted successfully",
+      "deleteRecord": "Delete Record",
+      "openRecord": "Open Record"
       },
       "editForm": {
         "title": "Edit Staff Member",

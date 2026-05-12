@@ -171,6 +171,14 @@ export const patientApi = createApi({
       invalidatesTags: ["FamilyRecords", "Records", "Dashboard"],
     }),
 
+    deleteFamilyRecord: builder.mutation({
+      query: ({ memberId, recordId }: { memberId: string; recordId: string }) => ({
+        url: `/patient/family/${memberId}/records/${recordId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["FamilyRecords", "Records", "Dashboard"],
+    }),
+
     getProfile: builder.query({
       query: () => "/patient/profile",
       providesTags: ["Profile"],
@@ -258,6 +266,7 @@ export const {
   useDeleteFamilyMemberMutation,
   useGetFamilyRecordsQuery,
   useAddFamilyRecordMutation,
+  useDeleteFamilyRecordMutation,
   useGetProfileQuery,
   useUpdateProfileMutation,
   useUpdatePasswordMutation,
