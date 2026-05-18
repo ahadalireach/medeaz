@@ -7,7 +7,7 @@ import DoctorTopbar from "@/components/doctor/DoctorTopbar";
 import OnboardingGate from "@/components/onboarding/OnboardingGate";
 import { ChatSocketProvider } from "@/providers/ChatSocketProvider";
 import { useTranslations } from "next-intl";
-import { Footer } from "@/components/home/Footer";
+import { AUTH_EXPIRED_EVENT } from "@/lib/authSession";
 
 export default function DoctorLayout({
   children,
@@ -42,6 +42,12 @@ export default function DoctorLayout({
     } finally {
       setIsCheckingAuth(false);
     }
+  }, [router]);
+
+  useEffect(() => {
+    const handleAuthExpired = () => router.replace("/login");
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
   }, [router]);
 
   if (isCheckingAuth || !isAuthorized) return null;
@@ -98,7 +104,6 @@ export default function DoctorLayout({
               </main>
             </OnboardingGate>
             <div className="print:hidden">
-              <Footer/>
             </div>
           </div>
         </div>

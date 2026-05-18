@@ -32,6 +32,9 @@ export default function VerifyPage() {
               refreshToken: res.refreshToken,
             }),
           );
+          if (typeof window !== "undefined" && res.data?.email) {
+            localStorage.setItem("medeaz_new_signup", res.data.email);
+          }
           const roles: string[] = Array.isArray(res.data?.roles)
             ? res.data.roles
             : [];

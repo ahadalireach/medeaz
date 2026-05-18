@@ -21,14 +21,20 @@ function ChatContent() {
   const [activeOtherParty, setActiveOtherParty] = useState<any>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { onConversationUpdated } = useChatSocket();
+  const { onConversationUpdated, onNewMessage } = useChatSocket();
 
   useEffect(() => {
-    const unsub = onConversationUpdated?.(() => {
+    const refreshConversations = () => {
       refetch();
-    });
-    return () => unsub?.();
-  }, []);
+    };
+
+    const unsubUpdated = onConversationUpdated?.(refreshConversations);
+    const unsubNewMessage = onNewMessage?.(refreshConversations);
+    return () => {
+      unsubUpdated?.();
+      unsubNewMessage?.();
+    };
+  }, [onConversationUpdated, onNewMessage, refetch]);
 
   useEffect(() => {
     const doctorId = searchParams.get('doctorId');

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useCreateAppointmentMutation, useSearchPatientsQuery, useGetScheduleQuery, useGetAppointmentsQuery } from "@/store/api/doctorApi";
+import { useCreateAppointmentMutation, useSearchPatientsQuery, useGetScheduleQuery, useGetAppointmentsQuery, useGetPatientByIdQuery } from "@/store/api/doctorApi";
 import { toast } from "react-hot-toast";
 import { ArrowLeft, Calendar, Clock, User, FileText, Loader, Search, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -11,6 +11,8 @@ import { useTranslations } from "next-intl";
 export default function NewAppointmentPage() {
   const t = useTranslations();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const patientIdFromQuery = searchParams.get("patientId") || "";
   const [formData, setFormData] = useState({
     patientId: "",
     appointmentDate: "",
@@ -31,6 +33,18 @@ export default function NewAppointmentPage() {
     { date: formData.appointmentDate, limit: 200 },
     { skip: !formData.appointmentDate }
   );
+  const { data: patientData } = useGetPatientByIdQuery(patientIdFromQuery, {
+    skip: !patientIdFromQuery,
+  });
+
+  useEffect(() => {
+    const patient = patientData?.data?.patient;
+    if (!patient || !patientIdFromQuery) return;
+
+    setFormData((prev) => (prev.patientId === patient._id ? prev : { ...prev, patientId: patient._id }));
+    setSearch(patient.email ? `${patient.name} (${patient.email})` : patient.name || "");
+    setIsOpen(false);
+  }, [patientData, patientIdFromQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,7 +57,13 @@ export default function NewAppointmentPage() {
     skip: debouncedSearch.length < 2
   });
 
-  const foundPatients = searchData?.data || [];
+  const foundPatients = Array.isArray(searchData?.data)
+    ? searchData.data
+    : Array.isArray(searchData)
+      ? searchData
+      : Array.isArray(searchData?.data?.patients)
+        ? searchData.data.patients
+        : [];
   const [createAppointment, { isLoading: creating }] = useCreateAppointmentMutation();
 
   const selectedDate = formData.appointmentDate ? new Date(`${formData.appointmentDate}T00:00:00`) : null;
@@ -321,7 +341,7 @@ export default function NewAppointmentPage() {
           <div>
             <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
               <Clock className="inline h-4 w-4 mr-2" />
-              {t('common.time')} <span className="text-red-500">*</span>
+              {t('form.time')} <span className="text-red-500">*</span>
             </label>
             <select
               value={formData.slotTime}
@@ -346,9 +366,7 @@ export default function NewAppointmentPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-          {t('doctor.appointments.newForm.fixedDuration')}
-        </div>
+        {/* fixed duration note removed per UX request */}
 
         {/* Appointment Type */}
         <div>

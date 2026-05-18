@@ -2,30 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
-const { uploadAudio } = require('../middleware/uploadMiddleware');
 
 // Import controllers
-const whisperController = require('../controllers/ai/whisperController');
 const geminiController = require('../controllers/ai/geminiController');
 const groqController = require('../controllers/ai/groqController');
-const prescriptionAIController = require('../controllers/ai/prescriptionAIController');
+const parsePrescriptionController = require('../controllers/ai/parsePrescription');
 
 // All routes require authentication
 router.use(protect);
-
-// ========== Whisper Routes (Doctor only) ==========
-router.post(
-  '/whisper/transcribe',
-  authorize('doctor'),
-  uploadAudio.single('audio'),
-  whisperController.transcribeAudio
-);
-
-router.post(
-  '/whisper/transcribe-buffer',
-  authorize('doctor'),
-  whisperController.transcribeAudioBuffer
-);
 
 // ========== Gemini Chat Routes ==========
 router.post('/gemini/chat', authorize('patient'), geminiController.chat);
@@ -36,23 +20,11 @@ router.post('/groq/chat', authorize('patient'), groqController.chat);
 router.post('/groq/health-advice', authorize('patient'), groqController.getHealthAdvice);
 
 // ========== Prescription AI Routes (Doctor only) ==========
-router.post(
-  '/prescription/parse',
-  authorize('doctor'),
-  prescriptionAIController.parsePrescriptionText
-);
-
-router.post(
-  '/prescription/voice',
-  authorize('doctor'),
-  uploadAudio.single('audio'),
-  prescriptionAIController.voicePrescription
-);
-
-router.post(
-  '/prescription/parse-enhanced',
-  authorize('doctor'),
-  prescriptionAIController.parseEnhanced
-);
+router.post('/prescriptions/parse', authorize('doctor'), parsePrescriptionController.parseTranscript);
+router.post('/prescription/parse', authorize('doctor'), parsePrescriptionController.parseTranscript);
+router.post('/gemini/parse-prescription', authorize('doctor'), parsePrescriptionController.parseTranscript);
+router.post('/chat/transcribe', authorize('doctor'), (req, res) => {
+  res.status(410).json({ success: false, message: 'This endpoint has been removed. Use /api/ai/prescriptions/parse.' });
+});
 
 module.exports = router;

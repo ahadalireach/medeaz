@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useDeleteRevenueHistoryRecordMutation, useGetRevenueHistoryQuery, useClearRevenueHistoryMutation } from "@/store/api/doctorApi";
 import { useTranslations } from "next-intl";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2, Loader2, Calendar, User, Banknote } from "lucide-react";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import toast from "react-hot-toast";
 
@@ -54,8 +54,8 @@ export default function DoctorRevenuePage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+    <div className="space-y-6 pb-10">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t("doctor.revenueHistory.title")}</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("doctor.revenueHistory.subtitle")}</p>
@@ -74,12 +74,62 @@ export default function DoctorRevenuePage() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1a1a1a]">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1a1a1a] shadow-sm">
         <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t("doctor.revenueHistory.totalEarned")}</p>
         <p className="mt-1 text-3xl font-black text-primary">{total.toLocaleString()} {t("common.pkr")}</p>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1a1a1a]">
+      <div className="space-y-4 md:hidden">
+        {isLoading ? (
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-[#1a1a1a]">{t("common.loading")}</div>
+        ) : entries.length ? entries.map((entry: any) => (
+          <div key={entry._id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-[#1a1a1a]">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.date")}</p>
+                <div className="mt-1 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  {new Date(entry.occurredAt).toLocaleDateString()}
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.earned")}</p>
+                <p className="mt-1 text-base font-black text-primary">{Number(entry.doctorShare || 0).toLocaleString()} {t("common.pkr")}</p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.patient")}</p>
+                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                  <User className="h-4 w-4 text-primary" />
+                  {entry.patientUserId?.name || entry.patientName || t("common.noData")}
+                </p>
+              </div>
+              <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.total")}</p>
+                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                  <Banknote className="h-4 w-4 text-primary" />
+                  {Number(entry.totalCost || 0).toLocaleString()} {t("common.pkr")}
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-xl border border-gray-100 p-3 dark:border-white/10">
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.consultationFee")}</p>
+                <p className="mt-1 font-semibold text-gray-900 dark:text-white">{Number(entry.consultationFee || 0).toLocaleString()} {t("common.pkr")}</p>
+              </div>
+              <div className="rounded-xl border border-gray-100 p-3 dark:border-white/10">
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.medicineCost")}</p>
+                <p className="mt-1 font-semibold text-gray-900 dark:text-white">{Number(entry.medicineCost || 0).toLocaleString()} {t("common.pkr")}</p>
+              </div>
+            </div>
+          </div>
+        )) : (
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-[#1a1a1a]">{t("doctor.revenueHistory.empty")}</div>
+        )}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1a1a1a] md:block">
         <table className="min-w-full text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
@@ -132,7 +182,7 @@ export default function DoctorRevenuePage() {
         onClose={() => setShowClearModal(false)}
         onConfirm={handleConfirmClear}
         title={t("doctor.revenueHistory.deleteAll")}
-        message={t("doctor.revenueHistory.clearConfirm") || "Delete all revenue history records? This cannot be undone."}
+        message={t("doctor.revenueHistory.clearConfirm")}
         confirmText={t("common.delete")}
       />
     </div>

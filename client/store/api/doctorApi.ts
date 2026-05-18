@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { patientApi } from './patientApi';
+import { expireSession } from '@/lib/authSession';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api',
@@ -41,19 +43,14 @@ const baseQueryWithReauth: BaseQueryFn<
 
         // Retry the original query with new token
         result = await baseQuery(args, api, extraOptions);
-      } else {
-        // Refresh failed - logout user
-        localStorage.clear();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+        if (result.error && result.error.status === 401) {
+          expireSession();
         }
+      } else {
+        expireSession();
       }
     } else {
-      // No refresh token - logout user
-      localStorage.clear();
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
+      expireSession();
     }
   }
 
@@ -189,6 +186,14 @@ export const doctorApi = createApi({
         body,
       }),
       invalidatesTags: ['Prescriptions', 'Appointments', 'DoctorAppointmentDetail'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(patientApi.util.invalidateTags(['Records', 'Dashboard']));
+        } catch {
+          // Ignore; the mutation error will surface through the mutation state.
+        }
+      },
     }),
     updatePrescription: builder.mutation({
       query: ({ id, ...body }) => ({

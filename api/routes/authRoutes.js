@@ -11,6 +11,10 @@ const {
   forgotPassword,
   resetPassword,
 } = require("../controllers/authController");
+const {
+  markComplete,
+  markProfileComplete,
+} = require("../controllers/onboardingController");
 const { protect } = require("../middleware/authMiddleware");
 
 router.post("/register", registerUser);
@@ -20,6 +24,8 @@ router.post("/logout", protect, logoutUser);
 router.post("/refresh", refreshAccessToken);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+router.patch("/onboarding/complete", protect, markComplete);
+router.patch("/onboarding/profile-complete", protect, markProfileComplete);
 
 router
   .route("/profile")

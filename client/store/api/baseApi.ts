@@ -2,6 +2,7 @@ import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "../store";
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { setAccessToken } from "../slices/authSlice";
+import { expireSession } from "@/lib/authSession";
 
 const baseFetchQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api",
@@ -18,6 +19,10 @@ const baseFetchQuery = fetchBaseQuery({
 const getRefreshToken = () => {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("refreshToken");
+};
+
+const logoutExpiredSession = () => {
+  expireSession();
 };
 
 // Custom base query with re-auth and error handling
@@ -54,19 +59,14 @@ export const baseQuery: BaseQueryFn<
 
         // Retry the original request with the new token
         result = await baseFetchQuery(args, api, extraOptions);
-      } else {
-        // Refresh failed - logout
-        if (typeof window !== "undefined") {
-          localStorage.clear();
-          window.location.href = "/login";
+        if (result.error && result.error.status === 401) {
+          logoutExpiredSession();
         }
+      } else {
+        logoutExpiredSession();
       }
     } else {
-      // No refresh token - logout
-      if (typeof window !== "undefined") {
-        localStorage.clear();
-        window.location.href = "/login";
-      }
+      logoutExpiredSession();
     }
   }
 

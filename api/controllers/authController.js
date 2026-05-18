@@ -33,6 +33,8 @@ const buildUserResponse = (user) => ({
   photo: user.photo,
   roles: user.roles,
   isVerified: user.isVerified,
+  onboardingCompleted: Boolean(user.onboardingCompleted),
+  profileCompleted: Boolean(user.profileCompleted),
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });

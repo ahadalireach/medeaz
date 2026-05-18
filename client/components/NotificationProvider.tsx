@@ -209,6 +209,10 @@ export default function NotificationProvider({
         );
       });
 
+      socket.on("conversation_updated", () => {
+        dispatch(chatApi.util.invalidateTags(["Conversations", "Messages"]));
+      });
+
       socket.on("notification:unread_flush", (payload: any) => {
         const incoming = Array.isArray(payload)
           ? payload
@@ -252,6 +256,7 @@ export default function NotificationProvider({
         socket.off("notification:unread_flush");
         socket.off("appointment_started");
         socket.off("prescription_ready");
+        socket.off("conversation_updated");
         socket.off("new_message");
         socket.off("conversation_deleted");
         socket.off("connect", handleConnect);
@@ -282,10 +287,12 @@ export default function NotificationProvider({
 
       socket.on("new_message", handleNewMessage);
       socket.on("conversation_deleted", handleConversationDeleted);
+      socket.on("conversation_updated", handleNewMessage);
 
       return () => {
         socket.off("new_message", handleNewMessage);
         socket.off("conversation_deleted", handleConversationDeleted);
+        socket.off("conversation_updated", handleNewMessage);
       };
     }
   }, [user, dispatch, pathname]);

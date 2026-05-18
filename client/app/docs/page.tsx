@@ -78,7 +78,7 @@ export default function DocsPage() {
 
       <main className="flex-1 mt-24 max-w-7xl mx-auto w-full px-6 py-12">
         <div className="flex flex-col md:flex-row gap-12">
-          <aside className="w-full md:w-72 flex-shrink-0 sticky top-36 h-fit">
+          <aside className="w-full md:w-72 shrink-0 sticky top-36 h-fit">
             <h2 className="text-xs font-bold uppercase tracking-wider text-text-secondary mb-6 px-4">
               {isUrdu ? "پروڈکٹ ڈاکیومنٹیشن" : "Product Documentation"}
             </h2>
@@ -177,8 +177,8 @@ export default function DocsPage() {
                   </h1>
                   <p className="text-lg text-text-secondary mb-8 leading-relaxed">
                     {isUrdu
-                      ? "پلیٹ فارم Next.js فرنٹ اینڈ، Node.js/Express بیک اینڈ، MongoDB + Redis ڈیٹا لیئر، اور AI سروسز (Whisper + Gemini/OpenAI) پر مبنی ہے۔"
-                      : "The product architecture uses a Next.js frontend, Node.js/Express APIs, MongoDB + Redis data layers, and AI services such as Whisper and Gemini/OpenAI."}
+                      ? "پلیٹ فارم Next.js فرنٹ اینڈ، Node.js/Express بیک اینڈ، MongoDB + Redis ڈیٹا لیئر، اور AI سروسز (speech transcription + Gemini/OpenAI) پر مبنی ہے۔"
+                      : "The product architecture uses a Next.js frontend, Node.js/Express APIs, MongoDB + Redis data layers, and AI services such as speech transcription and Gemini/OpenAI."}
                   </p>
 
                   <div className="space-y-6 mt-10">
@@ -429,7 +429,7 @@ function FeatureRow({
 }) {
   return (
     <div className="flex items-start space-x-6">
-      <div className="p-4 rounded-xl bg-primary/10 flex-shrink-0">
+      <div className="p-4 rounded-xl bg-primary/10 shrink-0">
         <Icon className="w-6 h-6 text-primary" />
       </div>
       <div>

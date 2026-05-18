@@ -24,7 +24,7 @@ export default function ClinicDashboard() {
 
       <OverviewCards />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 min-[800px]:grid-cols-2 gap-4 lg:gap-6">
         <PatientFlowChart />
         <RevenueChart />
       </div>

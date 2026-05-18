@@ -686,7 +686,6 @@ function ProfileCompletionModal({
           phone: state.patient.contact,
           photo: photoPreview || user.photo || null,
         });
-        toast.success(labels.patientProfileSaved);
       } else if (role === "doctor") {
         await doctorUpdate({
           name: state.doctor.name,
@@ -705,7 +704,6 @@ function ProfileCompletionModal({
           phone: state.doctor.phone,
           photo: photoPreview || user.photo || null,
         });
-        toast.success(labels.doctorProfileSaved);
       } else {
         await clinicSave({
           name: state.clinic.name,
@@ -724,14 +722,21 @@ function ProfileCompletionModal({
           phone: state.clinic.phone,
           photo: photoPreview || user.photo || null,
         });
-        toast.success(labels.clinicProfileSaved);
       }
 
       await markProfileComplete().unwrap();
       dispatch(setProfileComplete());
+      toast.success(
+        role === "patient"
+          ? labels.patientProfileSaved
+          : role === "doctor"
+            ? labels.doctorProfileSaved
+            : labels.clinicProfileSaved,
+      );
       onCompleted();
       onClose();
-    } catch {
+    } catch (error) {
+      console.error("Profile save failed", error);
       toast.error(labels.profileSaveError);
     }
   };
@@ -1346,8 +1351,8 @@ export default function OnboardingGate({ role, children }: { role: Role, childre
   const [profileOpen, setProfileOpen] = useState(false);
   const [markOnboardingComplete] = useMarkOnboardingCompleteMutation();
 
-  const onboardingCompleted = Boolean(user?.onboardingCompleted);
-  const profileCompleted = Boolean(user?.profileCompleted);
+  const onboardingCompleted = Boolean(user?.onboardingCompleted ?? user?.onboardingComplete);
+  const profileCompleted = Boolean(user?.profileCompleted ?? user?.profileComplete);
 
   useEffect(() => {
     setMounted(true);

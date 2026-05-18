@@ -6,7 +6,9 @@ interface AuthUser {
   role?: string;
   roles?: string[];
   isVerified: boolean;
+  profileCompleted?: boolean;
   profileComplete?: boolean;
+  onboardingCompleted?: boolean;
   onboardingComplete?: boolean;
   name?: string;
   phone?: string;
@@ -82,7 +84,7 @@ const authSlice = createSlice({
     setProfileComplete: {
       reducer: (state, action: PayloadAction<boolean>) => {
         if (state.user) {
-          state.user = { ...state.user, profileComplete: action.payload };
+          state.user = { ...state.user, profileCompleted: action.payload };
           persistUser(state.user);
         }
       },
@@ -91,7 +93,7 @@ const authSlice = createSlice({
     setOnboardingComplete: {
       reducer: (state, action: PayloadAction<boolean>) => {
         if (state.user) {
-          state.user = { ...state.user, onboardingComplete: action.payload };
+          state.user = { ...state.user, onboardingCompleted: action.payload };
           persistUser(state.user);
         }
       },

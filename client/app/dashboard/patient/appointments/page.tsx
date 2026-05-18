@@ -140,14 +140,43 @@ export default function AppointmentsPage() {
   const [cancelAppointment, { isLoading: isCancelling }] = useCancelAppointmentMutation();
   const [deleteAppointment] = useDeleteAppointmentMutation();
 
-  const appointments = (data?.data || []).filter((a: any) => {
+  const statusPriority: Record<string, number> = {
+    completed: 5,
+    "in-progress": 4,
+    confirmed: 3,
+    pending: 2,
+    reserved: 1,
+    cancelled: 0,
+  };
+
+  const appointments = (data?.data || [])
+    .filter((a: any) => {
     if (["all", "upcoming", "past"].includes(view)) return true;
     const date = new Date();
     if (view === "yesterday") date.setDate(date.getDate() - 1);
     if (view === "tomorrow") date.setDate(date.getDate() + 1);
     const targetDateStr = date.toISOString().split('T')[0];
     return a.dateTime?.split('T')[0] === targetDateStr;
-  });
+  })
+    .reduce((list: any[], appointment: any) => {
+      const slotKey = `${appointment.patientId?._id || appointment.patientId}-${appointment.doctorId?._id || appointment.doctorId}-${String(appointment.dateTime || "")}`;
+      const existingIndex = list.findIndex((item) => `${item.patientId?._id || item.patientId}-${item.doctorId?._id || item.doctorId}-${String(item.dateTime || "")}` === slotKey);
+
+      if (existingIndex === -1) {
+        list.push(appointment);
+        return list;
+      }
+
+      const existing = list[existingIndex];
+      const nextPriority = statusPriority[String(appointment.status || "").toLowerCase()] ?? -1;
+      const currentPriority = statusPriority[String(existing.status || "").toLowerCase()] ?? -1;
+
+      if (nextPriority > currentPriority || (nextPriority === currentPriority && new Date(appointment.updatedAt || 0).getTime() > new Date(existing.updatedAt || 0).getTime())) {
+        list[existingIndex] = appointment;
+      }
+
+      return list;
+    }, []);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "TBD";
@@ -237,7 +266,16 @@ export default function AppointmentsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="relative isolate -mx-4 min-h-[calc(100vh-8rem)] overflow-hidden bg-[#f6f8f8] sm:-mx-6 lg:-mx-8">
+      <svg className="absolute inset-0 w-full h-full pointer-events-none select-none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <defs>
+          <pattern id="appointments-diag" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="60" stroke="#0F4C5C" strokeWidth="0.6" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#appointments-diag)" opacity="0.1" />
+      </svg>
+      <div className="relative z-10 space-y-6 overflow-x-hidden px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-black text-text-primary uppercase tracking-tighter">
@@ -308,10 +346,10 @@ export default function AppointmentsPage() {
               key={appointment._id}
               className="rounded-3xl sm:rounded-[2.5rem] border border-border-light bg-white p-5 sm:p-8 transition-all hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 group"
             >
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex-1">
                   <div className="flex items-start gap-4 sm:gap-6">
-                    <div className="rounded-2xl sm:rounded-[2rem] bg-slate-100 dark:bg-zinc-800 h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center overflow-hidden shrink-0 border-2 border-black/5 group-hover:scale-110 transition-transform duration-500">
+                    <div className="rounded-2xl sm:rounded-4xl bg-slate-100 dark:bg-zinc-800 h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center overflow-hidden shrink-0 border-2 border-black/5 group-hover:scale-110 transition-transform duration-500">
                       {appointment.doctorId?.photo ? (
                         <img
                           src={appointment.doctorId.photo}
@@ -322,7 +360,7 @@ export default function AppointmentsPage() {
                         <User className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 max-w-full">
                       <div className="mb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                         <div className="min-w-0">
                           <h3 className="text-xl sm:text-2xl font-black text-text-primary tracking-tight truncate">
@@ -405,7 +443,7 @@ export default function AppointmentsPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col lg:w-48 gap-3 pt-2">
+                <div className="flex flex-col gap-3 pt-2 lg:w-48 lg:shrink-0 w-full max-w-full">
                   {appointment.status === "completed" && (
                     <>
                       {(appointment.patientFeedback?.score || appointment.rating?.score || appointment.reviewId) ? (
@@ -543,6 +581,7 @@ export default function AppointmentsPage() {
         title={t('common.delete')}
         message={t('modal.cannotUndo')}
       />
+      </div>
     </div>
   );
 }

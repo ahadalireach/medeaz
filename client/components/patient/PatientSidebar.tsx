@@ -82,7 +82,7 @@ export default function PatientSidebar() {
   };
 
   return (
-    <aside className={`lens-sidebar self-start hidden lg:flex flex-col h-screen overflow-y-auto ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
+    <aside style={{ zIndex: 600 }} className={`lens-sidebar self-start hidden lg:flex flex-col h-screen overflow-y-auto ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
       <button
         onClick={() => dispatch(toggleSidebar())}
         className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full shadow-lg border-2 border-white  z-50 hover:scale-110 transition-transform hidden lg:block`}

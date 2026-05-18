@@ -9,6 +9,7 @@ import { patientApi } from "./api/patientApi";
 import { notificationApi } from "./api/notificationApi";
 import { chatApi } from "./api/chatApi";
 import { aiApi } from "./api/aiApi";
+import { onboardingApi } from "./api/onboardingApi";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     [notificationApi.reducerPath]: notificationApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
+    [onboardingApi.reducerPath]: onboardingApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -31,7 +33,8 @@ export const store = configureStore({
       patientApi.middleware,
       notificationApi.middleware,
       chatApi.middleware,
-      aiApi.middleware
+      aiApi.middleware,
+      onboardingApi.middleware
     ),
 });
 

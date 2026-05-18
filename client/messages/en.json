@@ -68,6 +68,7 @@
       "Dec": "Dec"
     },
     "date": "Date",
+    "time": "Time",
     "mins": "mins",
     "type": "Type",
     "addNew": "Add New",
@@ -123,6 +124,7 @@
     "logoutSuccess": "Logged out successfully",
     "appointmentDeleted": "Appointment deleted successfully",
     "success": "Operation successful",
+    "prescriptionSaved": "Prescription saved successfully",
     "notificationMarkFailed": "Failed to mark notification as read",
     "settingsSaved": "Settings saved successfully"
   },
@@ -175,6 +177,7 @@
     "medicalProfessional": "Medical Professional",
     "privateClinic": "Private Clinic",
     "notSpecified": "Not Specified",
+    "notFound": "Prescription not found",
     "clinicInfo": "Clinic Information",
     "doctorInfo": "Doctor Information",
     "printPrescription": "Print Prescription",
@@ -197,6 +200,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "records": "Medical Records",
+    "medicalRecords": "Medical Records",
     "doctors": "Find Doctors",
     "appointments": "Appointments",
     "bookAppointment": "Book Appointment",
@@ -255,12 +259,7 @@
       "viewProfile": "View Profile",
       "clinicalFinancialDetails": "Clinical & Financial Details"
     },
-      "recordDetails": "Record Details",
     "staff": {
-      "formTitle": "Document Title",
-      "diagnosis": "Diagnosis",
-      "doctorName": "Doctor Name",
-      "clinicName": "Clinic Name",
       "addStaff": "Add Staff",
       "name": "Name",
       "email": "Email",
@@ -273,10 +272,7 @@
       "document": "Document",
       "deleteConfirm": "Are you sure you want to remove this staff member?",
       "addForm": {
-        "title": "Add Staff Member",
-      "recordDeleted": "Family record deleted successfully",
-      "deleteRecord": "Delete Record",
-      "openRecord": "Open Record"
+        "title": "Add Staff Member"
       },
       "editForm": {
         "title": "Edit Staff Member",
@@ -389,7 +385,11 @@
       "more": "More",
       "viewRecord": "View Record",
       "addRecordModalTitle": "Add Family Medical Record",
+      "recordDetails": "Record Details",
       "formTitle": "Title",
+      "doctorName": "Doctor Name",
+      "clinicName": "Clinic Name",
+      "document": "Document",
       "labReport": "Lab Report",
       "imaging": "Imaging",
       "prescription": "Prescription",
@@ -402,6 +402,10 @@
       "titleAndAttachmentRequired": "Title and attachment file are required",
       "recordAdded": "Family medical record added",
       "failedToAdd": "Failed to add family record",
+      "deleteRecord": "Delete Record",
+      "confirmDelete": "Are you sure you want to delete this record?",
+      "recordDeleted": "Family record deleted successfully",
+      "untitledRecord": "Untitled Record",
       "upload": "Upload",
       "update": "Update",
       "profilePicture": "Profile Picture",
@@ -616,6 +620,23 @@
     "revenue": {
       "title": "Revenue Overview"
     },
+    "revenueHistory": {
+      "title": "Revenue History",
+      "subtitle": "Track all earnings and transactions",
+      "deleteAll": "Delete All",
+      "totalEarned": "Total Earned",
+      "date": "Date",
+      "patient": "Patient",
+      "doctor": "Doctor",
+      "consultationFee": "Consultation Fee",
+      "medicineCost": "Medicine Cost",
+      "total": "Total",
+      "earned": "Earned",
+      "empty": "No revenue entries found",
+      "clearConfirm": "Delete all revenue history records? This cannot be undone.",
+      "recordDeleted": "Revenue record deleted successfully",
+      "cleared": "Revenue history cleared successfully"
+    },
     "prescriptions": {
       "title": "Prescriptions",
       "subtitle": "Manage prescriptions for all patients",
@@ -623,6 +644,7 @@
       "continueToRecording": "Continue to Recording",
       "skipToManual": "Skip to Manual Entry",
       "noPrescriptions": "No prescriptions found",
+      "tooShortRecording": "Recording is too short. Please record again.",
       "deletePrescription": "Delete Prescription",
       "confirmDelete": "Are you sure you want to delete this prescription?",
       "voiceTranscription": "AI Voice Transcription",

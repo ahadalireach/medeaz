@@ -40,6 +40,14 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

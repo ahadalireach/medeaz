@@ -4,6 +4,7 @@ import type {
   FetchArgs,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query";
+import { expireSession } from "@/lib/authSession";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api",
@@ -36,6 +37,9 @@ const baseQueryWithReauth: BaseQueryFn<
         api,
         extraOptions
       );
+        if (result.error && result.error.status === 401) {
+          expireSession();
+        }
 
       if (refreshResult.data) {
         const data = refreshResult.data as {

@@ -61,7 +61,7 @@ export default function ConversationList({ conversations, activeConversationId, 
   };
 
   return (
-    <div className={`w-full md:w-72 flex-shrink-0 border-r border-black/5  flex flex-col h-full bg-white  ${activeConversationId ? 'hidden md:flex' : 'flex'}`}>
+    <div className={`w-full md:w-72 shrink-0 border-r border-black/5 flex flex-col h-full bg-white ${activeConversationId ? 'hidden md:flex' : 'flex'}`}>
       {/* Header */}
       <div className="px-4 py-4 border-b border-black/5 flex items-center justify-between">
         <h2 className="text-sm font-semibold font-heading text-text-primary">Messages</h2>
@@ -72,7 +72,7 @@ export default function ConversationList({ conversations, activeConversationId, 
         {isLoading ? (
           <div className="p-3 space-y-2">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-lg bg-black/[0.06]" />
+              <div key={i} className="h-16 animate-pulse rounded-lg bg-black/6" />
             ))}
           </div>
         ) : conversations.length === 0 ? (
@@ -92,7 +92,7 @@ export default function ConversationList({ conversations, activeConversationId, 
                   ${activeConversationId === c._id
                     ? 'bg-primary/5 border-r-2 border-r-primary'
                     : unread
-                      ? 'bg-primary/[0.03]  hover:bg-primary/[0.06]'
+                      ? 'bg-primary/3 hover:bg-primary/6'
                       : 'hover:bg-black/5 :bg-white/5'
                   }`}
               >
@@ -115,7 +115,7 @@ export default function ConversationList({ conversations, activeConversationId, 
                       {c.otherParty.name}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] flex-shrink-0 ${unread ? 'font-bold text-primary font-heading' : 'text-text-muted '}`}>
+                      <span className={`text-[10px] shrink-0 ${unread ? 'font-bold text-primary font-heading' : 'text-text-muted '}`}>
                         {formatTime(c.lastMessageAt)}
                       </span>
                       <button
@@ -127,13 +127,13 @@ export default function ConversationList({ conversations, activeConversationId, 
                     </div>
                   </div>
                   <div className="flex items-center justify-between mt-0.5">
-                    <p className={`text-xs truncate max-w-[140px] ${unread
+                    <p className={`text-xs truncate max-w-35 ${unread
                       ? 'font-bold text-text-primary '
                       : 'text-text-muted '}`}>
                       {c.lastMessage || 'No messages yet'}
                     </p>
                     {unread && (
-                      <span className="ml-2 min-w-[20px] h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 px-1">
+                      <span className="ml-2 min-w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shrink-0 px-1">
                         {c.unreadCount > 9 ? '9+' : c.unreadCount}
                       </span>
                     )}

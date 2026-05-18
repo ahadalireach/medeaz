@@ -48,12 +48,12 @@ export default function PatientDashboard() {
             totalSpent={data?.data?.totalSpent || 0}
           />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             <SpentChart data={data?.data?.spendingTrend || []} />
             <DoctorsVisitedCard doctors={data?.data?.doctorsVisited || []} />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             <UpcomingAppointmentsWidget appointments={data?.data?.upcomingAppointments || []} />
             <RecentPrescriptions prescriptions={data?.data?.recentPrescriptions || []} />
           </div>

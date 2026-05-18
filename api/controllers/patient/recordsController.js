@@ -11,7 +11,7 @@ const Patient = require('../../models/Patient');
  */
 exports.getRecords = asyncHandler(async (req, res) => {
   const userId = req.user._id;
-  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 60, 1), 200);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
 
   // Find patient by userId - with fallback (matching dashboard)
   let patient = await Patient.findOne({ userId });
@@ -27,7 +27,7 @@ exports.getRecords = asyncHandler(async (req, res) => {
   const MedicalRecord = require('../../models/MedicalRecord');
   const [prescriptions, personalRecords] = await Promise.all([
     Prescription.find({ patientId: userId })
-      .select('doctorId clinicId diagnosis chiefComplaint attachments validUntil createdAt updatedAt')
+      .select('doctorId clinicId diagnosis chiefComplaint attachments createdAt updatedAt')
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate({
@@ -37,7 +37,7 @@ exports.getRecords = asyncHandler(async (req, res) => {
       .populate('clinicId', 'name')
       .lean(),
     patient ? MedicalRecord.find({ patientId: patient._id, prescriptionId: null })
-      .select('doctorId clinicId diagnosis chiefComplaint attachments validUntil createdAt updatedAt visitDate externalDoctorName externalClinicName')
+      .select('doctorId clinicId diagnosis chiefComplaint attachments createdAt updatedAt visitDate externalDoctorName externalClinicName')
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate('doctorId', 'name')

@@ -151,7 +151,7 @@ function RecordDetailContent() {
       <div className="rounded-xl border border-border-light bg-white p-12 text-center">
         <FileText className="mx-auto h-12 w-12 text-text-secondary" />
         <h3 className="mt-4 text-lg font-semibold text-text-primary">
-          {t("prescription.notFound")}
+          {t.has("prescription.notFound") ? t("prescription.notFound") : "Prescription not found"}
         </h3>
         <Button onClick={() => router.back()} className="mt-4">
           {t("common.back")}

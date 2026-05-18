@@ -123,6 +123,7 @@
     "logoutSuccess": "کامیابی سے لاگ آؤٹ ہو گیا",
     "appointmentDeleted": "اپائنٹمنٹ کامیابی سے حذف کر دی گئی",
     "success": "عمل کامیاب رہا",
+    "prescriptionSaved": "نسخہ کامیابی سے محفوظ ہو گیا",
     "notificationMarkFailed": "نوٹیفکیشن کو پڑھا ہوا نشان زد کرنے میں ناکامی",
     "settingsSaved": "ترتیبات کامیابی سے محفوظ ہو گئیں"
   },
@@ -175,6 +176,7 @@
     "medicalProfessional": "طبی پیشہ ور",
     "privateClinic": "پرائیویٹ کلینک",
     "notSpecified": "وضاحت نہیں کی گئی",
+    "notFound": "نسخہ نہیں ملا",
     "clinicInfo": "کلینک معلومات",
     "doctorInfo": "ڈاکٹر کی معلومات",
     "printPrescription": "نسخہ پرنٹ کریں",
@@ -197,6 +199,7 @@
   "nav": {
     "dashboard": "ڈیش بورڈ",
     "records": "طبی ریکارڈز",
+    "medicalRecords": "طبی ریکارڈز",
     "doctors": "ڈاکٹر تلاش کریں",
     "appointments": "اپائنٹمنٹ",
     "bookAppointment": "اپائنٹمنٹ بک کریں",
@@ -386,6 +389,7 @@
       "diagnosis": "تشخیص",
       "doctorName": "ڈاکٹر کا نام",
       "clinicName": "کلینک کا نام",
+      "untitledRecord": "بے عنوان ریکارڈ",
       "labReport": "لیب رپورٹ",
       "imaging": "ایمیجنگ",
       "prescription": "نسخہ",
@@ -401,6 +405,7 @@
       "failedToAdd": "خاندان کا ریکارڈ شامل کرنے میں ناکامی",
       "recordDeleted": "خاندان کا ریکارڈ حذف کر دیا گیا",
       "deleteRecord": "ریکارڈ حذف کریں",
+      "confirmDelete": "کیا آپ واقعی یہ ریکارڈ حذف کرنا چاہتے ہیں؟",
       "openRecord": "ریکارڈ کھولیں",
       "upload": "اپ لوڈ",
       "update": "اپ ڈیٹ",
@@ -616,6 +621,23 @@
     "revenue": {
       "title": "آمدنی کا جائزہ"
     },
+    "revenueHistory": {
+      "title": "آمدنی کی تاریخ",
+      "subtitle": "تمام آمدنی اور لین دین کو ٹریک کریں",
+      "deleteAll": "تمام حذف کریں",
+      "totalEarned": "کل آمدنی",
+      "date": "تاریخ",
+      "patient": "مریض",
+      "doctor": "ڈاکٹر",
+      "consultationFee": "مشاورت فیس",
+      "medicineCost": "ادویات کی قیمت",
+      "total": "کل",
+      "earned": "حاصل شدہ",
+      "empty": "کوئی آمدنی کا اندراج نہیں ملا",
+      "clearConfirm": "کیا آپ واقعی تمام آمدنی کی تاریخ حذف کرنا چاہتے ہیں؟ یہ عمل واپس نہیں لیا جا سکتا۔",
+      "recordDeleted": "آمدنی کا ریکارڈ کامیابی سے حذف ہو گیا",
+      "cleared": "آمدنی کی تاریخ کامیابی سے صاف ہو گئی"
+    },
     "prescriptions": {
       "title": "نسخے",
       "subtitle": "تمام مریضوں کے نسخے منظم کریں",
@@ -623,6 +645,7 @@
       "continueToRecording": "ریکارڈنگ جاری رکھیں",
       "skipToManual": "دستی اندراج پر جائیں",
       "noPrescriptions": "کوئی نسخہ نہیں ملا",
+      "tooShortRecording": "ریکارڈنگ بہت مختصر ہے۔ براہ کرم دوبارہ ریکارڈ کریں۔",
       "deletePrescription": "نسخہ حذف کریں",
       "confirmDelete": "کیا آپ واقعی یہ نسخہ حذف کرنا چاہتے ہیں؟",
       "voiceTranscription": "AI آواز کی منتقلی",

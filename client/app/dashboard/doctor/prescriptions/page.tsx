@@ -86,7 +86,7 @@ function downloadPrescriptionPDF(
     </div>
     <div class="section">
       <div class="section-title">${labels.healthcareProvider}</div>
-      <div style="font-size:20px;font-weight:800;color:#111 !important;margin-bottom:4px">Dr. ${prescription.doctorId?.name || labels.medicalProfessional}</div>
+      <div style="font-size:20px;font-weight:800;color:#111 !important;margin-bottom:4px">Dr. ${prescription.doctorId?.fullName || prescription.doctorId?.name || labels.medicalProfessional}</div>
       <div style="font-size:14px;font-weight:700;color:#00b495 !important">${prescription.clinicId?.name || labels.privateClinic}</div>
       <div style="font-size:12px;color:#6b7280;margin-top:2px">${prescription.clinicId?.address || ''}</div>
     </div>
@@ -205,7 +205,9 @@ function PrescriptionsContent() {
     }
   };
 
-  const prescriptions = [...(data?.data?.prescriptions || [])];
+  const prescriptions = Array.isArray(data?.data)
+    ? [...data.data]
+    : [...(data?.data?.prescriptions || [])];
   
   if (specificPrescription?.data && !prescriptions.some(p => p._id === specificPrescription.data._id)) {
     prescriptions.unshift(specificPrescription.data);
@@ -257,13 +259,13 @@ function PrescriptionsContent() {
               {t('doctor.prescriptions.subtitle')}
             </p>
           </div>
-          <Link
-            href="/dashboard/doctor/prescriptions/new"
-            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md"
-          >
-            <Plus className="h-5 w-5 stroke-[2.5px]" />
-            {t('doctor.prescriptions.newPrescription')}
-          </Link>
+              <Link
+                href="/dashboard/doctor/prescriptions/new"
+                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md"
+              >
+                <Plus className="h-5 w-5 stroke-[2.5px]" />
+                {t('doctor.prescriptions.newPrescription')}
+              </Link>
         </div>
 
         {/* Search Bar */}
@@ -295,9 +297,7 @@ function PrescriptionsContent() {
                 <FileText className="h-10 w-10 text-primary" />
               </div>
               <p className="text-gray-900 dark:text-white text-lg font-bold">{t('doctor.prescriptions.noPrescriptions')}</p>
-              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 mb-6 font-medium">
-                {searchQuery ? t('common.noResults') : t('doctor.prescriptions.noPrescriptions')}
-              </p>
+              {/* Keep single clear message; avoid duplicate 'No prescriptions found' lines */}
               {!searchQuery && (
                 <Link
                   href="/dashboard/doctor/prescriptions/new"

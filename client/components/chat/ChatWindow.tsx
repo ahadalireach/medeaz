@@ -92,6 +92,10 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
 
     const unsubRead = onMessagesRead(({ conversationId: incomingId, readerId }: any) => {
       if (incomingId === conversationId) {
+        if (normalizeUserId(readerId) === currentUserId) {
+          return;
+        }
+
         setMessages((prev: any[]) => prev.map((m: any) => {
           const senderIdStr = normalizeUserId(m.senderId);
           if (senderIdStr === currentUserId) {
@@ -130,7 +134,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
       unsubRead?.();
       unsubStatus?.();
     };
-  }, [conversationId, currentUser.role]);
+  }, [conversationId, currentUser.role, onNewMessage, onTypingStatus, onMessagesRead, onMessageStatusUpdated, onMessageDeleted, joinConversation, leaveConversation, acknowledgeDelivered]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -254,6 +258,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2">
         {messages.map((msg) => {
           const isMine = isOwnMessage(msg);
+          const displayContent = typeof msg.content === 'string' && msg.content.trim() ? msg.content : '';
 
           return (
             <div key={msg._id} className="w-full animate-in fade-in slide-in-from-bottom-2 group/msg">
@@ -274,7 +279,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
                     <Paperclip size={14} /> {msg.fileName || 'File'}
                   </a>
                 ) : (
-                  msg.content
+                  displayContent
                 )}
                 <div className={`text-[10px] mt-1 flex items-center gap-1.5 ${isMine ? 'text-white/80 justify-end' : 'text-text-secondary justify-start'}`}>
                   {format(new Date(msg.createdAt), 'h:mm a')}

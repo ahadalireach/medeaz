@@ -34,16 +34,16 @@ export default function RevenueChart() {
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <CardTitle className="text-xl">{t('analytics.revenueByPeriod')}</CardTitle>
         </div>
-        <div className="flex bg-surface p-1 rounded-2xl border border-black/5">
+        <div className="flex w-full sm:w-auto items-center justify-between gap-2 bg-surface p-1 rounded-2xl border border-black/5">
           {(["week", "month", "year"] as const).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p
                 ? "bg-white  text-primary shadow-sm"
                 : "text-text-primary hover:text-text-primary :text-white/70"
                 }`}
@@ -56,9 +56,9 @@ export default function RevenueChart() {
 
       <CardContent>
         {isLoading ? (
-          <div className="h-72 bg-surface rounded-[2rem] animate-pulse"></div>
+          <div className="h-72 bg-surface rounded-4xl animate-pulse"></div>
         ) : (
-          <div className="h-[280px] w-full">
+          <div className="h-70 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
                 <defs>

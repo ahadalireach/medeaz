@@ -25,19 +25,41 @@ exports.getRevenue = asyncHandler(async (req, res) => {
   const revenue = doctor.revenue || { total: 0, monthly: new Map(), daily: new Map() };
   const monthlyMap = revenue.monthly instanceof Map ? revenue.monthly : new Map();
   const dailyMap   = revenue.daily   instanceof Map ? revenue.daily   : new Map();
+  const revenueEntries = await RevenueEntry.find({ doctorUserId: req.user._id }).select('doctorShare occurredAt').lean();
+
+  const derivedMonthly = new Map();
+  const derivedDaily = new Map();
+  let derivedTotal = 0;
+
+  for (const entry of revenueEntries) {
+    const amount = Number(entry.doctorShare || 0);
+    if (!amount) continue;
+
+    const when = new Date(entry.occurredAt || new Date());
+    const monthKey = `${when.getFullYear()}-${String(when.getMonth() + 1).padStart(2, '0')}`;
+    const dayKey = `${when.getFullYear()}-${String(when.getMonth() + 1).padStart(2, '0')}-${String(when.getDate()).padStart(2, '0')}`;
+
+    derivedTotal += amount;
+    derivedMonthly.set(monthKey, (derivedMonthly.get(monthKey) || 0) + amount);
+    derivedDaily.set(dayKey, (derivedDaily.get(dayKey) || 0) + amount);
+  }
+
+  const effectiveMonthlyMap = monthlyMap.size ? monthlyMap : derivedMonthly;
+  const effectiveDailyMap = dailyMap.size ? dailyMap : derivedDaily;
+  const effectiveTotal = Number(revenue.total || 0) > 0 ? revenue.total : derivedTotal;
 
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const thisMonthRevenue = monthlyMap.get(currentMonth) || 0;
+  const thisMonthRevenue = effectiveMonthlyMap.get(currentMonth) || 0;
 
   // Convert Map to plain object for JSON response
   const monthlyRevenueObj = {};
-  monthlyMap.forEach((value, key) => {
+  effectiveMonthlyMap.forEach((value, key) => {
     monthlyRevenueObj[key] = value;
   });
 
   const dailyRevenueObj = {};
-  dailyMap.forEach((value, key) => {
+  effectiveDailyMap.forEach((value, key) => {
     dailyRevenueObj[key] = value;
   });
 
@@ -88,7 +110,7 @@ exports.getRevenue = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json(new ApiResponse(200, {
-    total: revenue.total || 0,
+    total: effectiveTotal || 0,
     monthly: monthlyRevenueObj,
     thisMonth: thisMonthRevenue,
     chartData: revenueData
@@ -145,13 +167,43 @@ exports.getRevenueHistory = asyncHandler(async (req, res) => {
     RevenueEntry.countDocuments({ doctorUserId: req.user._id }),
   ]);
 
+  let fallbackPrescriptions = [];
+  if (total === 0) {
+    fallbackPrescriptions = await Prescription.find({ doctorId: req.user._id, totalCost: { $gt: 0 } })
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .populate('patientId', 'name email')
+      .populate('clinicId', 'name')
+      .lean();
+  }
+
+  const syntheticEntries = (fallbackPrescriptions || []).map((prescription) => ({
+    _id: `rx-${prescription._id}`,
+    doctorUserId: req.user._id,
+    clinicId: prescription.clinicId || null,
+    patientUserId: prescription.patientId || null,
+    appointmentId: prescription.appointmentId || null,
+    prescriptionId: prescription._id,
+    sourceType: 'manual_prescription',
+    consultationFee: Number(prescription.consultationFee || 0),
+    medicineCost: Number(prescription.medicineCost || 0),
+    totalCost: Number(prescription.totalCost || 0),
+    doctorShare: Number(prescription.totalCost || 0) * 0.8,
+    clinicShare: Number(prescription.totalCost || 0) * 0.2,
+    occurredAt: prescription.createdAt,
+    patientUserId: prescription.patientId,
+    patientName: prescription.patientId?.name || 'Patient',
+  }));
+
+  const mergedEntries = entries.length ? entries : syntheticEntries;
+
   res.status(200).json(new ApiResponse(200, {
-    entries,
+    entries: mergedEntries,
     pagination: {
       page: Number(page),
       limit: Number(limit),
-      total,
-      pages: Math.ceil(total / Number(limit)),
+      total: entries.length ? total : mergedEntries.length,
+      pages: Math.ceil((entries.length ? total : mergedEntries.length) / Number(limit)),
     },
   }, 'Revenue history fetched successfully'));
 });

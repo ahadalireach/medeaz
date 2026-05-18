@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import NextImage from "next/image";
-import { useDeleteRecordMutation, useGetRecordDetailQuery } from "@/store/api/patientApi";
+import { useGetRecordDetailQuery } from "@/store/api/patientApi";
 import {
   ArrowLeft,
   Calendar,
@@ -20,8 +20,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
-import { toast } from "react-hot-toast";
 import { useFormatter, useTranslations } from "next-intl";
 
 export default function ClinicAdminRecordDetailPage() {
@@ -32,10 +30,8 @@ export default function ClinicAdminRecordDetailPage() {
   const search = useSearchParams();
   const id = params?.id as string;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { data, isLoading } = useGetRecordDetailQuery(id);
-  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
   const prescription = data?.data;
 
   const formatDate = (dateString: string) => {
@@ -60,17 +56,6 @@ export default function ClinicAdminRecordDetailPage() {
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const handleDelete = async () => {
-    try {
-      await deleteRecord(id).unwrap();
-      toast.success(t("common.success") || "Record deleted");
-      // Navigate back to clinic admin patient list or records
-      router.push("/dashboard/clinic_admin/patients");
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to delete record");
-    }
   };
 
   if (isLoading) {
@@ -101,11 +86,8 @@ export default function ClinicAdminRecordDetailPage() {
           <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
           <span className="font-medium">{t("prescription.backToRecords")}</span>
         </button>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full sm:w-auto">
-          <Button onClick={() => setIsDeleteModalOpen(true)} disabled={isDeleting} variant="outline" className="w-full bg-white border-red-200 text-red-600 h-10 sm:h-11 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest hover:bg-red-50">
-            {t("patient.records.deleteRecord")}
-          </Button>
-          <Button onClick={handlePrint} variant="outline" className="w-full bg-white border-black/10 h-10 sm:h-11 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest sm:hover:scale-105 transition-all">
+        <div className="flex w-full justify-end sm:w-auto">
+          <Button onClick={handlePrint} variant="outline" className="w-full sm:w-auto bg-white border-black/10 h-10 sm:h-11 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest sm:hover:scale-105 transition-all">
             <Printer className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
             {t("prescription.printPrescription")}
           </Button>
@@ -173,7 +155,6 @@ export default function ClinicAdminRecordDetailPage() {
 
       </div>
 
-      <ConfirmationModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={handleDelete} title={t("patient.records.deleteRecord")} message={t("patient.records.confirmDelete")} />
     </div>
   );
 }

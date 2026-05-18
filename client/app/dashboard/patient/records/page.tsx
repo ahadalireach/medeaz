@@ -189,7 +189,7 @@ import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 
 export default function RecordsPage() {
   const t = useTranslations();
-  const { data, isLoading, refetch, isFetching } = useGetRecordsQuery({ limit: 40 });
+  const { data, isLoading, refetch, isFetching } = useGetRecordsQuery({ limit: 20 });
   const [deleteRecord] = useDeleteRecordMutation();
   const [searchTerm, setSearchTerm] = useState("");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -263,7 +263,7 @@ export default function RecordsPage() {
           placeholder={t('common.search') + '...'}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full h-16 rounded-[2rem] border-black/5 bg-white pl-16 pr-6 text-sm font-bold text-text-primary placeholder:text-text-secondary focus:ring-1 focus:ring-primary focus:border-primary shadow-sm transition-all"
+          className="w-full h-16 rounded-4xl border-black/5 bg-white pl-16 pr-6 text-sm font-bold text-text-primary placeholder:text-text-secondary focus:ring-1 focus:ring-primary focus:border-primary shadow-sm transition-all"
         />
       </div>
 
@@ -321,7 +321,7 @@ export default function RecordsPage() {
                         {record.clinicId?.name && (
                           <div className="flex items-center gap-2">
                             <Building2 size={14} className="text-[#B45309]" />
-                            <span className="text-[10px] font-black text-text-secondary uppercase tracking-wider leading-none truncate max-w-[150px]">{record.clinicId.name}</span>
+                            <span className="text-[10px] font-black text-text-secondary uppercase tracking-wider leading-none truncate max-w-37.5">{record.clinicId.name}</span>
                           </div>
                         )}
                       </div>
@@ -348,7 +348,7 @@ export default function RecordsPage() {
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>
-                      <div className="h-10 px-6 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
+                      <div className="h-10 px-6 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105">
                         {t('common.view')}
                       </div>
                     </div>

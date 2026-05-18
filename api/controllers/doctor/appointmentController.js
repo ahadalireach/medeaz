@@ -1,10 +1,119 @@
 const Appointment = require('../../models/Appointment');
 const User = require('../../models/User');
 const Doctor = require('../../models/Doctor');
+const Clinic = require('../../models/Clinic');
+const Prescription = require('../../models/Prescription');
+const { updateRevenue } = require('../../utils/revenue');
 const { createNotification } = require('../../utils/notification');
 const asyncHandler = require('../../utils/asyncHandler');
 const ApiError = require('../../utils/ApiError');
 const ApiResponse = require('../../utils/ApiResponse');
+
+const resolvePrescriptionTotalCost = (payload = {}) => {
+  const consultationFee = Number(payload.consultationFee || 0);
+  const medicineCost = Number(payload.medicineCost || 0);
+  const explicitTotal = Number(payload.totalCost || 0);
+  return explicitTotal > 0 ? explicitTotal : consultationFee + medicineCost;
+};
+
+const createPrescriptionForCompletedAppointment = async ({ appointment, doctorId, prescriptionData = {}, req }) => {
+  if (!appointment || appointment.prescriptionId) {
+    return null;
+  }
+
+  const payload = prescriptionData.prescription || prescriptionData.prescriptionData || prescriptionData;
+  if (!payload || !payload.diagnosis) {
+    return null;
+  }
+
+  const doctor = await Doctor.findOne({ userId: doctorId });
+  const patientUser = await User.findById(appointment.patientId).select('name');
+  const doctorFullName = doctor?.fullName || req.user?.name || 'your doctor';
+  const patientFullName = patientUser?.name || 'the patient';
+  const consultationFee = Number(payload.consultationFee || doctor?.consultationFee || 0);
+  const medicineCost = Number(payload.medicineCost || 0);
+  const resolvedTotalCost = Number(payload.totalCost || 0) > 0 ? Number(payload.totalCost) : consultationFee + medicineCost;
+
+  const prescription = await Prescription.create({
+    doctorId,
+    patientId: appointment.patientId,
+    appointmentId: appointment._id,
+    clinicId: doctor?.clinicId || appointment.clinicId || null,
+    diagnosis: payload.diagnosis,
+    medicines: payload.medicines || [],
+    notes: payload.notes || '',
+    consultationFee,
+    medicineCost,
+    totalCost: resolvedTotalCost,
+    followUpDate: payload.followUpDate || null,
+    createdBy: doctorId,
+    status: 'finalized',
+    rawTranscript: payload.rawTranscript || '',
+    audioUrl: payload.audioUrl || '',
+  });
+
+  // Debug logging to help trace prescription creation path from appointments
+  try {
+    console.debug('Auto-created prescription from appointment:', {
+      appointmentId: appointment._id?.toString(),
+      prescriptionId: prescription._id?.toString(),
+      doctorIdProvided: doctorId?.toString(),
+      prescriptionDoctorId: prescription.doctorId?.toString()
+    });
+  } catch (e) {
+    console.warn('Failed to log auto-created prescription debug info', e?.message || e);
+  }
+
+  appointment.prescriptionId = prescription._id;
+  await appointment.save();
+
+  if (resolvedTotalCost > 0) {
+    await updateRevenue(doctorId, resolvedTotalCost, doctor?.clinicId || appointment.clinicId, appointment.patientId, {
+      source: 'appointment_completed',
+      appointmentId: appointment._id,
+      prescriptionId: prescription._id,
+      consultationFee,
+      medicineCost,
+      occurredAt: appointment.completedAt || new Date(),
+    });
+  }
+
+  const io = req.app.get('io');
+  const clinic = (doctor?.clinicId || appointment.clinicId)
+    ? await Clinic.findById(doctor?.clinicId || appointment.clinicId).select('adminId')
+    : null;
+
+  await createNotification(io, {
+    recipient: appointment.patientId,
+    title: 'New Prescription Available',
+    message: `Dr. ${doctorFullName} created a prescription for you`,
+    type: 'success',
+    link: '/dashboard/patient/records',
+    portal: 'patient'
+  });
+
+  await createNotification(io, {
+    recipient: doctorId,
+    title: 'Prescription Created',
+    message: `You created a prescription for patient "${patientFullName}"`,
+    type: 'success',
+    link: '/dashboard/doctor/prescriptions',
+    portal: 'doctor'
+  });
+
+  if (clinic?.adminId) {
+    await createNotification(io, {
+      recipient: clinic.adminId,
+      title: 'Prescription Created',
+      message: `Dr. ${doctorFullName} created a prescription for patient "${patientFullName}"`,
+      type: 'success',
+      link: '/dashboard/clinic_admin/appointments',
+      portal: 'clinic_admin'
+    });
+  }
+
+  return prescription;
+};
 
 /**
  * @desc    Create a new appointment
@@ -34,7 +143,7 @@ exports.createAppointment = asyncHandler(async (req, res) => {
 
   // Check for scheduling conflicts
   const appointmentDate = new Date(dateTime);
-  const appointmentEndTime = new Date(appointmentDate.getTime() + (duration || 30) * 60000);
+  const appointmentEndTime = new Date(appointmentDate.getTime() + (duration || 15) * 60000);
   
   const conflictingAppointment = await Appointment.findOne({
     doctorId,
@@ -72,7 +181,7 @@ exports.createAppointment = asyncHandler(async (req, res) => {
     patientId,
     clinicId: doctor.clinicId || null,
     dateTime: appointmentDate,
-    duration: duration || 30,
+    duration: duration || 15,
     type: type || 'consultation',
     reason: reason || 'General consultation',
     notes,
@@ -201,6 +310,8 @@ exports.getAppointmentById = asyncHandler(async (req, res) => {
 
   const result = {
     ...appointment.toObject(),
+    totalFee: prescription ? (prescription.totalCost || prescription.consultationFee || 0) : 0,
+    clinicRevenue: prescription ? ((prescription.totalCost || prescription.consultationFee || 0) * 0.2) : 0,
     patient: {
       name: appointment.patientId?.name,
       email: appointment.patientId?.email,
@@ -270,6 +381,15 @@ exports.updateAppointmentStatus = asyncHandler(async (req, res) => {
   }
 
   await appointment.save();
+
+  if (appointment.status === 'completed') {
+    await createPrescriptionForCompletedAppointment({
+      appointment,
+      doctorId: req.user._id,
+      prescriptionData: req.body,
+      req,
+    });
+  }
 
   const updatedAppointment = await Appointment.findById(appointment._id)
     .populate('patientId', 'name email phone')
@@ -372,6 +492,13 @@ exports.completeAppointment = asyncHandler(async (req, res) => {
   }
 
   await appointment.save();
+
+  await createPrescriptionForCompletedAppointment({
+    appointment,
+    doctorId: req.user._id,
+    prescriptionData: req.body,
+    req,
+  });
 
   const updatedAppointment = await Appointment.findById(appointment._id)
     .populate('patientId', 'name email phone')

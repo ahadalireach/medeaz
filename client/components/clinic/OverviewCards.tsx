@@ -49,9 +49,9 @@ export default function OverviewCards() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 min-[406px]:grid-cols-2 xl:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] animate-pulse min-h-[120px]">
+          <div key={i} className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-4xl animate-pulse min-h-30">
             <div className="flex items-center justify-between">
               <div className="space-y-2 flex-1">
                 <div className="h-3 bg-surface rounded w-24" />
@@ -66,7 +66,7 @@ export default function OverviewCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 min-[406px]:grid-cols-2 xl:grid-cols-4 gap-4">
       {stats.map((stat) => {
         const Icon = stat.icon;
         
@@ -85,7 +85,7 @@ export default function OverviewCards() {
             href={href} 
             className="block group"
           >
-            <div className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] transition-all hover:border-primary/30 shadow-sm flex items-center justify-between min-h-[100px] sm:min-h-[120px] relative overflow-hidden">
+            <div className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-4xl transition-all hover:border-primary/30 shadow-sm flex items-center justify-between min-h-25 sm:min-h-30 relative overflow-hidden">
               <div className="flex flex-col justify-center min-w-0 flex-1">
                 <p className="text-[11px] sm:text-[12px] font-bold text-text-primary tracking-widest mb-1">
                   {stat.label}

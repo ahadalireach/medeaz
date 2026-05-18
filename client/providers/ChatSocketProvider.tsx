@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSelector, useDispatch } from 'react-redux';
 import { usePathname } from 'next/navigation';
@@ -15,6 +15,7 @@ export function ChatSocketProvider({ children }: { children: React.ReactNode }) 
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const user = useSelector((state: RootState) => state.auth.user);
   const socketRef = useRef<Socket | null>(null);
+  const [socketReady, setSocketReady] = useState(false);
   const pathname = usePathname();
   const dispatch = useDispatch();
 
@@ -28,6 +29,7 @@ export function ChatSocketProvider({ children }: { children: React.ReactNode }) 
       auth: { token },
       transports: ['websocket'],
     });
+    setSocketReady(true);
 
     socketRef.current.on('connect', () => {
       if (user?._id) {
@@ -81,6 +83,8 @@ export function ChatSocketProvider({ children }: { children: React.ReactNode }) 
 
     return () => {
       socketRef.current?.disconnect();
+      socketRef.current = null;
+      setSocketReady(false);
     };
   }, [token, user?._id, pathname, dispatch]);
 
@@ -146,6 +150,7 @@ export function ChatSocketProvider({ children }: { children: React.ReactNode }) 
   return (
     <ChatSocketContext.Provider value={{
       socket: socketRef.current,
+      socketReady,
       joinConversation,
       leaveConversation,
       sendMessage,

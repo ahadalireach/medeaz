@@ -89,7 +89,8 @@ export default function ClinicSidebar() {
 
   return (
     <aside
-      className={`lens-sidebar sticky top-0 self-start hidden lg:flex relative ${isCollapsed ? "lens-sidebar-collapsed" : ""}`}
+      style={{ zIndex: 600 }}
+      className={`lens-sidebar sticky top-0 self-start hidden lg:flex ${isCollapsed ? "lens-sidebar-collapsed" : ""}`}
     >
       <button
         onClick={() => dispatch(toggleSidebar())}

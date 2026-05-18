@@ -1,4 +1,5 @@
 const axios = require('axios');
+const FormData = require('form-data');
 
 const CHAT_SYSTEM_PROMPT = `You are a helpful medical AI assistant for Medeaz, a healthcare platform.
 You provide general health guidance and information only.
@@ -61,6 +62,8 @@ class GroqService {
         }
       );
 
+      // Debug: log full response for troubleshooting transcription/parse issues
+      console.debug('Groq Chat Response:', response.data);
       return response.data.choices[0].message.content;
     } catch (error) {
       console.error('Groq Chat Error:', error.response?.data || error.message);
@@ -119,7 +122,10 @@ class GroqService {
         }
       );
 
+      // Log raw response to help debug parsing failures
+      console.debug('Groq Parse Response:', response.data);
       const text = response.data.choices[0].message.content;
+      console.debug('Groq Parse Text:', text);
       return JSON.parse(text);
     } catch (error) {
       console.error('Groq Parse Error:', error.response?.data || error.message);
@@ -127,6 +133,7 @@ class GroqService {
       throw new Error('Failed to parse prescription with Groq');
     }
   }
+
 }
 
 const groqServiceInstance = new GroqService();

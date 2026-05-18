@@ -26,7 +26,7 @@ const appointmentSchema = new mongoose.Schema({
   },
   duration: {
     type: Number,
-    default: 30, // minutes
+    default: 15, // minutes
     min: 15,
     max: 180
   },

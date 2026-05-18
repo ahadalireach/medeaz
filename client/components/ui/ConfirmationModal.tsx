@@ -14,6 +14,8 @@ interface ConfirmationModalProps {
   confirmText?: string;
   cancelText?: string;
   variant?: "danger" | "warning" | "primary";
+  confirmLoading?: boolean;
+  closeOnConfirm?: boolean;
 }
 
 export function ConfirmationModal({
@@ -25,10 +27,25 @@ export function ConfirmationModal({
   confirmText = "Delete",
   cancelText = "Cancel",
   variant = "danger",
+  confirmLoading = false,
+  closeOnConfirm = true,
 }: ConfirmationModalProps) {
   const t = useTranslations();
+  const handleClose = () => {
+    if (!confirmLoading) {
+      onClose();
+    }
+  };
+
+  const handleConfirm = () => {
+    onConfirm();
+    if (closeOnConfirm && !confirmLoading) {
+      onClose();
+    }
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
+    <Modal isOpen={isOpen} onClose={handleClose} title={title} size="sm">
       <div className="space-y-6">
         <div className="flex flex-col items-center text-center gap-4">
           <div
@@ -51,17 +68,16 @@ export function ConfirmationModal({
         <div className="flex gap-3 pt-2">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={handleClose}
+            disabled={confirmLoading}
             className="flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest"
           >
             {cancelText === "Cancel" ? t("common.cancel") : cancelText}
           </Button>
           <Button
             variant="default"
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
+            onClick={handleConfirm}
+            disabled={confirmLoading}
             className={`flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest ${
               variant === "danger"
                 ? "bg-red-500 text-white hover:bg-red-600"
@@ -70,7 +86,9 @@ export function ConfirmationModal({
                   : ""
             }`}
           >
-            {confirmText === "Delete"
+            {confirmLoading
+              ? t("common.loading")
+              : confirmText === "Delete"
               ? t("common.delete")
               : confirmText === "Confirm"
                 ? t("common.confirm")

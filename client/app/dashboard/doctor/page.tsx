@@ -18,7 +18,34 @@ export default function DoctorDashboard() {
   const { data, isLoading } = useGetTodayQueueQuery(undefined);
   const { data: profileData } = useGetDoctorProfileQuery(undefined);
 
-  const todayQueue = data?.data?.appointments || [];
+  const statusPriority: Record<string, number> = {
+    completed: 5,
+    "in-progress": 4,
+    confirmed: 3,
+    pending: 2,
+    reserved: 1,
+    cancelled: 0,
+  };
+
+  const todayQueue = (data?.data?.appointments || []).reduce((list: any[], appointment: any) => {
+    const slotKey = `${appointment.patientId?._id || appointment.patientId}-${appointment.doctorId?._id || appointment.doctorId}-${String(appointment.dateTime || "")}`;
+    const existingIndex = list.findIndex((item) => `${item.patientId?._id || item.patientId}-${item.doctorId?._id || item.doctorId}-${String(item.dateTime || "")}` === slotKey);
+
+    if (existingIndex === -1) {
+      list.push(appointment);
+      return list;
+    }
+
+    const existing = list[existingIndex];
+    const nextPriority = statusPriority[String(appointment.status || "").toLowerCase()] ?? -1;
+    const currentPriority = statusPriority[String(existing.status || "").toLowerCase()] ?? -1;
+
+    if (nextPriority > currentPriority || (nextPriority === currentPriority && new Date(appointment.updatedAt || 0).getTime() > new Date(existing.updatedAt || 0).getTime())) {
+      list[existingIndex] = appointment;
+    }
+
+    return list;
+  }, []);
   const stats = {
     total: data?.data?.stats?.total || 0,
     pending: data?.data?.stats?.pending || 0,
@@ -51,9 +78,9 @@ export default function DoctorDashboard() {
         monthlyRevenue={monthlyRevenue}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <Card>
-          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <CardTitle className="text-xl">{t('doctor.dashboard.todaysAppointments')}</CardTitle>
             <Link href="/dashboard/doctor/appointments" className="text-sm font-bold text-primary hover:underline hover:underline-offset-4">
               {t('doctor.dashboard.viewSchedule')}
@@ -120,7 +147,7 @@ export default function DoctorDashboard() {
               <CardTitle className="text-xl">{t('doctor.dashboard.practiceTools')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Link
                   href="/dashboard/doctor/prescriptions/new"
                   className="p-6 bg-white dark:bg-[#1c1c1e] border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/50 transition-all group shadow-sm flex flex-col items-center text-center"
@@ -137,7 +164,7 @@ export default function DoctorDashboard() {
                   <div className="h-14 w-14 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <AccessibilityIcon className="h-7 w-7" />
                   </div>
-                  <h3 className="text-base font-bold text-gray-900 dark:text-white">{t('doctor.dashboard.advancedQueue')}</h3>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">{t('nav.appointments')}</h3>
                 </Link>
               </div>
             </CardContent>

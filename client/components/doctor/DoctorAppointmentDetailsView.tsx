@@ -36,6 +36,9 @@ export default function DoctorAppointmentDetailsView({ appointmentId }: { appoin
     const prescriptionId =
         (typeof prescription === "object" && prescription?._id) ||
         (typeof appointment.prescriptionId === "string" ? appointment.prescriptionId : null);
+    const consultationFee = Number(appointment.prescription?.consultationFee || appointment.prescriptionId?.consultationFee || 0);
+    const medicineCost = Number(appointment.prescription?.medicineCost || appointment.prescriptionId?.medicineCost || 0);
+    const totalFee = Number(appointment.totalFee || appointment.prescription?.totalCost || appointment.prescriptionId?.totalCost || consultationFee + medicineCost || 0);
 
     const getStatusBadge = (status: string) => {
         const styles: Record<string, string> = {
@@ -185,12 +188,20 @@ export default function DoctorAppointmentDetailsView({ appointmentId }: { appoin
                                 <CircleDollarSign className="w-48 h-48 -mr-12 -mt-12 text-primary" />
                             </div>
                             <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-6 relative z-10">
-                                Consultation Fee
+                                Revenue Breakdown
                             </h4>
                             <div className="space-y-4 relative z-10">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-primary font-medium">Total Fees</span>
-                                    <span className="text-2xl font-black text-text-primary">{(appointment.totalFee || 0).toLocaleString()} {t('common.pkr')}</span>
+                                <div className="flex items-center justify-between pb-4 border-b border-border-light">
+                                    <span className="text-primary font-medium">{t('doctor.prescriptions.consultationFee')}</span>
+                                    <span className="text-lg font-bold text-text-primary">{consultationFee.toLocaleString()} {t('common.pkr')}</span>
+                                </div>
+                                <div className="flex items-center justify-between pb-4 border-b border-border-light">
+                                    <span className="text-primary font-medium">{t('doctor.prescriptions.medicineCost')}</span>
+                                    <span className="text-lg font-bold text-text-primary">{medicineCost.toLocaleString()} {t('common.pkr')}</span>
+                                </div>
+                                <div className="flex items-center justify-between pt-2">
+                                    <span className="text-primary font-medium">{t('common.totalFeesProcessed')}</span>
+                                    <span className="text-2xl font-black text-primary bg-white px-3 py-1 rounded-lg shadow-sm border border-border-light">{totalFee.toLocaleString()} {t('common.pkr')}</span>
                                 </div>
                                 <div className="flex items-center justify-between pt-2">
                                     <span className="text-sm text-text-secondary italic">Fee processed via clinic</span>

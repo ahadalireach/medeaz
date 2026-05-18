@@ -6,8 +6,8 @@ import PatientSidebar from "@/components/patient/PatientSidebar";
 import PatientTopbar from "@/components/patient/PatientTopbar";
 import { ChatSocketProvider } from "@/providers/ChatSocketProvider";
 import { useTranslations } from "next-intl";
-import { Footer } from "@/components/home/Footer";
 import OnboardingGate from "@/components/onboarding/OnboardingGate";
+import { AUTH_EXPIRED_EVENT } from "@/lib/authSession";
 
 export default function PatientLayout({
   children,
@@ -38,6 +38,12 @@ export default function PatientLayout({
       console.error("Failed to parse user data:", error);
       router.push("/login");
     }
+  }, [router]);
+
+  useEffect(() => {
+    const handleAuthExpired = () => router.replace("/login");
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
   }, [router]);
 
   if (!mounted) return null;
@@ -94,9 +100,6 @@ export default function PatientLayout({
                 </OnboardingGate>
               </div>
             </main>
-            <div className="print:hidden">
-              <Footer />
-            </div>
           </div>
         </div>
       </div>

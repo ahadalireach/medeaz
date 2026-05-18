@@ -112,14 +112,43 @@ export default function AppointmentsPage() {
   const [completeAppointment] = useCompleteAppointmentMutation();
   const [deleteAppointment, { isLoading: deleting }] = useDeleteAppointmentMutation();
 
-  const appointments = (allData?.data?.appointments || []).filter((a: any) => {
+  const statusPriority: Record<string, number> = {
+    completed: 5,
+    "in-progress": 4,
+    confirmed: 3,
+    pending: 2,
+    reserved: 1,
+    cancelled: 0,
+  };
+
+  const appointments = (allData?.data?.appointments || [])
+    .filter((a: any) => {
     if (filter === "all") return true;
     const date = new Date();
     if (filter === "yesterday") date.setDate(date.getDate() - 1);
     if (filter === "tomorrow") date.setDate(date.getDate() + 1);
     const targetDate = date.toISOString().split('T')[0];
     return a.dateTime?.split('T')[0] === targetDate;
-  });
+  })
+    .reduce((list: any[], appointment: any) => {
+      const slotKey = `${appointment.patientId?._id || appointment.patientId}-${appointment.doctorId?._id || appointment.doctorId}-${String(appointment.dateTime || "")}`;
+      const existingIndex = list.findIndex((item) => `${item.patientId?._id || item.patientId}-${item.doctorId?._id || item.doctorId}-${String(item.dateTime || "")}` === slotKey);
+
+      if (existingIndex === -1) {
+        list.push(appointment);
+        return list;
+      }
+
+      const existing = list[existingIndex];
+      const nextPriority = statusPriority[String(appointment.status || "").toLowerCase()] ?? -1;
+      const currentPriority = statusPriority[String(existing.status || "").toLowerCase()] ?? -1;
+
+      if (nextPriority > currentPriority || (nextPriority === currentPriority && new Date(appointment.updatedAt || 0).getTime() > new Date(existing.updatedAt || 0).getTime())) {
+        list[existingIndex] = appointment;
+      }
+
+      return list;
+    }, []);
   const loading = allLoading;
 
   const resolveImageUrl = (photo?: string | null) => {

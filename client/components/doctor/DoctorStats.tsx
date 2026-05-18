@@ -63,7 +63,7 @@ export default function DoctorStats({
     ], [totalSessions, pendingQueue, averageRating, monthlyRevenue, t]);
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 min-[406px]:grid-cols-2 xl:grid-cols-4 gap-4">
             {stats.map((stat) => {
                 const Icon = stat.icon;
                 const isRevenue = stat.label === t('doctor.dashboard.monthlyRevenue');

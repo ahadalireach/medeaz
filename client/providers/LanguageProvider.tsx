@@ -22,7 +22,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>('en');
   const [messages, setMessages] = useState<Record<string, any>>(enMessages as Record<string, any>);
   const router = useRouter();
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+  const languageEndpoint = apiBaseUrl.endsWith('/api')
+    ? `${apiBaseUrl}/user/language`
+    : `${apiBaseUrl}/api/user/language`;
 
   useEffect(() => {
     const saved = (localStorage.getItem(STORAGE_KEY) as Language) || 'en';
@@ -45,14 +48,29 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     document.body.className = next === 'ur' ? 'font-urdu antialiased relative min-h-screen' : 'font-sans antialiased relative min-h-screen';
 
     if (accessToken) {
-      await fetch(`${apiBaseUrl}/api/user/language`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ language: next }),
-      });
+      try {
+        const response = await fetch(languageEndpoint, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ language: next }),
+        });
+
+        if (!response.ok) {
+          await fetch(languageEndpoint, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ language: next }),
+          });
+        }
+      } catch (error) {
+        console.warn('Language sync failed, continuing locally.', error);
+      }
     }
 
     router.refresh();

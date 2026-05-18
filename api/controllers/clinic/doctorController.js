@@ -184,7 +184,7 @@ exports.getDoctorStats = asyncHandler(async (req, res) => {
 
   let avgVisitTime = 0;
   if (appointments.length > 0) {
-    const totalDuration = appointments.reduce((sum, app) => sum + (app.duration || 30), 0);
+    const totalDuration = appointments.reduce((sum, app) => sum + Math.min(Number(app.duration || 15), 15), 0);
     avgVisitTime = Math.round(totalDuration / appointments.length);
   }
 

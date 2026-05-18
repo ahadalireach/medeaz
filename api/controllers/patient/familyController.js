@@ -189,23 +189,25 @@ exports.addFamilyRecord = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Family member not found');
   }
 
+  if (!title || !diagnosis || !fileUrl) {
+    throw new ApiError(400, 'Title, diagnosis, and attachment are required');
+  }
+
   const record = await MedicalRecord.create({
     patientId: patient._id,
     doctorId: userId,
     familyMemberId: familyMember._id,
     visitDate: date || new Date(),
-    chiefComplaint: title || 'Document',
-    diagnosis: diagnosis || 'Document',
+    chiefComplaint: title,
+    diagnosis,
     externalDoctorName: doctorName || '',
     externalClinicName: clinicName || '',
     notes: notes || '',
-    attachments: fileUrl
-      ? [{
-          fileName: title || 'Document',
-          fileUrl,
-          fileType: 'document',
-        }]
-      : [],
+    attachments: [{
+      fileName: title,
+      fileUrl,
+      fileType: 'document',
+    }],
   });
 
   res.status(201).json(

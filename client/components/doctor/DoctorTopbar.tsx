@@ -122,18 +122,14 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                     <LanguageSwitcher />
 
                     {/* Unified Hamburger - ALWAYS RIGHT */}
-                    <Hamburger
-                        isOpen={isMenuOpen}
-                        onClick={() => setIsMenuOpen(true)}
-                        className="text-black dark:text-white ml-2 cursor-pointer lg:hidden"
-                    />
+                    <Hamburger isOpen={isMenuOpen} onClick={() => setIsMenuOpen(true)} className="text-black dark:text-white ml-1 cursor-pointer lg:hidden shrink-0" />
                 </div>
             </header>
 
             <NotificationPanel isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
 
             {/* Right Drawer */}
-            <div className={`fixed inset-0 z-50 transition-all duration-500 ${isMenuOpen ? "visible" : "invisible"}`}>
+            <div className={`fixed inset-0 transition-all duration-500 ${isMenuOpen ? "visible" : "invisible"}`} style={{ zIndex: 100 }}>
                 {/* Backdrop */}
                 <div
                     className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-500 ${isMenuOpen ? "opacity-100" : "opacity-0"}`}
@@ -141,7 +137,7 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                 />
 
                 {/* Drawer Panel */}
-                <div className={`absolute right-0 top-0 h-full w-full max-w-[88vw] sm:max-w-sm bg-white dark:bg-[#18181b] shadow-2xl transition-transform duration-500 ease-out border-l border-black/5 dark:border-white/5 ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
+                <div className={`absolute right-0 top-0 h-full w-full max-w-[90vw] sm:max-w-sm bg-white dark:bg-[#18181b] shadow-2xl transition-transform duration-500 ease-out border-l border-black/10 dark:border-white/10 ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`} style={{ zIndex: 101 }}>
                     <div className="flex flex-col h-full">
                         {/* Drawer Header */}
                         <div className="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
@@ -180,6 +176,10 @@ export default function DoctorTopbar({ title }: TopbarProps) {
                                     </Link>
                                 );
                             })}
+
+                            <div className="px-4 pt-4 hidden max-[400px]:block">
+                                <LanguageSwitcher />
+                            </div>
 
                             <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-8 mb-2">{settingsLabel}</p>
                             <Link

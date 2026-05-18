@@ -1,6 +1,13 @@
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 
+const toPlainMessage = (message) => {
+  if (!message) return message;
+  if (typeof message.toObject === 'function') return message.toObject();
+  if (typeof message.toJSON === 'function') return message.toJSON();
+  return message;
+};
+
 const chatSocket = (io) => {
   io.on('connection', (socket) => {
     socket.on('join_conversation', ({ conversationId }) => {
@@ -24,9 +31,12 @@ const chatSocket = (io) => {
         content, type: type || 'text', fileUrl, fileName,
         isDelivered
       });
+      const messagePayload = toPlainMessage(message);
 
       const conversationUpdate = {
-        lastMessage: type === 'file' ? `📎 ${fileName || 'File'}` : '🔒 Encrypted message',
+        lastMessage: type === 'file'
+          ? `📎 ${fileName || 'File'}`
+          : (messagePayload.content || ''),
         lastMessageAt: new Date(),
         lastMessageSender: senderRole,
         ...(senderRole === 'doctor'
@@ -39,18 +49,18 @@ const chatSocket = (io) => {
       ).populate('doctorId patientId');
 
       // Emit to the conversation room (for those currently in the chat window)
-      io.to(conversationId).emit('new_message', message);
+      io.to(conversationId).emit('new_message', messagePayload);
       
       // Emit to BOTH parties' individual rooms (to update their conversation lists)
       io.to(senderId.toString()).emit('conversation_updated', updatedConversation);
       io.to(recipientId).emit('conversation_updated', updatedConversation);
 
       // Always emit to recipient personal room so sidebars/toasts update in real-time across portals.
-      io.to(recipientId).emit('new_message', message);
+      io.to(recipientId).emit('new_message', messagePayload);
 
       // Sender tick bootstrap: single gray if offline recipient, double gray if online recipient.
       io.to(senderId.toString()).emit('message_status_updated', {
-        messageId: message._id,
+        messageId: messagePayload._id,
         conversationId,
         isDelivered,
         isRead: false,

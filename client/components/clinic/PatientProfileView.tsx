@@ -71,7 +71,7 @@ export default function PatientProfileView({
     return (
         <div className="space-y-6">
             {/* Header / Action Bar */}
-            <div className="flex items-center justify-between print:hidden">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
                 <button
                     onClick={() => router.back()}
                     className="flex items-center gap-2 text-text-secondary hover:text-primary transition-colors group font-bold  tracking-widest text-[10px]"
@@ -79,12 +79,12 @@ export default function PatientProfileView({
                     <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                     {t('common.back')}
                 </button>
-                <div className="flex items-center gap-3">
+                <div className="flex w-full flex-wrap items-stretch justify-start gap-2 sm:w-auto sm:justify-end sm:gap-3">
                     {additionalActions}
                     {!hideDownload && (
                         <button
                             onClick={() => window.print()}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-surface text-primary rounded-full font-black text-[10px] tracking-widest border border-primary/20 hover:bg-primary/10 transition-all active:scale-95"
+                            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-surface text-primary rounded-full font-black text-[9px] sm:text-[10px] tracking-widest border border-primary/20 hover:bg-primary/10 transition-all active:scale-95 whitespace-nowrap"
                         >
                             <Printer size={16} />
                             {t('common.download')}

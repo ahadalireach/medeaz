@@ -1,9 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { expireSession } from '@/lib/authSession';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api',
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
   prepareHeaders: (headers) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
@@ -38,17 +39,14 @@ const baseQueryWithReauth: BaseQueryFn<
         const data = refreshResult.data as { success: boolean; accessToken: string };
         localStorage.setItem('accessToken', data.accessToken);
         result = await baseQuery(args, api, extraOptions);
-      } else {
-        localStorage.clear();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+        if (result.error && result.error.status === 401) {
+          expireSession();
         }
+      } else {
+        expireSession();
       }
     } else {
-      localStorage.clear();
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
+      expireSession();
     }
   }
 
@@ -60,68 +58,61 @@ export const aiApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['AI'],
   endpoints: (builder) => ({
-    // Whisper - Transcribe Audio
-    transcribeAudio: builder.mutation<
-      { success: boolean; data: { text: string; language: string; success: boolean }; message: string },
-      FormData
-    >({
-      query: (formData) => ({
-        url: '/ai/whisper/transcribe',
-        method: 'POST',
-        body: formData,
-      }),
-    }),
-    
-    // Gemini - Parse Prescription from Text
-    parsePrescription: builder.mutation<
+    parseTranscript: builder.mutation<
       {
         success: boolean;
+        statusCode: number;
         data: {
-          diagnosis: string;
-          medicines: Array<{
-            name: string;
-            dosage: string;
-            frequency: string;
-            duration: string;
-            instructions: string;
-          }>;
-          notes: string;
+          parsed: {
+            diagnosis: string | null;
+            medicines: Array<{
+              name: string;
+              dosage: string;
+              frequency: string;
+              duration: string;
+            }>;
+            notes: string | null;
+            consultationFee: number | null;
+            medicineCost: number | null;
+          };
         };
         message: string;
       },
-      { transcription: string }
+      { transcript: string; locale: 'en' | 'ur' }
     >({
       query: (body) => ({
-        url: '/ai/prescription/parse',
+        url: '/ai/prescriptions/parse',
         method: 'POST',
         body,
       }),
     }),
-    
-    // Voice Prescription - Complete flow (Audio → Transcribe → Parse)
-    voicePrescription: builder.mutation<
+
+    parsePrescription: builder.mutation<
       {
         success: boolean;
+        statusCode: number;
         data: {
-          transcription: string;
-          diagnosis: string;
-          medicines: Array<{
-            name: string;
-            dosage: string;
-            frequency: string;
-            duration: string;
-            instructions: string;
-          }>;
-          notes: string;
+          parsed: {
+            diagnosis: string | null;
+            medicines: Array<{
+              name: string;
+              dosage: string;
+              frequency: string;
+              duration: string;
+            }>;
+            notes: string | null;
+            consultationFee: number | null;
+            medicineCost: number | null;
+          };
         };
         message: string;
       },
-      FormData
+      { transcript: string; locale: 'en' | 'ur' }
     >({
-      query: (formData) => ({
-        url: '/ai/prescription/voice',
+      query: (body) => ({
+        url: '/ai/prescriptions/parse',
         method: 'POST',
-        body: formData,
+        body,
       }),
     }),
     
@@ -160,9 +151,8 @@ export const aiApi = createApi({
 });
 
 export const {
-  useTranscribeAudioMutation,
+  useParseTranscriptMutation,
   useParsePrescriptionMutation,
-  useVoicePrescriptionMutation,
   useGeminiChatMutation,
   useGroqChatMutation,
   useChatWithAIMutation,

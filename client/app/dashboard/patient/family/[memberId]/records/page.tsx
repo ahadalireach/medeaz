@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   useAddFamilyRecordMutation,
   useDeleteFamilyRecordMutation,
@@ -19,6 +19,7 @@ export default function FamilyRecordsPage() {
   const router = useRouter();
   const memberId = params?.memberId as string;
   const t = useTranslations();
+  const locale = useLocale();
 
   const { data, isLoading, refetch } = useGetFamilyRecordsQuery(memberId);
   const [addFamilyRecord, { isLoading: isAdding }] = useAddFamilyRecordMutation();
@@ -27,14 +28,23 @@ export default function FamilyRecordsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const [recordToDelete, setRecordToDelete] = useState<any | null>(null);
-  const [formData, setFormData] = useState({ title: "", diagnosis: "Document", doctorName: "", clinicName: "", date: new Date().toISOString().split("T")[0], notes: "", fileUrl: "" });
+  const [formData, setFormData] = useState({ title: "", diagnosis: "document", doctorName: "", clinicName: "", date: new Date().toISOString().split("T")[0], notes: "", fileUrl: "" });
 
   const records = data?.data || [];
 
-  const formatDate = (d?: string) => (d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "");
-  const recordTitle = (r: any) => r?.chiefComplaint || r?.attachments?.[0]?.fileName || t("patient.family.document");
+  const formatDate = (d?: string) => (d ? new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric" }).format(new Date(d)) : "");
+  const recordTitle = (r: any) => r?.chiefComplaint || r?.attachments?.[0]?.fileName || t("patient.family.untitledRecord");
+  const familyText = (key: string, fallback: string) => (t.has(key) ? t(key) : fallback);
+  const getDiagnosisLabel = (value?: string) => {
+    if (!value) return t("common.noData");
+    const key = `patient.family.${value}`;
+    return t.has(key) ? t(key) : value;
+  };
+  const getDoctorName = (r: any) => r?.externalDoctorName || r?.doctorName || t("common.noData");
+  const getClinicName = (r: any) => r?.externalClinicName || r?.clinicName || t("common.noData");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,7 +61,7 @@ export default function FamilyRecordsPage() {
       await addFamilyRecord({ memberId, ...formData }).unwrap();
       toast.success(t("patient.family.recordAdded"));
       setIsModalOpen(false);
-      setFormData({ title: "", diagnosis: "Document", doctorName: "", clinicName: "", date: new Date().toISOString().split("T")[0], notes: "", fileUrl: "" });
+      setFormData({ title: "", diagnosis: "document", doctorName: "", clinicName: "", date: new Date().toISOString().split("T")[0], notes: "", fileUrl: "" });
       refetch();
     } catch (err: any) {
       toast.error(err?.data?.message || t("patient.family.failedToAdd"));
@@ -60,6 +70,7 @@ export default function FamilyRecordsPage() {
 
   const doDelete = async () => {
     if (!recordToDelete) return;
+    setIsDeleting(true);
     try {
       await deleteFamilyRecord({ memberId, recordId: recordToDelete._id }).unwrap();
       toast.success(t("patient.family.recordDeleted"));
@@ -69,6 +80,8 @@ export default function FamilyRecordsPage() {
       refetch();
     } catch (err: any) {
       toast.error(err?.data?.message || t("common.error"));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -82,7 +95,7 @@ export default function FamilyRecordsPage() {
 
         <h1 className="text-center text-2xl font-black text-text-primary sm:text-3xl">{t("patient.family.recordsTitle")}</h1>
 
-        <button onClick={() => setIsModalOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-white">
+        <button onClick={() => setIsModalOpen(true)} className="inline-flex h-10 w-fit items-center gap-2 rounded-xl bg-primary px-4 text-[10px] font-black uppercase tracking-widest text-white justify-self-end">
           <Plus className="h-4 w-4" /> {t("patient.family.addRecord")}
         </button>
       </div>
@@ -100,10 +113,10 @@ export default function FamilyRecordsPage() {
             <div key={r._id} className="flex items-center justify-between rounded-4xl border bg-white p-6">
               <div>
                 <h3 className="text-xl font-black">{recordTitle(r)}</h3>
-                <p className="text-xs uppercase text-primary mt-1">{r.diagnosis || t("patient.family.document")}</p>
+                <p className="text-xs uppercase text-primary mt-1">{getDiagnosisLabel(r.diagnosis)}</p>
                 <div className="mt-3 flex gap-2 text-xs text-text-primary">
-                  <div className="flex items-center gap-2 bg-surface px-3 py-1.5 rounded-xl"><User className="h-4 w-4 text-primary" /> <span>{r.externalDoctorName || r.doctorId?.name || "-"}</span></div>
-                  <div className="flex items-center gap-2 bg-surface px-3 py-1.5 rounded-xl"><Building2 className="h-4 w-4 text-primary" /> <span>{r.externalClinicName || r.clinicId?.name || "-"}</span></div>
+                  <div className="flex items-center gap-2 rounded-xl bg-surface px-3 py-1.5"><User className="h-4 w-4 text-primary" /> <span>{getDoctorName(r)}</span></div>
+                  <div className="flex items-center gap-2 rounded-xl bg-surface px-3 py-1.5"><Building2 className="h-4 w-4 text-primary" /> <span>{getClinicName(r)}</span></div>
                   <div className="flex items-center gap-2 bg-surface px-3 py-1.5 rounded-xl"><Calendar className="h-4 w-4 text-primary" /> <span>{formatDate(r.visitDate || r.createdAt)}</span></div>
                 </div>
               </div>
@@ -118,15 +131,15 @@ export default function FamilyRecordsPage() {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t("patient.family.addRecordModalTitle")}>
         <form onSubmit={handleAdd} className="space-y-4">
-          <input placeholder={t("patient.family.formTitle")} value={formData.title} onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))} className="w-full rounded-2xl border p-3" />
-          <input placeholder={t("patient.family.doctorName")} value={formData.doctorName} onChange={(e) => setFormData((p) => ({ ...p, doctorName: e.target.value }))} className="w-full rounded-2xl border p-3" />
-          <input placeholder={t("patient.family.clinicName")} value={formData.clinicName} onChange={(e) => setFormData((p) => ({ ...p, clinicName: e.target.value }))} className="w-full rounded-2xl border p-3" />
+          <input placeholder={familyText("patient.family.formTitle", t("form.name"))} value={formData.title} onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))} className="w-full rounded-2xl border p-3" />
+          <input placeholder={familyText("patient.family.doctorName", t("form.name"))} value={formData.doctorName} onChange={(e) => setFormData((p) => ({ ...p, doctorName: e.target.value }))} className="w-full rounded-2xl border p-3" />
+          <input placeholder={familyText("patient.family.clinicName", t("clinic.clinicName"))} value={formData.clinicName} onChange={(e) => setFormData((p) => ({ ...p, clinicName: e.target.value }))} className="w-full rounded-2xl border p-3" />
           <select value={formData.diagnosis} onChange={(e) => setFormData((p) => ({ ...p, diagnosis: e.target.value }))} className="w-full rounded-2xl border p-3">
-            <option value="Document">{t("patient.family.document")}</option>
-            <option value="Lab Report">{t("patient.family.labReport")}</option>
-            <option value="Imaging">{t("patient.family.imaging")}</option>
-            <option value="Prescription">{t("patient.family.prescription")}</option>
-            <option value="Other">{t("patient.family.other")}</option>
+            <option value="document">{familyText("patient.family.document", "Document")}</option>
+            <option value="labReport">{familyText("patient.family.labReport", "Lab Report")}</option>
+            <option value="imaging">{familyText("patient.family.imaging", "Imaging")}</option>
+            <option value="prescription">{familyText("patient.family.prescription", "Prescription")}</option>
+            <option value="other">{familyText("patient.family.other", "Other")}</option>
           </select>
           <label className="flex flex-col items-center gap-2 p-4 border rounded-2xl cursor-pointer">
             <Upload />
@@ -144,20 +157,20 @@ export default function FamilyRecordsPage() {
         {selectedRecord && (
           <div className="space-y-4">
             <h2 className="text-xl font-black">{recordTitle(selectedRecord)}</h2>
-            <p className="text-sm">{selectedRecord.diagnosis}</p>
+            <p className="text-sm">{getDiagnosisLabel(selectedRecord.diagnosis)}</p>
             <div className="flex gap-2">
-              <div className="p-2 border rounded"><User /> {selectedRecord.externalDoctorName || selectedRecord.doctorId?.name}</div>
-              <div className="p-2 border rounded"><Building2 /> {selectedRecord.externalClinicName || selectedRecord.clinicId?.name}</div>
+              <div className="rounded border p-2"><User /> {getDoctorName(selectedRecord)}</div>
+              <div className="rounded border p-2"><Building2 /> {getClinicName(selectedRecord)}</div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => { setRecordToDelete(selectedRecord); setIsDetailOpen(false); setIsDeleteOpen(true); }}>{t("patient.family.deleteRecord")}</Button>
+              <Button variant="outline" onClick={() => { setRecordToDelete(selectedRecord); setIsDetailOpen(false); setIsDeleteOpen(true); }}>{familyText("patient.family.deleteRecord", "Delete Record")}</Button>
               <Button onClick={() => setIsDetailOpen(false)}>{t("common.close")}</Button>
             </div>
           </div>
         )}
       </Modal>
 
-      <ConfirmationModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} onConfirm={doDelete} title={t("patient.family.deleteRecord")} message={t("patient.family.confirmDelete")} confirmText={t("common.delete")} cancelText={t("common.cancel")} variant="danger" />
+      <ConfirmationModal isOpen={isDeleteOpen} onClose={() => { if (!isDeleting) setIsDeleteOpen(false); }} onConfirm={doDelete} title={familyText("patient.family.deleteRecord", "Delete Record")} message={familyText("patient.family.confirmDelete", "Are you sure you want to delete this record?")} confirmText={t("common.delete")} cancelText={t("common.cancel")} variant="danger" confirmLoading={isDeleting} closeOnConfirm={false} />
     </div>
   );
 }

@@ -77,6 +77,9 @@ export function RegisterForm() {
     const toastId = toast.loading("Creating your account...");
     try {
       const res: any = await register({ email, password, role, profileData }).unwrap();
+      if (typeof window !== "undefined") {
+        localStorage.setItem("medeaz_new_signup", email.trim());
+      }
       if (res?.accessToken && res?.data) {
         dispatch(setCredentials({
           user: res.data,

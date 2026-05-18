@@ -1,13 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import ClinicSidebar from "@/components/clinic/ClinicSidebar";
 import ClinicTopbar from "@/components/clinic/ClinicTopbar";
+import { AUTH_EXPIRED_EVENT } from "@/lib/authSession";
 
 export default function ClinicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleAuthExpired = () => router.replace("/login");
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+  }, [router]);
+
   return (
     <div className="flex min-h-screen relative print:block" style={{ background: '#f6f8f8' }}>
       <svg className="absolute inset-0 w-full h-full pointer-events-none select-none z-0 print:hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden>

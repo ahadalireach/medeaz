@@ -55,12 +55,12 @@ export default function DoctorRevenueChart() {
 
     return (
         <Card className="overflow-hidden">
-            <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <CardTitle className="text-xl">{t('doctor.revenue.title')}</CardTitle>
                 </div>
 
-                <div className="flex bg-gray-50 dark:bg-white/5 p-1 rounded-2xl border border-black/5 dark:border-white/10">
+                <div className="flex w-full md:w-auto items-center justify-between gap-2 bg-gray-50 dark:bg-white/5 p-1 rounded-2xl border border-black/5 dark:border-white/10">
                     {[
                         { id: "day", label: t('analytics.week') },
                         { id: "month", label: t('analytics.month') },
@@ -69,7 +69,7 @@ export default function DoctorRevenueChart() {
                         <button
                             key={p.id}
                             onClick={() => setPeriod(p.id as any)}
-                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p.id
+                            className={`flex-1 md:flex-none px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p.id
                                 ? "bg-white dark:bg-white/10 text-primary shadow-sm"
                                 : "text-text-primary hover:text-gray-600 dark:hover:text-gray-200"
                                 }`}
@@ -84,7 +84,7 @@ export default function DoctorRevenueChart() {
                 {isLoading ? (
                     <div className="h-64 bg-gray-50 dark:bg-white/5 rounded-4xl animate-pulse"></div>
                 ) : (
-                    <div className="h-[280px] w-full">
+                    <div className="h-70 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData} margin={{ top: 10, right: 10, left: 45, bottom: 20 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />

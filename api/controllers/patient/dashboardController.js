@@ -131,8 +131,8 @@ exports.getDashboard = asyncHandler(async (req, res) => {
 
   let totalSpentCalculated = 0;
   for (const app of allCompletedAppointments) {
-    const doc = await Doctor.findOne({ userId: app.doctorId });
-    totalSpentCalculated += doc?.consultationFee || 0;
+    const prescription = await Prescription.findOne({ appointmentId: app._id }).select('consultationFee medicineCost totalCost');
+    totalSpentCalculated += Number(prescription?.totalCost || prescription?.consultationFee || 0) || 0;
   }
 
   // Upcoming appointments (next 3) - Only pending or confirmed
@@ -178,8 +178,8 @@ exports.getDashboard = asyncHandler(async (req, res) => {
 
     let monthlySpent = 0;
     for (const app of monthAppointments) {
-      const doc = await Doctor.findOne({ userId: app.doctorId });
-      monthlySpent += doc?.consultationFee || 0;
+      const prescription = await Prescription.findOne({ appointmentId: app._id }).select('consultationFee medicineCost totalCost');
+      monthlySpent += Number(prescription?.totalCost || prescription?.consultationFee || 0) || 0;
     }
 
     spendingTrend.push({
