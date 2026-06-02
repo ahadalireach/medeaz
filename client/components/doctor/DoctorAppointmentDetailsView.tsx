@@ -40,9 +40,10 @@ export default function DoctorAppointmentDetailsView({ appointmentId }: { appoin
     const prescriptionId =
         (typeof prescription === "object" && prescription?._id) ||
         (typeof appointment.prescriptionId === "string" ? appointment.prescriptionId : null);
-    const consultationFee = Number(appointment.prescription?.consultationFee || appointment.prescriptionId?.consultationFee || 0);
+    const doctorDefaultFee = Number(appointment.doctor?.consultationFee || 0);
+    const consultationFee = Number(appointment.prescription?.consultationFee || appointment.prescriptionId?.consultationFee || doctorDefaultFee);
     const medicineCost = Number(appointment.prescription?.medicineCost || appointment.prescriptionId?.medicineCost || 0);
-    const totalFee = Number(appointment.totalFee || appointment.prescription?.totalCost || appointment.prescriptionId?.totalCost || consultationFee + medicineCost || 0);
+    const totalFee = Number(appointment.totalFee || appointment.prescription?.totalCost || appointment.prescriptionId?.totalCost || consultationFee + medicineCost || doctorDefaultFee);
 
     const getStatusBadge = (status: string) => {
         const styles: Record<string, string> = {

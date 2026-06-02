@@ -333,10 +333,15 @@ exports.getAppointmentById = asyncHandler(async (req, res) => {
   const Prescription = require('../../models/Prescription');
   const prescription = await Prescription.findOne({ appointmentId: appointment._id });
 
+  const doctorFee = doctorProfile?.consultationFee || 0;
+  const prescriptionFee = prescription ? (prescription.consultationFee || doctorFee) : doctorFee;
+  const prescriptionMedCost = prescription ? (prescription.medicineCost || 0) : 0;
+  const prescriptionTotal = prescription ? (prescription.totalCost || prescriptionFee + prescriptionMedCost) : doctorFee;
+
   const result = {
     ...appointment.toObject(),
-    totalFee: prescription ? (prescription.totalCost || prescription.consultationFee || 0) : 0,
-    clinicRevenue: prescription ? ((prescription.totalCost || prescription.consultationFee || 0) * 0.2) : 0,
+    totalFee: prescriptionTotal,
+    clinicRevenue: prescriptionTotal * 0.2,
     patient: {
       name: appointment.patientId?.name,
       email: appointment.patientId?.email,
@@ -348,17 +353,22 @@ exports.getAppointmentById = asyncHandler(async (req, res) => {
       name: appointment.doctorId?.name,
       photo: appointment.doctorId?.photo,
       specialization: doctorProfile?.specialization,
+      consultationFee: doctorFee,
     },
     prescription: prescription ? {
       _id: prescription._id,
       diagnosis: prescription.diagnosis,
       medicines: prescription.medicines,
-      consultationFee: prescription.consultationFee,
-      medicineCost: prescription.medicineCost,
-      totalCost: prescription.totalCost,
+      consultationFee: prescription.consultationFee || doctorFee,
+      medicineCost: prescription.medicineCost || 0,
+      totalCost: prescription.totalCost || prescriptionTotal,
       notes: prescription.notes,
       followUpDate: prescription.followUpDate
-    } : null
+    } : {
+      consultationFee: doctorFee,
+      medicineCost: 0,
+      totalCost: doctorFee,
+    }
   };
 
   res.status(200).json(
