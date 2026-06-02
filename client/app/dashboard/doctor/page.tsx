@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetTodayQueueQuery, useGetDoctorProfileQuery } from "@/store/api/doctorApi";
+import { useGetTodayQueueQuery, useGetDoctorProfileQuery, useGetAppointmentsQuery } from "@/store/api/doctorApi";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import DoctorRevenueChart from "@/components/doctor/DoctorRevenueChart";
@@ -16,6 +16,7 @@ export default function DoctorDashboard() {
   const t = useTranslations();
   const { data, isLoading } = useGetTodayQueueQuery(undefined);
   const { data: profileData } = useGetDoctorProfileQuery(undefined);
+  const { data: upcomingData } = useGetAppointmentsQuery({ status: 'upcoming', limit: 5 });
 
   const statusPriority: Record<string, number> = {
     completed: 5,
@@ -205,6 +206,63 @@ export default function DoctorDashboard() {
         </Card>
 
         <div className="space-y-6">
+          {/* Upcoming Appointments */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Upcoming Appointments</CardTitle>
+              <Link href="/dashboard/doctor/appointments" className="text-sm font-semibold text-primary hover:underline hover:underline-offset-4">
+                View all
+              </Link>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const upcoming = (upcomingData?.data?.appointments || upcomingData?.data || [])
+                  .filter((a: any) => new Date(a.dateTime) > new Date() && a.status !== 'cancelled')
+                  .sort((a: any, b: any) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+                  .slice(0, 4);
+
+                if (upcoming.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <div className="h-10 w-10 rounded-xl bg-primary/8 flex items-center justify-center mb-2">
+                        <AlarmClockPlusIcon className="h-5 w-5 text-primary" />
+                      </div>
+                      <p className="text-sm text-text-secondary">No upcoming appointments</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-3">
+                    {upcoming.map((a: any) => {
+                      const dt = new Date(a.dateTime);
+                      const dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                      const timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      return (
+                        <div key={a._id} className="flex items-center gap-3 rounded-xl bg-gray-50 p-3 hover:bg-gray-100 transition-all">
+                          <div className="h-10 w-10 rounded-lg bg-white border border-black/6 flex items-center justify-center shrink-0 overflow-hidden">
+                            {a.patientId?.photo
+                              ? <img src={a.patientId.photo} className="h-full w-full object-cover" alt="" />
+                              : <AccessibilityIcon className="h-5 w-5 text-text-secondary" />
+                            }
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-text-primary truncate">{a.patientId?.name || "Patient"}</p>
+                            <p className="text-xs text-text-secondary mt-0.5">{dateStr} · {timeStr}</p>
+                          </div>
+                          <span className={`shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full capitalize ${
+                            a.status === 'confirmed' ? 'bg-primary/10 text-primary' :
+                            a.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-text-secondary'
+                          }`}>{a.status}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="text-xl">{t('doctor.dashboard.practiceTools')}</CardTitle>

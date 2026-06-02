@@ -46,43 +46,53 @@ exports.getAppointments = asyncHandler(async (req, res) => {
     { $sort: { dateTime: -1 } }
   ]);
 
-  // Manually populate since aggregate doesn't support model populate easily
+  // Populate clinic and prescription
   const populated = await Appointment.populate(appointments, [
-    {
-      path: 'doctorId',
-      select: 'name email photo',
-      populate: { path: 'doctorProfile', select: 'specialization' }
-    },
     { path: 'clinicId', select: 'name address phone' },
     { path: 'prescriptionId' }
   ]);
 
-  const doctorUserIds = [...new Set(
-    populated
-      .map((a) => a?.doctorId?._id?.toString() || a?.doctorId?.toString())
-      .filter(Boolean)
+  // Collect all doctorId values (may be ObjectIds from old or new appointments)
+  const allDoctorIds = [...new Set(
+    populated.map((a) => a?.doctorId?.toString()).filter(Boolean)
   )];
 
-  const doctorProfiles = await Doctor.find({ userId: { $in: doctorUserIds } }).select('userId location.city');
-  const doctorCityByUserId = new Map(
-    doctorProfiles.map((d) => [d.userId?.toString(), d.location?.city || ''])
-  );
+  // Fetch User + Doctor profiles in parallel for ALL doctorIds
+  const [doctorUsers, doctorProfiles] = await Promise.all([
+    User.find({ _id: { $in: allDoctorIds } }).select('name email photo'),
+    Doctor.find({ userId: { $in: allDoctorIds } }).select('userId fullName specialization location consultationFee averageRating')
+  ]);
 
-  const withClinicCity = populated.map((a) => {
-    const doctorUserId = a?.doctorId?._id?.toString() || a?.doctorId?.toString();
-    const clinicAddress = a?.clinicId?.address || '';
-    const addressParts = typeof clinicAddress === 'string'
-      ? clinicAddress.split(',').map((p) => p.trim()).filter(Boolean)
-      : [];
-    const cityFromAddress = addressParts.length > 1 ? addressParts[addressParts.length - 1] : '';
+  const userById = new Map(doctorUsers.map(u => [u._id.toString(), u]));
+  const profileByUserId = new Map(doctorProfiles.map(d => [d.userId?.toString(), d]));
+
+  const withDoctorInfo = populated.map((a) => {
+    const dId = a?.doctorId?.toString();
+    const userDoc    = dId ? userById.get(dId) : null;
+    const profileDoc = dId ? profileByUserId.get(dId) : null;
 
     return {
       ...a,
-      clinicCity: doctorCityByUserId.get(doctorUserId) || cityFromAddress || null,
+      doctorId: userDoc
+        ? {
+            _id:   userDoc._id,
+            name:  userDoc.name,
+            email: userDoc.email,
+            photo: userDoc.photo,
+            doctorProfile: profileDoc
+              ? { specialization: profileDoc.specialization, fullName: profileDoc.fullName }
+              : null,
+          }
+        : a.doctorId,  // keep as-is (ObjectId) if user not found
+      clinicCity: (() => {
+        const addr = a?.clinicId?.address || '';
+        const parts = typeof addr === 'string' ? addr.split(',').map(p => p.trim()).filter(Boolean) : [];
+        return profileDoc?.location?.city || (parts.length > 1 ? parts[parts.length - 1] : '') || null;
+      })(),
     };
   });
 
-  res.status(200).json(new ApiResponse(200, withClinicCity, 'Appointments fetched successfully'));
+  res.status(200).json(new ApiResponse(200, withDoctorInfo, 'Appointments fetched successfully'));
 });
 
 /**

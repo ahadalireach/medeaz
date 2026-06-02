@@ -373,8 +373,8 @@ export default function AppointmentsPage() {
                           <h3 className="text-xl sm:text-2xl font-black text-text-primary tracking-tight truncate">
                             {t('common.doctorPrefix')} {getDoctorName(appointment)}
                           </h3>
-                          <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5 sm:mt-1">
-                            {appointment.doctorId?.doctorProfile?.specialization || t('appointment.doctor')}
+                          <p className="text-[10px] font-semibold text-primary uppercase tracking-widest mt-0.5 sm:mt-1">
+                            {appointment.doctorId?.doctorProfile?.specialization || "General Physician"}
                           </p>
                         </div>
                         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 w-full sm:w-auto">
