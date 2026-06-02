@@ -85,7 +85,7 @@ export default function DoctorSidebar() {
         <aside style={{ zIndex: 600 }} className={`lens-sidebar self-start hidden lg:flex flex-col h-screen overflow-y-auto ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
             <button
                 onClick={() => dispatch(toggleSidebar())}
-                className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full border-2 border-white dark:border-[#18181b] z-50 hover:bg-primary/90 transition-colors hidden lg:block`}
+                className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full border-2 border-white z-50 hover:bg-primary/90 transition-colors hidden lg:block`}
             >
                 {t.raw('nav.navigation') === 'نیویگیشن'
                     ? (isCollapsed ? <ChevronLeft size={14} strokeWidth={3} /> : <ChevronRight size={14} strokeWidth={3} />)

@@ -35,17 +35,28 @@ exports.chat = asyncHandler(async (req, res) => {
     );
   }
 
-  // Fetch Patient Context
+  // Fetch full patient context
   let patientContext = '';
   try {
-    const patientProfile = await Patient.findOne({ userId });
-    
-    // 1. Get Prescriptions (by User ID)
-    const prescriptions = await Prescription.find({ patientId: userId })
-      .sort({ createdAt: -1 })
-      .limit(5);
+    const [patientProfile, prescriptions, upcomingAppointments, pastAppointments] = await Promise.all([
+      Patient.findOne({ userId }),
+      Prescription.find({ patientId: userId })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .populate({ path: 'doctorId', select: 'name', populate: { path: 'doctorProfile', select: 'fullName specialization' } })
+        .populate('clinicId', 'name address'),
+      Appointment.find({ patientId: userId, dateTime: { $gte: new Date() }, status: { $in: ['pending', 'confirmed', 'reserved'] } })
+        .sort({ dateTime: 1 })
+        .limit(5)
+        .populate({ path: 'doctorId', select: 'name', populate: { path: 'doctorProfile', select: 'fullName specialization' } })
+        .populate('clinicId', 'name address'),
+      Appointment.find({ patientId: userId, dateTime: { $lt: new Date() } })
+        .sort({ dateTime: -1 })
+        .limit(5)
+        .populate({ path: 'doctorId', select: 'name', populate: { path: 'doctorProfile', select: 'fullName specialization' } })
+        .populate('clinicId', 'name'),
+    ]);
 
-    // 2. Get Medical Records (by Patient Profile ID)
     let records = [];
     if (patientProfile) {
       records = await MedicalRecord.find({ patientId: patientProfile._id })
@@ -53,27 +64,68 @@ exports.chat = asyncHandler(async (req, res) => {
         .limit(5);
     }
 
-    // Build context string
-    if (prescriptions.length > 0 || records.length > 0) {
-      patientContext = "PATIENT HISTORY:\n";
-      
-      if (prescriptions.length > 0) {
-        patientContext += "\nRECENT PRESCRIPTIONS:\n";
-        prescriptions.forEach(p => {
-          patientContext += `- ${new Date(p.createdAt).toLocaleDateString()}: Diagnosis: ${p.diagnosis}. Medicines: ${p.medicines.map(m => m.name).join(', ')}.\n`;
-        });
+    // Patient profile basics
+    if (patientProfile) {
+      patientContext += `PATIENT PROFILE:\n`;
+      patientContext += `- Name: ${patientProfile.name || req.user.name || 'N/A'}\n`;
+      patientContext += `- Blood Group: ${patientProfile.bloodGroup || 'N/A'}\n`;
+      patientContext += `- Gender: ${patientProfile.gender || 'N/A'}\n`;
+      patientContext += `- DOB: ${patientProfile.dob ? new Date(patientProfile.dob).toLocaleDateString() : 'N/A'}\n`;
+      if (patientProfile.allergies?.length > 0) {
+        patientContext += `- Allergies: ${patientProfile.allergies.join(', ')}\n`;
       }
+    }
 
-      if (records.length > 0) {
-        patientContext += "\nRECENT MEDICAL RECORDS:\n";
-        records.forEach(r => {
-          patientContext += `- ${new Date(r.visitDate).toLocaleDateString()}: Complaint: ${r.chiefComplaint}. Diagnosis: ${r.diagnosis}.\n`;
-        });
-      }
+    // Upcoming appointments
+    if (upcomingAppointments.length > 0) {
+      patientContext += `\nUPCOMING APPOINTMENTS (${upcomingAppointments.length}):\n`;
+      upcomingAppointments.forEach((a, i) => {
+        const drName = a.doctorId?.doctorProfile?.fullName || a.doctorId?.name || 'Doctor';
+        const spec   = a.doctorId?.doctorProfile?.specialization || '';
+        const clinic = a.clinicId?.name || 'Clinic';
+        const addr   = a.clinicId?.address || '';
+        const dt     = a.dateTime ? new Date(a.dateTime).toLocaleString('en-PK', { dateStyle: 'medium', timeStyle: 'short' }) : 'TBD';
+        patientContext += `${i + 1}. ${dt} — Dr. ${drName}${spec ? ` (${spec})` : ''} at ${clinic}${addr ? `, ${addr}` : ''}. Status: ${a.status}.\n`;
+        if (a.reason) patientContext += `   Reason: ${a.reason}\n`;
+      });
+    } else {
+      patientContext += `\nUPCOMING APPOINTMENTS: None scheduled.\n`;
+    }
+
+    // Past appointments
+    if (pastAppointments.length > 0) {
+      patientContext += `\nPAST APPOINTMENTS (recent ${pastAppointments.length}):\n`;
+      pastAppointments.forEach(a => {
+        const drName = a.doctorId?.doctorProfile?.fullName || a.doctorId?.name || 'Doctor';
+        const clinic = a.clinicId?.name || 'Clinic';
+        const dt     = a.dateTime ? new Date(a.dateTime).toLocaleDateString('en-PK') : 'N/A';
+        patientContext += `- ${dt}: Dr. ${drName} at ${clinic}. Status: ${a.status}.\n`;
+      });
+    }
+
+    // Prescriptions
+    if (prescriptions.length > 0) {
+      patientContext += `\nPRESCRIPTIONS (recent ${prescriptions.length}):\n`;
+      prescriptions.forEach(p => {
+        const drName = p.doctorId?.doctorProfile?.fullName || p.doctorId?.name || 'Doctor';
+        const clinic = p.clinicId?.name || '';
+        const meds   = (p.medicines || []).map(m => `${m.name}${m.dosage ? ` ${m.dosage}` : ''}${m.frequency ? ` ${m.frequency}` : ''}`).join(', ');
+        patientContext += `- ${new Date(p.createdAt).toLocaleDateString()}: Diagnosis: ${p.diagnosis}. Dr. ${drName}${clinic ? ` @ ${clinic}` : ''}.\n`;
+        if (meds) patientContext += `  Medicines: ${meds}.\n`;
+        if (p.notes) patientContext += `  Notes: ${p.notes}.\n`;
+        if (p.followUpDate) patientContext += `  Follow-up: ${new Date(p.followUpDate).toLocaleDateString()}.\n`;
+      });
+    }
+
+    // Medical records
+    if (records.length > 0) {
+      patientContext += `\nMEDICAL RECORDS:\n`;
+      records.forEach(r => {
+        patientContext += `- ${new Date(r.visitDate).toLocaleDateString()}: ${r.chiefComplaint}. Diagnosis: ${r.diagnosis}.\n`;
+      });
     }
   } catch (ctxError) {
     console.error('Failed to fetch patient context for AI:', ctxError);
-    // Continue without context if fetching fails
   }
 
   try {
@@ -158,36 +210,62 @@ exports.doctorChat = asyncHandler(async (req, res) => {
     );
   }
 
-  // Build doctor context
+  // Build full doctor context
   let doctorContext = '';
   try {
-    const doctorProfile = await Doctor.findOne({ userId });
+    const [doctorProfile, todayAppointments, upcomingAppointments, recentPrescriptions] = await Promise.all([
+      Doctor.findOne({ userId }).populate('clinicId', 'name address'),
+      Appointment.find({
+        doctorId: userId,
+        dateTime: { $gte: new Date(new Date().setHours(0,0,0,0)), $lte: new Date(new Date().setHours(23,59,59,999)) },
+      }).sort({ dateTime: 1 }).populate('patientId', 'name phone'),
+      Appointment.find({
+        doctorId: userId,
+        dateTime: { $gte: new Date() },
+        status: { $in: ['pending', 'confirmed', 'reserved'] },
+      }).sort({ dateTime: 1 }).limit(10).populate('patientId', 'name phone'),
+      Prescription.find({ doctorId: userId })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .populate('patientId', 'name'),
+    ]);
 
     if (doctorProfile) {
-      doctorContext += `DOCTOR PROFILE:\n- Name: ${doctorProfile.fullName || 'N/A'}\n- Specialization: ${doctorProfile.specialization || 'N/A'}\n- License: ${doctorProfile.licenseNo || 'N/A'}\n`;
+      doctorContext += `DOCTOR PROFILE:\n`;
+      doctorContext += `- Name: ${doctorProfile.fullName || req.user.name || 'N/A'}\n`;
+      doctorContext += `- Specialization: ${doctorProfile.specialization || 'N/A'}\n`;
+      doctorContext += `- License: ${doctorProfile.licenseNo || 'N/A'}\n`;
+      doctorContext += `- Consultation Fee: PKR ${doctorProfile.consultationFee || 0}\n`;
+      doctorContext += `- Rating: ${doctorProfile.averageRating || 'N/A'} (${doctorProfile.totalReviews || 0} reviews)\n`;
+      if (doctorProfile.clinicId) {
+        doctorContext += `- Clinic: ${doctorProfile.clinicId.name}, ${doctorProfile.clinicId.address}\n`;
+      }
+      if (doctorProfile.bio) doctorContext += `- Bio: ${doctorProfile.bio}\n`;
     }
 
-    const recentAppointments = await Appointment.find({ doctorId: userId })
-      .sort({ dateTime: -1 })
-      .limit(5)
-      .populate('patientId', 'name');
+    if (todayAppointments.length > 0) {
+      doctorContext += `\nTODAY'S APPOINTMENTS (${todayAppointments.length}):\n`;
+      todayAppointments.forEach((a, i) => {
+        const t = a.dateTime ? new Date(a.dateTime).toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' }) : 'TBD';
+        doctorContext += `${i + 1}. ${t} — ${a.patientId?.name || 'Patient'}${a.patientId?.phone ? ` (${a.patientId.phone})` : ''}. Status: ${a.status}. Reason: ${a.reason || 'N/A'}.\n`;
+      });
+    } else {
+      doctorContext += `\nTODAY'S APPOINTMENTS: None.\n`;
+    }
 
-    if (recentAppointments.length > 0) {
-      doctorContext += '\nRECENT APPOINTMENTS:\n';
-      recentAppointments.forEach(a => {
-        doctorContext += `- ${new Date(a.dateTime).toLocaleDateString()}: ${a.patientId?.name || 'Patient'} — ${a.status}\n`;
+    if (upcomingAppointments.length > 0) {
+      doctorContext += `\nUPCOMING APPOINTMENTS (next ${upcomingAppointments.length}):\n`;
+      upcomingAppointments.forEach(a => {
+        const dt = a.dateTime ? new Date(a.dateTime).toLocaleString('en-PK', { dateStyle: 'medium', timeStyle: 'short' }) : 'TBD';
+        doctorContext += `- ${dt}: ${a.patientId?.name || 'Patient'}. Status: ${a.status}.\n`;
       });
     }
 
-    const recentPrescriptions = await Prescription.find({ doctorId: userId })
-      .sort({ createdAt: -1 })
-      .limit(5);
-
     if (recentPrescriptions.length > 0) {
-      doctorContext += '\nRECENT PRESCRIPTIONS ISSUED:\n';
+      doctorContext += `\nRECENT PRESCRIPTIONS ISSUED (${recentPrescriptions.length}):\n`;
       recentPrescriptions.forEach(p => {
-        const meds = (p.medicines || []).map(m => m.name).join(', ') || 'N/A';
-        doctorContext += `- ${new Date(p.createdAt).toLocaleDateString()}: Diagnosis: ${p.diagnosis}. Medicines: ${meds}.\n`;
+        const meds = (p.medicines || []).map(m => `${m.name}${m.dosage ? ` ${m.dosage}` : ''}`).join(', ') || 'N/A';
+        doctorContext += `- ${new Date(p.createdAt).toLocaleDateString()}: Patient: ${p.patientId?.name || 'N/A'}. Diagnosis: ${p.diagnosis}. Medicines: ${meds}.\n`;
       });
     }
   } catch (ctxError) {

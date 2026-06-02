@@ -55,18 +55,25 @@ router.get('/doctors', asyncHandler(async (req, res) => {
         matchQuery.specialization = { $regex: specialization, $options: 'i' };
     }
 
-    if (city && city !== "All Cities") {
-        matchQuery.$or = [
-            { "location.city": { $regex: city, $options: 'i' } },
-            { "clinicDetails.address": { $regex: city, $options: 'i' } }
+    if (city && city !== "All Cities" && city !== "") {
+        matchQuery.$and = [
+          ...(matchQuery.$and || []),
+          {
+            $or: [
+              { "location.city": { $regex: city, $options: 'i' } },
+              { "clinicDetails.address": { $regex: city, $options: 'i' } },
+              { "clinicDetails.name": { $regex: city, $options: 'i' } }
+            ]
+          }
         ];
+        delete matchQuery.$or; // prevent conflict
     }
 
-    if (minExperience) {
+    if (minExperience && parseInt(minExperience) > 0) {
         matchQuery.experience = { $gte: parseInt(minExperience) };
     }
 
-    if (minRating) {
+    if (minRating && parseFloat(minRating) > 0) {
         matchQuery.averageRating = { $gte: parseFloat(minRating) };
     }
 

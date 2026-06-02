@@ -28,9 +28,7 @@ export function useGoogleAuth({ mode, role }: UseGoogleAuthProps) {
     const { mode: pendingMode, role: pendingRole } = JSON.parse(raw);
 
     (async () => {
-      const toastId = toast.loading(
-        pendingMode === "register" ? "Creating your account..." : "Authenticating..."
-      );
+      const toastId = toast.loading("Signing in with Google...");
 
       try {
         const session = await getSession();
@@ -57,10 +55,9 @@ export function useGoogleAuth({ mode, role }: UseGoogleAuthProps) {
 
         sessionStorage.removeItem(PENDING_KEY);
 
-        const successMsg =
-          pendingMode === "register"
-            ? "Account created successfully"
-            : "Welcome back!";
+        // isNew=true → newly created, isNew=false → existing account signed in
+        const isNew = res.isNew === true;
+        const successMsg = isNew ? "Account created successfully!" : "Welcome back!";
         toast.success(successMsg, { id: toastId });
 
         const redirectRole = res.data?.role || res.user?.role || pendingRole;

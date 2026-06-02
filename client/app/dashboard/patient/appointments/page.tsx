@@ -277,12 +277,12 @@ export default function AppointmentsPage() {
       </svg>
       <div className="relative z-10 space-y-6 overflow-x-hidden px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-black text-text-primary uppercase tracking-tighter">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl font-bold text-text-primary">
           {t('nav.appointments')}
         </h1>
         <Link href="/dashboard/patient/book-appointment">
-          <Button className="w-full sm:w-auto rounded-2xl font-black uppercase tracking-widest text-[10px]">
+          <Button className="w-full sm:w-auto rounded-xl text-sm font-semibold">
             <Plus className="mr-2 h-4 w-4" />
             {t('patient.bookAppointment')}
           </Button>
@@ -290,15 +290,16 @@ export default function AppointmentsPage() {
       </div>
 
       {/* View Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {(["all", "upcoming", "past", "yesterday", "today", "tomorrow"] as ViewFilter[]).map((filter) => (
           <button
             key={filter}
             onClick={() => setView(filter)}
-            className={`rounded-2xl px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all shrink-0 ${view === filter
-              ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105"
-              : "bg-white text-text-primary border border-border-light hover:bg-surface active:scale-95"
-              }`}
+            className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors shrink-0 ${
+              view === filter
+                ? "bg-primary text-white"
+                : "bg-white text-text-secondary border border-black/6 hover:text-text-primary hover:border-primary/30"
+            }`}
           >
             {filter === "all" ? t('common.all') :
               filter === "upcoming" ? t('patient.appointments.upcoming') :
@@ -319,21 +320,21 @@ export default function AppointmentsPage() {
           ))}
         </div>
       ) : appointments.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-border-light bg-white p-10 sm:p-20 text-center">
-          <Calendar className="mx-auto h-16 w-16 text-text-primary opacity-20 mb-6" />
-          <h3 className="text-xl font-black text-text-primary uppercase tracking-tight">
-            {t('appointment.noAppointments')}
-          </h3>
-          <p className="mt-2 text-sm font-bold text-text-primary opacity-60">
+        <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl bg-gray-50 border border-black/6">
+          <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
+            <Calendar className="h-5 w-5 text-primary" />
+          </div>
+          <p className="text-sm font-medium text-text-primary">{t('appointment.noAppointments')}</p>
+          <p className="text-xs text-text-secondary mt-1">
             {view === "upcoming"
               ? t('appointment.noUpcoming')
               : view === "past"
                 ? t('appointment.noPast')
-                : t('appointment.noAppointments')}
+                : "Your appointments will appear here"}
           </p>
           {view !== "upcoming" && (
-            <Link href="/dashboard/patient/book-appointment">
-              <Button className="mt-8 rounded-2xl font-black uppercase tracking-widest text-[10px] px-8">
+            <Link href="/dashboard/patient/book-appointment" className="mt-5">
+              <Button className="rounded-xl text-sm font-semibold">
                 {t('patient.bookAppointment')}
               </Button>
             </Link>

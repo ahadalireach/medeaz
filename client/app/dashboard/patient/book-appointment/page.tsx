@@ -280,7 +280,7 @@ export default function BookAppointmentPage() {
               className="flex items-center gap-2 text-text-secondary hover:text-text-primary :text-white group"
             >
               <ArrowLeft className="h-5 w-5 transition-transform" />
-              <span className="text-sm font-bold uppercase tracking-widest">{t('patient.bookAppointmentPage.previousStep')}</span>
+              <span className="text-sm font-medium">{t('patient.bookAppointmentPage.previousStep')}</span>
             </button>
           ) : (
             <button
@@ -288,11 +288,11 @@ export default function BookAppointmentPage() {
               className="flex items-center gap-2 text-text-secondary hover:text-text-primary :text-white group"
             >
               <ArrowLeft className="h-5 w-5 transition-transform" />
-              <span className="text-sm font-bold uppercase tracking-widest">{t('common.back')}</span>
+              <span className="text-sm font-medium">{t('common.back')}</span>
             </button>
           )}
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-text-primary tracking-tight uppercase">{t('patient.bookAppointmentPage.title')}</h1>
+        <h1 className="text-xl font-bold text-text-primary">{t('patient.bookAppointmentPage.title')}</h1>
       </div>
 
       {/* Progress Steps */}
@@ -316,8 +316,7 @@ export default function BookAppointmentPage() {
                     {isCompleted ? <Check className="h-5 w-5 sm:h-6 sm:w-6" /> : <Icon className="h-5 w-5 sm:h-6 sm:w-6" />}
                   </div>
                   <p
-                    className={`mt-2 text-[10px] sm:text-xs font-black uppercase tracking-widest text-center ${isActive || isCompleted ? "text-text-primary " : "text-text-secondary "
-                      }`}
+                    className={`mt-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-center ${isActive || isCompleted ? "text-text-primary" : "text-text-muted"}`}
                   >
                     <span className="hidden xs:inline">{step.name}</span>
                     <span className="xs:hidden">{step.name.split(" ")[0]}</span>
@@ -355,7 +354,7 @@ export default function BookAppointmentPage() {
               </div>
               <button
                 onClick={handleNext}
-                className="h-12 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all"
+                className="h-12 px-6 bg-primary text-white font-semibold rounded-xl hover:bg-primary-hover transition-colors"
               >
                 {t('patient.bookAppointmentPage.findClinic')}
               </button>

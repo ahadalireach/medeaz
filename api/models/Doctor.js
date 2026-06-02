@@ -30,6 +30,10 @@ const doctorSchema = new mongoose.Schema(
       saturday: [String],
       sunday: [String],
     },
+    experience: {
+      type: Number,
+      default: 0,
+    },
     bio: {
       type: String,
     },

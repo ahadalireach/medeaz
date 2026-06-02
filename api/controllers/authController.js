@@ -537,6 +537,7 @@ const googleAuthUser = async (req, res) => {
     let user = await User.findOne({
       $or: [{ googleId }, { email: email.toLowerCase() }],
     });
+    let isNewUser = false;
 
     if (user) {
       // If local account, silently link the Google ID (email verified by Google)
@@ -545,11 +546,11 @@ const googleAuthUser = async (req, res) => {
         await user.save();
       }
 
-      // Conflict check: if we are trying to register under a role not matched
+      // Conflict check: registering under a role this account doesn't have
       if (role && !user.roles.includes(role)) {
         return res.status(409).json({
           success: false,
-          message: "An account with this email already exists under a different role.",
+          message: "An account with this email already exists. Please sign in instead.",
         });
       }
     } else {
@@ -595,6 +596,7 @@ const googleAuthUser = async (req, res) => {
         }
         
         user = createdUser;
+        isNewUser = true;
       } catch (dbError) {
         if (createdUser) {
           await User.findByIdAndDelete(createdUser._id);
@@ -615,6 +617,7 @@ const googleAuthUser = async (req, res) => {
 
     res.status(200).json({
       success: true,
+      isNew: isNewUser,
       data: userRes,
       user: userRes,
       accessToken,
