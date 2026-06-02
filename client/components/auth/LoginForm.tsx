@@ -46,7 +46,6 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [stage, setStage] = useState<"email" | "password">("email");
   const [role, setRole] = useState<string>("patient");
 
   const [login, { isLoading }] = useLoginMutation();
@@ -54,28 +53,22 @@ export function LoginForm() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const continueWithEmail = () => {
-    if (!isEmailValid) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
       toast.error("Please enter a valid email address.");
       return;
     }
-    setStage("password");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (stage === "email") return continueWithEmail();
-
     if (!password || password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
+      toast.error("Password must be at least 6 characters.");
       return;
     }
 
     const toastId = toast.loading("Authenticating...");
     try {
-      const res = await login({ email, password, role }).unwrap();
+      const res = await login({ email: email.trim(), password, role }).unwrap();
       dispatch(
         setCredentials({
           user: res.data,
@@ -86,7 +79,8 @@ export function LoginForm() {
       toast.success("Welcome back!", { id: toastId });
       router.push(`/dashboard/${role}`);
     } catch (err: any) {
-      toast.error(err?.data?.message || "Invalid credentials", { id: toastId });
+      // Keep all form state — only show the error
+      toast.error(err?.data?.message || "Invalid credentials. Please try again.", { id: toastId });
     }
   };
 
@@ -99,7 +93,7 @@ export function LoginForm() {
             <button
               key={value}
               type="button"
-              onClick={() => { setRole(value); setStage("email"); }}
+              onClick={() => setRole(value)}
               className={cn(
                 "inline-flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold transition-colors cursor-pointer border",
                 role === value
@@ -139,55 +133,32 @@ export function LoginForm() {
             autoComplete="email"
             placeholder="Enter your email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (stage === "password") setStage("email");
-            }}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
           />
 
-          {stage === "password" && (
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoFocus
-                className="block h-12 w-full rounded-lg border border-border-light bg-white pl-4 pr-12 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute inset-y-0 right-2 my-auto inline-flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text-primary cursor-pointer"
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4.5 w-4.5" />
-                ) : (
-                  <Eye className="h-4.5 w-4.5" />
-                )}
-              </button>
-            </div>
-          )}
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="block h-12 w-full rounded-lg border border-border-light bg-white pl-4 pr-12 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute inset-y-0 right-2 my-auto inline-flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text-primary cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+            </button>
+          </div>
 
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading
-              ? "Signing in..."
-              : stage === "email"
-                ? "Continue with email"
-                : "Sign in"}
-          </Button>
-
-          <div className="pt-1 text-center">
+          <div className="flex items-center justify-end">
             <Link
               href="/forgot-password"
               className="text-[13px] font-medium text-text-secondary hover:text-primary"
@@ -195,6 +166,10 @@ export function LoginForm() {
               Forgot password?
             </Link>
           </div>
+
+          <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign in"}
+          </Button>
         </form>
       </div>
 
