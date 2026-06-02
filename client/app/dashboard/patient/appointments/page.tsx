@@ -149,15 +149,21 @@ export default function AppointmentsPage() {
     cancelled: 0,
   };
 
+  // Use local date string (YYYY-MM-DD) to avoid UTC timezone shift issues
+  const localDateStr = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
   const appointments = (data?.data || [])
     .filter((a: any) => {
-    if (["all", "upcoming", "past"].includes(view)) return true;
-    const date = new Date();
-    if (view === "yesterday") date.setDate(date.getDate() - 1);
-    if (view === "tomorrow") date.setDate(date.getDate() + 1);
-    const targetDateStr = date.toISOString().split('T')[0];
-    return a.dateTime?.split('T')[0] === targetDateStr;
-  })
+      if (["all", "upcoming", "past"].includes(view)) return true;
+      const target = new Date();
+      if (view === "yesterday") target.setDate(target.getDate() - 1);
+      if (view === "tomorrow")  target.setDate(target.getDate() + 1);
+      const targetStr = localDateStr(target);
+      // Compare using local date of the appointment, not UTC
+      const apptLocal = a.dateTime ? localDateStr(new Date(a.dateTime)) : "";
+      return apptLocal === targetStr;
+    })
     .reduce((list: any[], appointment: any) => {
       const slotKey = `${appointment.patientId?._id || appointment.patientId}-${appointment.doctorId?._id || appointment.doctorId}-${String(appointment.dateTime || "")}`;
       const existingIndex = list.findIndex((item) => `${item.patientId?._id || item.patientId}-${item.doctorId?._id || item.doctorId}-${String(item.dateTime || "")}` === slotKey);
