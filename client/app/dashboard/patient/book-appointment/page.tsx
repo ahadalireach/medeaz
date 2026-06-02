@@ -272,61 +272,52 @@ export default function BookAppointmentPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
-        <div className="flex items-center gap-4">
-          {currentStep > 1 ? (
-            <button
-              onClick={() => setCurrentStep(currentStep - 1)}
-              className="flex items-center gap-2 text-text-secondary hover:text-text-primary :text-white group"
-            >
-              <ArrowLeft className="h-5 w-5 transition-transform" />
-              <span className="text-sm font-medium">{t('patient.bookAppointmentPage.previousStep')}</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => router.back()}
-              className="flex items-center gap-2 text-text-secondary hover:text-text-primary :text-white group"
-            >
-              <ArrowLeft className="h-5 w-5 transition-transform" />
-              <span className="text-sm font-medium">{t('common.back')}</span>
-            </button>
-          )}
-        </div>
-        <h1 className="text-xl font-bold text-text-primary">{t('patient.bookAppointmentPage.title')}</h1>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : router.back()}
+          className="flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {currentStep > 1 ? t('patient.bookAppointmentPage.previousStep') : t('common.back')}
+        </button>
+        <h1 className="text-xl font-bold text-text-primary">
+          {t('patient.bookAppointmentPage.title')}
+        </h1>
       </div>
 
       {/* Progress Steps */}
-      <div className="rounded-2xl border border-black/5 bg-white p-4 sm:p-8 shadow-sm">
-        <div className="flex items-center justify-between gap-2">
+      <div className="rounded-2xl border border-black/6 bg-white shadow-sm px-6 py-5">
+        <div className="flex items-start">
           {steps(t).map((step: any, index: number) => {
             const Icon = step.icon;
-            const isActive = currentStep === step.id;
+            const isActive    = currentStep === step.id;
             const isCompleted = currentStep > step.id;
+            const isLast      = index === steps(t).length - 1;
             return (
-              <div key={step.id} className="flex flex-1 items-center last:flex-none">
-                <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={`flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl transition-all duration-300 ${isCompleted
-                      ? "bg-primary text-white"
-                      : isActive
-                        ? "bg-primary/20 text-primary ring-2 ring-primary ring-offset-2 "
-                        : "bg-surface text-text-secondary "
-                      }`}
-                  >
-                    {isCompleted ? <Check className="h-5 w-5 sm:h-6 sm:w-6" /> : <Icon className="h-5 w-5 sm:h-6 sm:w-6" />}
+              <div key={step.id} className="flex items-start flex-1 last:flex-none">
+                {/* Step node */}
+                <div className="flex flex-col items-center gap-2">
+                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                    isCompleted ? "bg-primary text-white" :
+                    isActive    ? "bg-primary/10 text-primary ring-2 ring-primary ring-offset-1" :
+                                  "bg-gray-100 text-text-muted"
+                  }`}>
+                    {isCompleted
+                      ? <Check className="h-4 w-4" strokeWidth={2.5} />
+                      : <Icon className="h-4 w-4" strokeWidth={isActive ? 2.5 : 2} />
+                    }
                   </div>
-                  <p
-                    className={`mt-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-center ${isActive || isCompleted ? "text-text-primary" : "text-text-muted"}`}
-                  >
-                    <span className="hidden xs:inline">{step.name}</span>
-                    <span className="xs:hidden">{step.name.split(" ")[0]}</span>
-                  </p>
+                  <span className={`text-[10px] font-semibold uppercase tracking-wide text-center leading-tight max-w-16 ${
+                    isActive || isCompleted ? "text-text-primary" : "text-text-muted"
+                  }`}>
+                    {step.name}
+                  </span>
                 </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`h-0.5 flex-1 rounded-full transition-colors ${isCompleted ? "bg-primary" : "bg-surface "
-                      }`}
-                  />
+                {/* Connector — at the midpoint of the icon (mt-5 = 20px = half of h-10) */}
+                {!isLast && (
+                  <div className={`flex-1 h-px mt-5 mx-3 rounded-full transition-colors ${
+                    isCompleted ? "bg-primary" : "bg-gray-200"
+                  }`} />
                 )}
               </div>
             );
