@@ -129,22 +129,24 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
 
   function parseDateTime(dateStr, timeStr) {
     if (!timeStr || !dateStr) return new Date(NaN);
-
-    // Check if time is in 12h format (e.g. "09:00 AM")
-    const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    if (match) {
-      let [_, hours, minutes, ampm] = match;
-      hours = parseInt(hours, 10);
-      minutes = parseInt(minutes, 10);
-      if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
-      if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
-
-      const date = new Date(dateStr);
-      date.setHours(hours, minutes, 0, 0);
-      return date;
+    let hours = 0, minutes = 0;
+    const m12 = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    const m24 = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+    if (m12) {
+      hours   = parseInt(m12[1], 10);
+      minutes = parseInt(m12[2], 10);
+      if (m12[3].toUpperCase() === 'PM' && hours < 12) hours += 12;
+      if (m12[3].toUpperCase() === 'AM' && hours === 12) hours = 0;
+    } else if (m24) {
+      hours   = parseInt(m24[1], 10);
+      minutes = parseInt(m24[2], 10);
+    } else {
+      return new Date(NaN);
     }
-
-    return new Date(`${dateStr} ${timeStr}`);
+    // Treat the entered time as PKT (UTC+5) so stored UTC matches what user selected
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+    return new Date(`${dateStr}T${hh}:${mm}:00+05:00`);
   }
 
   const dateTime = parseDateTime(appointmentDate, appointmentTime);
@@ -482,22 +484,24 @@ exports.reserveSlot = asyncHandler(async (req, res) => {
 
   function parseDateTime(dateStr, timeStr) {
     if (!timeStr || !dateStr) return new Date(NaN);
-
-    // Check if time is in 12h format (e.g. "09:00 AM")
-    const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    if (match) {
-      let [_, hours, minutes, ampm] = match;
-      hours = parseInt(hours, 10);
-      minutes = parseInt(minutes, 10);
-      if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
-      if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
-
-      const date = new Date(dateStr);
-      date.setHours(hours, minutes, 0, 0);
-      return date;
+    let hours = 0, minutes = 0;
+    const m12 = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    const m24 = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+    if (m12) {
+      hours   = parseInt(m12[1], 10);
+      minutes = parseInt(m12[2], 10);
+      if (m12[3].toUpperCase() === 'PM' && hours < 12) hours += 12;
+      if (m12[3].toUpperCase() === 'AM' && hours === 12) hours = 0;
+    } else if (m24) {
+      hours   = parseInt(m24[1], 10);
+      minutes = parseInt(m24[2], 10);
+    } else {
+      return new Date(NaN);
     }
-
-    return new Date(`${dateStr} ${timeStr}`);
+    // Treat the entered time as PKT (UTC+5) so stored UTC matches what user selected
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+    return new Date(`${dateStr}T${hh}:${mm}:00+05:00`);
   }
 
   const dateTime = parseDateTime(appointmentDate, appointmentTime);

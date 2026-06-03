@@ -196,8 +196,11 @@ export default function AppointmentsPage() {
     return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
   };
 
-  const getDoctorName = (appointment: any) =>
-    appointment.doctorId?.userId?.name || appointment.doctorId?.fullName || appointment.doctorId?.name || "Doctor";
+  const getDoctorName = (appointment: any) => {
+    const raw = appointment.doctorId?.name || appointment.doctorId?.fullName || "Doctor";
+    // Strip existing "Dr." prefix so the template can add it once
+    return raw.replace(/^Dr\.?\s+/i, "");
+  };
 
   const getClinicCity = (appointment: any) => {
     const directCity = appointment.clinicId?.city || appointment.clinic?.city || appointment.clinicCity;

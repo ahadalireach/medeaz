@@ -88,22 +88,32 @@ exports.getPatients = asyncHandler(async (req, res) => {
  * @access  Private (Doctor only)
  */
 exports.getPatientById = asyncHandler(async (req, res) => {
-  const patientId = req.params.id;
+  const rawId = req.params.id;
   const doctorId = req.user._id;
 
-  // Verify doctor has treated this patient or created them
-  const patientProfile = await Patient.findOne({ userId: patientId });
-  const hasRelation = await Appointment.findOne({
-    doctorId,
-    patientId
-  }) || (patientProfile && patientProfile.createdBy && patientProfile.createdBy.toString() === doctorId.toString());
+  // URL may carry either User._id or Patient._id — resolve to User._id
+  let patientUserId = rawId;
+  let patientProfile = await Patient.findOne({ userId: rawId });
+  if (!patientProfile) {
+    // Try treating rawId as Patient._id
+    const byPatientId = await Patient.findById(rawId);
+    if (byPatientId) {
+      patientProfile = byPatientId;
+      patientUserId = byPatientId.userId?.toString();
+    }
+  }
+
+  // Verify doctor has an appointment with this patient
+  const hasRelation = await Appointment.findOne({ doctorId, patientId: patientUserId })
+    || (patientProfile?.createdBy?.toString() === doctorId.toString());
 
   if (!hasRelation) {
     throw new ApiError(403, 'You do not have access to this patient\'s records');
   }
 
-  const patient = await User.findOne({ _id: patientId, roles: 'patient' })
+  const patient = await User.findOne({ _id: patientUserId, roles: 'patient' })
     .select('name email phone createdAt photo');
+  const patientId = patientUserId;
 
   if (!patient) {
     throw new ApiError(404, 'Patient not found');

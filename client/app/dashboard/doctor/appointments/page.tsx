@@ -123,13 +123,12 @@ export default function AppointmentsPage() {
 
   const appointments = (allData?.data?.appointments || [])
     .filter((a: any) => {
-    if (filter === "all") return true;
-    const date = new Date();
-    if (filter === "yesterday") date.setDate(date.getDate() - 1);
-    if (filter === "tomorrow") date.setDate(date.getDate() + 1);
-    const targetDate = date.toISOString().split('T')[0];
-    return a.dateTime?.split('T')[0] === targetDate;
-  })
+      if (filter === "all") return true;
+      const target = new Date();
+      if (filter === "yesterday") target.setDate(target.getDate() - 1);
+      if (filter === "tomorrow")  target.setDate(target.getDate() + 1);
+      return a.dateTime ? localDateStr(new Date(a.dateTime)) === localDateStr(target) : false;
+    })
     .reduce((list: any[], appointment: any) => {
       const slotKey = `${appointment.patientId?._id || appointment.patientId}-${appointment.doctorId?._id || appointment.doctorId}-${String(appointment.dateTime || "")}`;
       const existingIndex = list.findIndex((item) => `${item.patientId?._id || item.patientId}-${item.doctorId?._id || item.doctorId}-${String(item.dateTime || "")}` === slotKey);
@@ -297,216 +296,178 @@ export default function AppointmentsPage() {
 
   if (loading) return <div className="space-y-6"><TableSkeleton rows={6} /></div>;
 
+  // Local date comparison — avoids UTC shift (same fix as patient appointments)
+  const localDateStr = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
   return (
-    <div className="space-y-10 animate-in">
+    <div className="space-y-5 animate-in">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="lens-page-title">{t('doctor.appointments.title')}</h1>
-          <p className="lens-subtitle">{t('doctor.appointments.subtitle')}</p>
+          <h1 className="text-xl font-bold text-text-primary">{t('doctor.appointments.title')}</h1>
+          <p className="text-sm text-text-secondary mt-0.5">{t('doctor.appointments.subtitle')}</p>
         </div>
-        <Link href="/dashboard/doctor/appointments/new" className="lens-btn-primary h-12 px-6">
-          <Plus className="h-4 w-4 stroke-[3px]" />
+        <Link href="/dashboard/doctor/appointments/new" className="inline-flex items-center gap-2 rounded-xl bg-primary text-white px-5 py-2.5 text-sm font-semibold hover:bg-primary-hover transition-colors">
+          <Plus className="h-4 w-4" />
           <span>{t('doctor.appointments.newAppointment')}</span>
         </Link>
       </div>
 
-      <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-full w-fit">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {["all", "yesterday", "today", "tomorrow"].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f as any)}
-            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${filter === f
-              ? "bg-white text-black dark:bg-primary dark:text-white"
-              : "text-gray-500 dark:text-gray-400 hover:text-gray-700"
-              }`}
+            className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors shrink-0 ${
+              filter === f
+                ? "bg-primary text-white"
+                : "bg-white text-text-secondary border border-black/6 hover:text-text-primary hover:border-primary/30"
+            }`}
           >
             {f === "all" ? t('common.all') : t(`common.${f}`)}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="space-y-3">
         {appointments.length === 0 ? (
-          <div className="lens-card text-center py-24">
-            <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Calendar className="h-8 w-8 text-primary" />
+          <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl bg-gray-50 border border-black/6">
+            <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
+              <Calendar className="h-5 w-5 text-primary" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.appointments.noAppointments')}</h3>
-            <p className="text-gray-500 font-medium mt-1">{t('doctor.appointments.adjustFilters')}</p>
+            <p className="text-sm font-medium text-text-primary">{t('doctor.appointments.noAppointments')}</p>
+            <p className="text-xs text-text-secondary mt-1">{t('doctor.appointments.adjustFilters')}</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {appointments.map((appointment: any) => {
-              const isRTL = t.raw('nav.navigation') === 'نیویگیشن';
-              return (
-                <div key={appointment._id} className="lens-card group relative">
+          appointments.map((appointment: any) => {
+            const patientName = appointment.patientId?.name || "Patient";
+            const patientEmail = appointment.patientId?.email || "";
+            const dt = new Date(appointment.dateTime);
+            const dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            const timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const imageUrl = resolveImageUrl(appointment.patientId?.photo);
+
+            const statusStyle = {
+              pending:     "bg-amber-50 text-amber-700 border-amber-200",
+              confirmed:   "bg-primary/8 text-primary border-primary/20",
+              "in-progress": "bg-violet-50 text-violet-700 border-violet-200",
+              completed:   "bg-emerald-50 text-emerald-700 border-emerald-200",
+              cancelled:   "bg-red-50 text-red-600 border-red-200",
+            }[appointment.status] || "bg-gray-100 text-text-secondary border-black/6";
+
+            return (
+              <div key={appointment._id} className="bg-white rounded-2xl border border-black/6 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow group">
+
+                {/* Avatar */}
+                <div className="h-11 w-11 rounded-xl overflow-hidden border border-black/6 bg-gray-100 flex items-center justify-center shrink-0">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt={patientName} className="h-full w-full object-cover"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                  ) : (
+                    <UserIcon className="h-5 w-5 text-text-muted" />
+                  )}
+                </div>
+
+                {/* Patient info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-semibold text-text-primary truncate">{patientName}</p>
+                    {appointment.status === "in-progress" && (
+                      <AppointmentTimer startTime={appointment.updatedAt} />
+                    )}
+                  </div>
+                  {patientEmail && (
+                    <p className="text-xs text-text-secondary mt-0.5 truncate">{patientEmail}</p>
+                  )}
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 text-xs text-text-secondary">
+                      <ClockIcon size={12} className="text-primary" />
+                      {dateStr} · {timeStr}
+                    </span>
+                    <span className="text-xs text-text-muted capitalize">{appointment.type || 'consultation'}</span>
+                  </div>
+                  {appointment.status === "completed" && appointment.patientFeedback?.score && (
+                    <div className="flex items-center gap-1 mt-2">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className={`h-3 w-3 ${i < appointment.patientFeedback.score ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                      {appointment.patientFeedback.comment && (
+                        <span className="text-xs text-text-secondary ml-1 italic">"{appointment.patientFeedback.comment}"</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Status + actions */}
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+                  <span className={`rounded-full px-3 py-1 text-[11px] font-semibold border capitalize ${statusStyle}`}>
+                    {getStatusLabel(appointment.status)}
+                  </span>
+
+                  {appointment.status === "pending" && (
+                    <button
+                      onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
+                      disabled={pendingAction?.id === appointment._id}
+                      className="h-8 w-8 rounded-lg bg-primary/8 text-primary hover:bg-primary/15 transition-colors flex items-center justify-center disabled:opacity-50"
+                      title="Confirm"
+                    >
+                      {pendingAction?.id === appointment._id ? <Loader2 size={14} className="animate-spin" /> : <CheckedIcon size={14} strokeWidth={2.5} />}
+                    </button>
+                  )}
+                  {appointment.status === "confirmed" && (
+                    <button
+                      onClick={() => handleStatusUpdate(appointment._id, "in-progress")}
+                      disabled={pendingAction?.id === appointment._id}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary text-white px-3 py-1.5 text-xs font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50"
+                    >
+                      {pendingAction?.id === appointment._id ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} className="fill-current" />}
+                      Start
+                    </button>
+                  )}
+                  {appointment.status === "in-progress" && (
+                    <>
+                      <button
+                        onClick={() => handleStatusUpdate(appointment._id, "completed")}
+                        disabled={pendingAction?.id === appointment._id}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 text-white px-3 py-1.5 text-xs font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                      >
+                        {pendingAction?.id === appointment._id ? <Loader2 size={12} className="animate-spin" /> : <CheckedIcon size={12} strokeWidth={2.5} />}
+                        Complete
+                      </button>
+                      <Link href={`/dashboard/doctor/prescriptions/new?patientId=${appointment.patientId?._id || appointment.patientId}&appointmentId=${appointment._id}`}>
+                        <button className="rounded-xl bg-primary/8 text-primary px-3 py-1.5 text-xs font-semibold hover:bg-primary/15 transition-colors">
+                          {t('nav.prescriptions')}
+                        </button>
+                      </Link>
+                    </>
+                  )}
+                  {appointment.status === "completed" && (
+                    <Link href={`/dashboard/doctor/prescriptions/new?patientId=${appointment.patientId?._id || appointment.patientId}&appointmentId=${appointment._id}`}>
+                      <button className="rounded-xl border border-primary/20 text-primary px-3 py-1.5 text-xs font-semibold hover:bg-primary/5 transition-colors">
+                        {t('doctor.prescriptions.newPrescription')}
+                      </button>
+                    </Link>
+                  )}
+
                   <Link
                     href={`/dashboard/doctor/appointments/${appointment._id}`}
-                    className={`absolute top-6 ${isRTL ? 'left-6' : 'right-6'} p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100 hidden lg:flex z-10`}
+                    className="h-8 w-8 rounded-lg bg-gray-100 text-text-secondary hover:bg-primary/8 hover:text-primary transition-colors flex items-center justify-center"
                     title={t('doctor.appointments.viewDetails')}
                   >
-                    <EyeIcon size={20} />
+                    <EyeIcon size={14} />
                   </Link>
-
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <div className="flex items-start gap-5">
-                      <div className="h-14 w-14 rounded-2xl overflow-hidden border border-black/5 dark:border-white/10 shrink-0 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                        {appointment.patientId?.photo ? (
-                          (() => {
-                            const imageUrl = resolveImageUrl(appointment.patientId.photo);
-                            return imageUrl ? (
-                              <div className="relative h-full w-full">
-                                <UserIcon className="h-8 w-8 text-slate-400 absolute inset-0 m-auto" />
-                                <img
-                                  src={imageUrl}
-                                  alt={appointment.patientId?.name || "Patient"}
-                                  className="h-full w-full object-cover relative z-10"
-                                  onError={(e) => {
-                                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                                  }}
-                                />
-                              </div>
-                            ) : (
-                              <UserIcon className="h-8 w-8 text-slate-400" />
-                            );
-                          })()
-                        ) : (
-                          <UserIcon className="h-8 w-8 text-slate-400" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                          <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight truncate">
-                            {appointment.patientId?.name || "Patient"}
-                          </h3>
-                          {appointment.status === "in-progress" && (
-                            <div className="shrink-0">
-                              <AppointmentTimer startTime={appointment.updatedAt} />
-                            </div>
-                          )}
-                          <Link
-                            href={`/dashboard/doctor/appointments/${appointment._id}`}
-                            className="lg:hidden p-1.5 rounded-lg bg-primary/10 text-primary"
-                          >
-                            <EyeIcon size={16} />
-                          </Link>
-                        </div>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] uppercase tracking-widest mt-1">
-                          {appointment.patientId?.email || "Private Registry"}
-                        </p>
-
-                        <div className="flex items-center gap-3 mt-4">
-                          <div className="flex items-center gap-1.5 px-3 py-1 bg-black/5 dark:bg-white/5 rounded-full border border-black/5 dark:border-white/5">
-                            <ClockIcon size={14} className="text-primary" />
-                            <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                              {new Date(appointment.dateTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {new Date(appointment.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-bold text-gray-400 dark:text-[#52525b] uppercase tracking-widest">
-                            {appointment.type || 'Standard'}
-                          </span>
-                        </div>
-
-                        {/* Patient Feedback Section */}
-                        {appointment.status === "completed" && appointment.patientFeedback?.score && (
-                          <div className="mt-4 p-3 bg-primary/5 rounded-2xl border border-primary/10">
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="flex text-amber-500">
-                                {[...Array(5)].map((_, i) => (
-                                  <svg key={i} className={`h-3 w-3 ${i < appointment.patientFeedback.score ? 'fill-current' : 'text-gray-300 dark:text-gray-700'}`} viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                  </svg>
-                                ))}
-                              </div>
-                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PATIENT REVIEW</span>
-                            </div>
-                            {appointment.patientFeedback.comment && (
-                              <p className="text-xs  text-gray-600 dark:text-gray-300">"{appointment.patientFeedback.comment}"</p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2 lg:mt-0">
-                      <span className={`lens-badge whitespace-nowrap ${appointment.status === "pending" ? "lens-badge-pending" :
-                        appointment.status === "confirmed" ? "lens-badge-active" :
-                          appointment.status === "in-progress" ? "bg-[#7c3aed] text-white border-none font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-full" :
-                            appointment.status === "completed" ? "bg-primary text-white border-none font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-full" :
-                              "bg-[#ef4444] text-white border-none font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-full"
-                        }`}>
-                        {getStatusLabel(appointment.status)}
-                      </span>
-
-                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                        {appointment.status === "pending" && (
-                          <button
-                            onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
-                            disabled={pendingAction?.id === appointment._id && pendingAction?.status === "confirmed"}
-                            className="lens-btn-icon text-primary bg-primary/10 border-primary/20 disabled:opacity-60 disabled:cursor-not-allowed"
-                          >
-                            {pendingAction?.id === appointment._id && pendingAction?.status === "confirmed" ? (
-                              <Loader2 size={18} className="animate-spin" />
-                            ) : (
-                              <CheckedIcon size={18} strokeWidth={3} />
-                            )}
-                          </button>
-                        )}
-                        {appointment.status === "confirmed" && (
-                          <button
-                            onClick={() => handleStatusUpdate(appointment._id, "in-progress")}
-                            disabled={pendingAction?.id === appointment._id && pendingAction?.status === "in-progress"}
-                            className="lens-btn-primary h-10 px-4 text-xs font-bold"
-                          >
-                            {pendingAction?.id === appointment._id && pendingAction?.status === "in-progress" ? (
-                              <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                              <Play size={14} className="fill-current" />
-                            )}
-                            Start
-                          </button>
-                        )}
-                        {appointment.status === "in-progress" && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleStatusUpdate(appointment._id, "completed")}
-                              disabled={pendingAction?.id === appointment._id && pendingAction?.status === "completed"}
-                              className="lens-btn-primary h-10 px-6 text-xs font-black bg-green-600 hover:bg-green-700 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                              {pendingAction?.id === appointment._id && pendingAction?.status === "completed" ? (
-                                <Loader2 size={14} className="mr-1 animate-spin" />
-                              ) : (
-                                <CheckedIcon size={14} strokeWidth={3} className="mr-1" />
-                              )}
-                              {t('common.status.completed')}
-                            </button>
-                            <Link href={`/dashboard/doctor/prescriptions/new?patientId=${appointment.patientId?._id || appointment.patientId}&appointmentId=${appointment._id}`}>
-                              <button className="h-10 px-4 rounded-lg bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                {t('nav.prescriptions')}
-                              </button>
-                            </Link>
-                          </div>
-                        )}
-                        {appointment.status === "completed" && (
-                          <Link href={`/dashboard/doctor/prescriptions/new?patientId=${appointment.patientId?._id || appointment.patientId}&appointmentId=${appointment._id}`}>
-                            <button className="h-10 px-4 rounded-lg border-2 border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest hover:bg-primary/5 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                              {t('doctor.prescriptions.newPrescription')}
-                            </button>
-                          </Link>
-                        )}
-                        <button
-                          onClick={() => setDeleteModal({ open: true, id: appointment._id, patientName: appointment.patientId?.name || "Patient" })}
-                          className="lens-btn-icon text-red-500 hover:bg-red-500 hover:text-white border-transparent"
-                        >
-                          <TrashIcon size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => setDeleteModal({ open: true, id: appointment._id, patientName })}
+                    className="h-8 w-8 rounded-lg bg-gray-100 text-text-secondary hover:bg-red-50 hover:text-red-500 transition-colors flex items-center justify-center"
+                  >
+                    <TrashIcon size={14} />
+                  </button>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })
         )}
       </div>
       <AppointmentDetailModal
