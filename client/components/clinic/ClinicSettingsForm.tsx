@@ -9,11 +9,12 @@ import { toast } from "react-hot-toast";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { useTranslations } from "next-intl";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 const schema = z.object({
   name: z.string().min(2, "Clinic name is required"),
   address: z.string().min(5, "Address is required"),
-  phone: z.string().min(10, "Valid phone number is required"),
+  phone: z.string().refine(validatePkPhone, { message: PK_PHONE_ERROR }),
   email: z.string().email("Invalid email address"),
   workingHours: z.object({
     monday: z.object({
@@ -194,8 +195,9 @@ export default function ClinicSettingsForm() {
 
           <Input
             label={t('form.phone')}
+            placeholder={PK_PHONE_PLACEHOLDER}
             error={errors.phone?.message}
-            {...register("phone")}
+            {...register("phone", { setValueAs: normalizePkPhone })}
           />
 
           <Input

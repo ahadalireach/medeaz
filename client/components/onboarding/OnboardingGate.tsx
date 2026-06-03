@@ -24,6 +24,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 import {
   useMarkOnboardingCompleteMutation,
   useMarkProfileCompleteMutation,
@@ -655,6 +656,17 @@ function ProfileCompletionModal({
   };
 
   const handleSubmit = async () => {
+    // Phone validation before submit
+    if (role === "patient" && state.patient.contact && !validatePkPhone(state.patient.contact)) {
+      toast.error(PK_PHONE_ERROR); return;
+    }
+    if (role === "doctor" && state.doctor.phone && !validatePkPhone(state.doctor.phone)) {
+      toast.error(PK_PHONE_ERROR); return;
+    }
+    if (role === "clinic_admin" && state.clinic.phone && !validatePkPhone(state.clinic.phone)) {
+      toast.error(PK_PHONE_ERROR); return;
+    }
+
     try {
       const accessToken = localStorage.getItem("accessToken") || "";
       const syncAuthUser = (nextFields: Record<string, unknown>) => {
@@ -676,9 +688,9 @@ function ProfileCompletionModal({
           bloodGroup: state.patient.bloodGroup,
           allergies,
           chronicConditions: conditions,
-          contact: state.patient.contact,
+          contact: state.patient.contact ? normalizePkPhone(state.patient.contact) : "",
           emergencyContactName: state.patient.emergencyContactName,
-          emergencyContactPhone: state.patient.emergencyContactPhone,
+          emergencyContactPhone: state.patient.emergencyContactPhone ? normalizePkPhone(state.patient.emergencyContactPhone) : "",
           profilePhoto: photoPreview || undefined,
         }).unwrap();
         syncAuthUser({
@@ -689,7 +701,7 @@ function ProfileCompletionModal({
       } else if (role === "doctor") {
         await doctorUpdate({
           name: state.doctor.name,
-          phone: state.doctor.phone,
+          phone: state.doctor.phone ? normalizePkPhone(state.doctor.phone) : "",
           gender: state.doctor.gender,
           city: state.doctor.city,
           specialization: state.doctor.specialization,
@@ -701,7 +713,7 @@ function ProfileCompletionModal({
         }).unwrap();
         syncAuthUser({
           name: state.doctor.name,
-          phone: state.doctor.phone,
+          phone: state.doctor.phone ? normalizePkPhone(state.doctor.phone) : "",
           photo: photoPreview || user.photo || null,
         });
       } else {
@@ -709,7 +721,7 @@ function ProfileCompletionModal({
           name: state.clinic.name,
           clinicType: state.clinic.clinicType,
           registrationNumber: state.clinic.registrationNumber,
-          phone: state.clinic.phone,
+          phone: state.clinic.phone ? normalizePkPhone(state.clinic.phone) : "",
           email: state.clinic.email,
           address: state.clinic.address,
           addressLine2: state.clinic.addressLine2,
@@ -719,7 +731,7 @@ function ProfileCompletionModal({
         }).unwrap();
         syncAuthUser({
           name: state.clinic.name,
-          phone: state.clinic.phone,
+          phone: state.clinic.phone ? normalizePkPhone(state.clinic.phone) : "",
           photo: photoPreview || user.photo || null,
         });
       }
@@ -801,6 +813,7 @@ function ProfileCompletionModal({
             <Input
               label={labels.phone}
               type="tel"
+              placeholder={PK_PHONE_PLACEHOLDER}
               value={state.patient.contact}
               onChange={(event) =>
                 setState((current) => ({
@@ -875,6 +888,7 @@ function ProfileCompletionModal({
             <Input
               label={labels.emergencyPhone}
               type="tel"
+              placeholder={PK_PHONE_PLACEHOLDER}
               value={state.patient.emergencyContactPhone}
               onChange={(event) =>
                 setState((current) => ({
@@ -943,6 +957,7 @@ function ProfileCompletionModal({
             <Input
               label={labels.phone}
               type="tel"
+              placeholder={PK_PHONE_PLACEHOLDER}
               value={state.doctor.phone}
               onChange={(event) =>
                 setState((current) => ({

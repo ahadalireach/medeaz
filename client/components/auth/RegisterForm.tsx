@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Eye, EyeOff, CheckCircle2, UserPlus, Stethoscope, Building2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -70,12 +71,18 @@ export function RegisterForm() {
     if (!agreedTos || !agreedHie)
       return toast.error("Please accept both agreements to continue."), false;
 
-    if (role === "patient" && (!fullName.trim() || !phone.trim()))
-      return toast.error("Please fill in your full name and phone."), false;
+    if (role === "patient") {
+      if (!fullName.trim()) return toast.error("Please enter your full name."), false;
+      if (!phone.trim() || !validatePkPhone(phone))
+        return toast.error(PK_PHONE_ERROR), false;
+    }
     if (role === "doctor" && (!fullName.trim() || !specialization.trim() || !licenseNo.trim()))
       return toast.error("Please fill in your doctor details."), false;
-    if (role === "clinic_admin" && (!clinicName.trim() || !address.trim() || !phone.trim()))
-      return toast.error("Please fill in your clinic details."), false;
+    if (role === "clinic_admin") {
+      if (!clinicName.trim() || !address.trim()) return toast.error("Please fill in your clinic details."), false;
+      if (!phone.trim() || !validatePkPhone(phone))
+        return toast.error(PK_PHONE_ERROR), false;
+    }
     return true;
   };
 
@@ -83,12 +90,13 @@ export function RegisterForm() {
     e.preventDefault();
     if (!validate()) return;
 
+    const normalizedPhone = normalizePkPhone(phone);
     const profileData =
       role === "patient"
-        ? { fullName, phone }
+        ? { fullName, phone: normalizedPhone }
         : role === "doctor"
         ? { fullName, specialization, licenseNo }
-        : { clinicName, address, phone };
+        : { clinicName, address, phone: normalizedPhone };
 
     const toastId = toast.loading("Creating your account...");
     try {
@@ -263,7 +271,7 @@ export function RegisterForm() {
           {(role === "patient" || role === "clinic_admin") && (
             <input
               type="tel"
-              placeholder="Contact number"
+              placeholder={PK_PHONE_PLACEHOLDER}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required

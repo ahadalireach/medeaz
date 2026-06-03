@@ -9,11 +9,12 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { User } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 const schema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
+  phone: z.string().optional().refine(v => !v || validatePkPhone(v), { message: PK_PHONE_ERROR }),
   role: z.enum(["receptionist", "nurse", "admin"]),
 });
 
@@ -135,9 +136,9 @@ export default function EditStaffModal({
 
         <Input
           label={t('form.phone')}
-          placeholder="+1 234 567 8900"
+          placeholder={PK_PHONE_PLACEHOLDER}
           error={errors.phone?.message}
-          {...register("phone")}
+          {...register("phone", { setValueAs: v => v ? normalizePkPhone(v) : v })}
         />
 
         <div>

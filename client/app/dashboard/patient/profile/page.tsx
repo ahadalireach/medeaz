@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/store/slices/authSlice";
 import { useTranslations } from "next-intl";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 interface ProfileFormData {
   name: string;
@@ -249,8 +250,11 @@ export default function ProfilePage() {
               <Input
                 label={t('form.phone')}
                 type="tel"
-                placeholder="+1 234 567 8900"
-                {...register("contact")}
+                placeholder={PK_PHONE_PLACEHOLDER}
+                {...register("contact", {
+                  validate: v => !v || validatePkPhone(v) || PK_PHONE_ERROR,
+                  setValueAs: v => v ? normalizePkPhone(v) : v,
+                })}
               />
 
               <Input

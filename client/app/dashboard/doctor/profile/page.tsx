@@ -37,10 +37,11 @@ import { setCredentials } from "@/store/slices/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useTranslations } from "next-intl";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 const profileSchema = z.object({
     name: z.string().min(3, "Full name is required (min 3 chars)"),
-    phone: z.string().min(10, "Valid contact number is required"),
+    phone: z.string().refine(validatePkPhone, { message: PK_PHONE_ERROR }),
     specialization: z.string().min(3, "Please select your specialization"),
     bio: z.string().min(20, "Please provide a bio (at least 20 characters)"),
     experience: z.coerce.number().min(1, "Experience is required"),
@@ -261,7 +262,7 @@ export default function DoctorProfilePage() {
                         <div className="flex-1 space-y-4 w-full">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Input label={t('doctor.profile.fullName')} placeholder="e.g. Dr. Jane Doe" {...register("name")} />
-                                <Input label={t('doctor.profile.phone')} placeholder="+92 300 1234567" {...register("phone")} />
+                                <Input label={t('doctor.profile.phone')} placeholder={PK_PHONE_PLACEHOLDER} {...register("phone", { setValueAs: normalizePkPhone })} />
                             </div>
                         </div>
                     </div>

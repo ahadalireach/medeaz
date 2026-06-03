@@ -7,6 +7,7 @@ import { ArrowLeft, User, Mail, Phone, Calendar, Droplet, MapPin, Sparkles } fro
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 export default function NewPatientPage() {
   const t = useTranslations();
@@ -88,11 +89,9 @@ export default function NewPatientPage() {
       newErrors.email = t('doctor.patients.newPage.validEmailRequired');
     }
 
-    // Phone — REQUIRED
-    if (!formData.phone.trim()) {
-      newErrors.phone = t('doctor.patients.newPage.phoneRequired');
-    } else if (!/^[\d\s\+\-\(\)]{7,15}$/.test(formData.phone.trim())) {
-      newErrors.phone = t('doctor.patients.newPage.validPhoneRequired');
+    // Phone — REQUIRED, Pakistani format
+    if (!formData.phone.trim() || !validatePkPhone(formData.phone)) {
+      newErrors.phone = PK_PHONE_ERROR;
     }
 
     // Date of Birth — REQUIRED
@@ -138,7 +137,7 @@ export default function NewPatientPage() {
           toast.error(t('doctor.patients.newPage.fillRequiredFields'));
           return;
         }
-        const result = await createPatient(formData).unwrap();
+        const result = await createPatient({ ...formData, phone: normalizePkPhone(formData.phone) }).unwrap();
         toast.success(
           t('doctor.patients.newPage.patientCreated', { email: result.data.patient.email }),
           { duration: 6000 }
@@ -312,7 +311,7 @@ export default function NewPatientPage() {
                     onChange={(e) => set("phone", e.target.value)}
                     className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:outline-none bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-500 ${errors.phone ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-600 focus:border-primary"
                       }`}
-                    placeholder="+1 234 567 8900"
+                    placeholder={PK_PHONE_PLACEHOLDER}
                   />
                 </div>
                 {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}

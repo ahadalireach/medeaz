@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 export default function NewPatientPage() {
   const router = useRouter();
@@ -75,7 +76,7 @@ export default function NewPatientPage() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       newErrors.email = "Valid email is required";
 
-    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+    if (!formData.phone.trim() || !validatePkPhone(formData.phone)) newErrors.phone = PK_PHONE_ERROR;
     if (!formData.dateOfBirth)
       newErrors.dateOfBirth = "Date of birth is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
@@ -105,7 +106,7 @@ export default function NewPatientPage() {
           toast.error("Please fill in all required fields");
           return;
         }
-        const result = await createPatient(formData).unwrap();
+        const result = await createPatient({ ...formData, phone: normalizePkPhone(formData.phone) }).unwrap();
         toast.success(`Patient created successfully!`);
       }
       router.push("/dashboard/clinic_admin/patients");
@@ -266,6 +267,7 @@ export default function NewPatientPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => set("phone", e.target.value)}
+                    placeholder={PK_PHONE_PLACEHOLDER}
                     className="w-full pl-10 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold"
                   />
                 </div>

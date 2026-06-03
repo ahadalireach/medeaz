@@ -10,11 +10,12 @@ import { Button } from "../ui/Button";
 import { User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { showToast } from "@/lib/toast";
+import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 const schema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
+  phone: z.string().optional().refine(v => !v || validatePkPhone(v), { message: PK_PHONE_ERROR }),
   role: z.enum(["receptionist", "nurse", "admin"]),
 });
 
@@ -110,7 +111,7 @@ export default function AddStaffModal({ isOpen, onClose }: AddStaffModalProps) {
 
         <Input label={t('form.email')} type="email" placeholder="staff@example.com" error={errors.email?.message} {...register("email")} />
 
-        <Input label={t('form.phone')} placeholder="+1 234 567 8900" error={errors.phone?.message} {...register("phone")} />
+        <Input label={t('form.phone')} placeholder={PK_PHONE_PLACEHOLDER} error={errors.phone?.message} {...register("phone", { setValueAs: v => v ? normalizePkPhone(v) : v })} />
 
         <div>
           <label className="block text-sm font-semibold text-text-primary mb-2">
