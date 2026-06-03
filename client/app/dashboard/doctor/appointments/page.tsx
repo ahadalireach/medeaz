@@ -347,13 +347,14 @@ export default function AppointmentsPage() {
             const timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const imageUrl = resolveImageUrl(appointment.patientId?.photo);
 
-            const statusStyle = {
-              pending:     "bg-amber-50 text-amber-700 border-amber-200",
-              confirmed:   "bg-primary/8 text-primary border-primary/20",
+            const statusStyleMap: Record<string, string> = {
+              pending:       "bg-amber-50 text-amber-700 border-amber-200",
+              confirmed:     "bg-primary/8 text-primary border-primary/20",
               "in-progress": "bg-violet-50 text-violet-700 border-violet-200",
-              completed:   "bg-emerald-50 text-emerald-700 border-emerald-200",
-              cancelled:   "bg-red-50 text-red-600 border-red-200",
-            }[appointment.status] || "bg-gray-100 text-text-secondary border-black/6";
+              completed:     "bg-emerald-50 text-emerald-700 border-emerald-200",
+              cancelled:     "bg-red-50 text-red-600 border-red-200",
+            };
+            const statusStyle = statusStyleMap[appointment.status] ?? "bg-gray-100 text-text-secondary border-black/6";
 
             return (
               <div key={appointment._id} className="bg-white rounded-2xl border border-black/6 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow group">
