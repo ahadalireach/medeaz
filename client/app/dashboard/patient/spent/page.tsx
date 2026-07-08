@@ -38,15 +38,9 @@ export default function PatientSpentHistoryPage() {
           </thead>
           <tbody className="divide-y divide-border-light">
             {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  <td className="px-6 py-4"><div className="h-4 w-24 rounded bg-surface" /></td>
-                  <td className="px-6 py-4"><div className="h-4 w-32 rounded bg-surface" /></td>
-                  <td className="px-6 py-4"><div className="h-4 w-28 rounded bg-surface" /></td>
-                  <td className="px-6 py-4"><div className="h-4 w-20 rounded bg-surface" /></td>
-                  <td className="px-6 py-4"><div className="h-4 w-16 rounded bg-surface" /></td>
-                </tr>
-              ))
+              <tr>
+                <td colSpan={5} className="py-8 text-center">{t("common.loading")}</td>
+              </tr>
             ) : entries.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-text-secondary">{t("patient.spentHistory.table.noData")}</td>

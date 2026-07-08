@@ -78,7 +78,7 @@ function ChatContent() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-10rem)] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 bg-white dark:bg-[#18181b]">
+    <div className="flex h-[calc(100vh-10rem)] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 bg-white dark:bg-[#18181b] shadow-sm">
       <ConversationList
         conversations={data?.data || []}
         activeConversationId={activeConversationId}

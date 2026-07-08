@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useGetPublicDoctorsQuery } from "@/store/api/patientApi";
-import { Search, Star, User, ArrowRight, ShieldCheck, MapPin as LocationIcon, Filter, Building2 } from "lucide-react";
+import { Search, Star, User, ArrowRight, ShieldCheck, MapPin as LocationIcon, Filter, Building2, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const SPECIALIZATIONS = [
     "General Physician", "Cardiologist", "Dermatologist", "Pediatrician",
@@ -54,15 +55,18 @@ export default function FindDoctorsPage() {
         minRating: 0
     });
 
-    const [isSearching, setIsSearching] = useState(false);
+    const debouncedSearch = useDebounce(filters.search, 300);
 
-    const { data: response, isLoading: queryLoading } = useGetPublicDoctorsQuery(filters);
-    const isLoading = queryLoading || isSearching;
+    const queryParams = { ...filters, search: debouncedSearch };
+
+    const { data: response, isLoading: queryLoading, isFetching } = useGetPublicDoctorsQuery(queryParams, {
+        skip: debouncedSearch.length > 0 && debouncedSearch.trim().length < 2
+    });
+    const isLoading = queryLoading || isFetching;
     const doctors = response?.data || [];
 
     const handleSearch = () => {
-        setIsSearching(true);
-        setTimeout(() => setIsSearching(false), 800);
+        // Now handled via debounce
     };
 
     // Frontend-only City filter for now
@@ -82,7 +86,7 @@ export default function FindDoctorsPage() {
 
             {/* Sidebar Filters */}
             <aside className="w-full lg:w-80 flex-shrink-0 space-y-6">
-                <div className="bg-white rounded-2xl p-6 shadow-lens border border-black/5 sticky top-24">
+                <div className="bg-white rounded-[2rem] p-6 shadow-lens border border-black/5 sticky top-24">
                     <div className="flex items-center gap-2 mb-6 text-text-primary">
                         <Filter size={20} className="text-primary" />
                         <h2 className="text-xl font-bold tracking-tight">{t('patient.findDoctors.filters')}</h2>
@@ -97,12 +101,20 @@ export default function FindDoctorsPage() {
                                 <input
                                     type="text"
                                     placeholder={t('patient.findDoctors.searchPlaceholder')}
-                                    className="w-full pl-11 pr-4 h-12 text-sm rounded-lg border border-border-light bg-white text-text-primary placeholder:text-text-secondary transition-colors"
+                                    className="w-full pl-11 pr-4 h-12 text-sm rounded-xl border border-border-light bg-white text-text-primary placeholder:text-text-secondary focus:ring-4 focus:ring-primary/5 focus:border-primary-hover focus:outline-none transition-all shadow-sm"
                                     value={filters.search}
                                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                                 />
+                                {isFetching && (
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                        <Loader2 className="h-4 w-4 animate-spin text-[#00b495]" />
+                                    </div>
+                                )}
                             </div>
+                            {filters.search.length > 0 && filters.search.trim().length < 2 && (
+                                <p className="text-[#9ca3af] text-[12px] font-inter mt-2 ml-2">Type at least 2 characters to search</p>
+                            )}
                         </div>
 
                         {/* Specialization */}
@@ -188,11 +200,11 @@ export default function FindDoctorsPage() {
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                         {[1, 2, 3, 4].map(n => (
-                            <div key={n} className="h-64 rounded-2xl bg-surface animate-pulse" />
+                            <div key={n} className="h-64 rounded-[2rem] bg-surface animate-pulse" />
                         ))}
                     </div>
                 ) : filteredDoctors.length === 0 ? (
-                    <div className="py-20 text-center bg-white rounded-2xl border border-black/5 shadow-lens">
+                    <div className="py-20 text-center bg-white rounded-[2.5rem] border border-black/5 shadow-lens">
                         <div className="h-20 w-20 mx-auto bg-background rounded-full flex items-center justify-center mb-6">
                             <Search className="h-10 w-10 text-text-secondary" />
                         </div>
@@ -210,7 +222,7 @@ export default function FindDoctorsPage() {
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8">
                         {filteredDoctors.map((doc: any) => (
-                            <div key={doc._id} className="group relative bg-white rounded-2xl p-6 border border-black/5 shadow-lens hover:border-primary/20 transition-all duration-300">
+                            <div key={doc._id} className="group relative bg-white rounded-[2rem] p-6 border border-black/5 shadow-lens hover:border-primary/20 transition-all duration-300">
 
                                 <div className="flex gap-5">
                                     <div className="relative">
@@ -279,7 +291,7 @@ export default function FindDoctorsPage() {
                                     </div>
                                 </div>
 
-                                <Link href={`/dashboard/patient/book-appointment?doctorId=${doc._id}`} className="mt-6 flex items-center justify-center w-full py-3 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-all">
+                                <Link href={`/dashboard/patient/book-appointment?doctorId=${doc._id}`} className="mt-6 flex items-center justify-center w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover shadow-lg hover:shadow-primary/25 transition-all">
                                     {t('patient.bookAppointment')}
                                     <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </Link>

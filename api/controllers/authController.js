@@ -38,8 +38,14 @@ const buildUserResponse = (user) => {
     role: primaryRole,
     roles: user.roles,
     isVerified: user.isVerified,
-    onboardingCompleted: Boolean(user.onboardingCompleted),
+    onboardingCompleted: Boolean(user.onboardingCompleted || user.isOnboardingComplete),
+    isOnboardingComplete: Boolean(user.isOnboardingComplete || user.onboardingCompleted),
+    onboardingStep: user.onboardingStep || 0,
     profileCompleted: Boolean(user.profileCompleted),
+    skippedStep: user.skippedStep,
+    provider: user.authProvider || "local",
+    authProvider: user.authProvider || "local",
+    emailProvider: user.emailProvider || user.authProvider || "local",
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
@@ -59,11 +65,22 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // Check if user already exists in DB
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
 
-    // Block re-registration with a DIFFERENT role (role isolation)
+    // Check if user already exists in DB (case-insensitive check)
+    const existingUser = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") },
+    });
+
+    // Block re-registration or mixing with Google auth
     if (existingUser) {
+      if (existingUser.authProvider === "google" || existingUser.googleId) {
+        return res.status(400).json({
+          success: false,
+          message: "This email is registered using Google login. Please click 'Continue with Google' to log in.",
+        });
+      }
+
       if (existingUser.roles.includes(role)) {
         return res.status(400).json({
           success: false,
@@ -99,7 +116,7 @@ const registerUser = async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
     const userData = {
-      email,
+      email: normalizedEmail,
       password,
       role,
       profileData,
@@ -156,25 +173,28 @@ const verifyEmail = async (req, res) => {
     const resolvedPhoto = profileData?.photo || null;
 
     let user;
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
     if (isNew) {
       user = await User.create({
         name: resolvedName,
         phone: resolvedPhone,
         photo: resolvedPhoto,
-        email,
+        email: normalizedEmail,
         password,
         roles: [role],
         isVerified: true,
       });
     } else {
-      user = await User.findOne({ email });
+      user = await User.findOne({
+        email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") },
+      });
       if (!user) {
         // Handle case where user was expected to exist but doesn't (cache/db out of sync)
         user = await User.create({
           name: resolvedName,
           phone: resolvedPhone,
           photo: resolvedPhoto,
-          email,
+          email: normalizedEmail,
           password,
           roles: [role],
           isVerified: true,
@@ -264,9 +284,25 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") },
+    }).select("+password");
 
-    if (!user || !(await user.matchPassword(password))) {
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    if (user.authProvider === "google" || user.googleId) {
+      return res.status(400).json({
+        success: false,
+        message: "This email is registered using Google login. Please click 'Continue with Google' to log in.",
+      });
+    }
+
+    if (!(await user.matchPassword(password))) {
       return res
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
@@ -391,12 +427,21 @@ const updateUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      // Email is unchangeable for all portals/auth providers
       user.name = req.body.name || user.name;
       user.phone = req.body.phone ?? user.phone;
       user.photo = req.body.photo ?? user.photo;
-      user.email = req.body.email || user.email;
 
-      if (req.body.password) {
+      if (req.body.newPassword) {
+        if (!req.body.currentPassword) {
+          return res.status(400).json({ success: false, message: "Current password is required to change password" });
+        }
+        const isMatch = await user.matchPassword(req.body.currentPassword);
+        if (!isMatch) {
+          return res.status(400).json({ success: false, message: "Incorrect current password" });
+        }
+        user.password = req.body.newPassword;
+      } else if (req.body.password) {
         user.password = req.body.password;
       }
 
@@ -422,7 +467,10 @@ const updateUserProfile = async (req, res) => {
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") },
+    });
 
     if (!user) {
       return res
@@ -492,7 +540,8 @@ const resetPassword = async (req, res) => {
 // @desc    Google OAuth Auth (Login/Signup)
 // @route   POST /api/auth/google
 // @access  Public
-const axios = require("axios");
+const { OAuth2Client } = require("google-auth-library");
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const googleAuthUser = async (req, res) => {
   try {
@@ -505,25 +554,20 @@ const googleAuthUser = async (req, res) => {
       });
     }
 
-    let payload;
+    let ticket;
     try {
-      const { data } = await axios.get(
-        `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`
-      );
-
-      if (data.aud !== process.env.GOOGLE_CLIENT_ID) {
-        throw new Error("Token audience mismatch");
-      }
-
-      payload = data;
+      ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
     } catch (err) {
-      console.error("Google token verification failed:", err.response?.data || err.message);
       return res.status(401).json({
         success: false,
         message: "Invalid Google token",
       });
     }
 
+    const payload = ticket.getPayload();
     const { sub: googleId, email, name, picture } = payload;
 
     if (!email) {
@@ -537,28 +581,29 @@ const googleAuthUser = async (req, res) => {
     let user = await User.findOne({
       $or: [{ googleId }, { email: email.toLowerCase() }],
     });
-    let isNewUser = false;
 
     if (user) {
-      // If local account, silently link the Google ID (email verified by Google)
-      if (user.authProvider === "local" && !user.googleId) {
+      // Automatically link Google account if local user exists
+      if (!user.googleId) {
         user.googleId = googleId;
+        if (!user.photo && picture) user.photo = picture;
+        // Do not change authProvider so local login still works
         await user.save();
       }
 
-      // Conflict check: registering under a role this account doesn't have
+      // Conflict check: if we are trying to register under a role not matched
       if (role && !user.roles.includes(role)) {
         return res.status(409).json({
           success: false,
-          message: "An account with this email already exists. Please sign in instead.",
+          message: "An account with this email already exists under a different role.",
         });
       }
     } else {
-      // User does not exist — create account with the provided role
+      // User does not exist, this is a signup
       if (!role) {
-        return res.status(400).json({
+        return res.status(404).json({
           success: false,
-          message: "Please select a role (Patient, Doctor, or Clinic) before continuing with Google.",
+          message: "No account found. Please register first.",
         });
       }
 
@@ -576,27 +621,32 @@ const googleAuthUser = async (req, res) => {
         });
 
         if (role === "patient") {
-          await Patient.findOneAndUpdate(
-            { userId: createdUser._id },
-            { userId: createdUser._id, email: createdUser.email, dob: null, bloodGroup: "", allergies: [] },
-            { upsert: true, setDefaultsOnInsert: true }
-          );
+          await Patient.create({
+            userId: createdUser._id,
+            email: createdUser.email,
+            dob: null,
+            bloodGroup: "",
+            allergies: [],
+          });
         } else if (role === "doctor") {
-          await Doctor.findOneAndUpdate(
-            { userId: createdUser._id },
-            { userId: createdUser._id, fullName: name || "Doctor", specialization: "General", licenseNo: `GOOGLE-${createdUser._id}`, schedule: {} },
-            { upsert: true, setDefaultsOnInsert: true }
-          );
+          await Doctor.create({
+            userId: createdUser._id,
+            specialization: "",
+            licenseNo: "",
+            schedule: {},
+          });
         } else if (role === "clinic_admin") {
-          await Clinic.findOneAndUpdate(
-            { adminId: createdUser._id },
-            { adminId: createdUser._id, email: createdUser.email, name: name || "My Clinic", address: "Pending", phone: "Pending" },
-            { upsert: true, setDefaultsOnInsert: true }
-          );
+          await Clinic.create({
+            adminId: createdUser._id,
+            email: createdUser.email,
+            name: "",
+            address: "",
+            phone: "",
+            doctors: [],
+          });
         }
         
         user = createdUser;
-        isNewUser = true;
       } catch (dbError) {
         if (createdUser) {
           await User.findByIdAndDelete(createdUser._id);
@@ -617,7 +667,6 @@ const googleAuthUser = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      isNew: isNewUser,
       data: userRes,
       user: userRes,
       accessToken,

@@ -75,19 +75,19 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
 
   return (
     <>
-      <div className="bg-white p-6 rounded-2xl border border-border-light">
+      <div className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm">
         <h2 className="text-xl font-black text-text-primary mb-6">{t('clinic.appointments.title')}</h2>
 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border-light">
-                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.patient')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.doctor')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.dateTime')}</th>
-                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.type')}</th>
-                <th className="text-center py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.status')}</th>
-                <th className="text-right py-4 px-4 text-[10px] font-black text-text-primary uppercase tracking-widest">{t('clinic.appointments.actions')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary tracking-widest">{t('clinic.appointments.patient')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary tracking-widest">{t('clinic.appointments.doctor')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary tracking-widest">{t('clinic.appointments.dateTime')}</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-text-primary tracking-widest">{t('clinic.appointments.type')}</th>
+                <th className="text-center py-4 px-4 text-[10px] font-black text-text-primary tracking-widest">{t('clinic.appointments.status')}</th>
+                <th className="text-right py-4 px-4 text-[10px] font-black text-text-primary tracking-widest">{t('clinic.appointments.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -105,7 +105,7 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
                           <UserIcon size={16} />
                         )}
                       </div>
-                      <span className="text-sm font-bold text-text-primary uppercase tracking-tight">
+                      <span className="text-sm font-bold text-text-primary  tracking-tight">
                         {appointment.patientId?.name || "N/A"}
                       </span>
                     </div>
@@ -116,14 +116,14 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
                     </span>
                   </td>
                   <td className="py-4 px-4">
-                    <div className="bg-surface px-3 py-1.5 rounded-lg inline-block">
+                    <div className="bg-surface px-3 py-1.5 rounded-xl inline-block">
                       <span className="text-xs font-black text-text-primary">
                         {appointment.dateTime ? format(new Date(appointment.dateTime), "MMM dd • h:mm a") : "N/A"}
                       </span>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-xs font-bold text-text-primary uppercase">
-                    {appointment.type || "consultation"}
+                  <td className="py-4 px-4 text-xs font-bold text-text-primary tracking-wide">
+                    {appointment.type || "Consultation"}
                   </td>
                   <td className="py-4 px-4 text-center">
                     {getStatusBadge(appointment.status)}
@@ -132,7 +132,7 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
                     <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleOpenDetail(appointment._id)}
-                      className="p-2 rounded-lg bg-surface text-text-primary hover:text-primary hover:bg-primary/10 transition-all group/btn"
+                      className="p-2 rounded-xl bg-surface text-text-primary hover:text-primary hover:bg-primary/10 transition-all group/btn"
                     >
                       <EyeIcon size={16} className="group-hover/btn:scale-110 transition-transform" />
                     </button>
@@ -145,12 +145,9 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
         </div>
 
         {appointments.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-14 text-center mt-2 rounded-2xl bg-gray-50 border border-black/6">
-            <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
-              <Calendar className="h-5 w-5 text-primary" />
-            </div>
-            <p className="text-sm font-medium text-text-primary">{t('clinic.appointments.noAppointments')}</p>
-            <p className="text-xs text-text-secondary mt-1">Appointments will appear here once scheduled</p>
+          <div className="text-center py-20 bg-background rounded-[2.5rem] mt-4 border-2 border-dashed border-border-light">
+            <Calendar className="mx-auto h-12 w-12 text-white/70 mb-4 opacity-50" />
+            <p className="text-text-primary font-bold tracking-tight">{t('clinic.appointments.noAppointments')}</p>
           </div>
         )}
 

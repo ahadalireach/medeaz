@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MedeazLogo } from "@/components/ui/MedeazLogo";
+import Image from "next/image";
 import { CheckCircle2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -29,7 +29,14 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <MedeazLogo size={56} className="drop-shadow-[0_6px_16px_rgba(15,76,92,0.25)]" />
+      <Image
+        src="/medeaz.jpeg"
+        alt="Medeaz Logo"
+        width={96}
+        height={96}
+        priority
+        className="h-24 w-24 rounded-lg object-cover shadow-sm"
+      />
       <h1 className="mt-6 font-display text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.1] tracking-[-0.02em] text-text-primary">
         {isSubmitted ? "Check your email" : "Reset your password"}
       </h1>

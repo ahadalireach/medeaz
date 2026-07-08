@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 export default function NewPatientPage() {
   const router = useRouter();
@@ -76,7 +75,7 @@ export default function NewPatientPage() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       newErrors.email = "Valid email is required";
 
-    if (!formData.phone.trim() || !validatePkPhone(formData.phone)) newErrors.phone = PK_PHONE_ERROR;
+    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
     if (!formData.dateOfBirth)
       newErrors.dateOfBirth = "Date of birth is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
@@ -106,7 +105,7 @@ export default function NewPatientPage() {
           toast.error("Please fill in all required fields");
           return;
         }
-        const result = await createPatient({ ...formData, phone: normalizePkPhone(formData.phone) }).unwrap();
+        const result = await createPatient(formData).unwrap();
         toast.success(`Patient created successfully!`);
       }
       router.push("/dashboard/clinic_admin/patients");
@@ -120,7 +119,7 @@ export default function NewPatientPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard/clinic_admin/patients"
-          className="h-10 w-10 bg-white rounded-lg flex items-center justify-center hover:bg-surface/80 transition-colors border border-border-light"
+          className="h-10 w-10 bg-white rounded-xl flex items-center justify-center hover:bg-surface/80 transition-colors border border-border-light"
         >
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </Link>
@@ -137,9 +136,9 @@ export default function NewPatientPage() {
       <div className="flex gap-2 p-1.5 bg-surface rounded-2xl w-fit border border-border-light">
         <button
           onClick={() => setActiveTab("create")}
-          className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+          className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
             activeTab === "create"
-              ? "bg-white  text-primary"
+              ? "bg-white  text-primary shadow-sm"
               : "text-text-secondary hover:text-text-secondary :text-white/70"
           }`}
         >
@@ -147,9 +146,9 @@ export default function NewPatientPage() {
         </button>
         <button
           onClick={() => setActiveTab("link")}
-          className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+          className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
             activeTab === "link"
-              ? "bg-white  text-primary"
+              ? "bg-white  text-primary shadow-sm"
               : "text-text-secondary hover:text-text-secondary :text-white/70"
           }`}
         >
@@ -159,7 +158,7 @@ export default function NewPatientPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl border border-border-light p-8"
+        className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm"
       >
         <div className="space-y-8">
           {activeTab === "link" ? (
@@ -174,7 +173,7 @@ export default function NewPatientPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => set("email", e.target.value)}
-                  className="w-full pl-14 pr-4 py-5 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 text-xl font-black tracking-tight"
+                  className="w-full pl-14 pr-4 py-5 border-2 border-border-light rounded-3xl focus:outline-none focus:border-primary bg-background/50 text-xl font-black tracking-tight"
                   placeholder="patient@system.com"
                 />
               </div>
@@ -188,7 +187,7 @@ export default function NewPatientPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="md:col-span-2 flex flex-col items-center pb-6">
                 <div className="relative group">
-                  <div className="h-32 w-32 rounded-2xl overflow-hidden border-2 border-dashed border-border-light bg-background/50 flex items-center justify-center transition-all group-hover:border-primary/50">
+                  <div className="h-32 w-32 rounded-[2rem] overflow-hidden border-2 border-dashed border-border-light bg-background/50 flex items-center justify-center transition-all group-hover:border-primary/50">
                     {formData.photo ? (
                       <img
                         src={formData.photo}
@@ -216,7 +215,7 @@ export default function NewPatientPage() {
                       onClick={() =>
                         setFormData((prev) => ({ ...prev, photo: null }))
                       }
-                      className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors z-10"
+                      className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-red-500 text-white flex items-center justify-center shadow-xl hover:bg-red-600 transition-colors z-10"
                     >
                       ×
                     </button>
@@ -267,7 +266,6 @@ export default function NewPatientPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => set("phone", e.target.value)}
-                    placeholder={PK_PHONE_PLACEHOLDER}
                     className="w-full pl-10 pr-4 py-3 border-2 border-border-light rounded-2xl focus:outline-none focus:border-primary bg-background/50 font-bold"
                   />
                 </div>
@@ -350,7 +348,7 @@ export default function NewPatientPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest hover:bg-primary-hover transition-all disabled:opacity-50"
+              className="flex-1 py-4 bg-primary text-white rounded-3xl font-black uppercase tracking-widest hover:bg-primary-hover shadow-2xl shadow-primary/20 transition-all disabled:opacity-50 hover:scale-[1.01]"
             >
               {isLoading
                 ? "Authenticating..."
@@ -360,7 +358,7 @@ export default function NewPatientPage() {
             </button>
             <Link
               href="/dashboard/clinic_admin/patients"
-              className="px-10 py-4 bg-surface text-text-secondary rounded-2xl font-black uppercase tracking-widest hover:bg-surface :bg-text-secondary transition-all"
+              className="px-10 py-4 bg-surface text-text-secondary rounded-3xl font-black uppercase tracking-widest hover:bg-surface :bg-text-secondary transition-all"
             >
               Back
             </Link>

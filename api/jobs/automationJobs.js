@@ -22,4 +22,32 @@ cron.schedule('* * * * *', async () => {
     }
 });
 
+/**
+ * Overdue Appointment Auto-Cancellation Job
+ * Runs every minute to mark past appointments that are not completed/cancelled/no-show as 'cancelled'.
+ */
+cron.schedule('* * * * *', async () => {
+    try {
+        const now = new Date();
+        const result = await Appointment.updateMany(
+            {
+                status: { $in: ['pending', 'confirmed', 'reserved'] },
+                dateTime: { $lt: now }
+            },
+            {
+                $set: { status: 'cancelled' }
+            }
+        );
+
+        if (result.modifiedCount > 0) {
+            console.log(`[Cron] Marked ${result.modifiedCount} overdue appointments as cancelled.`);
+        }
+    } catch (err) {
+        console.error('[Cron Error] Past appointments cancellation failed:', err.message);
+    }
+});
+
+require('./followUpReminderJob');
+require('./healthScoreJob');
+
 console.log('[Cron] Automation jobs initialized.');

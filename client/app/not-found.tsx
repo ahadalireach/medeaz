@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Home } from "lucide-react";
-import { MedeazLogo } from "@/components/ui/MedeazLogo";
 import { Button } from "@/components/ui/Button";
 
 export default function NotFound() {
@@ -9,7 +9,14 @@ export default function NotFound() {
       <main className="flex min-h-screen w-full items-center justify-center px-4 py-12 sm:py-16">
         <div className="w-full max-w-[440px]">
           <div className="flex flex-col items-center text-center">
-            <MedeazLogo size={72} className="drop-shadow-[0_10px_24px_rgba(15,76,92,0.3)]" />
+            <Image
+              src="/medeaz.jpeg"
+              alt="Medeaz Logo"
+              width={64}
+              height={64}
+              priority
+              className="h-24 w-24 rounded-lg object-cover drop-shadow-[0_10px_24px_rgba(94,77,156,0.25)]"
+            />
 
             <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary-muted px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
               Error 404

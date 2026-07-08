@@ -10,7 +10,7 @@ import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/store/slices/authSlice";
 import { useTranslations } from "next-intl";
-import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
+import PageHeader from "@/components/shared/PageHeader";
 
 interface ProfileFormData {
   name: string;
@@ -61,6 +61,13 @@ export default function ProfilePage() {
     reset: resetPassword,
     watch,
   } = useForm<PasswordFormData>();
+
+  const onInvalid = (errors: any) => {
+    const firstError = Object.values(errors)[0] as any;
+    if (firstError?.message) {
+      toast.error(firstError.message);
+    }
+  };
 
   const onUpdateProfile = async (data: ProfileFormData) => {
     try {
@@ -125,16 +132,16 @@ export default function ProfilePage() {
     return (
       <div className="space-y-6">
         <div className="h-8 w-48 animate-pulse rounded bg-surface" />
-        <div className="h-96 animate-pulse rounded-2xl border border-border-light bg-white" />
+        <div className="h-96 animate-pulse rounded-xl border border-border-light bg-white" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-text-primary">
-        {t('patient.profile.title')}
-      </h1>
+      <PageHeader 
+        title={t('patient.profile.title')} 
+      />
 
       {/* Tabs */}
       <div className="flex border-b border-border-light">
@@ -161,7 +168,7 @@ export default function ProfilePage() {
       </div>
 
       {activeTab === "profile" ? (
-        <div className="rounded-2xl border border-border-light bg-white p-8">
+        <div className="rounded-xl border border-border-light bg-white p-8">
           <div className="mb-8 flex items-center gap-6">
             <div className="relative group overflow-hidden h-24 w-24 rounded-full border border-border-light bg-surface shrink-0">
               {profile?.profilePhoto ? (
@@ -230,7 +237,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit(onUpdateProfile)} className="space-y-6">
+          <form onSubmit={handleSubmit(onUpdateProfile, onInvalid)} className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <Input
                 label={t('form.fullName')}
@@ -250,17 +257,16 @@ export default function ProfilePage() {
               <Input
                 label={t('form.phone')}
                 type="tel"
-                placeholder={PK_PHONE_PLACEHOLDER}
-                {...register("contact", {
-                  validate: v => !v || validatePkPhone(v) || PK_PHONE_ERROR,
-                  setValueAs: v => v ? normalizePkPhone(v) : v,
-                })}
+                placeholder="+1 234 567 8900"
+                error={errors.contact?.message}
+                {...register("contact", { required: "Contact number is required" })}
               />
 
               <Input
                 label={t('patient.profile.dateOfBirth')}
                 type="date"
-                {...register("dob")}
+                error={errors.dob?.message}
+                {...register("dob", { required: "Date of birth is required" })}
               />
 
               <div className="flex flex-col space-y-1 w-full">
@@ -268,20 +274,22 @@ export default function ProfilePage() {
                   {t('patient.profile.gender')}
                 </label>
                 <select
-                  {...register("gender")}
-                  className="flex h-14 w-full rounded-xl border border-border-light bg-white px-4 py-2 text-base text-text-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
+                  {...register("gender", { required: "Gender is required" })}
+                  className={`flex h-14 w-full rounded-xl border bg-white px-4 py-2 text-base text-text-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary ${errors.gender ? 'border-red-500 focus-visible:border-red-500' : 'border-border-light'}`}
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
+                {errors.gender && <span className="text-xs text-red-500 mt-1 block">{errors.gender.message}</span>}
               </div>
 
               <Input
                 label={t('patient.profile.bloodGroup')}
                 placeholder="e.g., A+, B-, O+"
-                {...register("bloodGroup")}
+                error={errors.bloodGroup?.message}
+                {...register("bloodGroup", { required: "Blood group is required" })}
               />
             </div>
 
@@ -313,7 +321,7 @@ export default function ProfilePage() {
           </form>
         </div>
       ) : (
-        <div className="rounded-2xl border border-border-light bg-white p-8">
+        <div className="rounded-xl border border-border-light bg-white p-8">
           <h2 className="text-xl font-bold text-text-primary mb-6">
             {t('patient.profile.changePassword')}
           </h2>

@@ -55,7 +55,7 @@ export function Modal({
       {/* Modal panel */}
       <div
         className={`
-          relative bg-white rounded-2xl border border-gray-100
+          relative bg-white rounded-2xl shadow-2xl border border-gray-100
           w-full ${sizeClasses[size]} max-h-[85vh] flex flex-col
           transition-none
         `}

@@ -16,7 +16,7 @@ export default function DoctorAppointmentDetailsPage() {
             <div className="flex items-center gap-4 mb-6">
                 <button
                     onClick={() => router.push("/dashboard/doctor/appointments")}
-                    className="h-10 w-10 bg-white rounded-lg flex items-center justify-center hover:bg-surface/80 transition-all border border-border-light group"
+                    className="h-10 w-10 bg-white rounded-xl flex items-center justify-center hover:bg-surface/80 transition-all shadow-sm border border-border-light group"
                     title={t('common.back')}
                 >
                     <ArrowLeft className="h-5 w-5 text-text-secondary group-hover:-translate-x-0.5 transition-transform" />
@@ -25,9 +25,6 @@ export default function DoctorAppointmentDetailsPage() {
                     <h1 className="text-2xl font-bold text-text-primary">
                         {t('clinic.appointments.viewAppointment')}
                     </h1>
-                    <p className="text-xs text-text-secondary font-medium uppercase tracking-wider mt-0.5">
-                        ID: {appointmentId}
-                    </p>
                 </div>
             </div>
 

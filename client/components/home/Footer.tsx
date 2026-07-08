@@ -1,80 +1,102 @@
 "use client";
 
-import Link from "next/link";
-import { MedeazLogo } from "@/components/ui/MedeazLogo";
-import { useLocale } from "next-intl";
-
-const PRODUCT_LINKS = [
-  { label: "About", labelUr: "ہمارے بارے میں", href: "/about" },
-  { label: "Docs", labelUr: "دستاویزات", href: "/docs" },
-  { label: "Support", labelUr: "مدد", href: "/support" },
-  { label: "FAQ", labelUr: "سوالات", href: "/faqs" },
-  { label: "Cookies", labelUr: "کوکیز پالیسی", href: "/cookie-policy" },
-  { label: "Policy", labelUr: "پرائیویسی", href: "/privacy-policy" },
-];
+import { Shield, Twitter, Linkedin, Facebook, Instagram } from "lucide-react";
+import { motion } from "framer-motion";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { cn } from "@/lib/utils";
 
 export function Footer() {
-  const locale = useLocale();
-  const isUrdu = locale === "ur";
+  const { language } = useLanguage();
+  const isUrdu = language === "ur";
 
   return (
-    <footer className="relative bg-[#f8faf9] border-t border-[#d1ece5] overflow-hidden">
-      {/* Subtle diagonal pattern matching dashboard background */}
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none select-none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden
-      >
-        <defs>
-          <pattern id="footer-diag" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="60" stroke="#0F4C5C" strokeWidth="0.5" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#footer-diag)" opacity="0.04" />
-      </svg>
+    <footer
+      id="contact"
+      className="relative bg-[#0d1f1a] pb-12 font-sans overflow-hidden"
+      dir={isUrdu ? "rtl" : "ltr"}
+    >
+      {/* ── WAVE DIVIDER ──────────────────────────────────────────────────────── */}
+      <div className="w-full bg-white overflow-hidden leading-none -mb-1">
+        <svg
+          viewBox="0 0 1440 80"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          className="w-full h-16 md:h-20"
+        >
+          <path
+            d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
+            fill="#0d1f1a"
+          />
+        </svg>
+      </div>
 
-      <div className="relative mx-auto max-w-350 px-6 lg:px-8 pt-12 pb-8">
-        <div className={`flex flex-col md:flex-row md:items-start md:justify-between gap-10 ${isUrdu ? "md:flex-row-reverse" : ""}`}>
-          {/* Brand */}
-          <div className={`flex items-center gap-4 ${isUrdu ? "flex-row-reverse" : ""}`}>
-            <MedeazLogo size={48} />
-            <div className={isUrdu ? "text-right" : ""}>
-              <p className="text-base font-semibold text-text-primary">Medeaz</p>
-              <p className="text-xs text-text-secondary mt-0.5">
-                {isUrdu
-                  ? "آواز سے چلنے والا ڈیجیٹل صحت پلیٹ فارم"
-                  : "Voice-enabled digital healthcare platform"}
-              </p>
-            </div>
-          </div>
+      {/* Centered content container */}
+      <div className="pt-16 px-6 max-w-[800px] mx-auto text-center flex flex-col items-center">
 
-          {/* Quick Links */}
-          <div className={`min-w-[220px] ${isUrdu ? "text-right" : ""}`}>
-            <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-text-muted">
-              {isUrdu ? "فوری روابط" : "Quick Links"}
+        {/* ── SHIELD & BRAND BLOCK ────────────────────────────────────────────── */}
+        <div className="w-14 h-14 mx-auto mb-6 flex items-center justify-center select-none relative z-10">
+          <Shield className="w-14 h-14 text-[#00b495]" />
+        </div>
+
+        <span
+          className="font-bold text-[18px] text-white tracking-tight block select-none relative z-10"
+          style={{ fontFamily: "var(--font-plus-jakarta)" }}
+        >
+          MedEaz
+        </span>
+
+        <p
+          className={cn("text-[#9ca3af] text-[14px] font-normal mt-1 select-none relative z-10", isUrdu && "font-urdu")}
+          style={!isUrdu ? { fontFamily: "'Inter', sans-serif" } : undefined}
+        >
+          {isUrdu ? "طبی سہولیات، اب آسان۔" : "Healthcare Simplified."}
+        </p>
+
+        {/* ── DESCRIPTION PARAGRAPH ───────────────────────────────────────────── */}
+        <p
+          className={cn("text-[#9ca3af] text-[14px] leading-[1.6] max-w-[520px] mx-auto mt-6 mb-8 relative z-10", isUrdu && "font-urdu text-[16px] leading-[1.7]")}
+          style={!isUrdu ? { fontFamily: "'Inter', sans-serif" } : undefined}
+        >
+          {isUrdu
+            ? "میڈ ایز پاکستان کا پہلا مربوط کلینکل انٹیلیجنس پلیٹ فارم ہے۔ ہم ڈاکٹروں کو محفوظ وائس پریسکرپشنز فراہم کرتے ہیں، مریضوں کے لیے فوری بکنگ ممکن بناتے ہیں اور کلینکس کے انتظام کو آسان بناتے ہیں۔"
+            : "MedEaz is Pakistan's first centralized clinical intelligence platform. We empower doctors with secure voice-to-prescription workflows, enable instant patient bookings, and help clinics run seamlessly."}
+        </p>
+
+        {/* ── SOCIAL ICONS ROW ────────────────────────────────────────────────── */}
+        <div className={cn("flex justify-center gap-[16px] mb-12 relative z-10", isUrdu && "flex-row-reverse")}>
+          {[
+            { icon: <Twitter className="w-5 h-5" />, href: "#" },
+            { icon: <Linkedin className="w-5 h-5" />, href: "#" },
+            { icon: <Facebook className="w-5 h-5" />, href: "#" },
+            { icon: <Instagram className="w-5 h-5" />, href: "#" }
+          ].map((social, index) => (
+            <motion.a
+              key={index}
+              whileHover={{ scale: 1.1, color: "#00b495" }}
+              transition={{ duration: 0.15 }}
+              href={social.href}
+              className="text-[#6b7280] hover:text-[#00b495] transition-colors"
+            >
+              {social.icon}
+            </motion.a>
+          ))}
+        </div>
+
+        {/* ── BOTTOM BAR ──────────────────────────────────────────────────────── */}
+        <div className="w-full pt-6 mt-6 border-t border-white/8 relative z-10">
+          <div className={cn(
+            "flex flex-col sm:flex-row justify-between items-center gap-4 text-[12px] text-[#6b7280] w-full",
+            isUrdu && "sm:flex-row-reverse"
+          )}>
+            <p style={{ fontFamily: "'Inter', sans-serif" }}>
+              {isUrdu ? "© 2026 میڈ ایز۔ جملہ حقوق محفوظ ہیں۔" : "© 2026 MedEaz. All rights reserved."}
             </p>
-            <ul className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3">
-              {PRODUCT_LINKS.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-text-secondary hover:text-primary transition-colors font-medium"
-                  >
-                    {isUrdu ? item.labelUr : item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <p style={{ fontFamily: "'Inter', sans-serif" }}>
+              {isUrdu ? "لاہور، پاکستان 🇵🇰" : "Made in Pakistan 🇵🇰"}
+            </p>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className={`mt-10 border-t border-[#d1ece5] pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 ${isUrdu ? "sm:flex-row-reverse" : ""}`}>
-          <p className="text-xs text-text-muted">
-            © {new Date().getFullYear()} Medeaz.{" "}
-            {isUrdu ? "تمام حقوق محفوظ ہیں۔" : "All rights reserved."}
-          </p>
-        </div>
       </div>
     </footer>
   );

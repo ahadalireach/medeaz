@@ -23,10 +23,22 @@ type Pillar = {
 };
 
 const TONE_STYLES: Record<PillarTone, { panel: string; iconBg: string }> = {
-  teal:     { panel: "bg-white", iconBg: "bg-[#f0faf7]" },
-  cream:    { panel: "bg-white", iconBg: "bg-[#f0faf7]" },
-  lavender: { panel: "bg-white", iconBg: "bg-[#f0faf7]" },
-  mint:     { panel: "bg-white", iconBg: "bg-[#f0faf7]" },
+  teal: {
+    panel: "bg-[linear-gradient(135deg,#e3eff2_0%,#f0f5f2_100%)]",
+    iconBg: "bg-white",
+  },
+  cream: {
+    panel: "bg-[linear-gradient(135deg,#fdf4e7_0%,#f6f1ea_100%)]",
+    iconBg: "bg-white",
+  },
+  lavender: {
+    panel: "bg-[linear-gradient(135deg,#ede9f7_0%,#f1edfa_100%)]",
+    iconBg: "bg-white",
+  },
+  mint: {
+    panel: "bg-[linear-gradient(135deg,#d7e6ea_0%,#e6eef1_100%)]",
+    iconBg: "bg-white",
+  },
 };
 
 export function PoweredBySection() {
@@ -118,7 +130,7 @@ export function PoweredBySection() {
       ];
 
   return (
-    <section className="px-4 sm:px-6 lg:px-10 py-16 sm:py-28 bg-white">
+    <section className="px-4 sm:px-6 lg:px-10 py-16 sm:py-28">
       <div className="mx-auto max-w-[1200px]">
         <div className="mx-auto max-w-[900px] text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary-muted px-3 py-1.5 text-[11px] sm:text-[12px] font-semibold tracking-wide uppercase text-primary">
@@ -167,10 +179,10 @@ function PillarCard({ icon: Icon, title, description, stack, tone }: Pillar) {
 
   return (
     <article
-      className={`relative overflow-hidden rounded-2xl border border-[#d1ece5] ${styles.panel} p-5 sm:p-6 flex flex-col gap-4 min-h-60 sm:min-h-64 shadow-sm`}
+      className={`relative overflow-hidden rounded-[20px] border border-border-light ${styles.panel} p-5 sm:p-6 flex flex-col gap-4 min-h-[240px] sm:min-h-[260px]`}
     >
       <div
-        className={`${styles.iconBg} h-11 w-11 rounded-xl flex items-center justify-center`}
+        className={`${styles.iconBg} h-11 w-11 rounded-xl border border-border-light/70 flex items-center justify-center shadow-[0_4px_14px_-8px_rgba(15,76,92,0.2)]`}
       >
         <Icon className="h-5 w-5 text-primary" strokeWidth={1.9} />
       </div>

@@ -106,7 +106,7 @@ export default function AppointmentDetailModal({
             ) : (
                 <div className="space-y-8 pb-4">
                     {/* Header Info */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-background rounded-2xl border border-border-light">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-background rounded-4xl border border-border-light">
                         <div className="flex items-center gap-4">
                             <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                                 <Calendar className="h-7 w-7 text-primary" />
@@ -134,7 +134,7 @@ export default function AppointmentDetailModal({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Patient Section */}
-                        <div className="space-y-4 p-6 rounded-2xl bg-white border border-border-light">
+                        <div className="space-y-4 p-6 rounded-4xl bg-white border border-border-light">
                             <div className="flex items-center gap-2 mb-4">
                                 <UserIcon className="h-5 w-5 text-primary" />
                                 <h3 className="text-lg font-black text-text-primary">{t('clinic.appointments.patient')}</h3>
@@ -184,7 +184,7 @@ export default function AppointmentDetailModal({
                         </div>
 
                         {/* Doctor Section */}
-                        <div className="space-y-4 p-6 rounded-2xl bg-white border border-border-light">
+                        <div className="space-y-4 p-6 rounded-4xl bg-white border border-border-light">
                             <div className="flex items-center gap-2 mb-4">
                                 <Activity className="h-5 w-5 text-primary" />
                                 <h3 className="text-lg font-black text-text-primary">{t('clinic.appointments.doctor')}</h3>
@@ -231,30 +231,35 @@ export default function AppointmentDetailModal({
                     </div>
 
                     {/* Prescription Section — white card, visible */}
-                    <div className="p-6 rounded-2xl bg-white border border-gray-100">
+                    <div className="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm">
                         <div className="flex items-center justify-between mb-5">
                             <div className="flex items-center gap-3">
-                                <div className="p-2.5 bg-primary/10 rounded-lg">
+                                <div className="p-2.5 bg-primary/10 rounded-xl">
                                     <Pill className="h-5 w-5 text-primary" />
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900">{t('doctor.prescriptions.title')}</h3>
                             </div>
-                            {(appointment.prescription || appointment.prescriptionId) && (
-                                <button
-                                    onClick={handleDownloadPDF}
-                                    className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
-                                >
-                                    <DownloadIcon className="h-3.5 w-3.5" />
-                                    {t('common.view')}
-                                </button>
-                            )}
+                            {(() => {
+                                const rx = appointment.prescription || appointment.prescriptionId;
+                                const hasRealPrescription = rx && (rx._id || rx.diagnosis || rx.medicines?.length > 0);
+                                return hasRealPrescription ? (
+                                    <button
+                                        onClick={handleDownloadPDF}
+                                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                                    >
+                                        <DownloadIcon className="h-3.5 w-3.5" />
+                                        {t('common.view')}
+                                    </button>
+                                ) : null;
+                            })()}
                         </div>
 
                         {(() => {
                             const rx = appointment.prescription || appointment.prescriptionId;
-                            if (!rx) {
+                            const hasRealPrescription = rx && (rx._id || rx.diagnosis || rx.medicines?.length > 0);
+                            if (!hasRealPrescription) {
                                 return (
-                                    <div className="py-8 flex flex-col items-center justify-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                    <div className="py-8 flex flex-col items-center justify-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
                                         <FileDescriptionIcon className="h-10 w-10 text-gray-300 mb-3" />
                                         <p className="font-semibold text-gray-400">{t('doctor.prescriptions.noPrescriptions')}</p>
                                     </div>
@@ -263,7 +268,7 @@ export default function AppointmentDetailModal({
                             return (
                                 <div className="space-y-4">
                                     {/* Diagnosis */}
-                                    <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                                    <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
                                         <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1.5">{t('doctor.diagnosis')}</p>
                                         <p className="font-bold text-gray-900 text-base">{rx.diagnosis || '—'}</p>
                                     </div>
@@ -274,7 +279,7 @@ export default function AppointmentDetailModal({
                                             <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">{t('doctor.prescriptions.table.medicines')}</p>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                 {rx.medicines.map((med: any, idx: number) => (
-                                                    <div key={idx} className="p-3 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-3">
+                                                    <div key={idx} className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center gap-3">
                                                         <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />
                                                         <div>
                                                             <p className="font-bold text-gray-900 text-sm">{med.name}</p>
@@ -288,11 +293,11 @@ export default function AppointmentDetailModal({
 
                                     {/* Follow-up + Notes row */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                                             <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">{t('doctor.notes')}</p>
                                             <p className="text-sm text-gray-700 leading-relaxed">{rx.notes || '—'}</p>
                                         </div>
-                                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                                             <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5">{t('doctor.followUp')}</p>
                                             <div className="flex items-center gap-2">
                                                 <Calendar className="h-4 w-4 text-primary" />
@@ -305,7 +310,7 @@ export default function AppointmentDetailModal({
 
                                     {/* Fees */}
                                     <div className="flex justify-end">
-                                        <div className="px-5 py-3 bg-primary rounded-2xl text-white text-right">
+                                        <div className="px-5 py-3 bg-primary rounded-xl text-white text-right">
                                             <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">{t('doctor.profile.consultationFee')}</p>
                                             <p className="text-xl font-black mt-0.5">
                                                 {(rx.totalCost || rx.consultationFee || 0).toLocaleString()} {t('common.pkr')}

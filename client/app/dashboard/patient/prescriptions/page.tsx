@@ -55,7 +55,7 @@ export default function PrescriptionsPage() {
                     placeholder="Search prescriptions by medicine name, doctor, or diagnosis..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full h-12 rounded-lg border border-border-light bg-white pl-12 pr-4 text-text-primary placeholder:text-text-secondary transition-colors"
+                    className="w-full rounded-2xl border border-border-light bg-white py-4 pl-12 pr-4 text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all"
                 />
             </div>
 
@@ -64,12 +64,12 @@ export default function PrescriptionsPage() {
                     {[1, 2, 3, 4].map((i) => (
                         <div
                             key={i}
-                            className="h-40 animate-pulse rounded-2xl bg-surface"
+                            className="h-40 animate-pulse rounded-3xl bg-surface"
                         />
                     ))}
                 </div>
             ) : filteredPrescriptions.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border-light bg-background/50 p-20 text-center">
+                <div className="rounded-3xl border border-dashed border-border-light bg-background/50 p-20 text-center">
                     <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Pill className="h-10 w-10 text-primary" />
                     </div>
@@ -88,7 +88,7 @@ export default function PrescriptionsPage() {
                         return (
                             <div
                                 key={`${p.recordId}-${idx}`}
-                                className="group relative flex flex-col rounded-2xl border border-border-light bg-white p-6 transition-all hover:border-primary/50 hover:bg-background overflow-hidden"
+                                className="group relative flex flex-col rounded-3xl border border-border-light bg-white p-6 shadow-sm transition-all hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 overflow-hidden"
                             >
                                 {/* Status Badge */}
                                 <div className="absolute top-6 right-6">

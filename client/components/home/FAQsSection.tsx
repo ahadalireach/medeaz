@@ -1,125 +1,189 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Minus } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { cn } from "@/lib/utils";
 
-const FAQS_EN = [
-  {
-    q: "What is Medeaz?",
-    a: "Medeaz is a voice-enabled digital healthcare platform for doctors, clinics, and patients. It centralizes records, prescriptions, communication, and operational insights.",
-  },
-  {
-    q: "Who can use Medeaz?",
-    a: "Doctors, clinic admins, and patients can each use dedicated modules. Doctors manage consultations and prescriptions, clinics monitor operations, and patients track records and appointments.",
-  },
-  {
-    q: "Does Medeaz support voice-based workflows?",
-    a: "Yes. Medeaz is designed around voice-assisted workflows, including voice-to-prescription drafting to reduce manual writing time for healthcare providers.",
-  },
-  {
-    q: "Does Medeaz support Urdu and English?",
-    a: "Yes. Medeaz provides multilingual interaction with Urdu and English support to improve accessibility for diverse users.",
-  },
-  {
-    q: "What analytics does Medeaz provide for clinics?",
-    a: "Clinic admins can monitor patient flow, scheduling activity, and revenue-related trends to improve operations and decision-making.",
-  },
-  {
-    q: "How does Medeaz improve continuity of care?",
-    a: "By keeping appointments, prescriptions, notes, and records connected in one system, Medeaz helps teams and patients avoid fragmented or missing information.",
-  },
-];
-
-const FAQS_UR = [
-  {
-    q: "Medeaz کیا ہے؟",
-    a: "Medeaz ایک وائس اینیبلڈ ڈیجیٹل ہیلتھ کیئر پلیٹ فارم ہے جو ڈاکٹروں، کلینکس اور مریضوں کے لیے ریکارڈز، پریسکرپشنز، کمیونیکیشن اور آپریشنل انسائٹس کو ایک جگہ لاتا ہے۔",
-  },
-  {
-    q: "Medeaz کون استعمال کر سکتا ہے؟",
-    a: "ڈاکٹرز، کلینک ایڈمنز اور مریض سب اپنے متعلقہ ماڈیولز استعمال کر سکتے ہیں۔ ڈاکٹرز کنسلٹیشن اور پریسکرپشنز سنبھالتے ہیں، کلینکس آپریشنز دیکھتے ہیں، اور مریض ریکارڈز اور اپائنٹمنٹس ٹریک کرتے ہیں۔",
-  },
-  {
-    q: "کیا Medeaz وائس بیسڈ ورک فلو سپورٹ کرتا ہے؟",
-    a: "جی ہاں، Medeaz وائس اسسٹڈ ورک فلوز کے لیے ڈیزائن کیا گیا ہے، جن میں وائس ٹو پریسکرپشن ڈرافٹنگ شامل ہے تاکہ دستی لکھائی کا وقت کم ہو۔",
-  },
-  {
-    q: "کیا Medeaz اردو اور انگلش سپورٹ کرتا ہے؟",
-    a: "جی ہاں، Medeaz متنوع صارفین کے لیے اردو اور انگلش میں ملٹی لنگول انٹریکشن فراہم کرتا ہے۔",
-  },
-  {
-    q: "کلینکس کے لیے Medeaz کون سی اینالیٹکس دیتا ہے؟",
-    a: "کلینک ایڈمنز پیشنٹ فلو، شیڈولنگ ایکٹیویٹی، اور ریونیو سے متعلق ٹرینڈز مانیٹر کر سکتے ہیں تاکہ آپریشنز اور فیصلے بہتر ہوں۔",
-  },
-  {
-    q: "Medeaz continuity of care کیسے بہتر بناتا ہے؟",
-    a: "اپائنٹمنٹس، پریسکرپشنز، نوٹس اور ریکارڈز کو ایک سسٹم میں جوڑ کر Medeaz بکھری یا گم معلومات کے مسائل کو کم کرتا ہے۔",
-  },
-];
+interface FAQItem {
+  question: string;
+  answer: string;
+}
 
 export function FAQsSection() {
-  const [open, setOpen] = useState<number | null>(0);
   const { language } = useLanguage();
   const isUrdu = language === "ur";
-  const faqs = isUrdu ? FAQS_UR : FAQS_EN;
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs: FAQItem[] = isUrdu
+    ? [
+        {
+          question: "کیا میڈ ایز ہپّا (HIPAA) کے اصولوں کے مطابق ہے؟",
+          answer: "جی ہاں، میڈ ایز مریضوں کے تمام طبی ڈیٹا اور وائس ریکارڈنگز کو مکمل طور پر محفوظ رکھنے کے لیے جدید ترین اینڈ ٹو اینڈ انکرپشن کا استعمال کرتا ہے۔ تمام ڈیٹا معائنے کے دوران اور اس کے بعد بھی محفوظ رہتا ہے۔"
+        },
+        {
+          question: "کیا یہ اردو نسخہ جات کو سپورٹ کرتا ہے؟",
+          answer: "جی بالکل۔ ہمارا نظام انگریزی، اردو یا دونوں زبانوں کے مشترکہ الفاظ کو باآسانی سمجھ کر مریض کے لیے درست نسخہ تیار کرنے کی صلاحیت رکھتا ہے۔ ڈاکٹر معائنے کے دوران قدرتی لہجے میں بات کر سکتے ہیں۔"
+        },
+        {
+          question: "کیا میں اپنے موجودہ EMR سسٹم سے منتقل ہو سکتا ہوں؟",
+          answer: "جی ہاں، آپ اپنے پرانے سسٹم سے آسانی سے ڈیٹا منتقل کر سکتے ہیں۔ میڈ ایز آپ کے موجودہ سافٹ ویئر کے اوپر ایک اسمارٹ معاون لیئر کے طور پر کام کر کے اسے مزید بہتر بناتا ہے، تاکہ آپ کو کوئی تبدیلی نہ کرنی پڑے۔"
+        },
+        {
+          question: "کیا فی مریض کوئی فیس ہے؟",
+          answer: "بالکل نہیں۔ میڈ ایز فی مریض کوئی فیس یا پوشیدہ چارجز وصول نہیں کرتا۔ ہم ایک فلیٹ ماہانہ یا سالانہ سبسکرپشن ماڈل پیش کرتے ہیں جس میں لامحدود ٹرانسکرپشنز شامل ہیں۔"
+        },
+        {
+          question: "اردو میں طبی اصطلاحات کے لیے وائس ریکگنیشن کیسے کام کرتی ہے؟",
+          answer: "ہمارا اے آئی ماڈل خاص طور پر پاکستانی ڈاکٹروں کے بولنے کے انداز اور تلفظ پر تیار کیا گیا ہے۔ یہ ادویات کے برانڈز، ناموں، نسخے کی مقدار اور علامات کو مکمل درستی کے ساتھ سمجھتا ہے۔"
+        },
+        {
+          question: "اگر معائنے کے دوران انٹرنیٹ منقطع ہو جائے تو کیا ہو گا؟",
+          answer: "میڈ ایز میں آف لائن سپورٹ موجود ہے۔ انٹرنیٹ منقطع ہونے کی صورت میں ریکارڈنگ جاری رہے گی اور ڈیٹا لوکل ڈیوائس پر محفوظ ہو جائے گا۔ جیسے ہی انٹرنیٹ بحال ہو گا، ڈیٹا خود بخود سنک ہو کر نسخہ تیار کر دے گا۔"
+        }
+      ]
+    : [
+        {
+          question: "Is MedEaz HIPAA compliant?",
+          answer: "Yes, MedEaz is fully HIPAA compliant. All patient data, voice transmissions, and notes are encrypted at rest and in transit using industry-standard protocols to guarantee complete confidentiality."
+        },
+        {
+          question: "Does it support Urdu prescriptions?",
+          answer: "Absolutely. Our AI model understands bilingual speech, allowing doctors to dictate in English, Urdu, or a mix of both. The system accurately documents instructions in the selected language."
+        },
+        {
+          question: "Can I switch from my current EMR system?",
+          answer: "Yes. MedEaz is designed to play nicely with your existing software. We support data migration and integrate seamlessly as a smart helper layer, meaning you don't have to rebuild your clinical history from scratch."
+        },
+        {
+          question: "Is there a per-patient fee?",
+          answer: "No, we do not charge per patient. MedEaz offers flat-rate monthly or annual subscriptions with unlimited voice transcriptions and clinical summaries, keeping your costs predictable."
+        },
+        {
+          question: "How does voice recognition work for medical terms in Urdu?",
+          answer: "Our speech recognition models are custom-trained on hundreds of hours of bilingual medical dialogues. They easily recognize local pronunciation of drug names, brand names, and symptoms."
+        },
+        {
+          question: "What happens if my internet goes down mid-consultation?",
+          answer: "MedEaz runs a local cache mechanism. The session continues recording offline, and as soon as your connection is restored, the audio files sync and generate your summary automatically."
+        }
+      ];
+
+  const containerVariants: Variants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" as const }
+    }
+  };
 
   return (
-    <section className="px-4 sm:px-6 lg:px-10 py-20 sm:py-28">
-      <div className="mx-auto max-w-[760px] text-center">
-        <div className="inline-flex items-center rounded-full bg-primary-muted px-3.5 py-1.5 text-[12px] font-semibold tracking-wide uppercase text-primary">
-          {isUrdu ? "سوالات" : "FAQs"}
+    <section 
+      id="faq" 
+      className="py-[100px] bg-white relative overflow-hidden" 
+      dir={isUrdu ? "rtl" : "ltr"}
+    >
+      <div className="max-w-[800px] mx-auto px-6 relative z-10">
+        
+        {/* Header */}
+        <div className="text-center mb-16 flex flex-col items-center">
+          <h2 
+            className="text-[36px] md:text-[44px] font-extrabold text-[#0f1f2e] tracking-tight leading-tight mb-4"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
+            {isUrdu ? "وہ سوالات جو کلینکس اکثر پوچھتے ہیں۔" : "Questions clinics actually ask."}
+          </h2>
+          <p 
+            className={cn("text-[17px] text-[#6b7280] leading-relaxed font-normal", isUrdu && "font-urdu")}
+            style={!isUrdu ? { fontFamily: "'Inter', sans-serif" } : undefined}
+          >
+            {isUrdu 
+              ? "اگر آپ کو اپنے مطلوبہ سوال کا جواب نہ ملے تو براہِ راست ہم سے رابطہ کریں۔"
+              : "If you don't find what you're looking for, reach out directly."}
+          </p>
         </div>
-        <h2 className="mt-6 font-display text-[clamp(2rem,4vw,3rem)] leading-[1.05] tracking-[-0.02em] text-text-primary">
-          {isUrdu ? (
-            <>
-              سوالات ہیں؟
-              <br className="hidden sm:block" /> یہ ہیں جواب
-            </>
-          ) : (
-            <>
-              Have questions?
-              <br className="hidden sm:block" /> Here&apos;s the answers
-            </>
-          )}
-        </h2>
-      </div>
 
-      <div className="mx-auto max-w-[760px] mt-12 space-y-3">
-        {faqs.map((item, i) => {
-          const isOpen = open === i;
-          return (
-            <div
-              key={item.q}
-              className="rounded-xl bg-white border border-border-light overflow-hidden"
-            >
-              <button
-                type="button"
-                onClick={() => setOpen(isOpen ? null : i)}
-                aria-expanded={isOpen}
-                className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left cursor-pointer hover:bg-background/50 transition-colors"
+        {/* Accordion List with Staggered Entry Animation */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          className="w-full border-t border-[#f0f0f0]"
+        >
+          {faqs.map((faq, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <motion.div 
+                key={index} 
+                variants={itemVariants}
+                className="border-b border-[#f0f0f0]"
               >
-                <span className="text-[15px] font-semibold text-text-primary">
-                  {item.q}
-                </span>
-                <span className="flex-none inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary-muted text-primary">
-                  {isOpen ? (
-                    <Minus className="h-4 w-4" strokeWidth={2.25} />
-                  ) : (
-                    <Plus className="h-4 w-4" strokeWidth={2.25} />
+                {/* Accordion Header */}
+                <button 
+                  onClick={() => setOpenIndex(isOpen ? null : index)}
+                  className={cn(
+                    "w-full py-6 flex items-center justify-between cursor-pointer group text-start",
+                    isUrdu ? "flex-row-reverse" : "flex-row"
                   )}
-                </span>
-              </button>
-              {isOpen && (
-                <div className="px-5 pb-5 -mt-1">
-                  <p className="text-[14px] text-text-secondary leading-relaxed max-w-[62ch]">
-                    {item.a}
-                  </p>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                >
+                  <span 
+                    className={cn(
+                      "text-[17px] font-semibold text-[#0f1f2e] transition-colors duration-200 group-hover:text-[#00b495]", 
+                      isUrdu && "font-urdu"
+                    )}
+                    style={!isUrdu ? { fontFamily: "'Inter', sans-serif" } : undefined}
+                  >
+                    {faq.question}
+                  </span>
+                  
+                  <motion.div
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    className="shrink-0 ml-4 mr-4 text-[#00b495]"
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </motion.div>
+                </button>
+                
+                {/* Accordion Answer Content */}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <p 
+                        className={cn(
+                          "pb-6 text-[16px] text-[#4b5563] leading-[1.65] font-normal",
+                          isUrdu && "font-urdu text-[15px]"
+                        )}
+                        style={!isUrdu ? { fontFamily: "'Inter', sans-serif" } : undefined}
+                      >
+                        {faq.answer}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
       </div>
     </section>
   );

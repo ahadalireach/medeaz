@@ -1,11 +1,10 @@
 "use client";
 
-import { Calendar, Bot, Pill, HeartPulse, MessageSquare } from "lucide-react";
+import { Calendar, HeartPulse, MessageSquare, CalendarCheck2, Bot } from "lucide-react";
 import { useGetConversationsQuery } from "@/store/api/chatApi";
 import LayoutDashboardIcon from "@/icons/layout-dashboard-icon";
 import UsersIcon from "@/icons/users-icon";
 import UserIconAnimated from "@/icons/user-icon";
-import MessageCircleIcon from "@/icons/message-circle-icon";
 import DescriptionIcon from "@/icons/file-description-icon";
 import AlarmClockPlusIcon from "@/icons/alarm-clock-plus-icon";
 import { useState, useEffect } from "react";
@@ -18,12 +17,14 @@ import { useGetProfileQuery } from "@/store/api/patientApi";
 import { useGetNotificationsQuery } from "@/store/api/notificationApi";
 import { setNotifications } from "@/store/slices/notificationSlice";
 import { useLocale, useTranslations } from "next-intl";
+import { togglePatientAssistant } from "@/store/slices/uiSlice";
+import { RootState } from "@/store/store";
 
 interface TopbarProps {
   title?: string;
 }
 
-import { MedeazLogo } from "@/components/ui/MedeazLogo";
+import Image from "next/image";
 import NotificationPanel from "@/components/NotificationPanel";
 import { Hamburger } from "@/components/ui/Hamburger";
 import FilledBellIcon from "@/icons/filled-bell-icon";
@@ -43,6 +44,10 @@ export default function PatientTopbar({ title }: TopbarProps) {
     skip: !mounted,
   });
   const { unreadCount } = useSelector((state: any) => state.notifications);
+  const isPatientAssistantOpen = useSelector(
+    (state: RootState) => state.ui.patientAssistantOpen,
+  );
+  const settingsLabel = t.has('nav.settings') ? t('nav.settings') : 'Settings';
   const { data: notificationsData } = useGetNotificationsQuery("patient", {
     skip: !mounted,
   });
@@ -81,6 +86,11 @@ export default function PatientTopbar({ title }: TopbarProps) {
       icon: DescriptionIcon,
     },
     {
+      href: "/dashboard/patient/follow-ups",
+      label: t("nav.followUps") || "Follow-Ups",
+      icon: CalendarCheck2,
+    },
+    {
       href: "/dashboard/patient/find-doctors",
       label: t("nav.doctors"),
       icon: UsersIcon,
@@ -106,14 +116,9 @@ export default function PatientTopbar({ title }: TopbarProps) {
       icon: MessageSquare,
     },
     {
-      href: "/dashboard/patient/ai-assistant",
-      label: t("nav.aiAssistant"),
-      icon: MessageCircleIcon,
-    },
-    {
-      href: "/dashboard/patient/profile",
-      label: t("nav.profile"),
-      icon: UserIconAnimated,
+      href: "/dashboard/patient/health-timeline",
+      label: t("nav.healthTimeline"),
+      icon: HeartPulse,
     },
   ];
 
@@ -140,25 +145,32 @@ export default function PatientTopbar({ title }: TopbarProps) {
 
   return (
     <>
-      <header className={`lens-topbar h-16 border-b border-black/5 dark:border-white/5 bg-white/80 dark:bg-[#18181b]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between w-full ${isRtl ? "flex-row-reverse" : ""}`} dir={isRtl ? "rtl" : "ltr"}>
+      <header className="lens-topbar h-16 border-b border-black/5 dark:border-white/5 bg-white/80 dark:bg-[#18181b]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between w-full" dir={isRtl ? "rtl" : "ltr"}>
+
         {/* Logo - ONLY MOBILE */}
         <Link
           href="/dashboard/patient"
           className="flex items-center gap-2.5 group lg:hidden"
         >
-          <MedeazLogo size={32} />
+          <Image
+            src="/medeaz.jpeg"
+            alt="Medeaz Logo"
+            width={32}
+            height={32}
+            priority
+            className="rounded-lg object-cover group-hover:scale-105 transition-all"
+          />
         </Link>
 
         {/* Title - ONLY DESKTOP */}
-        <h1 className="hidden lg:block text-sm font-black uppercase tracking-[0.2em] text-text-primary">
-          {title || t("nav.patientPortal")}
+        <h1 className="hidden lg:block text-base font-bold text-text-primary">
         </h1>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" dir={isRtl ? "rtl" : "ltr"}>
           {/* Desktop Notifications */}
           <button
             onClick={() => setIsNotificationOpen(true)}
-            className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 text-text-secondary hover:bg-black/5 rounded-lg flex items-center justify-center relative transition-colors cursor-pointer group"
+            className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 text-text-secondary hover:bg-black/5 rounded-xl flex items-center justify-center relative transition-colors cursor-pointer group"
           >
             <FilledBellIcon className="h-5 w-5" />
             {(unreadCount > 0 || totalChatUnread > 0) && (
@@ -193,14 +205,12 @@ export default function PatientTopbar({ title }: TopbarProps) {
         />
 
         <div
-          className={`absolute right-0 top-0 h-full w-full max-w-[90vw] sm:max-w-sm bg-white transition-transform duration-500 ease-out border-l border-black/10 ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}
+          className={`absolute right-0 top-0 h-full w-full max-w-[90vw] sm:max-w-sm bg-white shadow-2xl transition-transform duration-500 ease-out border-l border-black/10 ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}
           style={{ zIndex: 101 }}
         >
           <div className="flex flex-col h-full">
             <div className="p-6 border-b border-black/5 flex items-center justify-between">
-              <h2
-                className={`font-bold text-text-primary  text-sm ${isRtl ? "tracking-normal" : "uppercase tracking-[0.2em] text-xs"}`}
-              >
+              <h2 className="font-display font-bold text-text-primary text-base tracking-tight">
                 {t("nav.patientPortal")}
               </h2>
               <button
@@ -211,32 +221,23 @@ export default function PatientTopbar({ title }: TopbarProps) {
               </button>
             </div>
 
-            <div className="px-4 pt-4 hidden max-[400px]:block">
-              <LanguageSwitcher />
-            </div>
-
             <nav
-              className={`flex-1 overflow-y-auto p-4 space-y-1 ${isRtl ? "text-right" : ""}`}
+              className={`flex-1 overflow-y-auto p-4 space-y-1.5 ${isRtl ? "text-right" : ""}`}
             >
-              <p
-                className={`px-3 text-[11px] font-bold text-text-secondary mt-4 mb-2 ${isRtl ? "tracking-normal" : "uppercase tracking-widest text-[10px]"}`}
-              >
+              <p className="lens-section-label mt-4 mb-2">
                 {t("nav.navigation")}
               </p>
               {navLinks.map((link) => {
                 const Icon = link.icon;
+                const isLinkActive = isActive(link.href);
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${isRtl ? "flex-row-reverse text-right" : ""} ${
-                      isActive(link.href)
-                        ? "bg-primary text-white scale-[1.02]"
-                        : "text-text-secondary hover:text-primary hover:bg-primary/5"
-                    }`}
+                    className={`${isLinkActive ? "lens-nav-item-active" : "lens-nav-item"} ${isRtl ? "flex-row-reverse text-right" : ""}`}
                   >
-                    <Icon size={18} />
+                    <Icon size={18} strokeWidth={isLinkActive ? 2.5 : 2} className="shrink-0" />
                     <span>{link.label}</span>
                     {link.label === "Consultation Chat" &&
                       totalChatUnread > 0 && (
@@ -247,12 +248,42 @@ export default function PatientTopbar({ title }: TopbarProps) {
                   </Link>
                 );
               })}
+
+              {/* Patient Assistant Button */}
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  dispatch(togglePatientAssistant());
+                }}
+                className={`${isPatientAssistantOpen ? "lens-nav-item-active" : "lens-nav-item"} w-full ${
+                  isRtl ? "flex-row-reverse text-right" : ""
+                }`}
+              >
+                <Bot size={18} strokeWidth={isPatientAssistantOpen ? 2.5 : 2} className="shrink-0" />
+                <span>{t("nav.patientAssistant") || "Patient Assistant"}</span>
+              </button>
+
+              {/* Language Switcher */}
+              <div className="pt-4 pb-2 px-3 border-t border-black/5 dark:border-white/5 mt-4">
+                <p className="lens-section-label mb-2">Language / زبان</p>
+                <LanguageSwitcher />
+              </div>
+
+              <p className="lens-section-label mt-8 mb-2">{settingsLabel}</p>
+              <Link
+                href="/dashboard/patient/profile"
+                onClick={() => setIsMenuOpen(false)}
+                className={`${isActive("/dashboard/patient/profile") ? "lens-nav-item-active" : "lens-nav-item"} ${isRtl ? "flex-row-reverse text-right" : ""}`}
+              >
+                <UserIconAnimated size={18} />
+                <span>{t("nav.profile")}</span>
+              </Link>
             </nav>
 
             <div className="p-6 border-t border-black/5 space-y-3">
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center gap-2 w-full py-3 bg-red-500 text-white rounded-lg text-sm font-bold hover:bg-red-600 transition-all active:scale-95 group"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-red-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all active:scale-95 group"
               >
                 <LogoutIcon className="h-4 w-4 stroke-white duration-200" />
                 <span className="text-white">{t("nav.signOut")}</span>

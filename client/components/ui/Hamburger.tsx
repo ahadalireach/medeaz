@@ -11,7 +11,7 @@ export function Hamburger({ isOpen, onClick, className = "" }: HamburgerProps) {
         <button
             onClick={onClick}
             style={{ cursor: 'pointer' }}
-            className={`relative h-10 w-10 flex cursor-pointer items-center justify-center rounded-lg transition-all duration-300 ${className}`}
+            className={`relative h-10 w-10 flex cursor-pointer items-center justify-center rounded-xl transition-all duration-300 ${className}`}
             aria-label="Toggle menu"
         >
             <div className="relative w-5 h-4 flex flex-col justify-between cursor-pointer">

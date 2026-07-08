@@ -13,10 +13,10 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
     if (isLoading) {
         return (
             <div className="space-y-6 animate-pulse">
-                <div className="h-48 bg-surface rounded-2xl" />
+                <div className="h-48 bg-surface rounded-xl" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="h-64 bg-surface rounded-2xl" />
-                    <div className="h-64 bg-surface rounded-2xl" />
+                    <div className="h-64 bg-surface rounded-xl" />
+                    <div className="h-64 bg-surface rounded-xl" />
                 </div>
             </div>
         );
@@ -26,7 +26,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
 
     if (error || !appointment) {
         return (
-            <div className="text-center py-12 bg-white rounded-2xl border border-border-light">
+            <div className="text-center py-12 bg-white rounded-xl border border-border-light">
                 <p className="text-text-secondary">Failed to load appointment details.</p>
             </div>
         );
@@ -55,7 +55,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
 
     return (
         <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-border-light overflow-hidden">
+            <div className="bg-white rounded-2xl border border-border-light overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
                         <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 text-primary">
@@ -87,7 +87,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Patient Block */}
-                <div className="bg-white p-6 md:p-8 rounded-2xl border border-border-light">
+                <div className="bg-white p-6 md:p-8 rounded-2xl border border-border-light shadow-sm">
                     <div className="flex flex-col items-center text-center space-y-4">
                         <div className="h-20 w-20 bg-surface rounded-full flex items-center justify-center text-primary ring-4 ring-blue-50">
                             {appointment.patientId?.photo ? (
@@ -121,7 +121,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                 </div>
 
                 {/* Doctor Block */}
-                <div className="bg-white p-6 md:p-8 rounded-2xl border border-border-light">
+                <div className="bg-white p-6 md:p-8 rounded-2xl border border-border-light shadow-sm">
                     <div className="flex flex-col items-center text-center space-y-4">
                         <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center text-primary ring-4 ring-primary/5">
                             {appointment.doctorId?.photo ? (
@@ -194,7 +194,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                         )}
                     </div>
                     <div className="space-y-6">
-                        <div className="bg-white border border-border-light p-6 rounded-2xl relative overflow-hidden">
+                        <div className="bg-white border border-border-light p-6 rounded-xl relative overflow-hidden">
                             <div className="absolute right-0 top-0 opacity-10">
                                 <CircleDollarSign className="w-48 h-48 -mr-12 -mt-12 text-primary" />
                             </div>
@@ -211,7 +211,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                                         <CheckCircle2 className="h-4 w-4" />
                                         {t('common.clinicShare')} (20%)
                                     </span>
-                                    <span className="text-2xl font-black text-primary bg-white px-3 py-1 rounded-lg border border-border-light">
+                                    <span className="text-2xl font-black text-primary bg-white px-3 py-1 rounded-lg shadow-sm border border-border-light">
                                         {(appointment.clinicRevenue || 0).toLocaleString()} {t('common.pkr')}
                                     </span>
                                 </div>
@@ -219,7 +219,7 @@ export default function AppointmentDetailsView({ appointmentId }: { appointmentI
                         </div>
 
                         {prescription && (
-                            <div className="bg-white border border-border-light p-6 rounded-2xl">
+                            <div className="bg-white border border-border-light p-6 rounded-xl">
                                 <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-2">
                                     <Activity className="h-5 w-5" />
                                     {t('doctor.prescriptions.title')}

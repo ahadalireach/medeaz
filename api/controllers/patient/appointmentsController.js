@@ -3,6 +3,7 @@ const Patient = require('../../models/Patient');
 const Doctor = require('../../models/Doctor');
 const Clinic = require('../../models/Clinic');
 const User = require('../../models/User');
+const { invalidateAllDoctorScheduleCaches, invalidatePatientHealthScoreCache } = require('../../utils/cacheHelpers');
 const asyncHandler = require('../../utils/asyncHandler');
 const ApiError = require('../../utils/ApiError');
 const ApiResponse = require('../../utils/ApiResponse');
@@ -17,6 +18,17 @@ exports.getAppointments = asyncHandler(async (req, res) => {
   const { view = 'all' } = req.query;
 
   const now = new Date();
+
+  // Auto-cancel past pending/reserved appointments
+  await Appointment.updateMany(
+    {
+      patientId: userId,
+      dateTime: { $lt: now },
+      status: { $in: ['pending', 'reserved'] }
+    },
+    { $set: { status: 'cancelled' } }
+  );
+
   let match = { patientId: userId };
 
   if (view === 'upcoming') {
@@ -37,62 +49,62 @@ exports.getAppointments = asyncHandler(async (req, res) => {
       }
     },
     {
-      $addFields: {
-        reviewId: { $arrayElemAt: ["$review._id", 0] },
-        reviewEditCount: { $ifNull: [{ $arrayElemAt: ["$review.editCount", 0] }, 0] }
+      $lookup: {
+        from: "clinicreviews",
+        localField: "_id",
+        foreignField: "appointmentId",
+        as: "clinicReview"
       }
     },
-    { $project: { review: 0 } },
+    {
+      $addFields: {
+        reviewId: { $arrayElemAt: ["$review._id", 0] },
+        reviewEditCount: { $ifNull: [{ $arrayElemAt: ["$review.editCount", 0] }, 0] },
+        clinicReviewId: { $arrayElemAt: ["$clinicReview._id", 0] },
+        clinicReviewScore: { $arrayElemAt: ["$clinicReview.overallRating", 0] }
+      }
+    },
+    { $project: { review: 0, clinicReview: 0 } },
     { $sort: { dateTime: -1 } }
   ]);
 
-  // Populate clinic and prescription
+  // Manually populate since aggregate doesn't support model populate easily
   const populated = await Appointment.populate(appointments, [
+    {
+      path: 'doctorId',
+      select: 'name email photo',
+      populate: { path: 'doctorProfile', select: 'specialization' }
+    },
     { path: 'clinicId', select: 'name address phone' },
     { path: 'prescriptionId' }
   ]);
 
-  // Collect all doctorId values (may be ObjectIds from old or new appointments)
-  const allDoctorIds = [...new Set(
-    populated.map((a) => a?.doctorId?.toString()).filter(Boolean)
+  const doctorUserIds = [...new Set(
+    populated
+      .map((a) => a?.doctorId?._id?.toString() || a?.doctorId?.toString())
+      .filter(Boolean)
   )];
 
-  // Fetch User + Doctor profiles in parallel for ALL doctorIds
-  const [doctorUsers, doctorProfiles] = await Promise.all([
-    User.find({ _id: { $in: allDoctorIds } }).select('name email photo'),
-    Doctor.find({ userId: { $in: allDoctorIds } }).select('userId fullName specialization location consultationFee averageRating')
-  ]);
+  const doctorProfiles = await Doctor.find({ userId: { $in: doctorUserIds } }).select('userId location.city');
+  const doctorCityByUserId = new Map(
+    doctorProfiles.map((d) => [d.userId?.toString(), d.location?.city || ''])
+  );
 
-  const userById = new Map(doctorUsers.map(u => [u._id.toString(), u]));
-  const profileByUserId = new Map(doctorProfiles.map(d => [d.userId?.toString(), d]));
-
-  const withDoctorInfo = populated.map((a) => {
-    const dId = a?.doctorId?.toString();
-    const userDoc    = dId ? userById.get(dId) : null;
-    const profileDoc = dId ? profileByUserId.get(dId) : null;
+  const withClinicCity = populated.map((a) => {
+    const doctorUserId = a?.doctorId?._id?.toString() || a?.doctorId?.toString();
+    const clinicAddress = a?.clinicId?.address || '';
+    const addressParts = typeof clinicAddress === 'string'
+      ? clinicAddress.split(',').map((p) => p.trim()).filter(Boolean)
+      : [];
+    const cityFromAddress = addressParts.length > 1 ? addressParts[addressParts.length - 1] : '';
 
     return {
       ...a,
-      doctorId: userDoc
-        ? {
-            _id:   userDoc._id,
-            name:  userDoc.name,
-            email: userDoc.email,
-            photo: userDoc.photo,
-            doctorProfile: profileDoc
-              ? { specialization: profileDoc.specialization, fullName: profileDoc.fullName }
-              : null,
-          }
-        : a.doctorId,  // keep as-is (ObjectId) if user not found
-      clinicCity: (() => {
-        const addr = a?.clinicId?.address || '';
-        const parts = typeof addr === 'string' ? addr.split(',').map(p => p.trim()).filter(Boolean) : [];
-        return profileDoc?.location?.city || (parts.length > 1 ? parts[parts.length - 1] : '') || null;
-      })(),
+      clinicCity: doctorCityByUserId.get(doctorUserId) || cityFromAddress || null,
     };
   });
 
-  res.status(200).json(new ApiResponse(200, withDoctorInfo, 'Appointments fetched successfully'));
+  res.status(200).json(new ApiResponse(200, withClinicCity, 'Appointments fetched successfully'));
 });
 
 /**
@@ -129,24 +141,22 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
 
   function parseDateTime(dateStr, timeStr) {
     if (!timeStr || !dateStr) return new Date(NaN);
-    let hours = 0, minutes = 0;
-    const m12 = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    const m24 = timeStr.match(/^(\d{1,2}):(\d{2})$/);
-    if (m12) {
-      hours   = parseInt(m12[1], 10);
-      minutes = parseInt(m12[2], 10);
-      if (m12[3].toUpperCase() === 'PM' && hours < 12) hours += 12;
-      if (m12[3].toUpperCase() === 'AM' && hours === 12) hours = 0;
-    } else if (m24) {
-      hours   = parseInt(m24[1], 10);
-      minutes = parseInt(m24[2], 10);
-    } else {
-      return new Date(NaN);
+
+    // Check if time is in 12h format (e.g. "09:00 AM")
+    const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let [_, hours, minutes, ampm] = match;
+      hours = parseInt(hours, 10);
+      minutes = parseInt(minutes, 10);
+      if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
+      if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+
+      const date = new Date(dateStr);
+      date.setHours(hours, minutes, 0, 0);
+      return date;
     }
-    // Treat the entered time as PKT (UTC+5) so stored UTC matches what user selected
-    const hh = String(hours).padStart(2, '0');
-    const mm = String(minutes).padStart(2, '0');
-    return new Date(`${dateStr}T${hh}:${mm}:00+05:00`);
+
+    return new Date(`${dateStr} ${timeStr}`);
   }
 
   const dateTime = parseDateTime(appointmentDate, appointmentTime);
@@ -154,17 +164,51 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid appointment date or time format");
   }
 
-  const slotStart = new Date(dateTime.getTime() - 15 * 60000);
-  const slotEnd = new Date(dateTime.getTime() + 15 * 60000);
+  const reqDuration = req.body.duration === 30 ? 30 : 15;
+  const startOfDay = new Date(dateTime);
+  startOfDay.setHours(0,0,0,0);
+  const endOfDay = new Date(dateTime);
+  endOfDay.setHours(23,59,59,999);
   const tenMinsAgo = new Date(Date.now() - 10 * 60000);
 
-  const existingAppointment = await Appointment.findOne({
+  if (dateTime < new Date()) {
+    throw new ApiError(400, "Cannot book appointments in the past.");
+  }
+
+  const todaysPatientAppointments = await Appointment.find({
+    patientId: patient.userId,
+    dateTime: { $gte: startOfDay, $lte: endOfDay },
+    status: { $nin: ['cancelled'] }
+  });
+
+  const appointmentsWithDoctor = todaysPatientAppointments.filter(app => app.doctorId.toString() === doctorUserId.toString());
+  if (appointmentsWithDoctor.length >= 2) {
+    throw new ApiError(400, "You have reached the maximum limit of 2 appointments for this doctor today.");
+  }
+
+  if (clinicId) {
+    const appointmentsAtClinic = todaysPatientAppointments.filter(app => app.clinicId && app.clinicId.toString() === clinicId.toString());
+    if (appointmentsAtClinic.length >= 2) {
+      throw new ApiError(400, "You have reached the maximum limit of 2 appointments for this clinic today.");
+    }
+  }
+
+  const dayAppointments = await Appointment.find({
     doctorId: doctorUserId,
-    dateTime: { $gte: slotStart, $lte: slotEnd },
+    dateTime: { $gte: startOfDay, $lte: endOfDay },
     $or: [
       { status: { $nin: ['cancelled', 'reserved'] } },
       { status: 'reserved', createdAt: { $gte: tenMinsAgo } }
     ]
+  });
+
+  const proposedStart = dateTime.getTime();
+  const proposedEnd = proposedStart + reqDuration * 60000;
+
+  const existingAppointment = dayAppointments.find(app => {
+    const appStart = new Date(app.dateTime).getTime();
+    const appEnd = appStart + (app.duration || 15) * 60000;
+    return proposedStart < appEnd && proposedEnd > appStart;
   });
 
   if (existingAppointment && existingAppointment.patientId.toString() !== patient.userId.toString()) {
@@ -174,24 +218,42 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
   let appointment = await Appointment.findOne({
     patientId: patient.userId,
     doctorId: doctorUserId,
-    dateTime: { $gte: slotStart, $lte: slotEnd },
+    dateTime: dateTime,
     status: 'reserved'
   });
 
+  let clinicSnapshot = null;
+  const targetClinicId = clinicId || doctor.clinicId || null;
+  if (targetClinicId) {
+    const Clinic = require('../../models/Clinic');
+    const clinicData = await Clinic.findById(targetClinicId).select('name address phone');
+    if (clinicData) {
+      clinicSnapshot = {
+        clinicId: clinicData._id,
+        clinicName: clinicData.name,
+        clinicCity: clinicData.address?.city,
+        clinicPhone: clinicData.phone
+      };
+    }
+  }
+
   if (appointment) {
     appointment.status = 'pending';
-    appointment.clinicId = clinicId || doctor.clinicId || null;
+    appointment.clinicId = targetClinicId;
+    appointment.clinicSnapshot = clinicSnapshot;
     appointment.reason = reason || "Not Mentioned";
     await appointment.save();
   } else {
     appointment = await Appointment.create({
       patientId: patient.userId,
       doctorId: doctorUserId,
-      clinicId: clinicId || doctor.clinicId || null,
+      clinicId: targetClinicId,
+      clinicSnapshot,
       dateTime,
       reason: reason || "Not Mentioned",
       status: 'pending',
       type: 'consultation',
+      duration: reqDuration
     });
   }
 
@@ -237,6 +299,8 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
     portal: "doctor"
   });
 
+  await invalidateAllDoctorScheduleCaches(doctorUserId);
+  await invalidatePatientHealthScoreCache(userId);
   const effectiveClinicId = clinicId || doctor.clinicId;
   if (effectiveClinicId) {
     const clinic = await Clinic.findById(effectiveClinicId);
@@ -253,6 +317,8 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
       });
     }
   }
+
+  io.to(doctorUserId.toString()).emit('schedule_updated');
 
   res.status(201).json(new ApiResponse(201, populatedAppointment, 'Appointment booked successfully'));
 });
@@ -318,6 +384,10 @@ exports.cancelAppointment = asyncHandler(async (req, res) => {
     }
   }
 
+  await invalidateAllDoctorScheduleCaches(appointment.doctorId._id);
+  await invalidatePatientHealthScoreCache(userId);
+  io.to(appointment.doctorId._id.toString()).emit('schedule_updated');
+
   res.status(200).json(new ApiResponse(200, populatedAppointment, 'Appointment cancelled successfully'));
 });
 
@@ -357,15 +427,39 @@ exports.rateAppointment = asyncHandler(async (req, res) => {
  * @access Private (Patient only)
  */
 exports.getClinics = asyncHandler(async (req, res) => {
-  const clinics = await Clinic.find({})
+  const { search } = req.query;
+  const searchStr = (search || '').toString().trim();
+
+  const { getCache, setCache } = require("../../utils/cacheHelpers");
+  const cacheKey = `patient:clinics:${searchStr}`;
+
+  const cachedData = await getCache(cacheKey);
+  if (cachedData) {
+    return res.status(200).json(new ApiResponse(200, cachedData, 'Clinics fetched successfully'));
+  }
+
+  let query = {};
+  if (searchStr !== '') {
+    const sanitizedSearch = searchStr.replace(/[^\w\s]/gi, '').trim();
+    if (sanitizedSearch) {
+      query = {
+        $text: { $search: sanitizedSearch }
+      };
+    }
+  }
+
+  const clinics = await Clinic.find(query)
     .populate({
       path: 'doctors',
-      select: 'userId specialization fullName schedule',
+      select: 'userId specialization fullName schedule consultationFee availabilityStatus',
       populate: {
         path: 'userId',
         select: 'name email photo'
       }
-    });
+    })
+    .lean();
+
+  await setCache(cacheKey, clinics, 300);
 
   res.status(200).json(new ApiResponse(200, clinics, 'Clinics fetched successfully'));
 });
@@ -376,12 +470,27 @@ exports.getClinics = asyncHandler(async (req, res) => {
  * @access Private (Patient only)
  */
 exports.getDoctors = asyncHandler(async (req, res) => {
-  const doctors = await Doctor.find({})
+  const { availableOnly } = req.query;
+  const { getCache, setCache } = require("../../utils/cacheHelpers");
+  const cacheKey = `patient:doctors:${availableOnly === 'true'}`;
+
+  const cachedData = await getCache(cacheKey);
+  if (cachedData) {
+    return res.status(200).json(new ApiResponse(200, cachedData, 'Doctors fetched successfully'));
+  }
+
+  const filter = {};
+  if (availableOnly === 'true') {
+    filter.availabilityStatus = { $in: ['available', null, undefined] };
+  }
+
+  const doctors = await Doctor.find(filter)
     .populate({
       path: 'userId',
       select: 'name email photo'
     })
-    .populate('clinicId', 'name address');
+    .populate('clinicId', 'name address')
+    .lean();
 
   const allDoctors = await Promise.all(doctors.map(async (doc) => {
     const appointmentCount = await Appointment.countDocuments({
@@ -408,6 +517,7 @@ exports.getDoctors = asyncHandler(async (req, res) => {
       email: doc.userId?.email,
       photo: doc.userId?.photo,
       specialization: doc.specialization,
+      availabilityStatus: doc.availabilityStatus || 'available',
       clinicId: doc.clinicId ? {
         _id: doc.clinicId._id,
         name: doc.clinicId.name,
@@ -422,6 +532,8 @@ exports.getDoctors = asyncHandler(async (req, res) => {
       rating: parseFloat(avgRating)
     };
   }));
+
+  await setCache(cacheKey, allDoctors, 300);
 
   res.status(200).json(new ApiResponse(200, allDoctors, 'Doctors fetched successfully'));
 });
@@ -438,6 +550,20 @@ exports.getAvailableSlots = asyncHandler(async (req, res) => {
   }
 
   let doctor = await Doctor.findById(doctorId);
+  if (!doctor) {
+    doctor = await Doctor.findOne({ userId: doctorId });
+  }
+
+  if (doctor && doctor.availabilityStatus && doctor.availabilityStatus !== 'available') {
+    return res.status(200).json(new ApiResponse(200, {
+      available: false,
+      reason: doctor.availabilityStatus,
+      message: doctor.availabilityStatus === 'busy'
+        ? "Doctor is currently busy. Check back later."
+        : "Doctor is on leave. Try another doctor."
+    }, 'Doctor is not available for booking'));
+  }
+
   let doctorUserId = doctor ? doctor.userId : doctorId;
 
   const startOfDay = new Date(date);
@@ -454,14 +580,20 @@ exports.getAvailableSlots = asyncHandler(async (req, res) => {
       { status: { $nin: ['cancelled', 'reserved'] } },
       { status: 'reserved', createdAt: { $gte: tenMinsAgo } }
     ]
-  }).select('dateTime status patientId');
+  }).select('dateTime status patientId duration');
 
-  const bookedSlotStrings = bookedAppointments.map(app => {
-    const d = new Date(app.dateTime);
-    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+  const bookedSlotStrings = [];
+  bookedAppointments.forEach(app => {
+    const appStart = new Date(app.dateTime).getTime();
+    const duration = app.duration || 15;
+    const numSlots = Math.ceil(duration / 15);
+    for (let i = 0; i < numSlots; i++) {
+      const d = new Date(appStart + i * 15 * 60000);
+      bookedSlotStrings.push(`${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`);
+    }
   });
 
-  res.status(200).json(new ApiResponse(200, { bookedSlots: bookedSlotStrings }, 'Available slots fetched'));
+  res.status(200).json(new ApiResponse(200, { bookedSlots: bookedSlotStrings, available: true }, 'Available slots fetched'));
 });
 
 /**
@@ -484,41 +616,51 @@ exports.reserveSlot = asyncHandler(async (req, res) => {
 
   function parseDateTime(dateStr, timeStr) {
     if (!timeStr || !dateStr) return new Date(NaN);
-    let hours = 0, minutes = 0;
-    const m12 = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    const m24 = timeStr.match(/^(\d{1,2}):(\d{2})$/);
-    if (m12) {
-      hours   = parseInt(m12[1], 10);
-      minutes = parseInt(m12[2], 10);
-      if (m12[3].toUpperCase() === 'PM' && hours < 12) hours += 12;
-      if (m12[3].toUpperCase() === 'AM' && hours === 12) hours = 0;
-    } else if (m24) {
-      hours   = parseInt(m24[1], 10);
-      minutes = parseInt(m24[2], 10);
-    } else {
-      return new Date(NaN);
+
+    // Check if time is in 12h format (e.g. "09:00 AM")
+    const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let [_, hours, minutes, ampm] = match;
+      hours = parseInt(hours, 10);
+      minutes = parseInt(minutes, 10);
+      if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
+      if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+
+      const date = new Date(dateStr);
+      date.setHours(hours, minutes, 0, 0);
+      return date;
     }
-    // Treat the entered time as PKT (UTC+5) so stored UTC matches what user selected
-    const hh = String(hours).padStart(2, '0');
-    const mm = String(minutes).padStart(2, '0');
-    return new Date(`${dateStr}T${hh}:${mm}:00+05:00`);
+
+    return new Date(`${dateStr} ${timeStr}`);
   }
 
   const dateTime = parseDateTime(appointmentDate, appointmentTime);
   if (isNaN(dateTime.getTime())) {
     throw new ApiError(400, "Invalid appointment date or time format");
   }
-  const slotStart = new Date(dateTime.getTime() - 15 * 60000);
-  const slotEnd = new Date(dateTime.getTime() + 15 * 60000);
+  const reqDuration = req.body.duration === 30 ? 30 : 15;
+  const startOfDay = new Date(dateTime);
+  startOfDay.setHours(0,0,0,0);
+  const endOfDay = new Date(dateTime);
+  endOfDay.setHours(23,59,59,999);
   const tenMinsAgo = new Date(Date.now() - 10 * 60000);
 
-  const existingAppointment = await Appointment.findOne({
+  const dayAppointments = await Appointment.find({
     doctorId: doctorUserId,
-    dateTime: { $gte: slotStart, $lte: slotEnd },
+    dateTime: { $gte: startOfDay, $lte: endOfDay },
     $or: [
       { status: { $nin: ['cancelled', 'reserved'] } },
       { status: 'reserved', createdAt: { $gte: tenMinsAgo } }
     ]
+  });
+
+  const proposedStart = dateTime.getTime();
+  const proposedEnd = proposedStart + reqDuration * 60000;
+
+  const existingAppointment = dayAppointments.find(app => {
+    const appStart = new Date(app.dateTime).getTime();
+    const appEnd = appStart + (app.duration || 15) * 60000;
+    return proposedStart < appEnd && proposedEnd > appStart;
   });
 
   if (existingAppointment && existingAppointment.patientId.toString() !== patient.userId.toString()) {
@@ -531,14 +673,31 @@ exports.reserveSlot = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, existingAppointment, 'Reservation extended for another 10 minutes'));
   }
 
+  let clinicSnapshot = null;
+  const targetClinicId = doctor?.clinicId || null;
+  if (targetClinicId) {
+    const Clinic = require('../../models/Clinic');
+    const clinicData = await Clinic.findById(targetClinicId).select('name address phone');
+    if (clinicData) {
+      clinicSnapshot = {
+        clinicId: clinicData._id,
+        clinicName: clinicData.name,
+        clinicCity: clinicData.address?.city,
+        clinicPhone: clinicData.phone
+      };
+    }
+  }
+
   const reservation = await Appointment.create({
     patientId: patient.userId,
     doctorId: doctorUserId,
-    clinicId: doctor?.clinicId || null,
+    clinicId: targetClinicId,
+    clinicSnapshot,
     dateTime,
     reason: "Not Mentioned",
     status: 'reserved',
     type: 'consultation',
+    duration: reqDuration
   });
 
   res.status(201).json(new ApiResponse(201, reservation, 'Slot reserved successfully for 10 minutes'));
@@ -554,6 +713,7 @@ exports.deleteAppointment = asyncHandler(async (req, res) => {
   }
 
   await Appointment.findByIdAndDelete(id);
+  await invalidatePatientHealthScoreCache(userId);
 
   res.status(200).json(new ApiResponse(200, null, 'Appointment deleted successfully'));
 });

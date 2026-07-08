@@ -10,6 +10,7 @@ import XIcon from "@/icons/x-icon";
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
+import PageHeader from "@/components/shared/PageHeader";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -81,7 +82,7 @@ function UploadModal({ isOpen, onClose }: UploadModalProps) {
     <div className="fixed inset-0 z-50 m-0 p-4" style={{ zIndex: 10000 }} aria-modal="true" role="dialog">
       <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" onClick={onClose} />
       <div className="relative flex min-h-full items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-7 w-full max-w-md border border-black/5 animate-in zoom-in-95 duration-300 relative overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-7 w-full max-w-md border border-black/5 animate-in zoom-in-95 duration-300 relative overflow-hidden flex flex-col max-h-[85vh]">
         <div className="flex items-center justify-between mb-8 shrink-0">
           <div>
             <h3 className="text-2xl font-black text-text-primary tracking-tight">{t('patient.records.uploadTitle')}</h3>
@@ -101,7 +102,7 @@ function UploadModal({ isOpen, onClose }: UploadModalProps) {
                 placeholder={t('patient.records.placeholders.title')}
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full rounded-2xl border-black/5 bg-background p-3 text-sm font-medium transition-colors"
+                className="w-full rounded-2xl border-black/5 bg-background p-3 text-sm font-medium focus:ring-primary focus:border-primary transition-all"
               />
             </div>
 
@@ -127,7 +128,7 @@ function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="w-full rounded-2xl border-black/5 bg-background p-3 text-sm font-medium transition-colors"
+                  className="w-full rounded-2xl border-black/5 bg-background p-3 text-sm font-medium focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
             </div>
@@ -148,7 +149,7 @@ function UploadModal({ isOpen, onClose }: UploadModalProps) {
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className={`p-5 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all ${formData.fileUrl ? 'border-primary bg-primary/5' : 'border-black/5  bg-background  group-hover:border-primary/50'}`}>
+              <div className={`p-5 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all ${formData.fileUrl ? 'border-primary bg-primary/5' : 'border-black/5  bg-background  group-hover:border-primary/50'}`}>
                 {formData.fileUrl ? (
                   <div className="relative group w-full h-28">
                      <img src={formData.fileUrl} alt="Preview" className="w-full h-full object-contain rounded-xl" />
@@ -235,23 +236,19 @@ export default function RecordsPage() {
 
   return (
     <div className={`space-y-10 animate-in ${isUploadModalOpen ? "pb-0" : "pb-20"}`}>
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
-        <div>
-          <h1 className="text-4xl sm:text-5xl font-black text-text-primary tracking-tight leading-none">
-            {t('patient.records.title')}
-          </h1>
-          <p className="text-text-secondary mt-4 text-lg font-medium">
-            {t('patient.records.subtitle')}
-          </p>
-        </div>
-        <Button
-          onClick={() => setIsUploadModalOpen(true)}
-          className="h-14 px-8 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all"
-        >
-          <Plus size={20} strokeWidth={3} />
-          {t('patient.records.uploadRecord')}
-        </Button>
-      </div>
+      <PageHeader 
+        title={t('patient.records.title')} 
+        description={t('patient.records.subtitle')} 
+        action={
+          <Button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="h-14 px-8 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all"
+          >
+            <Plus size={20} strokeWidth={3} />
+            {t('patient.records.uploadRecord')}
+          </Button>
+        } 
+      />
 
       {/* Search Bar - Premium Style */}
       <div className="relative group px-2 max-w-2xl">
@@ -263,7 +260,7 @@ export default function RecordsPage() {
           placeholder={t('common.search') + '...'}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full h-12 rounded-lg border border-border-light bg-white pl-16 pr-6 text-sm font-bold text-text-primary placeholder:text-text-secondary transition-colors"
+          className="w-full h-16 rounded-4xl border-black/5 bg-white pl-16 pr-6 text-sm font-bold text-text-primary placeholder:text-text-secondary focus:ring-1 focus:ring-primary focus:border-primary shadow-sm transition-all"
         />
       </div>
 
@@ -272,7 +269,7 @@ export default function RecordsPage() {
         {isLoading || isFetching ? (
           <div className="grid grid-cols-1 gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-40 animate-pulse rounded-2xl bg-surface" />
+              <div key={i} className="h-40 animate-pulse rounded-[2.5rem] bg-surface" />
             ))}
           </div>
         ) : filteredRecords.length === 0 ? (
@@ -291,11 +288,11 @@ export default function RecordsPage() {
               <Link
                 key={record._id}
                 href={`/dashboard/patient/records/${record._id}`}
-                className="group p-1 bg-white rounded-2xl border border-black/5 shadow-sm hover:border-primary/50 transition-all"
+                className="group p-1 bg-white rounded-[2.5rem] border border-black/5 shadow-sm hover:border-primary/50 transition-all"
               >
                 <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                   <div className="flex items-center gap-6">
-                    <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shrink-0">
+                    <div className="h-16 w-16 bg-primary/10 rounded-3xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shrink-0">
                       {record.attachments?.length > 0 ? <FileCheck size={28} /> : <FileText size={28} />}
                     </div>
                     <div className="min-w-0">
@@ -343,12 +340,12 @@ export default function RecordsPage() {
                           e.stopPropagation();
                           setDeleteId(record._id);
                         }}
-                        className="h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all group"
+                        className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all group"
                         title={t('patient.records.deleteRecord')}
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>
-                      <div className="h-10 px-6 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest flex items-center justify-center">
+                      <div className="h-10 px-6 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105">
                         {t('common.view')}
                       </div>
                     </div>

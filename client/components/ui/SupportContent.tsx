@@ -27,8 +27,8 @@ export default function SupportContent() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-8 mb-16">
-        <div className="bg-white p-8 rounded-2xl border border-border-light text-center">
-          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-6">
+        <div className="bg-white p-8 rounded-2xl border border-border-light text-center shadow-sm">
+          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6">
             <Mail className="w-6 h-6 text-primary" />
           </div>
           <h3 className="text-lg font-bold text-text-primary mb-2">
@@ -47,8 +47,8 @@ export default function SupportContent() {
           </a>
         </div>
 
-        <div className="bg-white p-8 rounded-2xl border border-border-light text-center">
-          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-6">
+        <div className="bg-white p-8 rounded-2xl border border-border-light text-center shadow-sm">
+          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6">
             <Phone className="w-6 h-6 text-primary" />
           </div>
           <h3 className="text-lg font-bold text-text-primary mb-2">
@@ -67,8 +67,8 @@ export default function SupportContent() {
           </a>
         </div>
 
-        <div className="bg-white p-8 rounded-2xl border border-border-light text-center">
-          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-6">
+        <div className="bg-white p-8 rounded-2xl border border-border-light text-center shadow-sm">
+          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6">
             <Clock className="w-6 h-6 text-primary" />
           </div>
           <h3 className="text-lg font-bold text-text-primary mb-2">
@@ -87,7 +87,7 @@ export default function SupportContent() {
         </div>
       </div>
 
-      <div className="bg-background rounded-2xl p-8 md:p-12 border border-black/5">
+      <div className="bg-background rounded-3xl p-8 md:p-12 border border-black/5">
         <h2 className="text-2xl font-bold text-text-primary mb-8 flex items-center gap-3">
           <HelpCircle className="text-primary w-6 h-6" />
           {isUrdu

@@ -52,37 +52,37 @@ export default function RecentPrescriptions({ prescriptions }: RecentPrescriptio
       </CardHeader>
       <CardContent>
         {prescriptions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
-              <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.9} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-            </div>
-            <p className="text-sm font-medium text-text-primary">No prescriptions yet</p>
-            <p className="text-xs text-text-secondary mt-1">Your recent prescriptions will appear here</p>
-          </div>
+          <p className="text-sm text-text-primary py-4">
+            {t('patient.records.noRecords')}
+          </p>
         ) : (
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {prescriptions.map((prescription) => (
               <Link
                 key={prescription._id}
                 href={`/dashboard/patient/records/${prescription._id}`}
-                className="block rounded-xl bg-gray-50 p-4 transition-all hover:bg-gray-100"
+                className="block rounded-2xl border border-border-light p-5 transition-all hover:bg-background :bg-ink-soft/50 hover:scale-[1.01]"
               >
-                <p className="text-sm font-semibold text-text-primary">
-                  {prescription.diagnosis}
-                </p>
-                <p className="mt-0.5 text-xs text-text-secondary">
-                  {t('patient.bookAppointmentPage.doctorPrefix')} {prescription.doctorId?.doctorProfile?.fullName || prescription.doctorId?.name}
-                  {prescription.doctorId?.doctorProfile?.specialization
-                    ? ` · ${prescription.doctorId.doctorProfile.specialization}`
-                    : ""}
-                </p>
-                <div className="mt-3 flex items-center justify-between border-t border-black/6 pt-2.5">
-                  <span className="text-[11px] font-semibold text-primary truncate max-w-30">
-                    {prescription.clinicId?.name}
-                  </span>
-                  <span className="text-[11px] text-text-secondary shrink-0">
-                    {formatDate(prescription.createdAt)}
-                  </span>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="mt-1 text-sm font-bold text-text-primary">
+                      {prescription.diagnosis}
+                    </p>
+                    <p className="mt-1.5 text-[13px] font-semibold text-text-primary leading-tight">
+                      {t('patient.bookAppointmentPage.doctorPrefix')} {prescription.doctorId?.doctorProfile?.fullName || prescription.doctorId?.name}
+                    </p>
+                    <p className="text-[11px] font-medium text-text-primary italic">
+                      {prescription.doctorId?.doctorProfile?.specialization || t('appointment.doctor')}
+                    </p>
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-black/5 pt-3">
+                      <span className="text-[10px] sm:text-xs font-black text-primary uppercase tracking-widest truncate max-w-[120px] sm:max-w-[150px]">
+                        {prescription.clinicId?.name}
+                      </span>
+                      <span className="text-[10px] sm:text-xs font-bold text-text-primary shrink-0">
+                        {formatDate(prescription.createdAt)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </Link>
             ))}

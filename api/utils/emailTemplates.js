@@ -1,39 +1,32 @@
 const { wrapEmail } = require("./emailLayout");
 
-/* ── Email Verification ─────────────────────────────────────────── */
-const getVerificationEmail = (email, token) => {
+const getVerificationEmail = (name, token) => {
   const url = `${process.env.FRONTEND_URL}/verify/${token}`;
-
   return wrapEmail(`
-    <p class="label">Account Verification</p>
-    <h1 class="title">Confirm your email address</h1>
-    <p class="text">
-      Thanks for signing up for Medeaz. Please verify your email address
-      to activate your account and get started.
-    </p>
-    <a href="${url}" class="btn">Verify Email Address</a>
-    <div class="notice">
-      This link expires in <strong>24 hours</strong>. If you didn't create a
-      Medeaz account, you can safely ignore this email.
+    <div class="badge">Account Verification</div>
+    <h1 class="title">Confirm your email</h1>
+    <p class="text">Welcome to Medeaz. To activate your account and finish setting up your workspace, please verify your email below.</p>
+    <div class="button-container">
+        <a href="${url}" class="button">Verify email</a>
     </div>
+    <div class="note">
+        This link will remain active for a limited time. If it expires, just request a new one from the sign-up page.
+    </div>
+    <p class="text-muted">If you didn't create a Medeaz account, you can safely ignore this message.</p>
   `);
 };
 
-/* ── Forgot Password ─────────────────────────────────────────────── */
 const getForgotPasswordEmail = (token) => {
   const url = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-
   return wrapEmail(`
-    <p class="label">Password Reset</p>
+    <div class="badge">Password Reset</div>
     <h1 class="title">Reset your password</h1>
-    <p class="text">
-      We received a request to reset your Medeaz password. Click the button
-      below to choose a new one.
-    </p>
-    <a href="${url}" class="btn">Reset Password</a>
-    <div class="notice">
-      This link expires in <strong>60 minutes</strong>. If you didn't request
-      a password reset, your account is safe — no action is needed.
+    <p class="text">We received a request to reset the password on your Medeaz account. Click the button below to choose a new one.</p>
+    <div class="button-container">
+        <a href="${url}" class="button">Reset password</a>
+    </div>
+    <div class="note">
+        This reset link is valid for <strong>60 minutes</strong>. If you did not request this change, your account is still secure and no action is needed.
     </div>
   `);
 };

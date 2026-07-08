@@ -1,31 +1,22 @@
-import { Header } from "@/components/home/Header";
+import { Navbar } from "@/components/layout/Navbar";
 import { Hero } from "@/components/home/Hero";
-import { ImportSection } from "@/components/home/ImportSection";
-import { InsightsSection } from "@/components/home/InsightsSection";
-import { ResultsSection } from "@/components/home/ResultsSection";
-import { PrescriptionsSection } from "@/components/home/PrescriptionsSection";
-import { PoweredBySection } from "@/components/home/PoweredBySection";
+import { ShowcaseSections } from "@/components/home/ShowcaseSections";
 import { FAQsSection } from "@/components/home/FAQsSection";
-import { FinalCTA } from "@/components/home/FinalCTA";
 import { Footer } from "@/components/home/Footer";
+import { LenisProvider } from "@/providers/LenisProvider";
 
 export default function Home() {
   return (
-    <div className="min-h-screen font-sans text-text-primary overflow-x-hidden bg-white">
-      <div>
-        <Header />
+    <LenisProvider>
+      <div className="min-h-screen font-sans text-ink bg-white overflow-x-hidden relative selection:bg-brand/20 selection:text-ink">
+        <Navbar />
         <main>
           <Hero />
-          <ImportSection />
-          <InsightsSection />
-          <ResultsSection />
-          {/* <PrescriptionsSection /> */}
-          <PoweredBySection />
+          <ShowcaseSections />
           <FAQsSection />
-          <FinalCTA />
         </main>
         <Footer />
       </div>
-    </div>
+    </LenisProvider>
   );
 }

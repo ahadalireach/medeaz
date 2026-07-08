@@ -21,7 +21,10 @@ const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
-  if (result.error && result.error.status === 401) {
+  const requestUrl = typeof args === "string" ? args : (args as FetchArgs).url ?? "";
+  const isAuthRoute = requestUrl.startsWith("/auth/");
+
+  if (result.error && result.error.status === 401 && !isAuthRoute) {
     const refreshToken = localStorage.getItem('refreshToken');
     
     if (refreshToken) {
@@ -147,22 +150,6 @@ export const aiApi = createApi({
         body,
       }),
     }),
-
-    chatWithDoctorAI: builder.mutation<any, { message: string; conversationHistory: any[]; language?: string }>({
-      query: (body) => ({
-        url: '/ai/doctor/chat',
-        method: 'POST',
-        body,
-      }),
-    }),
-
-    chatWithClinicAI: builder.mutation<any, { message: string; conversationHistory: any[]; language?: string }>({
-      query: (body) => ({
-        url: '/ai/clinic/chat',
-        method: 'POST',
-        body,
-      }),
-    }),
   }),
 });
 
@@ -172,6 +159,4 @@ export const {
   useGeminiChatMutation,
   useGroqChatMutation,
   useChatWithAIMutation,
-  useChatWithDoctorAIMutation,
-  useChatWithClinicAIMutation,
 } = aiApi;

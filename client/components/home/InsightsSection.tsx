@@ -23,20 +23,24 @@ export function InsightsSection() {
     ? [
         {
           title: "کنسلٹیشن",
-          description: "آواز سے چلنے والی کنسلٹیشن جو نوٹس اور فیصلے خودکار بناتی ہے۔",
+          description:
+            "آواز سے چلنے والی کنسلٹیشن جو نوٹس اور فیصلے خودکار بناتی ہے۔",
           cta: "شروع کریں",
           href: "/login",
           icon: Mic,
-          gradient: "bg-[#f0faf7]",
+          gradient:
+            "bg-[linear-gradient(135deg,#e3eff2_0%,#f0f5f2_45%,#fdf4e7_100%)]",
           iconTone: "text-primary",
         },
         {
           title: "پریسکرپشن",
-          description: "ڈیجیٹل پریسکرپشن اور فالو اپ ایک ہی مسلسل کیئر سائیکل میں۔",
+          description:
+            "ڈیجیٹل پریسکرپشن اور فالو اپ ایک ہی مسلسل کیئر سائیکل میں۔",
           cta: "مزید جانیں",
           href: "/docs",
           icon: FileText,
-          gradient: "bg-[#f0faf7]",
+          gradient:
+            "bg-[linear-gradient(135deg,#fdf4e7_0%,#f6f1ea_45%,#ede9f7_100%)]",
           iconTone: "text-primary",
         },
         {
@@ -45,62 +49,86 @@ export function InsightsSection() {
           cta: "ڈیش بورڈ دیکھیں",
           href: "/login",
           icon: BarChart3,
-          gradient: "bg-[#f0faf7]",
+          gradient:
+            "bg-[linear-gradient(135deg,#ede9f7_0%,#eef0f4_45%,#e3eff2_100%)]",
           iconTone: "text-primary",
         },
       ]
     : [
         {
           title: "Consultation",
-          description: "Voice-powered consultations that capture notes and decisions for you.",
+          description:
+            "Voice-powered consultations that capture notes and decisions for you.",
           cta: "Start Consulting",
           href: "/login",
           icon: Mic,
-          gradient: "bg-[#f0faf7]",
+          gradient:
+            "bg-[linear-gradient(135deg,#e3eff2_0%,#f0f5f2_45%,#fdf4e7_100%)]",
           iconTone: "text-primary",
         },
         {
           title: "Prescriptions",
-          description: "Digital prescriptions and follow-ups linked into one continuous care cycle.",
+          description:
+            "Digital prescriptions and follow-ups linked into one continuous care cycle.",
           cta: "Learn More",
           href: "/docs",
           icon: FileText,
-          gradient: "bg-[#f0faf7]",
+          gradient:
+            "bg-[linear-gradient(135deg,#fdf4e7_0%,#f6f1ea_45%,#ede9f7_100%)]",
           iconTone: "text-primary",
         },
         {
           title: "Insights",
-          description: "Turn workflow data into clear, actionable insights for every clinic.",
+          description:
+            "Turn workflow data into clear, actionable insights for every clinic.",
           cta: "View Dashboard",
           href: "/login",
           icon: BarChart3,
-          gradient: "bg-[#f0faf7]",
+          gradient:
+            "bg-[linear-gradient(135deg,#ede9f7_0%,#eef0f4_45%,#e3eff2_100%)]",
           iconTone: "text-primary",
         },
       ];
 
   return (
-    <section className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24 bg-white">
+    <section className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24">
       <div className="mx-auto max-w-[1250px]">
         <div className="mx-auto max-w-[760px] text-center mb-10 sm:mb-14">
-          <h2 className="font-display text-[clamp(1.9rem,5vw,3.4rem)] leading-[1.08] tracking-[-0.02em] font-bold text-text-primary">
+          <h2 className="font-display text-[clamp(1.9rem,5vw,3.4rem)] leading-[1.08] tracking-[-0.02em] text-text-primary">
             {isUrdu
               ? "کلینک ورک فلو کو واضح، قابلِ عمل انسائٹس میں بدلیں"
               : "Turn clinic workflow into clear, actionable insights"}
           </h2>
-          <p className="mt-4 text-[15px] sm:text-[17px] text-text-secondary leading-relaxed font-normal">
+          <p className="mt-4 text-[15px] sm:text-[17px] text-text-secondary leading-relaxed">
             {isUrdu
               ? "Medeaz رجسٹریشن، کنسلٹیشن، پریسکرپشن اور فالو اپ کو ایک مسلسل کیئر سائیکل میں رکھتا ہے تاکہ فیصلے تیز بھی ہوں اور بہتر بھی۔"
               : "Medeaz connects registration, consultation, prescription, and follow-up into one care cycle so decisions become faster and better."}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+        <div className="relative">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -m-4 sm:-m-6"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, #d6dce5 50%, transparent 50%), linear-gradient(to bottom, #d6dce5 50%, transparent 50%), linear-gradient(to right, #d6dce5 50%, transparent 50%), linear-gradient(to bottom, #d6dce5 50%, transparent 50%)",
+              backgroundPosition: "left top, right top, left bottom, left top",
+              backgroundRepeat: "repeat-x, repeat-y, repeat-x, repeat-y",
+              backgroundSize: "10px 1px, 1px 10px, 10px 1px, 1px 10px",
+            }}
+          />
+
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
             {cards.map((card) => (
               <article
                 key={card.title}
-                className={`relative overflow-hidden rounded-2xl border border-[#d1ece5] ${card.gradient} px-6 sm:px-8 py-8 sm:py-10 flex flex-col items-center text-center min-h-80 sm:min-h-90`}
+                className={`relative overflow-hidden rounded-[22px] ${card.gradient} px-6 sm:px-8 py-8 sm:py-10 flex flex-col items-center text-center min-h-[340px] sm:min-h-[380px]`}
               >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-[0.5] [background-image:repeating-linear-gradient(135deg,transparent_0,transparent_46px,rgba(255,255,255,0.55)_46px,rgba(255,255,255,0.55)_47px)]"
+                />
 
                 <div className="relative mb-6 flex h-[92px] w-[92px] items-center justify-center">
                   <svg
@@ -139,6 +167,7 @@ export function InsightsSection() {
                 </Link>
               </article>
             ))}
+          </div>
         </div>
       </div>
     </section>

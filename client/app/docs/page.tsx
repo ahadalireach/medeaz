@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Header } from "@/components/home/Header";
+import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/home/Footer";
 import Link from "next/link";
 import { useLocale } from "next-intl";
@@ -74,7 +74,7 @@ export default function DocsPage() {
 
   return (
     <div className="min-h-screen flex flex-col w-full bg-[#F4F3EE] text-text-primary overflow-x-hidden">
-      <Header />
+      <Navbar />
 
       <main className="flex-1 mt-24 max-w-7xl mx-auto w-full px-6 py-12">
         <div className="flex flex-col md:flex-row gap-12">

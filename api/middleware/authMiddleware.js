@@ -1,6 +1,5 @@
 const { verifyAccessToken } = require("../utils/jwt");
-const User   = require("../models/User");
-const Clinic = require("../models/Clinic");
+const User = require("../models/User");
 
 const protect = async (req, res, next) => {
   let token;
@@ -19,6 +18,7 @@ const protect = async (req, res, next) => {
   }
 
   try {
+    // Verify token
     const decoded = verifyAccessToken(token);
 
     if (!decoded) {
@@ -29,10 +29,10 @@ const protect = async (req, res, next) => {
 
     req.user = await User.findById(decoded.id).select("-password");
 
-    // Populate clinicId for clinic admins so controllers can use req.user.clinicId
-    if (req.user && req.user.roles.includes("clinic_admin")) {
-      const clinic = await Clinic.findOne({ adminId: req.user._id }).select("_id");
-      if (clinic) req.user.clinicId = clinic._id;
+    if (!req.user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "User account not found" });
     }
 
     next();

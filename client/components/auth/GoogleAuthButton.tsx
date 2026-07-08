@@ -1,0 +1,81 @@
+"use client";
+
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { Loader2 } from "lucide-react";
+
+interface Props {
+  mode: "login" | "signup";
+  disabled?: boolean;
+}
+
+function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+    </svg>
+  );
+}
+
+export function GoogleAuthButton({ mode, disabled }: Props) {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  async function handleGoogleAuth() {
+    setIsLoading(true);
+    const toastId = toast.loading(
+      mode === "signup" ? "Connecting to Google..." : "Signing in..."
+    );
+
+    try {
+      // Trigger NextAuth Google OAuth. redirect: false lets us handle transition manually.
+      const result = await signIn("google", {
+        redirect: false,
+        callbackUrl: "/auth/google/callback",
+      });
+
+      if (result?.error) {
+        toast.error("Google authentication failed. Please try again.", { id: toastId });
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Authenticated with Google! Syncing profile...", { id: toastId });
+      
+      // Since redirect is false, we manually route to the callback page to sync with our backend
+      router.push("/auth/google/callback");
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong during Google sign-in.", { id: toastId });
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleGoogleAuth}
+      disabled={disabled || isLoading}
+      className={`
+        w-full flex items-center justify-center gap-3
+        bg-white border-[1.5px] border-[#e5e7eb] rounded-xl
+        px-6 py-3.5 text-[14px] font-semibold text-[#374151]
+        hover:border-[#00b495] hover:shadow-sm
+        disabled:opacity-50 disabled:cursor-not-allowed
+        transition-all duration-150 cursor-pointer
+      `}
+    >
+      {isLoading ? (
+        <Loader2 className="w-4 h-4 animate-spin text-[#00b495]" />
+      ) : (
+        <GoogleIcon />
+      )}
+      {isLoading ? "Signing in..." : "Continue with Google"}
+    </button>
+  );
+}

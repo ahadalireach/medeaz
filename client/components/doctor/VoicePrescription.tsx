@@ -128,7 +128,7 @@ export function VoicePrescription({ onPrescriptionReady, onTranscriptReady }: Vo
 
   if (!isSupported) {
     return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900">
+      <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900">
         <p className="font-bold">Voice prescription requires Chrome or Edge browser</p>
         <p className="mt-1 text-sm">You can still fill the prescription manually.</p>
       </div>
@@ -145,7 +145,7 @@ export function VoicePrescription({ onPrescriptionReady, onTranscriptReady }: Vo
         <button
           type="button"
           onClick={clearTranscript}
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary transition-colors"
           disabled={isRecording || isSubmitting}
         >
           <Trash2 className="h-4 w-4" />
@@ -181,7 +181,7 @@ export function VoicePrescription({ onPrescriptionReady, onTranscriptReady }: Vo
           type="button"
           onClick={handleToggleRecording}
           disabled={!canRecord}
-          className={`inline-flex items-center gap-3 rounded-2xl px-10 py-4 text-lg font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-60 ${isRecording ? "bg-red-500 hover:bg-red-600" : "bg-primary hover:bg-primary-hover"}`}
+          className={`inline-flex items-center gap-3 rounded-2xl px-10 py-4 text-lg font-bold text-white shadow-lg transition-all disabled:cursor-not-allowed disabled:opacity-60 ${isRecording ? "bg-red-500 hover:bg-red-600" : "bg-primary hover:bg-primary-hover"}`}
         >
           {isSubmitting ? <Loader className="h-5 w-5 animate-spin" /> : isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
           {isSubmitting ? "Analyzing..." : isRecording ? "Stop Recording" : "Start Recording"}

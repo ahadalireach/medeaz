@@ -47,13 +47,27 @@ exports.submitReview = asyncHandler(async (req, res) => {
     });
 
     // Update the Appointment document so UI knows it has been rated
+    // Also store rating + reviewText directly for performance aggregation
     appointment.patientFeedback = {
         score: rating,
         comment: comment,
         ratedAt: new Date()
     };
     appointment.reviewId = review._id;
+    appointment.rating = rating;        // direct field for aggregation in performance pipeline
+    appointment.reviewText = comment || '';  // qualitative signal for drawer
     await appointment.save();
+
+    // Invalidate clinic performance cache on new rating
+    try {
+      const { redisClient } = require('../../services/redisService');
+      if (redisClient && appointment.clinicId) {
+        await redisClient.del(`clinic_performance_${appointment.clinicId}_week`);
+        await redisClient.del(`clinic_performance_${appointment.clinicId}_month`);
+        await redisClient.del(`clinic_performance_${appointment.clinicId}_quarter`);
+        await redisClient.del(`clinic_performance_${appointment.clinicId}_all`);
+      }
+    } catch(e) { /* non-critical */ }
 
     // 5. Update Doctor's average rating and total reviews
     const reviews = await Review.find({ doctorId });
@@ -163,6 +177,8 @@ exports.updateReview = asyncHandler(async (req, res) => {
             comment: review.comment,
             ratedAt: new Date()
         };
+        appointment.rating = review.rating;
+        appointment.reviewText = review.comment || '';
         await appointment.save();
     }
 

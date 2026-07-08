@@ -263,7 +263,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
           return (
             <div key={msg._id} className="w-full animate-in fade-in slide-in-from-bottom-2 group/msg">
               <div
-                className={`max-w-[30%] sm:max-w-[24%] relative ${isMine ? 'ml-auto' : 'mr-auto'} ${isMine
+                className={`max-w-[30%] sm:max-w-[24%] shadow-sm relative ${isMine ? 'ml-auto' : 'mr-auto'} ${isMine
                   ? 'px-4 py-2.5 rounded-2xl rounded-br-sm bg-primary text-white text-sm font-body'
                   : 'px-4 py-2.5 rounded-2xl rounded-bl-sm bg-surface  border border-black/5  text-sm font-body text-text-primary '
                   } ${msg.isDeleted ? 'opacity-60 italic' : ''}`}
@@ -344,7 +344,7 @@ export default function ChatWindow({ conversationId, currentUser, otherParty, on
           onKeyDown={handleKeyDown}
           placeholder={t('chat.typeMessage')}
           rows={1}
-          className="flex-1 resize-none px-3.5 py-2.5 rounded-lg text-sm bg-[#F4F3EE] text-text-primary border border-border-light placeholder:text-text-muted max-h-32 overflow-y-auto"
+          className="flex-1 resize-none px-3.5 py-2.5 rounded-lg text-sm font-body bg-[#F4F3EE] text-text-primary border border-black/8 placeholder:text-text-muted :text-[#78716C] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent max-h-32 overflow-y-auto"
         />
         <button
           onClick={handleSend}

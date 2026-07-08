@@ -49,7 +49,7 @@ export function ConfirmationModal({
       <div className="space-y-6">
         <div className="flex flex-col items-center text-center gap-4">
           <div
-            className={`h-20 w-20 rounded-2xl flex items-center justify-center mb-2 ${
+            className={`h-20 w-20 rounded-3xl flex items-center justify-center mb-2 ${
               variant === "danger"
                 ? "bg-red-500/10 text-red-500"
                 : variant === "warning"
@@ -70,7 +70,7 @@ export function ConfirmationModal({
             variant="outline"
             onClick={handleClose}
             disabled={confirmLoading}
-            className="flex-1 h-12 rounded-lg text-xs font-black uppercase tracking-widest"
+            className="flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest"
           >
             {cancelText === "Cancel" ? t("common.cancel") : cancelText}
           </Button>
@@ -78,7 +78,7 @@ export function ConfirmationModal({
             variant="default"
             onClick={handleConfirm}
             disabled={confirmLoading}
-            className={`flex-1 h-12 rounded-lg text-xs font-black uppercase tracking-widest ${
+            className={`flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest ${
               variant === "danger"
                 ? "bg-red-500 text-white hover:bg-red-600"
                 : variant === "warning"

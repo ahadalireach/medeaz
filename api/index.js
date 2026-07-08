@@ -58,6 +58,9 @@ if (!isServerless) {
   const cron = require("node-cron");
   const Notification = require("./models/Notification");
   require("./jobs/automationJobs");
+  require("./jobs/opdResetJob");
+  require("./jobs/availabilityResetJob");
+  require("./jobs/noShowMarkingJob");
 
   const server = http.createServer(app);
 
@@ -71,6 +74,7 @@ if (!isServerless) {
 
   const { setIO } = require("./config/socket");
   setIO(io);
+  global.io = io;
   app.set("io", io);
 
   const onlineUsers = new Map();
@@ -85,6 +89,13 @@ if (!isServerless) {
       onlineUsers.set(userId, socket.id);
       io.emit("user_status", { userId, status: "online" });
       console.log(`User ${userId} joined their room`);
+    });
+
+    socket.on("join_opd", (data) => {
+      const clinicId = typeof data === "string" ? data : data?.clinicId;
+      if (!clinicId) return;
+      socket.join(`opd_${clinicId}`);
+      console.log(`Socket ${socket.id} joined OPD room opd_${clinicId}`);
     });
 
     socket.on("disconnect", () => {

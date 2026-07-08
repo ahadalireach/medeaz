@@ -53,7 +53,7 @@ export function ConfirmModal({
       />
       
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -79,14 +79,14 @@ export function ConfirmModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="flex-1 px-4 py-2.5 rounded-lg font-semibold border-2 border-border-light text-text-primary hover:bg-surface transition-all disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 rounded-xl font-semibold border-2 border-border-light text-text-primary hover:bg-surface transition-all disabled:opacity-50"
           >
             {cancelText}
           </button>
           <button
             onClick={handleConfirm}
             disabled={isLoading}
-            className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-white transition-all disabled:opacity-50 ${variantColors[variant]}`}
+            className={`flex-1 px-4 py-2.5 rounded-xl font-semibold text-white transition-all disabled:opacity-50 ${variantColors[variant]}`}
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">

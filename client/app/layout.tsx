@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces, Noto_Nastaliq_Urdu, Baloo_Bhaijaan_2 } from "next/font/google";
+import { Figtree, Inter, Plus_Jakarta_Sans, Space_Grotesk, Onest, Playfair_Display, Outfit, Noto_Nastaliq_Urdu, Baloo_Bhaijaan_2 } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/providers/StoreProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { NextAuthProvider } from "@/providers/NextAuthProvider";
 import { Toaster } from "react-hot-toast";
+import NotificationProvider from "@/components/NotificationProvider";
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  variable: "--font-figtree",
+  display: "swap",
+});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -12,11 +19,35 @@ const inter = Inter({
   display: "swap",
 });
 
-const fraunces = Fraunces({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-plus-jakarta",
   display: "swap",
-  axes: ["opsz", "SOFT"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+const onest = Onest({
+  subsets: ["latin"],
+  variable: "--font-onest",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
 });
 
 const notoUrdu = Noto_Nastaliq_Urdu({
@@ -37,8 +68,8 @@ export const metadata: Metadata = {
   title: "Medeaz",
   description: "Digital Healthcare Platform",
   icons: {
-    icon: "/medeaz-logo.svg",
-    apple: "/medeaz-logo.svg",
+    icon: "/medeaz.jpeg",
+    apple: "/medeaz.jpeg",
   },
 };
 
@@ -50,7 +81,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} ${notoUrdu.variable} ${balooUrdu.variable}`}
+      className={`${figtree.variable} ${inter.variable} ${plusJakartaSans.variable} ${spaceGrotesk.variable} ${onest.variable} ${playfair.variable} ${outfit.variable} ${notoUrdu.variable} ${balooUrdu.variable}`}
       suppressHydrationWarning
     >
       <body
@@ -60,7 +91,9 @@ export default function RootLayout({
         <StoreProvider>
           <LanguageProvider>
             <NextAuthProvider>
-              {children}
+              <NotificationProvider>
+                {children}
+              </NotificationProvider>
             </NextAuthProvider>
             <Toaster
               containerStyle={{ zIndex: 99999 }}

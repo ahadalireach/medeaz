@@ -10,6 +10,7 @@ import DownloadIcon from "@/icons/download-icon";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import { toast } from "react-hot-toast";
 import { useLocale, useTranslations } from "next-intl";
+import PageHeader from "@/components/shared/PageHeader";
 
 function downloadPrescriptionPDF(
   prescription: any,
@@ -237,6 +238,9 @@ function PrescriptionsContent() {
     medicalProfessional: t('prescription.medicalProfessional'),
     privateClinic: t('prescription.privateClinic'),
     notSpecified: t('prescription.notSpecified'),
+    issueDate: t('prescription.issueDate'),
+    patientInfo: t('prescription.patientInfo'),
+    doctorSignature: t('prescription.doctorSignature'),
   };
 
   const filteredPrescriptions = prescriptions.filter((px: any) =>
@@ -252,21 +256,19 @@ function PrescriptionsContent() {
   return (
     <>
       <div className="space-y-4 sm:space-y-6 animate-in">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-text-primary tracking-tight">{t('doctor.prescriptions.title')}</h1>
-            <p className="text-text-secondary mt-1 sm:mt-2 text-base sm:text-lg font-bold">
-              {t('doctor.prescriptions.subtitle')}
-            </p>
-          </div>
-              <Link
-                href="/dashboard/doctor/prescriptions/new"
-                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md"
-              >
-                <Plus className="h-5 w-5 stroke-[2.5px]" />
-                {t('doctor.prescriptions.newPrescription')}
-              </Link>
-        </div>
+        <PageHeader
+          title="Prescriptions"
+          description={t('doctor.prescriptions.subtitle')}
+          action={
+            <Link
+              href="/dashboard/doctor/prescriptions/new"
+              className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md"
+            >
+              <Plus className="h-5 w-5 stroke-[2.5px]" />
+              {t('doctor.prescriptions.newPrescription')}
+            </Link>
+          }
+        />
 
         {/* Search Bar */}
         <div className="max-w-md">
@@ -279,7 +281,7 @@ function PrescriptionsContent() {
               placeholder={t('common.search') + ' (' + t('doctor.patientName') + ', ' + t('doctor.diagnosis') + ')...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-12 pl-12 pr-12 bg-white border border-border-light rounded-lg text-sm font-bold transition-colors"
+              className="w-full pl-12 pr-12 py-3 bg-white dark:bg-[#18181b] border border-black/5 dark:border-white/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm"
             />
             {isFetching && (
               <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -292,11 +294,11 @@ function PrescriptionsContent() {
         {/* Prescriptions List */}
         <div className="grid grid-cols-1 gap-4">
           {filteredPrescriptions.length === 0 ? (
-            <div className="text-center py-20 bg-card-custom border-card-custom rounded-2xl">
+            <div className="text-center py-20 bg-card-custom border-card-custom rounded-[2.5rem]">
               <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/30">
                 <FileText className="h-10 w-10 text-primary" />
               </div>
-              <p className="text-text-primary text-lg font-bold">{t('doctor.prescriptions.noPrescriptions')}</p>
+              <p className="text-gray-900 dark:text-white text-lg font-bold">{t('doctor.prescriptions.noPrescriptions')}</p>
               {/* Keep single clear message; avoid duplicate 'No prescriptions found' lines */}
               {!searchQuery && (
                 <Link
@@ -311,7 +313,7 @@ function PrescriptionsContent() {
           ) : (
             <div className="space-y-4">
               {filteredPrescriptions.map((prescription: any) => (
-                <div key={prescription._id} className="p-6 bg-card-custom border-card-custom rounded-2xl transition-all hover:border-primary/30 shadow-sm group">
+                <div key={prescription._id} className="p-6 bg-card-custom border-card-custom rounded-4xl transition-all hover:border-primary/30 shadow-sm group">
                   <div className="flex flex-col gap-6">
                     <div className="flex items-start gap-5">
                       <div className="h-14 w-14 bg-primary rounded-2xl flex items-center justify-center shadow-sm shrink-0">
@@ -319,26 +321,26 @@ function PrescriptionsContent() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-4">
-                          <h3 className="font-bold text-text-primary text-xl flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900 dark:text-white text-xl flex items-center gap-2">
                             {prescription.patientId?.name || "Unknown Patient"}
                           </h3>
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => downloadPrescriptionPDF(prescription, t('common.pkr'), locale, prescriptionPdfLabels)}
-                              className="h-10 px-4 bg-primary/10 text-primary border border-primary/30 rounded-xl text-xs font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 group"
+                              className="h-10 px-4 bg-primary/10 dark:bg-primary/20 text-primary border border-primary/30 rounded-xl text-xs font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 group"
                             >
                               <DownloadIcon className="h-4 w-4" />
                               {t('common.download')}
                             </button>
                             <button
                               onClick={() => setDeleteModal({ open: true, id: prescription._id, patientName: prescription.patientId?.name || 'Unknown Patient' })}
-                              className="h-10 w-10 flex items-center justify-center border-2 border-transparent hover:border-red-100  text-gray-400 hover:text-red-500 transition-all rounded-xl group"
+                              className="h-10 w-10 flex items-center justify-center border-2 border-transparent hover:border-red-100 dark:hover:border-red-900 text-gray-400 hover:text-red-500 transition-all rounded-xl group"
                             >
                               <TrashIcon className="h-4 w-4" />
                             </button>
                           </div>
                         </div>
-                        <p className="text-text-secondary text-sm font-bold mt-1">
+                        <p className="text-slate-600 dark:text-slate-400 text-sm font-bold mt-1">
                           {prescription.patientId?.email}
                         </p>
                       </div>
@@ -347,7 +349,7 @@ function PrescriptionsContent() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-border-light">
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{t('doctor.diagnosis')}</p>
-                        <p className="font-bold text-text-primary text-sm">
+                        <p className="font-bold text-gray-900 dark:text-white text-sm">
                           {prescription.diagnosis || "No diagnosis provided"}
                         </p>
                       </div>
@@ -355,7 +357,7 @@ function PrescriptionsContent() {
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{t('common.date')}</p>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-primary" />
-                          <p className="font-bold text-text-primary text-sm">
+                          <p className="font-bold text-gray-900 dark:text-white text-sm">
                             {new Date(prescription.createdAt).toLocaleDateString()}
                           </p>
                         </div>

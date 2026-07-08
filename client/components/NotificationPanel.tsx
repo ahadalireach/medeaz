@@ -66,7 +66,6 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
             await markAllReadApi().unwrap();
             dispatch(localMarkAllAsRead());
         } catch (error) {
-            // Keep silent for bulk action to avoid noisy UX.
         }
     };
 
@@ -98,7 +97,13 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
         return match ? match[1] : (notification?.portal || "general");
     };
 
+    const seen = new Set();
     const visibleNotifications = notifications.filter((notification: any) => {
+        const id = notification._id || notification.id;
+        if (id) {
+            if (seen.has(id)) return false;
+            seen.add(id);
+        }
         const portal = getPortalFromNotification(notification);
         return portal === activePortal || portal === "general";
     });
@@ -212,16 +217,16 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
             <div className="flex flex-col -mt-4">
                 <div className="space-y-3">
                     {visibleNotifications.length > 0 ? (
-                        visibleNotifications.map((n: any) => (
+                        visibleNotifications.map((n: any, index: number) => (
                             <div
-                                key={n._id || n.id}
-                                className={`relative p-5 rounded-2xl border transition-all cursor-pointer group ${!n.read
-                                    ? 'bg-white  border-primary/20'
+                                key={n._id || n.id || index}
+                                className={`relative p-5 rounded-3xl border transition-all cursor-pointer group ${!n.read
+                                    ? 'bg-white  border-primary/20 shadow-sm'
                                     : 'bg-transparent border-black/5  grayscale-[0.5] opacity-70 hover:opacity-100 hover:grayscale-0'}`}
                                 onClick={() => handleOpen(n)}
                             >
                                 <div className="flex gap-4">
-                                    <div className={`shrink-0 h-10 w-10 rounded-lg flex items-center justify-center transition-all ${!n.read ? 'bg-primary/10 text-primary' : 'bg-surface  text-text-secondary'}`}>
+                                    <div className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center transition-all ${!n.read ? 'bg-primary/10 text-primary' : 'bg-surface  text-text-secondary'}`}>
                                         {getIcon(n.type)}
                                     </div>
                                     <div className="flex-1 min-w-0 pr-12">
@@ -229,20 +234,20 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
                                             const localized = resolveNotificationText(n);
                                             return (
                                                 <>
-                                        <div className="flex items-start justify-between gap-2 mb-1">
-                                            <h4 className={`text-sm font-bold truncate ${!n.read ? 'text-text-primary ' : 'text-text-secondary '}`}>
-                                                {localized.title}
-                                            </h4>
-                                        </div>
-                                        <p className="text-[11px] font-medium text-text-secondary leading-normal line-clamp-2">
-                                            {localized.message}
-                                        </p>
-                                        <div className="flex items-center gap-3 mt-3">
-                                            <span className="text-[9px] font-black text-text-secondary uppercase tracking-widest">
-                                                {getTimeAgo(n.createdAt)}
-                                            </span>
-                                            {!n.read && <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
-                                        </div>
+                                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                                        <h4 className={`text-sm font-bold truncate ${!n.read ? 'text-text-primary ' : 'text-text-secondary '}`}>
+                                                            {localized.title}
+                                                        </h4>
+                                                    </div>
+                                                    <p className="text-[11px] font-medium text-text-secondary leading-normal line-clamp-2">
+                                                        {localized.message}
+                                                    </p>
+                                                    <div className="flex items-center gap-3 mt-3">
+                                                        <span className="text-[9px] font-black text-text-secondary uppercase tracking-widest">
+                                                            {getTimeAgo(n.createdAt)}
+                                                        </span>
+                                                        {!n.read && <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
+                                                    </div>
                                                 </>
                                             );
                                         })()}
@@ -259,7 +264,7 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
                         ))
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                            <div className="h-20 w-20 bg-background rounded-2xl flex items-center justify-center mb-6 border border-dashed border-border-light">
+                            <div className="h-20 w-20 bg-background rounded-[2.5rem] flex items-center justify-center mb-6 border border-dashed border-border-light">
                                 <FilledBellIcon className="h-6 w-6" />
                             </div>
                             <h4 className="text-xl font-black text-text-primary uppercase tracking-tight">{t('topbar.noNotifications').toUpperCase()}</h4>
