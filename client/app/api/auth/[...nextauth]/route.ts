@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
+// @ts-ignore
 const handler = NextAuth({
   providers: [
     GoogleProvider({
@@ -18,10 +19,10 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }: { user: any; account: any }) {
       return true;
     },
-    async jwt({ token, account, user, trigger, session }) {
+    async jwt({ token, account, user, trigger, session }: { token: any; account?: any; user?: any; trigger?: any; session?: any }) {
       if (account?.provider === "google" && account.id_token) {
         token.idToken = account.id_token;
         token.provider = "google";
@@ -34,7 +35,7 @@ const handler = NextAuth({
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       (session as any).idToken = token.idToken;
       (session as any).provider = token.provider;
       if (session.user) {

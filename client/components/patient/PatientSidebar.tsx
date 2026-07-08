@@ -27,6 +27,7 @@ export default function PatientSidebar() {
   const pathname = usePathname();
   const isCollapsed = useSelector((state: RootState) => state.ui.sidebarCollapsed);
   const isPatientAssistantOpen = useSelector((state: RootState) => state.ui.patientAssistantOpen);
+  const user = useSelector((state: any) => state.auth.user);
   const dispatch = useDispatch();
   const router = useRouter();
   const { theme } = useTheme();

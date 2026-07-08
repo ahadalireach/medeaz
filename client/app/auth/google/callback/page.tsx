@@ -23,10 +23,11 @@ export default function GoogleCallbackPage() {
       return;
     }
 
-    if (status === "authenticated" && session?.idToken) {
+    const sessionData = session as any;
+    if (status === "authenticated" && sessionData?.idToken) {
       if (syncAttempted.current) return;
       syncAttempted.current = true;
-      handleBackendSync(session.idToken);
+      handleBackendSync(sessionData.idToken);
     }
   }, [status, session]);
 
