@@ -19,6 +19,12 @@ const appointmentSchema = new mongoose.Schema({
     required: false,
     index: true
   },
+  clinicSnapshot: {
+    clinicId: { type: mongoose.Schema.Types.ObjectId, ref: 'Clinic' },
+    clinicName: String,
+    clinicCity: String,
+    clinicPhone: String
+  },
   dateTime: {
     type: Date,
     required: true,
@@ -38,7 +44,7 @@ const appointmentSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['consultation', 'follow-up', 'emergency', 'routine'],
+    enum: ['consultation', 'follow-up', 'emergency', 'routine', 'online'],
     default: 'consultation'
   },
   reason: {
@@ -57,6 +63,13 @@ const appointmentSchema = new mongoose.Schema({
     trim: true
   },
   cancelledBy: {
+    // String enum: identifies WHO cancelled, for fair performance scoring
+    type: String,
+    enum: ['doctor', 'patient', 'clinic', 'system'],
+    default: null
+  },
+  cancelledByUserId: {
+    // Optional: preserve the actual user ObjectId for audit
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
@@ -65,6 +78,21 @@ const appointmentSchema = new mongoose.Schema({
   },
   completedAt: {
     type: Date
+  },
+  // Set when PUT /:id/start is called — enables on-time consultation rate computation
+  actualStartTime: {
+    type: Date
+  },
+  // Patient-submitted rating (1–5) and optional text review
+  rating: {
+    type: Number,
+    min: 1,
+    max: 5
+  },
+  reviewText: {
+    type: String,
+    maxlength: 500,
+    trim: true
   },
   prescriptionId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -78,6 +106,11 @@ const appointmentSchema = new mongoose.Schema({
   reviewId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Review'
+  },
+  deletedByClinic: {
+    type: Boolean,
+    default: false,
+    index: true
   }
 }, {
   timestamps: true
@@ -89,6 +122,8 @@ appointmentSchema.index({ patientId: 1, dateTime: 1 });
 appointmentSchema.index({ clinicId: 1, dateTime: 1 });
 appointmentSchema.index({ status: 1, dateTime: 1 });
 appointmentSchema.index({ doctorId: 1, status: 1, dateTime: 1 });
+appointmentSchema.index({ clinicId: 1, status: 1, dateTime: -1 });
+appointmentSchema.index({ clinicId: 1, doctorId: 1, dateTime: -1 });
 
 // Pre-save middleware to set completedAt
 appointmentSchema.pre('save', async function() {

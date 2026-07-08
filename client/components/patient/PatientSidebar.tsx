@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { Calendar, Pill, MessageSquare, ChevronLeft, ChevronRight, HeartPulse, LogOut, Bot } from "lucide-react";
+import { Calendar, Pill, MessageSquare, ChevronLeft, ChevronRight, HeartPulse, LogOut, Bot, CalendarCheck2 } from "lucide-react";
 import { useGetConversationsQuery } from "@/store/api/chatApi";
+import { useGetFollowUpsQuery } from "@/store/api/patientApi";
 import { logout } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
@@ -33,6 +34,7 @@ export default function PatientSidebar() {
   const navLinks = [
     { href: "/dashboard/patient", label: t('nav.dashboard'), icon: LayoutDashboardIcon },
     { href: "/dashboard/patient/records", label: t('nav.records'), icon: DescriptionIcon },
+    { href: "/dashboard/patient/follow-ups", label: t('nav.followUps') || "Follow-Ups", icon: CalendarCheck2 },
     { href: "/dashboard/patient/find-doctors", label: t('nav.doctors'), icon: UsersIcon },
     { href: "/dashboard/patient/appointments", label: t('nav.appointments'), icon: Calendar },
     { href: "/dashboard/patient/book-appointment", label: t('nav.bookAppointment'), icon: AlarmClockPlusIcon },
@@ -51,6 +53,11 @@ export default function PatientSidebar() {
     pollingInterval: 30000,
     skip: !mounted
   });
+  const { data: followUpsData } = useGetFollowUpsQuery({ status: "upcoming" }, {
+    pollingInterval: 30000,
+    skip: !mounted || !user?.roles?.includes("patient"),
+  });
+  const hasUnreadFollowUps = (followUpsData?.data || []).some((f: any) => f.status === "pending");
   const { onConversationUpdated, onNewMessage } = useChatSocket();
 
   useEffect(() => {
@@ -78,12 +85,16 @@ export default function PatientSidebar() {
   const handleLogout = () => {
     dispatch(logout());
     localStorage.clear();
-    toast.success(t('toast.logoutSuccess'));
+    let logoutMsg = "Logged out successfully";
+    try {
+      if (t.has('toast.logoutSuccess')) logoutMsg = t('toast.logoutSuccess');
+    } catch (e) {}
+    toast.success(logoutMsg);
     router.push("/login");
   };
 
   return (
-    <aside style={{ zIndex: 600 }} className={`lens-sidebar self-start hidden lg:flex flex-col h-screen overflow-y-auto ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
+    <aside style={{ zIndex: 600 }} className={`lens-sidebar self-start hidden lg:flex flex-col h-screen overflow-hidden ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
       <button
         onClick={() => dispatch(toggleSidebar())}
         className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full shadow-lg border-2 border-white  z-50 hover:scale-110 transition-transform hidden lg:block`}
@@ -126,23 +137,33 @@ export default function PatientSidebar() {
         </div>
       )}
 
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-col gap-1 flex-1 overflow-y-auto px-3 pb-4">
         {!isCollapsed && <p className="lens-section-label mb-2">{t('nav.navigation')}</p>}
         {navLinks.map((link) => {
           const Icon = link.icon;
+          const isFollowUp = link.href.includes('/follow-ups');
+          const isLinkActive = isActive(link.href);
           return (
             <Link
               key={link.href}
               href={link.href}
               title={isCollapsed ? link.label : ""}
-              className={`${isActive(link.href) ? "lens-nav-item-active" : "lens-nav-item"} ${isCollapsed ? 'justify-center px-0' : ''}`}
+              className={`${isLinkActive ? "lens-nav-item-active" : "lens-nav-item"} ${isCollapsed ? 'justify-center px-0' : ''}`}
             >
-              <Icon size={18} strokeWidth={isActive(link.href) ? 2.5 : 2} className="shrink-0" />
+              <Icon 
+                size={18} 
+                strokeWidth={isLinkActive ? 2.5 : 2} 
+                className="shrink-0" 
+                style={isFollowUp && isLinkActive ? { color: "#00b495" } : undefined}
+              />
               {!isCollapsed && <span>{link.label}</span>}
               {link.href.includes('/chat') && totalUnread > 0 && (
                 <span className={`${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white `}>
                   {totalUnread > 9 ? '9+' : totalUnread}
                 </span>
+              )}
+              {isFollowUp && hasUnreadFollowUps && (
+                <span className={`${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-2 h-2 rounded-full bg-red-500 border border-white shrink-0`} />
               )}
             </Link>
           );

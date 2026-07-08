@@ -10,6 +10,7 @@ import DownloadIcon from "@/icons/download-icon";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import { toast } from "react-hot-toast";
 import { useLocale, useTranslations } from "next-intl";
+import PageHeader from "@/components/shared/PageHeader";
 
 function downloadPrescriptionPDF(
   prescription: any,
@@ -237,6 +238,9 @@ function PrescriptionsContent() {
     medicalProfessional: t('prescription.medicalProfessional'),
     privateClinic: t('prescription.privateClinic'),
     notSpecified: t('prescription.notSpecified'),
+    issueDate: t('prescription.issueDate'),
+    patientInfo: t('prescription.patientInfo'),
+    doctorSignature: t('prescription.doctorSignature'),
   };
 
   const filteredPrescriptions = prescriptions.filter((px: any) =>
@@ -252,21 +256,19 @@ function PrescriptionsContent() {
   return (
     <>
       <div className="space-y-4 sm:space-y-6 animate-in">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">{t('doctor.prescriptions.title')}</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1 sm:mt-2 text-base sm:text-lg font-bold">
-              {t('doctor.prescriptions.subtitle')}
-            </p>
-          </div>
-              <Link
-                href="/dashboard/doctor/prescriptions/new"
-                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md"
-              >
-                <Plus className="h-5 w-5 stroke-[2.5px]" />
-                {t('doctor.prescriptions.newPrescription')}
-              </Link>
-        </div>
+        <PageHeader
+          title="Prescriptions"
+          description={t('doctor.prescriptions.subtitle')}
+          action={
+            <Link
+              href="/dashboard/doctor/prescriptions/new"
+              className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md"
+            >
+              <Plus className="h-5 w-5 stroke-[2.5px]" />
+              {t('doctor.prescriptions.newPrescription')}
+            </Link>
+          }
+        />
 
         {/* Search Bar */}
         <div className="max-w-md">

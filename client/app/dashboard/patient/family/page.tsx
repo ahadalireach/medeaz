@@ -19,6 +19,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { useTranslations } from "next-intl";
 import { showToast } from "@/lib/toast";
+import PageHeader from "@/components/shared/PageHeader";
 
 interface FamilyMemberFormData {
   name: string;
@@ -134,16 +135,15 @@ export default function FamilyPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-text-primary">
-          {t('nav.family')}
-        </h1>
-        <Button onClick={() => setShowAddModal(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t('patient.addFamilyMember')}
-        </Button>
-      </div>
+      <PageHeader 
+        title={t('nav.family')} 
+        action={
+          <Button onClick={() => setShowAddModal(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            {t('patient.addFamilyMember')}
+          </Button>
+        } 
+      />
 
       {/* Family Members List */}
       {isLoading ? (

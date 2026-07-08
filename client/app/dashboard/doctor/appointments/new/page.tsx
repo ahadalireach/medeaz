@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCreateAppointmentMutation, useSearchPatientsQuery, useGetScheduleQuery, useGetAppointmentsQuery, useGetPatientByIdQuery } from "@/store/api/doctorApi";
 import { toast } from "react-hot-toast";
-import { ArrowLeft, Calendar, Clock, User, FileText, Loader, Search, Check } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User, FileText, Loader, Search, Check, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function NewAppointmentPage() {
   const t = useTranslations();
@@ -25,7 +26,7 @@ export default function NewAppointmentPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: scheduleData } = useGetScheduleQuery(undefined);
@@ -46,15 +47,8 @@ export default function NewAppointmentPage() {
     setIsOpen(false);
   }, [patientData, patientIdFromQuery]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [search]);
-
   const { data: searchData, isFetching: isSearching } = useSearchPatientsQuery(debouncedSearch, {
-    skip: debouncedSearch.length < 2
+    skip: debouncedSearch.trim().length < 2
   });
 
   const foundPatients = Array.isArray(searchData?.data)
@@ -221,7 +215,7 @@ export default function NewAppointmentPage() {
             />
             {isSearching && (
               <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                <Loader className="h-4 w-4 animate-spin text-primary" />
+                <Loader2 className="h-4 w-4 animate-spin text-[#00b495]" />
               </div>
             )}
             
@@ -290,6 +284,10 @@ export default function NewAppointmentPage() {
             )}
           </div>
           
+          {search.length > 0 && search.trim().length < 2 && (
+            <p className="text-[#9ca3af] text-[12px] font-inter mt-2 ml-2">Type at least 2 characters to search</p>
+          )}
+
           {errors.patientId && <p className="text-red-500 text-sm mt-1">{errors.patientId}</p>}
           
           {/* Quick Selected Patient Info */}

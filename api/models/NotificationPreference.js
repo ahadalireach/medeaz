@@ -16,6 +16,10 @@ const notificationPreferenceSchema = new mongoose.Schema(
     doctor_appointment_reminder: { type: Boolean, default: true },
     appointment_booked: { type: Boolean, default: true },
     appointment_cancelled_by_patient: { type: Boolean, default: true },
+    clinic_review_response: { type: Boolean, default: true },
+    review_removed: { type: Boolean, default: true },
+    new_clinic_review: { type: Boolean, default: true },
+    review_flagged: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

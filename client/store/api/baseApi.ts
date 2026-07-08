@@ -5,7 +5,7 @@ import { setAccessToken } from "../slices/authSlice";
 import { expireSession } from "@/lib/authSession";
 
 const baseFetchQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api",
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.accessToken;
     if (token) {
@@ -33,8 +33,13 @@ export const baseQuery: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await baseFetchQuery(args, api, extraOptions);
 
-  // If 401 error, try to refresh the token
-  if (result.error && result.error.status === 401) {
+  // Determine if the request is to a public auth endpoint (login, register, etc.)
+  // These endpoints do NOT use session tokens and should never trigger expireSession().
+  const requestUrl = typeof args === "string" ? args : (args as FetchArgs).url ?? "";
+  const isAuthRoute = requestUrl.startsWith("/auth/") || requestUrl === "/auth/login" || requestUrl === "/auth/register";
+
+  // If 401 error on a non-auth route, try to refresh the token
+  if (result.error && result.error.status === 401 && !isAuthRoute) {
     const refreshToken = getRefreshToken();
 
     if (refreshToken) {

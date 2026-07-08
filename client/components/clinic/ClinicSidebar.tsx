@@ -12,6 +12,9 @@ import {
   LogOut,
   DollarSign,
   Bot,
+  Ticket,
+  Trophy,
+  MessageSquare,
 } from "lucide-react";
 import { logout } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
@@ -56,9 +59,24 @@ export default function ClinicSidebar() {
       icon: UsersIcon,
     },
     {
+      href: "/dashboard/clinic_admin/performance",
+      label: t("nav.performance") || "Performance",
+      icon: Trophy,
+    },
+    {
+      href: "/dashboard/clinic_admin/reviews",
+      label: t("nav.reviews") || "Reviews",
+      icon: MessageSquare,
+    },
+    {
       href: "/dashboard/clinic_admin/appointments",
       label: t("nav.appointments"),
       icon: Calendar,
+    },
+    {
+      href: "/dashboard/clinic_admin/opd-queue",
+      label: t("nav.opdQueue") || "OPD Queue",
+      icon: Ticket,
     },
     {
       href: "/dashboard/clinic_admin/patients/search",
@@ -87,14 +105,18 @@ export default function ClinicSidebar() {
   const handleLogout = () => {
     dispatch(logout());
     localStorage.clear();
-    toast.success(t("toast.logoutSuccess"));
+    let logoutMsg = "Logged out successfully";
+    try {
+      if (t.has('toast.logoutSuccess')) logoutMsg = t('toast.logoutSuccess');
+    } catch (e) {}
+    toast.success(logoutMsg);
     router.push("/login");
   };
 
   return (
     <aside
       style={{ zIndex: 600 }}
-      className={`lens-sidebar sticky top-0 self-start hidden lg:flex ${isCollapsed ? "lens-sidebar-collapsed" : ""}`}
+      className={`lens-sidebar sticky top-0 self-start hidden lg:flex flex-col h-screen overflow-hidden ${isCollapsed ? "lens-sidebar-collapsed" : ""}`}
     >
       <button
         onClick={() => dispatch(toggleSidebar())}
@@ -150,9 +172,9 @@ export default function ClinicSidebar() {
         </div>
       )}
 
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-col gap-1 flex-1 overflow-y-auto px-3 pb-4">
         {!isCollapsed && (
-          <p className="lens-section-label mb-2">{t("nav.navigation")}</p>
+          <p className="lens-section-label mb-2 px-2">{t("nav.navigation")}</p>
         )}
         {navLinks.map((link) => {
           const Icon = link.icon;
@@ -176,11 +198,11 @@ export default function ClinicSidebar() {
         {/* Clinic Assistant Button */}
         <button
           onClick={() => dispatch(toggleClinicOps())}
-          title={isCollapsed ? "Clinic Assistant" : ""}
+          title={isCollapsed ? t('nav.clinicAssistant') || "Clinic Assistant" : ""}
           className={`${isClinicOpsOpen ? "lens-nav-item-active" : "lens-nav-item"} ${isCollapsed ? "justify-center px-0" : ""}`}
         >
           <Bot size={18} strokeWidth={isClinicOpsOpen ? 2.5 : 2} className="shrink-0" />
-          {!isCollapsed && <span>Clinic Assistant</span>}
+          {!isCollapsed && <span>{t('nav.clinicAssistant') || "Clinic Assistant"}</span>}
         </button>
       </nav>
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ClinicSidebar from "@/components/clinic/ClinicSidebar";
 import ClinicTopbar from "@/components/clinic/ClinicTopbar";
 import ClinicOpsAssistant from "@/components/clinic/ClinicOpsAssistant";
+import OnboardingGate from "@/components/onboarding/OnboardingGate";
 import { AUTH_EXPIRED_EVENT } from "@/lib/authSession";
 
 export default function ClinicLayout({
@@ -13,12 +14,41 @@ export default function ClinicLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!userStr || !accessToken) {
+      router.replace("/login");
+      setIsCheckingAuth(false);
+      return;
+    }
+
+    try {
+      const userData = JSON.parse(userStr);
+      if (!userData.roles || !userData.roles.includes("clinic_admin")) {
+        router.replace("/login");
+        setIsCheckingAuth(false);
+        return;
+      }
+      setIsAuthorized(true);
+    } catch {
+      router.replace("/login");
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  }, [router]);
 
   useEffect(() => {
     const handleAuthExpired = () => router.replace("/login");
     window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
     return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
   }, [router]);
+
+  if (isCheckingAuth || !isAuthorized) return null;
 
   return (
     <div className="flex min-h-screen relative print:block" style={{ background: '#f6f8f8' }}>
@@ -64,7 +94,9 @@ export default function ClinicLayout({
           </div>
           <main className="flex-1 p-4 md:p-8 overflow-y-auto print:p-0 print:m-0 print:overflow-visible">
             <div className="max-w-7xl mx-auto print:max-w-none">
-              {children}
+              <OnboardingGate role="clinic_admin">
+                {children}
+              </OnboardingGate>
             </div>
           </main>
           <ClinicOpsAssistant />

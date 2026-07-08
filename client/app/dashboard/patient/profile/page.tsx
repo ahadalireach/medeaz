@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/store/slices/authSlice";
 import { useTranslations } from "next-intl";
+import PageHeader from "@/components/shared/PageHeader";
 
 interface ProfileFormData {
   name: string;
@@ -60,6 +61,13 @@ export default function ProfilePage() {
     reset: resetPassword,
     watch,
   } = useForm<PasswordFormData>();
+
+  const onInvalid = (errors: any) => {
+    const firstError = Object.values(errors)[0] as any;
+    if (firstError?.message) {
+      toast.error(firstError.message);
+    }
+  };
 
   const onUpdateProfile = async (data: ProfileFormData) => {
     try {
@@ -131,9 +139,9 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-text-primary">
-        {t('patient.profile.title')}
-      </h1>
+      <PageHeader 
+        title={t('patient.profile.title')} 
+      />
 
       {/* Tabs */}
       <div className="flex border-b border-border-light">
@@ -229,7 +237,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit(onUpdateProfile)} className="space-y-6">
+          <form onSubmit={handleSubmit(onUpdateProfile, onInvalid)} className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <Input
                 label={t('form.fullName')}
@@ -250,13 +258,15 @@ export default function ProfilePage() {
                 label={t('form.phone')}
                 type="tel"
                 placeholder="+1 234 567 8900"
-                {...register("contact")}
+                error={errors.contact?.message}
+                {...register("contact", { required: "Contact number is required" })}
               />
 
               <Input
                 label={t('patient.profile.dateOfBirth')}
                 type="date"
-                {...register("dob")}
+                error={errors.dob?.message}
+                {...register("dob", { required: "Date of birth is required" })}
               />
 
               <div className="flex flex-col space-y-1 w-full">
@@ -264,20 +274,22 @@ export default function ProfilePage() {
                   {t('patient.profile.gender')}
                 </label>
                 <select
-                  {...register("gender")}
-                  className="flex h-14 w-full rounded-xl border border-border-light bg-white px-4 py-2 text-base text-text-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
+                  {...register("gender", { required: "Gender is required" })}
+                  className={`flex h-14 w-full rounded-xl border bg-white px-4 py-2 text-base text-text-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary ${errors.gender ? 'border-red-500 focus-visible:border-red-500' : 'border-border-light'}`}
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
+                {errors.gender && <span className="text-xs text-red-500 mt-1 block">{errors.gender.message}</span>}
               </div>
 
               <Input
                 label={t('patient.profile.bloodGroup')}
                 placeholder="e.g., A+, B-, O+"
-                {...register("bloodGroup")}
+                error={errors.bloodGroup?.message}
+                {...register("bloodGroup", { required: "Blood group is required" })}
               />
             </div>
 

@@ -18,6 +18,8 @@ export default function PatientLayout({
   const t = useTranslations();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
     setMounted(true);
@@ -26,6 +28,7 @@ export default function PatientLayout({
 
     if (!userStr || !accessToken) {
       router.push("/login");
+      setIsCheckingAuth(false);
       return;
     }
 
@@ -33,11 +36,15 @@ export default function PatientLayout({
       const userData = JSON.parse(userStr);
       if (!userData.roles || !userData.roles.includes("patient")) {
         router.push("/login");
+        setIsCheckingAuth(false);
         return;
       }
+      setIsAuthorized(true);
     } catch (error) {
       console.error("Failed to parse user data:", error);
       router.push("/login");
+    } finally {
+      setIsCheckingAuth(false);
     }
   }, [router]);
 
@@ -47,7 +54,7 @@ export default function PatientLayout({
     return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
   }, [router]);
 
-  if (!mounted) return null;
+  if (!mounted || isCheckingAuth || !isAuthorized) return null;
 
   return (
     <ChatSocketProvider>
@@ -92,7 +99,7 @@ export default function PatientLayout({
           </div>
           <div className="flex-1 flex flex-col print:block">
             <div className="print:hidden">
-              <PatientTopbar title={t("nav.patientDashboard")} />
+              <PatientTopbar title={t("nav.patientPortal")} />
             </div>
             <main className="flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 print:p-0 print:m-0">
               <div className="max-w-7xl mx-auto print:max-w-none">

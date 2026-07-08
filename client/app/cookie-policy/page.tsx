@@ -4,15 +4,15 @@ import { Footer } from "@/components/home/Footer";
 
 import { Cookie } from "lucide-react";
 import { useLocale } from "next-intl";
-import { Header } from "../../components/home/Header";
+import { Navbar } from "@/components/layout/Navbar";
 
 export default function CookiePolicyPage() {
   const locale = useLocale();
   const isUrdu = locale === "ur";
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-1 mt-10">
+      <Navbar />
+      <main className="flex-1 pt-24">
         <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 mt-12 mb-12 animate-in fade-in duration-300">
           <div className="mb-12">
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-primary/20">

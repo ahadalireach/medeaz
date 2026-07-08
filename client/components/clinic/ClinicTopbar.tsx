@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Search, UserCog, Settings, HeartPulse } from "lucide-react";
+import { Calendar, Search, UserCog, Settings, HeartPulse, Ticket, Bot } from "lucide-react";
 import LayoutDashboardIcon from "@/icons/layout-dashboard-icon";
 import UsersIcon from "@/icons/users-icon";
 import UserIconAnimated from "@/icons/user-icon";
@@ -16,6 +16,8 @@ import Link from "next/link";
 import { useGetNotificationsQuery } from "@/store/api/notificationApi";
 import { setNotifications } from "@/store/slices/notificationSlice";
 import { useLocale, useTranslations } from "next-intl";
+import { toggleClinicOps } from "@/store/slices/uiSlice";
+import { RootState } from "@/store/store";
 
 interface TopbarProps {
   title?: string;
@@ -36,6 +38,10 @@ export default function ClinicTopbar({ title }: TopbarProps) {
 
   const user = useSelector((state: any) => state.auth.user);
   const { unreadCount } = useSelector((state: any) => state.notifications);
+  const isClinicOpsOpen = useSelector(
+    (state: RootState) => state.ui.clinicOpsOpen,
+  );
+  const settingsLabel = t.has('nav.settings') ? t('nav.settings') : 'Settings';
   const { data: notificationsData } = useGetNotificationsQuery("clinic_admin", {
     skip: !mounted,
   });
@@ -77,6 +83,11 @@ export default function ClinicTopbar({ title }: TopbarProps) {
       icon: Calendar,
     },
     {
+      href: "/dashboard/clinic_admin/opd-queue",
+      label: t("nav.opdQueue") || "OPD Queue",
+      icon: Ticket,
+    },
+    {
       href: "/dashboard/clinic_admin/patients/search",
       label: t("nav.patients"),
       icon: Search,
@@ -85,11 +96,6 @@ export default function ClinicTopbar({ title }: TopbarProps) {
       href: "/dashboard/clinic_admin/staff",
       label: t("nav.staff"),
       icon: UserCog,
-    },
-    {
-      href: "/dashboard/clinic_admin/profile",
-      label: t("nav.profile"),
-      icon: UserIconAnimated,
     },
   ];
 
@@ -102,7 +108,7 @@ export default function ClinicTopbar({ title }: TopbarProps) {
 
   return (
     <>
-      <header className="lens-topbar h-16 border-b border-black/5 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between w-full">
+      <header className="lens-topbar h-16 border-b border-black/5 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between w-full" dir={isRtl ? "rtl" : "ltr"}>
         {/* Logo - ONLY MOBILE */}
         <Link
           href="/dashboard/clinic_admin"
@@ -118,12 +124,11 @@ export default function ClinicTopbar({ title }: TopbarProps) {
         </Link>
 
         {/* Title - ONLY DESKTOP */}
-        <h1 className="hidden lg:block text-sm font-black uppercase tracking-[0.2em] text-text-primary">
-          {title || t("nav.clinicPortal")}
+        <h1 className="hidden lg:block text-base font-bold text-text-primary">
         </h1>
 
         {/* Right Side Options */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" dir={isRtl ? "rtl" : "ltr"}>
           {/* Desktop Notifications */}
           <button
             onClick={() => setIsNotificationOpen(true)}
@@ -167,9 +172,7 @@ export default function ClinicTopbar({ title }: TopbarProps) {
         >
           <div className="flex flex-col h-full">
             <div className="p-6 border-b border-black/5 flex items-center justify-between">
-              <h2
-                className={`font-bold text-text-primary  text-sm ${isRtl ? "tracking-normal" : "uppercase tracking-[0.2em] text-xs"}`}
-              >
+              <h2 className="font-display font-bold text-text-primary text-base tracking-tight">
                 {t("nav.clinicPortal")}
               </h2>
               <button
@@ -182,31 +185,58 @@ export default function ClinicTopbar({ title }: TopbarProps) {
             </div>
 
             <nav
-              className={`flex-1 overflow-y-auto p-4 space-y-1 ${isRtl ? "text-right" : ""}`}
+              className={`flex-1 overflow-y-auto p-4 space-y-1.5 ${isRtl ? "text-right" : ""}`}
             >
-              <p
-                className={`px-3 text-[11px] font-bold text-text-secondary mt-4 mb-2 ${isRtl ? "tracking-normal" : "uppercase tracking-widest text-[10px]"}`}
-              >
+              <p className="lens-section-label mt-4 mb-2">
                 {t("nav.navigation")}
               </p>
               {navLinks.map((link) => {
                 const Icon = link.icon;
+                const isLinkActive = isActive(link.href);
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${isRtl ? "justify-end" : ""} ${
-                      isActive(link.href)
-                        ? "bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]"
-                        : "text-text-secondary hover:text-primary hover:bg-primary/5"
+                    className={`${isLinkActive ? "lens-nav-item-active" : "lens-nav-item"} ${
+                      isRtl ? "justify-end flex-row-reverse text-right" : ""
                     }`}
                   >
-                    <Icon size={18} />
+                    <Icon size={18} strokeWidth={isLinkActive ? 2.5 : 2} className="shrink-0" />
                     <span>{link.label}</span>
                   </Link>
                 );
               })}
+
+              {/* Clinic Assistant Button */}
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  dispatch(toggleClinicOps());
+                }}
+                className={`${isClinicOpsOpen ? "lens-nav-item-active" : "lens-nav-item"} w-full ${
+                  isRtl ? "justify-end flex-row-reverse text-right" : ""
+                }`}
+              >
+                <Bot size={18} strokeWidth={isClinicOpsOpen ? 2.5 : 2} className="shrink-0" />
+                <span>{t('nav.clinicAssistant') || "Clinic Assistant"}</span>
+              </button>
+
+              {/* Language Switcher */}
+              <div className="pt-4 pb-2 px-3 border-t border-black/5 dark:border-white/5 mt-4">
+                <p className="lens-section-label mb-2">Language / زبان</p>
+                <LanguageSwitcher />
+              </div>
+
+              <p className="lens-section-label mt-8 mb-2">{settingsLabel}</p>
+              <Link
+                href="/dashboard/clinic_admin/profile"
+                onClick={() => setIsMenuOpen(false)}
+                className={`${isActive("/dashboard/clinic_admin/profile") ? "lens-nav-item-active" : "lens-nav-item"} ${isRtl ? "justify-end flex-row-reverse text-right" : ""}`}
+              >
+                <UserIconAnimated size={18} />
+                <span>{t("nav.profile")}</span>
+              </Link>
             </nav>
 
             <div className="p-6 border-t border-black/5 space-y-3">

@@ -14,6 +14,9 @@ import { useRouter } from "next/navigation";
 import { useStartConversationMutation } from "@/store/api/chatApi";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
+import AvailabilityBadge from "@/components/shared/AvailabilityBadge";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Loader2 } from "lucide-react";
 
 export default function DoctorsList() {
     const t = useTranslations();
@@ -24,40 +27,28 @@ export default function DoctorsList() {
         "Rahim Yar Khan", "Jhang", "Dera Ghazi Khan", "Gujrat",
         "Sahiwal", "Wah Cantonment", "Mardan", "Kasur", "Okara", "Mingora"
     ].sort();
-    const { data: response, isLoading } = useGetDoctorsQuery(undefined);
+    const [availableOnly, setAvailableOnly] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const debouncedSearch = useDebounce(searchQuery, 300);
     const [selectedCity, setSelectedCity] = useState("All Cities");
-    const [isSearching, setIsSearching] = useState(false);
+    
+    const queryParams = {
+        ...(availableOnly && { availableOnly: true }),
+        ...(debouncedSearch && { search: debouncedSearch }),
+        ...(selectedCity !== "All Cities" && { city: selectedCity })
+    };
+
+    const { data: response, isLoading: isQueryLoading, isFetching } = useGetDoctorsQuery(queryParams, {
+        skip: debouncedSearch.length > 0 && debouncedSearch.trim().length < 2
+    });
+    const isLoading = isQueryLoading || isFetching;
+    
     const router = useRouter();
     const [startConversation] = useStartConversationMutation();
 
-    useEffect(() => {
-        if (isSearching) {
-            const timer = setTimeout(() => {
-                setIsSearching(false);
-            }, 800);
-            return () => clearTimeout(timer);
-        }
-    }, [isSearching]);
-
     const doctors = response?.data || [];
 
-    const filteredDoctors = doctors.filter((doc: any) => {
-        const matchesSearch = (
-            doc.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            doc.specialization?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            doc.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            doc.clinicId?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            doc.location?.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            doc.location?.city?.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
-        const matchesCity = selectedCity === "All Cities" || 
-                           doc.location?.city === selectedCity ||
-                           doc.clinicId?.address?.includes(selectedCity);
-
-        return matchesSearch && matchesCity;
-    });
+    const filteredDoctors = doctors;
 
     const handleMessageClick = async (doctorId: string) => {
         try {
@@ -75,51 +66,72 @@ export default function DoctorsList() {
     return (
         <div className="space-y-10">
             {/* Search and Filter Section */}
-            <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
-                <div className="relative group flex-1">
-                    <MagnifierIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary group-focus-within:text-primary transition-colors" />
-                    <input
-                        type="text"
-                        placeholder={t('patient.findDoctors.searchPlaceholder')}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && setIsSearching(true)}
-                        className="w-full pl-12 pr-4 h-14 rounded-2xl border border-border-light bg-white text-base text-text-primary placeholder:text-text-secondary focus:ring-4 focus:ring-primary/5 focus:border-primary focus:outline-none transition-all shadow-sm"
-                    />
-                </div>
-
-                <div className="relative min-w-[200px]">
-                    <MapPinIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
-                    <select
-                        value={selectedCity}
-                        onChange={(e) => {
-                            setSelectedCity(e.target.value);
-                            setIsSearching(true);
-                        }}
-                        className="w-full pl-12 pr-10 h-14 appearance-none rounded-2xl border border-border-light bg-white text-base text-text-primary focus:ring-4 focus:ring-primary/5 focus:border-primary focus:outline-none transition-all shadow-sm cursor-pointer"
-                    >
-                        {PAKISTANI_CITIES.map(city => (
-                            <option key={city} value={city}>{city}</option>
-                        ))}
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+            <div className="max-w-4xl mx-auto space-y-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="relative group flex-1">
+                        <MagnifierIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary group-focus-within:text-primary transition-colors" />
+                        <input
+                            type="text"
+                            placeholder={t('patient.findDoctors.searchPlaceholder')}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-12 h-14 rounded-2xl border border-border-light bg-white text-base text-text-primary placeholder:text-text-secondary focus:ring-4 focus:ring-primary/5 focus:border-primary focus:outline-none transition-all shadow-sm"
+                        />
+                        {isFetching && (
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                <Loader2 className="h-5 w-5 animate-spin text-[#00b495]" />
+                            </div>
+                        )}
                     </div>
-                </div>
 
-                <button 
-                    onClick={() => setIsSearching(true)}
-                    className="h-14 px-8 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all shrink-0 active:scale-95"
-                >
-                    {t('common.search')}
-                </button>
+                    <div className="relative min-w-[200px]">
+                        <MapPinIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+                        <select
+                            value={selectedCity}
+                            onChange={(e) => setSelectedCity(e.target.value)}
+                            className="w-full pl-12 pr-10 h-14 appearance-none rounded-2xl border border-border-light bg-white text-base text-text-primary focus:ring-4 focus:ring-primary/5 focus:border-primary focus:outline-none transition-all shadow-sm cursor-pointer"
+                        >
+                            {PAKISTANI_CITIES.map(city => (
+                                <option key={city} value={city}>{city}</option>
+                            ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <button 
+                        className="h-14 px-8 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all shrink-0 active:scale-95 cursor-pointer"
+                    >
+                        {t('common.search')}
+                    </button>
+                </div>
+                {searchQuery.length > 0 && searchQuery.trim().length < 2 && (
+                    <p className="text-[#9ca3af] text-[12px] font-inter ml-2">Type at least 2 characters to search</p>
+                )}
+
+                {/* Available Only toggle */}
+                <div className="flex items-center justify-end">
+                    <label className="relative inline-flex items-center cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={availableOnly}
+                            onChange={(e) => setAvailableOnly(e.target.checked)}
+                            className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#00b495] cursor-pointer"></div>
+                        <span className="ml-2 text-xs font-bold text-slate-700">
+                            Available Only
+                        </span>
+                    </label>
+                </div>
             </div>
 
             {/* Doctors Grid */}
             <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8 max-w-5xl mx-auto">
-                {(isLoading || isSearching) ? (
+                {(isLoading || isFetching) ? (
                     [1, 2, 3, 4, 5, 6].map((i) => (
                         <div key={i} className="h-48 animate-pulse rounded-3xl border border-border-light bg-white" />
                     ))
@@ -132,6 +144,7 @@ export default function DoctorsList() {
                             <div className="relative">
                                 <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0 overflow-hidden">
                                     {doctor.photo ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
                                         <img src={doctor.photo.startsWith('http') ? doctor.photo : `${process.env.NEXT_PUBLIC_API_URL}${doctor.photo}`} alt={doctor.name} className="h-full w-full object-cover" />
                                     ) : (
                                         <UserIcon size={36} strokeWidth={1.5} />
@@ -147,9 +160,12 @@ export default function DoctorsList() {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-xl font-bold text-text-primary truncate">
-                                    Dr. {doctor.name}
-                                </h3>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h3 className="text-xl font-bold text-text-primary truncate">
+                                        Dr. {doctor.name}
+                                    </h3>
+                                    <AvailabilityBadge status={doctor.availabilityStatus || "available"} />
+                                </div>
                                 <p className="text-sm font-bold text-primary mt-1">
                                     {doctor.specialization}
                                 </p>

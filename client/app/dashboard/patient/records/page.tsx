@@ -10,6 +10,7 @@ import XIcon from "@/icons/x-icon";
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
+import PageHeader from "@/components/shared/PageHeader";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -235,23 +236,19 @@ export default function RecordsPage() {
 
   return (
     <div className={`space-y-10 animate-in ${isUploadModalOpen ? "pb-0" : "pb-20"}`}>
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
-        <div>
-          <h1 className="text-4xl sm:text-5xl font-black text-text-primary tracking-tight leading-none">
-            {t('patient.records.title')}
-          </h1>
-          <p className="text-text-secondary mt-4 text-lg font-medium">
-            {t('patient.records.subtitle')}
-          </p>
-        </div>
-        <Button
-          onClick={() => setIsUploadModalOpen(true)}
-          className="h-14 px-8 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all"
-        >
-          <Plus size={20} strokeWidth={3} />
-          {t('patient.records.uploadRecord')}
-        </Button>
-      </div>
+      <PageHeader 
+        title={t('patient.records.title')} 
+        description={t('patient.records.subtitle')} 
+        action={
+          <Button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="h-14 px-8 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all"
+          >
+            <Plus size={20} strokeWidth={3} />
+            {t('patient.records.uploadRecord')}
+          </Button>
+        } 
+      />
 
       {/* Search Bar - Premium Style */}
       <div className="relative group px-2 max-w-2xl">

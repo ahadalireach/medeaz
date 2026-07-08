@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useGetPublicDoctorsQuery } from "@/store/api/patientApi";
-import { Search, Star, User, ArrowRight, ShieldCheck, MapPin as LocationIcon, Filter, Building2 } from "lucide-react";
+import { Search, Star, User, ArrowRight, ShieldCheck, MapPin as LocationIcon, Filter, Building2, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const SPECIALIZATIONS = [
     "General Physician", "Cardiologist", "Dermatologist", "Pediatrician",
@@ -54,15 +55,18 @@ export default function FindDoctorsPage() {
         minRating: 0
     });
 
-    const [isSearching, setIsSearching] = useState(false);
+    const debouncedSearch = useDebounce(filters.search, 300);
 
-    const { data: response, isLoading: queryLoading } = useGetPublicDoctorsQuery(filters);
-    const isLoading = queryLoading || isSearching;
+    const queryParams = { ...filters, search: debouncedSearch };
+
+    const { data: response, isLoading: queryLoading, isFetching } = useGetPublicDoctorsQuery(queryParams, {
+        skip: debouncedSearch.length > 0 && debouncedSearch.trim().length < 2
+    });
+    const isLoading = queryLoading || isFetching;
     const doctors = response?.data || [];
 
     const handleSearch = () => {
-        setIsSearching(true);
-        setTimeout(() => setIsSearching(false), 800);
+        // Now handled via debounce
     };
 
     // Frontend-only City filter for now
@@ -102,7 +106,15 @@ export default function FindDoctorsPage() {
                                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                                 />
+                                {isFetching && (
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                        <Loader2 className="h-4 w-4 animate-spin text-[#00b495]" />
+                                    </div>
+                                )}
                             </div>
+                            {filters.search.length > 0 && filters.search.trim().length < 2 && (
+                                <p className="text-[#9ca3af] text-[12px] font-inter mt-2 ml-2">Type at least 2 characters to search</p>
+                            )}
                         </div>
 
                         {/* Specialization */}

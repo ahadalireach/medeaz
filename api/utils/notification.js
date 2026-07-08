@@ -5,7 +5,7 @@ const Notification = require("../models/Notification");
  * @param {Object} io - Socket.io instance
  * @param {Object} data - Notification data
  */
-const createNotification = async (io, { recipient, title, message, type = 'info', link = '', portal = 'general' }) => {
+const createNotification = async (io, { recipient, title, message, type = 'info', link = '', portal = 'general', skipSocket = false }) => {
     try {
         const notification = await Notification.create({
             recipient,
@@ -16,7 +16,7 @@ const createNotification = async (io, { recipient, title, message, type = 'info'
             portal,
         });
 
-        if (io) {
+        if (io && !skipSocket) {
             io.to(recipient.toString()).emit("notification", {
                 id: notification._id,
                 title,

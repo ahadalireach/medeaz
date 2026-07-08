@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useGetDoctorsQuery, useRemoveDoctorMutation } from "@/store/api/clinicApi";
-import { BarChart2, Trash2, Plus, User } from "lucide-react";
+import { Eye, Trash2, Plus, User } from "lucide-react";
 import TrashIcon from "@/icons/trash-icon";
 import { toast } from "react-hot-toast";
 import { ConfirmModal } from "../ui/ConfirmModal";
@@ -11,6 +11,7 @@ import AddDoctorModal from "./AddDoctorModal";
 import DoctorStatsModal from "./DoctorStatsModal";
 import { useTranslations } from "next-intl";
 import { resolveMediaUrl } from "@/lib/media";
+import AvailabilityBadge from "@/components/shared/AvailabilityBadge";
 
 export default function DoctorList() {
   const [page, setPage] = useState(1);
@@ -72,6 +73,9 @@ export default function DoctorList() {
                 <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('form.email')}
                 </th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
+                  Status
+                </th>
                 <th className="text-center py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('common.actions')}
                 </th>
@@ -107,6 +111,11 @@ export default function DoctorList() {
                   <td className="py-4 px-4 text-sm text-text-primary">
                     {doctor.userId?.email || "N/A"}
                   </td>
+                  <td className="py-4 px-4 text-sm text-text-primary">
+                    <div className="flex items-center gap-2">
+                      <AvailabilityBadge status={doctor.availabilityStatus || 'available'} />
+                    </div>
+                  </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center justify-center gap-2">
                       <button
@@ -114,9 +123,10 @@ export default function DoctorList() {
                           setSelectedDoctor(doctor);
                           setShowStatsModal(true);
                         }}
-                        className="p-2 hover:bg-surface :bg-text-secondary rounded-lg transition-all"
+                        className="p-2 hover:bg-surface rounded-lg transition-all"
+                        title={t('clinic.doctorPortal.stats') || "View Stats"}
                       >
-                        <BarChart2 className="h-4 w-4 text-text-primary" />
+                        <Eye className="h-4 w-4 text-text-primary" />
                       </button>
                       <button
                         onClick={() => {

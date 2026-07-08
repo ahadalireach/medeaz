@@ -1,15 +1,19 @@
 'use client';
-
+ 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { toggleClinicOps } from '@/store/slices/uiSlice';
-import { X, Mic, Send, Loader2, Bot, Volume2, VolumeX } from 'lucide-react';
+import { X, Mic, Send, Loader2, Bot, Volume2, VolumeX, Activity, Ticket, Users, DollarSign } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
 import ReactMarkdown from 'react-markdown';
-
+import { useLocale, useTranslations } from 'next-intl';
+ 
 export default function ClinicOpsAssistant() {
+  const locale = useLocale();
+  const t = useTranslations();
+  const isRtl = locale === 'ur';
   const isOpen = useSelector((state: RootState) => state.ui.clinicOpsOpen);
   const dispatch = useDispatch();
   
@@ -23,7 +27,7 @@ export default function ClinicOpsAssistant() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const socketRef = useRef<Socket | null>(null);
-
+ 
   // Initialize Speech Recognition
   useEffect(() => {
     if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
@@ -31,82 +35,114 @@ export default function ClinicOpsAssistant() {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'en-US';
-
+      recognition.lang = document.documentElement.lang === 'ur' ? 'ur-PK' : 'en-US';
+ 
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
         handleSend(transcript);
       };
-
+ 
       recognition.onerror = (event: any) => {
         console.error('Speech recognition error', event.error);
         setIsListening(false);
         toast.error('Voice recognition failed');
       };
-
+ 
       recognition.onend = () => {
         setIsListening(false);
       };
-
+ 
       recognitionRef.current = recognition;
     }
   }, []);
-
+ 
+  // Update recognition language if the app language changes
+  useEffect(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = document.documentElement.lang === 'ur' ? 'ur-PK' : 'en-US';
+    }
+  }, [t]);
+ 
   // Initialize Socket.io
   useEffect(() => {
     if (!isOpen) return;
     
     const token = localStorage.getItem('accessToken');
     if (!token) return;
-
+ 
     const url = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
     socketRef.current = io(url, {
       auth: { token }
     });
-
+ 
     socketRef.current.on('appointmentStatusChanged', (data: any) => {
       setLiveEvents(prev => [`Appointment status updated: ${data.status}`, ...prev].slice(0, 5));
     });
-
+ 
     socketRef.current.on('newAppointment', () => {
       setLiveEvents(prev => ['New appointment scheduled', ...prev].slice(0, 5));
     });
-
+ 
     socketRef.current.on('staffUpdated', () => {
       setLiveEvents(prev => ['Staff schedule changed', ...prev].slice(0, 5));
     });
-
+ 
     return () => {
       socketRef.current?.disconnect();
     };
   }, [isOpen]);
-
+ 
+  // Cancel speech when closed or unmounted
+  useEffect(() => {
+    if (!isOpen) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+  }, [isOpen]);
+ 
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+ 
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, liveEvents]);
-
+ 
   const speak = useCallback((text: string) => {
     if (!voiceEnabled || !('speechSynthesis' in window)) return;
     
-    // Clean markdown hashes for speech
+    window.speechSynthesis.cancel(); // Cancel any ongoing speech before speaking a new one
     const cleanText = text.replace(/#/g, '').replace(/\*/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = document.documentElement.lang === 'ur' ? 'ur-PK' : 'en-US';
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
     window.speechSynthesis.speak(utterance);
   }, [voiceEnabled]);
-
+ 
+  const toggleVoice = () => {
+    if (voiceEnabled && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setVoiceEnabled(!voiceEnabled);
+  };
+ 
   const handleSend = async (textToSend: string = input) => {
     if (!textToSend.trim()) return;
-
+ 
     const userMessage = textToSend;
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsProcessing(true);
-
+ 
     try {
       const token = localStorage.getItem('accessToken');
       const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/ai/clinic-ops/query', {
@@ -117,7 +153,7 @@ export default function ClinicOpsAssistant() {
         },
         body: JSON.stringify({ message: userMessage })
       });
-
+ 
       const data = await response.json();
       if (data.success) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.data.reply }]);
@@ -132,7 +168,7 @@ export default function ClinicOpsAssistant() {
       setIsProcessing(false);
     }
   };
-
+ 
   const toggleListen = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -141,32 +177,35 @@ export default function ClinicOpsAssistant() {
       recognitionRef.current?.start();
     }
   };
-
+ 
   if (!isOpen) return null;
-
+ 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col transform transition-transform duration-300 translate-x-0 print:hidden">
+    <div 
+      className={`fixed inset-y-0 ${isRtl ? 'left-0 border-r' : 'right-0 border-l'} w-full sm:w-[400px] bg-white border-gray-200 shadow-2xl z-50 flex flex-col transform transition-transform duration-300 translate-x-0 print:hidden`}
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-[#00b495] text-white">
         <div className="flex items-center gap-2">
-          <Bot className="w-5 h-5" />
-          <h2 className="font-semibold text-lg tracking-wide">Medeaz AI</h2>
+          <Bot className="w-5 h-5 text-white" />
+          <h2 className="text-white font-semibold text-lg tracking-wide">{t('assistant.clinicTitle')}</h2>
         </div>
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => setVoiceEnabled(!voiceEnabled)} 
+            onClick={toggleVoice} 
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition ${voiceEnabled ? 'bg-white/20 text-white' : 'bg-black/10 text-white/70'}`}
-            title="Toggle Assistant Voice Reply"
+            title={t('assistant.voiceTitle')}
           >
             {voiceEnabled ? (
               <>
                 <Volume2 className="w-3.5 h-3.5" />
-                <span>Voice ON</span>
+                <span>{t('assistant.voiceOn')}</span>
               </>
             ) : (
               <>
                 <VolumeX className="w-3.5 h-3.5" />
-                <span>Voice OFF</span>
+                <span>{t('assistant.voiceOff')}</span>
               </>
             )}
           </button>
@@ -175,24 +214,52 @@ export default function ClinicOpsAssistant() {
           </button>
         </div>
       </div>
-
+ 
+      {/* Action Chips */}
+      <div className="p-3 border-b border-gray-100 flex flex-wrap gap-2 bg-gray-50/50">
+        <button 
+          onClick={() => handleSend(t('assistant.queries.clinicSummary'))} 
+          className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition cursor-pointer"
+        >
+          <Activity className="w-3 h-3" /> {t('assistant.chips.clinicSummary')}
+        </button>
+        <button 
+          onClick={() => handleSend(t('assistant.queries.opdQueue'))} 
+          className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition cursor-pointer"
+        >
+          <Ticket className="w-3 h-3" /> {t('assistant.chips.opdQueue')}
+        </button>
+        <button 
+          onClick={() => handleSend(t('assistant.queries.doctorWorkload'))} 
+          className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition cursor-pointer"
+        >
+          <Users className="w-3 h-3" /> {t('assistant.chips.doctorWorkload')}
+        </button>
+        <button 
+          onClick={() => handleSend(t('assistant.queries.revenueAnalytics'))} 
+          className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition cursor-pointer"
+        >
+          <DollarSign className="w-3 h-3" /> {t('assistant.chips.revenueAnalytics')}
+        </button>
+      </div>
+ 
       {/* Live Events Ticker */}
       {liveEvents.length > 0 && (
         <div className="bg-[#e6f8f4] border-b border-[#00b495]/20 p-2 text-xs font-medium text-[#00b495]">
-          <span className="animate-pulse mr-2">🔴</span> Live: {liveEvents[0]}
+          <span className="animate-pulse mr-2">🔴</span> {t('assistant.live')}{liveEvents[0]}
         </div>
       )}
-
+ 
       {/* Chat Area */}
       <div className="flex-1 p-4 overflow-y-auto bg-gray-50/50 space-y-4">
         {messages.length === 0 && (
           <div className="text-center mt-10 text-gray-500">
             <Bot className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-            <p className="font-medium text-gray-700">Clinic Operations Analyst</p>
-            <p className="text-sm mt-1 max-w-[250px] mx-auto">Ask me about revenue, doctor workload, or scheduling risks.</p>
+            <p className="font-medium text-gray-700">{t('assistant.clinicAnalyst')}</p>
+            <p className="text-sm mt-1 max-w-[250px] mx-auto">{t('assistant.clinicDesc')}</p>
           </div>
         )}
-
+ 
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] rounded-2xl p-4 text-sm ${
@@ -208,23 +275,24 @@ export default function ClinicOpsAssistant() {
             </div>
           </div>
         ))}
-
+ 
         {isProcessing && (
           <div className="flex justify-start">
             <div className="bg-white border border-gray-100 shadow-sm rounded-2xl p-4 rounded-bl-none flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin text-[#00b495]" />
-              <span className="text-sm text-gray-500">Analyzing clinic data...</span>
+              <span className="text-sm text-gray-500">{t('assistant.analyzing')}</span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-
+ 
       {/* Input Area */}
       <div className="p-4 bg-white border-t border-gray-100">
         <div className="flex items-center gap-2">
           <button
             onClick={toggleListen}
+            title={t('assistant.listenTitle')}
             className={`p-3 rounded-full transition-colors flex-shrink-0 ${
               isListening 
                 ? 'bg-red-100 text-red-500 animate-pulse' 
@@ -239,7 +307,7 @@ export default function ClinicOpsAssistant() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask about operations..."
+            placeholder={t('assistant.askClinic')}
             className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-3 text-sm focus:outline-none focus:border-[#00b495] focus:ring-1 focus:ring-[#00b495] transition-all"
           />
           

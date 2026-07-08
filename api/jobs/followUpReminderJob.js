@@ -1,74 +1,84 @@
 const cron = require("node-cron");
-const Prescription = require("../models/Prescription");
-const { sendNotification } = require("../services/notificationService");
+const FollowUp = require("../models/FollowUp");
+const { createNotification } = require("../utils/notification");
+const { getIO } = require("../config/socket");
 
-const HOUR = 60 * 60 * 1000;
-
-const buildWindows = () => {
-  const now = new Date();
-  return [
-    {
-      label: "3day",
-      start: new Date(now.getTime() + 71 * HOUR),
-      end: new Date(now.getTime() + 73 * HOUR),
-      titleKey: "followUpIn3Days",
-      bodyKey: "followUpIn3DaysBody",
-    },
-    {
-      label: "1day",
-      start: new Date(now.getTime() + 23 * HOUR),
-      end: new Date(now.getTime() + 25 * HOUR),
-      titleKey: "followUpTomorrow",
-      bodyKey: "followUpTomorrowBody",
-    },
-    {
-      label: "sameday",
-      start: now,
-      end: new Date(now.getTime() + 6 * HOUR),
-      titleKey: "followUpToday",
-      bodyKey: "followUpTodayBody",
-    },
-  ];
-};
-
-const runFollowUpReminderJob = async () => {
+// 1. Hourly cron for 24h reminder
+cron.schedule("0 * * * *", async () => {
   try {
-    const windows = buildWindows();
+    const now = Date.now();
+    const windowStart = new Date(now + 23 * 3600 * 1000);
+    const windowEnd   = new Date(now + 25 * 3600 * 1000);
 
-    for (const window of windows) {
-      const prescriptions = await Prescription.find({
-        followUpDate: { $gte: window.start, $lte: window.end, $ne: null },
-      })
-        .populate("patientId", "_id")
-        .populate("doctorId", "name");
+    const due = await FollowUp.find({
+      status: "pending",
+      dueDate: { $gte: windowStart, $lte: windowEnd },
+      reminderSent24h: false
+    }).populate([
+      {
+        path: "patientId",
+        select: "userId"
+      },
+      {
+        path: "doctorId",
+        select: "fullName"
+      }
+    ]);
 
-      await Promise.allSettled(
-        prescriptions.map((rx) => {
-          if (!rx?.patientId?._id || !rx?.followUpDate) return Promise.resolve(null);
+    const io = getIO();
 
-          const followUpISO = new Date(rx.followUpDate).toISOString();
-          const doctorName = rx?.doctorId?.name || "Doctor";
-          const dedupeKey = `medeaz:notif:followup:${rx._id}:${window.label}`;
+    for (const f of due) {
+      if (!f.patientId?.userId) continue;
 
-          return sendNotification(rx.patientId._id, {
-            type: "follow_up_reminder",
-            titleKey: window.titleKey,
-            bodyKey: window.bodyKey,
-            bodyParams:
-              window.label === "sameday"
-                ? { doctorName, time: followUpISO }
-                : { doctorName, date: followUpISO },
-            actionUrl: `/dashboard/patient/records/${rx._id}`,
-            dedupeKey,
-          });
-        })
-      );
+      const doctorName = f.doctorId?.fullName || "Doctor";
+      const messageText = `Reminder: Your follow-up with Dr. ${doctorName} is tomorrow.`;
+
+      // Save to database & emit Socket.IO notification (bell feed)
+      await createNotification(io, {
+        recipient: f.patientId.userId,
+        title: "Follow-Up Reminder",
+        message: messageText,
+        type: "follow_up_reminder",
+        link: "/patient/follow-ups",
+        portal: "patient"
+      });
+
+      // Emit specific Socket.IO event 'follow_up_reminder' (toast listener)
+      if (io) {
+        io.to(f.patientId.userId.toString()).emit("follow_up_reminder", {
+          type: "follow_up_reminder",
+          message: messageText
+        });
+      }
+
+      // Prevent duplicate reminder
+      f.reminderSent24h = true;
+      await f.save();
     }
   } catch (error) {
-    console.error("Follow-up reminder job failed:", error.message);
+    console.error("[Cron Error] Follow-up reminder job failed:", error.message);
   }
-};
+});
 
-cron.schedule("0 */6 * * *", runFollowUpReminderJob);
+// 2. Daily cron to mark overdue
+cron.schedule("0 0 * * *", async () => {
+  try {
+    const now = new Date();
+    const result = await FollowUp.updateMany(
+      {
+        status: "pending",
+        dueDate: { $lt: now }
+      },
+      {
+        $set: { status: "overdue" }
+      }
+    );
+    if (result.modifiedCount > 0) {
+      console.log(`[Cron] Marked ${result.modifiedCount} pending follow-ups as overdue.`);
+    }
+  } catch (error) {
+    console.error("[Cron Error] Daily overdue check failed:", error.message);
+  }
+});
 
-module.exports = { runFollowUpReminderJob };
+console.log("[Cron] Follow-up reminder jobs initialized.");

@@ -37,6 +37,20 @@ exports.queryCopilot = asyncHandler(async (req, res) => {
     status: { $in: ['no-show', 'pending'] }
   }).populate('patientId', 'name').sort({ dateTime: -1 }).limit(10);
 
+  const doctorProfile = await Doctor.findOne({ userId: doctorId });
+  const pastClinicAppointments = await Appointment.find({
+    doctorId,
+    clinicId: { $ne: doctorProfile?.clinicId || null }
+  }).distinct('clinicId');
+
+  let pastClinics = [];
+  if (pastClinicAppointments.length > 0) {
+    const Clinic = require('../../models/Clinic');
+    pastClinics = await Clinic.find({
+      _id: { $in: pastClinicAppointments }
+    }).select('name address.city').lean();
+  }
+
   let context = {
     doctorName,
     mode: patientId ? "Patient Focus Mode" : "Global Mode",
@@ -54,7 +68,8 @@ exports.queryCopilot = asyncHandler(async (req, res) => {
       date: a.dateTime.toISOString().split('T')[0],
       patient: a.patientId?.name || 'Unknown',
       status: a.status
-    }))
+    })),
+    pastClinics: pastClinics.map(c => `${c.name} (${c.address?.city || 'Unknown'})`)
   };
 
   if (patientId) {
@@ -86,9 +101,15 @@ exports.queryCopilot = asyncHandler(async (req, res) => {
   }
 
   const systemPrompt = `You are MedEaz Doctor Copilot. You are talking directly to Dr. ${doctorName}. You assist doctors in organizing patient data, summarizing medical history, and structuring prescriptions. You never diagnose diseases or replace clinical judgment.
+  
+Always maintain a clear, professional distinction between the Doctor (Dr. ${doctorName}, whom you are assisting) and the Patient (whose records you are summarizing), even if they happen to share the same name or account in test environments. Always address Dr. ${doctorName} as the clinician.
 
 Live Clinical Context:
 ${JSON.stringify(context, null, 2)}
+
+=== PAST CLINIC ASSOCIATIONS ===
+${context.pastClinics?.join(', ') || 'None'}
+Note: Appointments from past clinics are included in historical stats.
 
 Instructions:
 1. All outputs must be clinically structured, concise, and action-oriented.
@@ -97,7 +118,7 @@ Instructions:
    - Last Visit Summary
    - Current Medications
    - Risks Based on History (non-diagnostic wording)
-   - Suggested Questions Doctor Should Ask
+   - Suggested Questions Doctor Should Ask (These are specific, insightful questions that Dr. ${doctorName} should ask the patient during their clinical encounter to investigate symptoms or history further).
 3. If the user dictates a prescription ("Draft Prescription"), output a structured JSON or Markdown prescription including diagnosis, medicines, dosage, instructions, and follow-up.
 4. For general queries ("Today's Load"), ONLY list appointments from the \`todaysWorkload\` array. Do NOT include \`missedFollowUps\` in today's load. If \`todaysWorkload.total\` is 0, state explicitly that there are no appointments today.
 5. If responding conversationally (e.g. greetings, "What is my name?", etc.), answer briefly, naturally, and correctly based on the context. If the user speaks Urdu, respond in Roman Urdu or Urdu script. Do not hallucinate questions or answer yourself.`;

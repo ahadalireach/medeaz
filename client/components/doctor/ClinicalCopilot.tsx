@@ -4,8 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, X, Check, Loader2, PlaySquare } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useLocale } from 'next-intl';
 
 export default function ClinicalCopilot() {
+  const locale = useLocale();
+  const isRtl = locale === 'ur';
   const [isOpen, setIsOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -108,7 +111,7 @@ export default function ClinicalCopilot() {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-[#0F4C5C] text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-[#0c3e4a] transition-colors z-40 print:hidden"
+        className={`fixed bottom-6 ${isRtl ? 'left-6' : 'right-6'} w-16 h-16 bg-[#0F4C5C] text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-[#0c3e4a] transition-colors z-40 print:hidden`}
       >
         <Mic className="w-7 h-7" />
       </button>
@@ -120,7 +123,7 @@ export default function ClinicalCopilot() {
             initial={{ opacity: 0, y: 100, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.9 }}
-            className="fixed bottom-24 right-6 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden"
+            className={`fixed bottom-24 ${isRtl ? 'left-6' : 'right-6'} w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden`}
           >
             <div className="p-4 bg-[#0F4C5C] text-white flex justify-between items-center">
               <h3 className="font-semibold text-lg flex items-center gap-2">

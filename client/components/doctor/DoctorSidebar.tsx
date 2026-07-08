@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { Calendar, MessageSquare, ChevronLeft, ChevronRight, LogOut, Bot } from "lucide-react";
+import { Calendar, MessageSquare, ChevronLeft, ChevronRight, LogOut, Bot, Building2 } from "lucide-react";
 import { useGetConversationsQuery } from "@/store/api/chatApi";
+import { useGetIncomingConnectionRequestsQuery } from "@/store/api/doctorApi";
 import { logout } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
 import NextImage from "next/image";
@@ -38,6 +39,7 @@ export default function DoctorSidebar() {
         { href: "/dashboard/doctor/prescriptions", label: t('nav.prescriptions'), icon: DescriptionIcon },
         { href: "/dashboard/doctor/appointments", label: t('nav.appointments'), icon: Calendar },
         { href: "/dashboard/doctor/chat", label: t('nav.chat'), icon: MessageSquare },
+        { href: "/dashboard/doctor/connection-requests", label: t('nav.requests') || "Requests", icon: Building2 },
         { href: "/dashboard/doctor/schedule", label: t('nav.schedule'), icon: ClockIcon },
         { href: "/dashboard/doctor/profile", label: t('nav.profile'), icon: UserIcon },
     ];
@@ -46,6 +48,12 @@ export default function DoctorSidebar() {
         pollingInterval: 30000,
         skip: !mounted
     });
+    
+    const { data: connectionRequestsData } = useGetIncomingConnectionRequestsQuery(undefined, {
+        pollingInterval: 30000,
+        skip: !mounted
+    });
+    
     const { onConversationUpdated, onNewMessage } = useChatSocket();
 
     useEffect(() => {
@@ -62,6 +70,7 @@ export default function DoctorSidebar() {
     }, [onConversationUpdated, onNewMessage, refetch]);
 
     const totalUnread = conversationsData?.data?.reduce((acc: number, conv: any) => acc + (conv.unreadCount || 0), 0) || 0;
+    const pendingRequestsCount = connectionRequestsData?.data?.filter((r: any) => r.status === 'pending').length || 0;
 
     const isActive = (href: string) => {
         if (href === "/dashboard/doctor") {
@@ -73,12 +82,16 @@ export default function DoctorSidebar() {
     const handleLogout = () => {
         dispatch(logout());
         localStorage.clear();
-        toast.success(t('toast.logoutSuccess'));
+        let logoutMsg = "Logged out successfully";
+        try {
+            if (t.has('toast.logoutSuccess')) logoutMsg = t('toast.logoutSuccess');
+        } catch (e) {}
+        toast.success(logoutMsg);
         router.push("/login");
     };
 
     return (
-        <aside style={{ zIndex: 600 }} className={`lens-sidebar sticky top-0 self-start hidden lg:flex ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
+        <aside style={{ zIndex: 600 }} className={`lens-sidebar sticky top-0 self-start hidden lg:flex flex-col h-screen overflow-hidden ${isCollapsed ? 'lens-sidebar-collapsed' : ''}`}>
             <button
                 onClick={() => dispatch(toggleSidebar())}
                 className={`absolute ${t.raw('nav.navigation') === 'نیویگیشن' ? '-left-3' : '-right-3'} top-20 bg-primary text-white p-1 rounded-full shadow-lg border-2 border-white dark:border-[#18181b] z-50 hover:scale-110 transition-transform hidden lg:block`}
@@ -124,8 +137,8 @@ export default function DoctorSidebar() {
                 </div>
             )}
 
-            <nav className="flex flex-col gap-1">
-                {!isCollapsed && <p className="lens-section-label mb-2">{t('nav.navigation')}</p>}
+            <nav className="flex flex-col gap-1 flex-1 overflow-y-auto px-3 pb-4">
+                {!isCollapsed && <p className="lens-section-label mb-2 px-2">{t('nav.navigation')}</p>}
                 {navLinks.map((link) => {
                     const Icon = link.icon;
                     return (
@@ -142,6 +155,11 @@ export default function DoctorSidebar() {
                                     {totalUnread > 9 ? '9+' : totalUnread}
                                 </span>
                             )}
+                            {link.href.includes('/connection-requests') && pendingRequestsCount > 0 && (
+                                <span className={`${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-[#18181b]`}>
+                                    {pendingRequestsCount > 9 ? '9+' : pendingRequestsCount}
+                                </span>
+                            )}
                         </Link>
                     );
                 })}
@@ -149,11 +167,13 @@ export default function DoctorSidebar() {
                 {/* AI Copilot Button */}
                 <button
                     onClick={() => dispatch(toggleDoctorCopilot())}
-                    title={isCollapsed ? "Doctor Assistant" : ""}
-                    className={`${isDoctorCopilotOpen ? "lens-nav-item-active" : "lens-nav-item"} ${isCollapsed ? 'justify-center px-0' : ''}`}
+                    title={isCollapsed ? t('nav.doctorAssistant') || "Doctor Assistant" : ""}
+                    className={`flex items-center gap-[0.625rem] px-3 py-2.5 rounded-lg text-[13.5px] font-semibold transition-all w-full
+                        bg-[#00b495] text-white hover:bg-[#19bca0] shadow-md shadow-[#00b495]/20 mt-1
+                        ${isCollapsed ? 'justify-center px-0' : ''}`}
                 >
-                    <Bot size={18} strokeWidth={isDoctorCopilotOpen ? 2.5 : 2} className="shrink-0" />
-                    {!isCollapsed && <span>Doctor Assistant</span>}
+                    <Bot size={18} strokeWidth={2.5} className="shrink-0" />
+                    {!isCollapsed && <span>{t('nav.doctorAssistant') || "Doctor Assistant"}</span>}
                 </button>
             </nav>
 

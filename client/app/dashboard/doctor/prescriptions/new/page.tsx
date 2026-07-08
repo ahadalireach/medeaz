@@ -11,6 +11,7 @@ import TrashIcon from "@/icons/trash-icon";
 import { useTranslations, useLocale } from "next-intl";
 import { useSelector } from "react-redux";
 import VoicePrescription from "@/components/doctor/VoicePrescription";
+import { useDebounce } from "@/hooks/useDebounce";
 
 type Medicine = {
   name: string;
@@ -63,21 +64,21 @@ function NewPrescriptionInner() {
     appointmentId: appointmentIdFromQuery || null,
   });
   const [patientSearch, setPatientSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debouncedSearch = useDebounce(patientSearch, 300);
+
+  const [shouldScheduleFollowUp, setShouldScheduleFollowUp] = useState(false);
+  const [followUpValue, setFollowUpValue] = useState(1);
+  const [followUpUnit, setFollowUpUnit] = useState<"days" | "weeks" | "months">("days");
+  const [followUpNotes, setFollowUpNotes] = useState("");
 
   const { data: patientsData, isLoading: loadingPatients, isFetching: isSearching } = useGetPatientsQuery({
     search: debouncedSearch,
     limit: 100,
-  });
+  }, { skip: debouncedSearch.length > 0 && debouncedSearch.trim().length < 2 });
   const { data: profileResponse } = useGetDoctorProfileQuery(undefined);
   const [createPrescription, { isLoading: creating }] = useCreatePrescriptionMutation();
 
   const patients = patientsData?.data?.patients || [];
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(patientSearch), 500);
-    return () => clearTimeout(timer);
-  }, [patientSearch]);
 
   useEffect(() => {
     if (patientIdFromQuery) {
@@ -163,6 +164,11 @@ function NewPrescriptionInner() {
         patientId: selectedPatient,
         ...prescriptionData,
         appointmentId: prescriptionData.appointmentId || null,
+        followUp: shouldScheduleFollowUp ? {
+          value: followUpValue,
+          unit: followUpUnit,
+          notes: followUpNotes,
+        } : undefined,
       }).unwrap();
 
       toast.dismiss(toastId);
@@ -230,8 +236,11 @@ function NewPrescriptionInner() {
                   onChange={(e) => setPatientSearch(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl focus:border-primary focus:outline-none font-medium text-lg lg:text-xl transition-all"
                 />
-                {isSearching && <Loader className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 animate-spin text-primary" />}
+                {isSearching && <Loader className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 animate-spin text-[#00b495]" />}
               </div>
+              {patientSearch.length > 0 && patientSearch.trim().length < 2 && (
+                <p className="text-[#9ca3af] text-[12px] font-inter mt-[-16px] mb-4 ml-2">Type at least 2 characters to search</p>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-100 overflow-y-auto p-2 mb-6">
                 {patients.length > 0 ? (
@@ -383,6 +392,66 @@ function NewPrescriptionInner() {
               <span className="text-gray-500 font-bold uppercase tracking-widest text-xs">{t("doctor.prescriptions.totalBilling")}</span>
               <span className="text-2xl font-black text-primary">{(Number(prescriptionData.consultationFee) + Number(prescriptionData.medicineCost)).toLocaleString(undefined, { maximumFractionDigits: 0 })} {t("common.pkr")}</span>
             </div>
+          </div>
+
+          {/* Follow-up reminder scheduling card */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={shouldScheduleFollowUp}
+                onChange={(e) => setShouldScheduleFollowUp(e.target.checked)}
+                className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+              />
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors">
+                {t.raw('nav.navigation') === 'نیویگیشن' ? "اگلی اپائنٹمنٹ (فالو اپ) شیڈول کریں" : "Schedule a Follow-Up Visit"}
+              </span>
+            </label>
+
+            {shouldScheduleFollowUp && (
+              <div className="space-y-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50 animate-in slide-in-from-top-4 duration-200">
+                <div className="space-y-2">
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+                    {t.raw('nav.navigation') === 'نیویگیشن' ? "فالو اپ کی مدت" : "Follow-Up Period"}
+                  </span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <select
+                      value={followUpValue}
+                      onChange={(e) => setFollowUpValue(Number(e.target.value))}
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-950 dark:text-white font-semibold text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    >
+                      {[...Array(30)].map((_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          {i + 1}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={followUpUnit}
+                      onChange={(e) => setFollowUpUnit(e.target.value as any)}
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-950 dark:text-white font-semibold text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    >
+                      <option value="days">{t.raw('nav.navigation') === 'نیویگیشن' ? "دن" : "Days"}</option>
+                      <option value="weeks">{t.raw('nav.navigation') === 'نیویگیشن' ? "ہفتے" : "Weeks"}</option>
+                      <option value="months">{t.raw('nav.navigation') === 'نیویگیشن' ? "مہینے" : "Months"}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+                    {t.raw('nav.navigation') === 'نیویگیشن' ? "فالو اپ کے نوٹس" : "Follow-Up Notes"}
+                  </span>
+                  <textarea
+                    value={followUpNotes}
+                    onChange={(e) => setFollowUpNotes(e.target.value)}
+                    placeholder={t.raw('nav.navigation') === 'نیویگیشن' ? "مثال کے طور پر: براہ کرم تازہ ترین لیب رپورٹس ساتھ لائیں۔" : "e.g., Please bring latest lab reports"}
+                    className="w-full min-h-[80px] p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-950 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">

@@ -3,14 +3,16 @@
 import { useGetPatientProfileQuery } from "@/store/api/clinicApi";
 import { format } from "date-fns";
 import {
-    User, Phone, Mail, MapPin, Calendar, Clock,
-    FileText, Pill, Activity, Printer,
-    ArrowLeft, Download, ExternalLink, UserCircle
+    Phone, Mail, Calendar, Clock,
+    FileText, Activity, Printer,
+    ArrowLeft, Download, ExternalLink
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { HealthScoreGauge } from "@/components/shared/HealthScoreGauge";
+import { useGetHealthScoreQuery } from "@/store/api/patientApi";
 
 export default function PatientProfileView({
     patientId,
@@ -33,6 +35,7 @@ export default function PatientProfileView({
     const appointmentBaseUrl = isDoctor ? '/dashboard/doctor/appointments' : '/dashboard/clinic_admin/appointments';
 
     const { data, isLoading, error } = useGetPatientProfileQuery(patientId);
+    const { data: healthScoreData, isLoading: isScoreLoading } = useGetHealthScoreQuery(patientId);
 
     if (isLoading) {
         return (
@@ -66,7 +69,6 @@ export default function PatientProfileView({
         return `${base}${raw.startsWith("/") ? "" : "/"}${raw}`;
     };
 
-    const patientAppointmentsLink = `/dashboard/clinic_admin/appointments?patientId=${patient._id}`;
 
     return (
         <div className="space-y-6">
@@ -93,7 +95,9 @@ export default function PatientProfileView({
                 </div>
             </div>
 
-            {/* Patient Hero Card */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Patient Hero Card */}
             <div className="bg-white rounded-[1.75rem] border border-border-light shadow-sm overflow-hidden group">
                 <div className="bg-white p-5 md:p-6 border-b border-border-light">
                     <div className="flex flex-col md:flex-row items-center gap-5 md:gap-6">
@@ -289,6 +293,17 @@ export default function PatientProfileView({
                             })()}
                         </div>
                     )}
+                </div>
+            </div>
+            </div>
+            <div className="flex justify-center lg:justify-end">
+                    <HealthScoreGauge
+                        size="lg"
+                        score={healthScoreData?.data?.score || 0}
+                        breakdown={healthScoreData?.data?.breakdown}
+                        isNewPatient={healthScoreData?.data?.isNewPatient}
+                        loading={isScoreLoading}
+                    />
                 </div>
             </div>
         </div>

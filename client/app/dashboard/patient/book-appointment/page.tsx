@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBookAppointmentMutation, useGetClinicsQuery, useGetAvailableSlotsQuery, useReserveSlotMutation } from "@/store/api/patientApi";
-import { ArrowLeft, ArrowRight, Check, Calendar, Clock, User, Building2, Search } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Calendar, Clock, User, Building2, Search, Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
 import { SuccessModal } from "@/components/ui/SuccessModal";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { resolveMediaUrl } from "@/lib/media";
 
 const steps = (t: any) => [
   { id: 1, name: t('patient.bookAppointmentPage.steps.clinic'), icon: Building2 },
@@ -18,6 +19,62 @@ const steps = (t: any) => [
 
 export default function BookAppointmentPage() {
   const t = useTranslations();
+  const locale = useLocale();
+
+  const getClinicHoursDisplay = (clinic: any) => {
+    const to12h = (t24: string) => {
+      if (!t24) return "";
+      if (t24.includes("AM") || t24.includes("PM")) return t24;
+      const [h, m] = t24.split(":").map(Number);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 || 12;
+      return `${h12.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")} ${ampm}`;
+    };
+    if (!clinic || !clinic.workingHours) return locale === 'ur' ? "آج بند ہے" : "Closed Today";
+    const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const todayName = dayNames[new Date().getDay()];
+    const todayHours = clinic.workingHours[todayName];
+    if (todayHours && !todayHours.closed && todayHours.open && todayHours.close) {
+      return `${to12h(todayHours.open)} - ${to12h(todayHours.close)}`;
+    }
+    for (const day of dayNames) {
+      const hours = clinic.workingHours[day];
+      if (hours && !hours.closed && hours.open && hours.close) {
+        const getUrduDay = (engDay: string) => {
+          const mapping: Record<string, string> = {
+            monday: 'پیر',
+            tuesday: 'منگل',
+            wednesday: 'بدھ',
+            thursday: 'جمعرات',
+            friday: 'جمعہ',
+            saturday: 'ہفتہ',
+            sunday: 'اتوار'
+          };
+          return mapping[engDay.toLowerCase()] || engDay;
+        };
+        return locale === 'ur'
+          ? `${getUrduDay(day)}: ${to12h(hours.open)} - ${to12h(hours.close)}`
+          : `${day.charAt(0).toUpperCase() + day.slice(1)}: ${to12h(hours.open)} - ${to12h(hours.close)}`;
+      }
+    }
+    return locale === 'ur' ? "بند" : "Closed";
+  };
+
+  const isSlotHighlighted = (slot: string) => {
+    if (!formData.appointmentTime) return false;
+    const slot12 = formatTo12Hour(slot);
+    if (formData.appointmentTime === slot12) return true;
+
+    if (formData.duration === 30) {
+      const clickedIdx = availableSlots.findIndex(s => formatTo12Hour(s) === formData.appointmentTime);
+      if (clickedIdx !== -1) {
+        const nextSlot = availableSlots[clickedIdx + 1];
+        if (nextSlot && nextSlot === slot) return true;
+      }
+    }
+    return false;
+  };
+
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,14 +157,17 @@ export default function BookAppointmentPage() {
 
   const getAvailableSlots = () => {
     if (!formData.appointmentDate) return [];
+    
+    // Filter for future slots if the appointment is for today
+    const now = new Date();
+    const isToday = formData.appointmentDate === now.toLocaleDateString('en-CA');
+    
+    if (selectedDoctor?.availabilityStatus === 'on-leave' && isToday) return [];
+    
     const date = new Date(formData.appointmentDate + "T00:00:00");
     const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     const dayName = dayNames[date.getDay()];
     const slots24h = doctorSchedule[dayName] || [];
-
-    // Filter for future slots if the appointment is for today
-    const now = new Date();
-    const isToday = formData.appointmentDate === now.toLocaleDateString('en-CA');
 
     let filteredSlots = [...slots24h].sort();
 
@@ -157,13 +217,13 @@ export default function BookAppointmentPage() {
     let [h, m] = time.split(":").map(Number);
     if (ampm === "PM" && h < 12) h += 12;
     if (ampm === "AM" && h === 12) h = 0;
-    
+
     m += duration;
     if (m >= 60) {
       h += Math.floor(m / 60);
       m = m % 60;
     }
-    
+
     const endAmpm = h >= 12 && h < 24 ? "PM" : "AM";
     const endH = (h % 12) || 12;
     return `${endH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${endAmpm}`;
@@ -209,7 +269,7 @@ export default function BookAppointmentPage() {
   });
 
   const getAvailabilityBadge = (schedule: any) => {
-    if (!schedule) return "Schedule Unknown";
+    if (!schedule) return locale === 'ur' ? "شیڈول نامعلوم" : "Schedule Unknown";
     const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     const now = new Date();
     const todayIdx = now.getDay();
@@ -237,8 +297,8 @@ export default function BookAppointmentPage() {
         return (hour > currentHour) || (hour === currentHour && minute > currentMin);
       });
 
-      if (hasFutureSlots) return "Available Today";
-      return "Not Available Today";
+      if (hasFutureSlots) return locale === 'ur' ? "آج دستیاب ہے" : "Available Today";
+      return locale === 'ur' ? "آج دستیاب نہیں ہے" : "Not Available Today";
     }
 
     if (schedule[days[(todayIdx + 1) % 7]]?.length > 0) return t('patient.bookAppointmentPage.availability.tomorrow');
@@ -247,7 +307,21 @@ export default function BookAppointmentPage() {
       const dayIdx = (todayIdx + i) % 7;
       const dayName = days[dayIdx];
       if (schedule[dayName]?.length > 0) {
-        return t('patient.bookAppointmentPage.availability.available', { day: dayName.charAt(0).toUpperCase() + dayName.slice(1) });
+        const getUrduDay = (engDay: string) => {
+          const mapping: Record<string, string> = {
+            monday: 'پیر',
+            tuesday: 'منگل',
+            wednesday: 'بدھ',
+            thursday: 'جمعرات',
+            friday: 'جمعہ',
+            saturday: 'ہفتہ',
+            sunday: 'اتوار'
+          };
+          return mapping[engDay.toLowerCase()] || engDay;
+        };
+        return locale === 'ur'
+          ? `${getUrduDay(dayName)} کو دستیاب ہے`
+          : t('patient.bookAppointmentPage.availability.available', { day: dayName.charAt(0).toUpperCase() + dayName.slice(1) });
       }
     }
 
@@ -339,9 +413,9 @@ export default function BookAppointmentPage() {
           {/* Connecting line background */}
           <div className="absolute left-0 top-[20px] sm:top-[24px] w-full h-1 bg-surface -z-10 rounded-full" />
           {/* Active Connecting line */}
-          <div 
-             className="absolute left-0 top-[20px] sm:top-[24px] h-1 bg-primary -z-10 rounded-full transition-all duration-300"
-             style={{ width: `${((currentStep - 1) / (steps(t).length - 1)) * 100}%` }}
+          <div
+            className="absolute left-0 top-[20px] sm:top-[24px] h-1 bg-primary -z-10 rounded-full transition-all duration-300"
+            style={{ width: `${((currentStep - 1) / (steps(t).length - 1)) * 100}%` }}
           />
 
           {steps(t).map((step: any) => {
@@ -349,8 +423,8 @@ export default function BookAppointmentPage() {
             const isActive = currentStep === step.id;
             const isCompleted = currentStep > step.id;
             return (
-              <div 
-                key={step.id} 
+              <div
+                key={step.id}
                 className={`flex flex-col items-center group ${isCompleted || isActive ? "cursor-pointer" : ""}`}
                 onClick={() => {
                   if (step.id < currentStep || (step.id === 1 && currentStep > 1) || (step.id === 2 && formData.clinicId) || (step.id === 3 && formData.doctorId)) {
@@ -430,21 +504,34 @@ export default function BookAppointmentPage() {
                       }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="rounded-full bg-primary/10 p-3">
-                        <Building2 className="h-6 w-6 text-primary" />
+                      <div className="h-12 w-12 rounded-full border border-primary/20 overflow-hidden bg-primary/5 flex items-center justify-center shrink-0">
+                        {clinic.photo ? (
+                          <img
+                            src={resolveMediaUrl(clinic.photo)}
+                            alt={clinic.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Building2 className="h-6 w-6 text-primary" />
+                        )}
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-text-primary">{clinic.name}</h3>
                         {clinic.address && (
                           <p className="text-sm text-text-secondary">{clinic.address}</p>
                         )}
-                        <div className="flex items-center gap-4 mt-2">
+                        <div className="flex flex-wrap items-center gap-3 mt-2">
                           <p className="text-xs font-semibold text-text-secondary uppercase tracking-widest">
                             {clinic.doctors?.length === 1 ? t('patient.bookAppointmentPage.doctorsCountSingle') : t('patient.bookAppointmentPage.doctorsCount', { n: clinic.doctors?.length || 0 })}
                           </p>
-                          <div className="flex items-center gap-1.5 text-xs font-semibold text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20" dir="ltr">
                             <Clock className="h-3 w-3" />
-                            <span>{clinic.workingHours?.open || "09:00 AM"} - {clinic.workingHours?.close || "09:00 PM"}</span>
+                            <span>{getClinicHoursDisplay(clinic)}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 uppercase tracking-widest bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20" dir="ltr">
+                            <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                            <span>{clinic.clinicRating?.overall ? clinic.clinicRating.overall.toFixed(1) : "N/A"}</span>
+                            <span className="opacity-70">({clinic.clinicRating?.totalReviews || 0} {locale === 'ur' ? 'جائزے' : 'reviews'})</span>
                           </div>
                         </div>
                       </div>
@@ -480,15 +567,29 @@ export default function BookAppointmentPage() {
                         }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="rounded-full bg-primary/10 p-3">
-                          <User className="h-6 w-6 text-primary" />
+                        <div className="h-12 w-12 rounded-full border border-primary/20 overflow-hidden bg-primary/5 flex items-center justify-center shrink-0">
+                          {doctor.userId?.photo || doctor.photo ? (
+                            <img
+                              src={resolveMediaUrl(doctor.userId?.photo || doctor.photo)}
+                              alt={docName}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <User className="h-6 w-6 text-primary" />
+                          )}
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-text-primary">Dr. {docName}</h3>
                           <p className="text-sm text-text-secondary">{doctor.specialization}</p>
-                          <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-surface text-primary rounded-full">
-                            {getAvailabilityBadge(doctor.schedule)}
-                          </div>
+                          {doctor.availabilityStatus === 'on-leave' ? (
+                            <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-700 border border-red-200 rounded-full">
+                              {t('patient.bookAppointmentPage.availability.onLeave')}
+                            </div>
+                          ) : (
+                            <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-surface text-primary rounded-full">
+                              {getAvailabilityBadge(doctor.schedule)}
+                            </div>
+                          )}
                         </div>
                         {formData.doctorId === doctor._id && <Check className="h-6 w-6 text-primary" />}
                       </div>
@@ -529,10 +630,11 @@ export default function BookAppointmentPage() {
                         key={slot}
                         disabled={isBooked}
                         onClick={() => setFormData({ ...formData, appointmentTime: formatTo12Hour(slot) })}
-                        className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${formData.appointmentTime === formatTo12Hour(slot)
+                        dir="ltr"
+                        className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${isSlotHighlighted(slot)
                           ? "border-primary bg-primary text-white font-bold"
                           : isBooked
-                            ? "border-border-light bg-background text-white/70 cursor-not-allowed line-through"
+                            ? "border-border-light bg-[#f4f4f5] dark:bg-[#27272a] text-gray-400 dark:text-gray-600 cursor-not-allowed line-through opacity-50"
                             : "border-border-light text-text-primary hover:border-border :border-border"
                           }`}
                       >
@@ -542,38 +644,55 @@ export default function BookAppointmentPage() {
                   })
                 ) : (
                   <div className="col-span-3 sm:col-span-4 rounded-xl border border-dashed border-border p-6 text-center text-sm font-medium text-text-secondary">
-                    {formData.appointmentDate
-                      ? t('patient.bookAppointmentPage.noSlotsAvailable')
-                      : t('patient.bookAppointmentPage.selectDateFirst')}
+                    {formData.appointmentDate ? (() => {
+                      const now = new Date();
+                      const isToday = formData.appointmentDate === now.toLocaleDateString('en-CA');
+                      if (selectedDoctor?.availabilityStatus === 'on-leave' && isToday) {
+                        return t('patient.bookAppointmentPage.doctorNotAvailableToday');
+                      }
+                      const dateObj = new Date(formData.appointmentDate + "T00:00:00");
+                      const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                      const dayName = dayNames[dateObj.getDay()];
+                      const isDayInSchedule = doctorSchedule[dayName] && doctorSchedule[dayName].length > 0;
+                      return !isDayInSchedule
+                        ? t('patient.bookAppointmentPage.noSlotAvailableToday')
+                        : t('patient.bookAppointmentPage.noSlotsAvailable');
+                    })() : (
+                      t('patient.bookAppointmentPage.selectDateFirst')
+                    )}
                   </div>
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 bg-surface p-4 rounded-xl border border-black/5 mt-4">
-               <input
-                 type="checkbox"
-                 id="double-slot"
-                 checked={formData.duration === 30}
-                 onChange={(e) => {
-                   const newDuration = e.target.checked ? 30 : 15;
-                   // Clear selected time if it becomes invalid with new duration
-                   let newTime = formData.appointmentTime;
-                   if (newDuration === 30 && formData.appointmentTime) {
-                     // Find original 24h slot to test
-                     const origSlot = availableSlots.find(s => formatTo12Hour(s) === formData.appointmentTime);
-                     if (origSlot && isSlotBookedForDuration(origSlot, 30)) {
-                       newTime = "";
-                     }
-                   }
-                   setFormData({...formData, duration: newDuration, appointmentTime: newTime});
-                 }}
-                 className="w-5 h-5 accent-primary rounded cursor-pointer"
-               />
-               <label htmlFor="double-slot" className="cursor-pointer flex-1">
-                 <p className="text-sm font-bold text-text-primary">Extended Consultation (30 Minutes)</p>
-                 <p className="text-xs text-text-secondary">Book two consecutive slots. Consultation fee will automatically adjust.</p>
-               </label>
+              <input
+                type="checkbox"
+                id="double-slot"
+                checked={formData.duration === 30}
+                onChange={(e) => {
+                  const newDuration = e.target.checked ? 30 : 15;
+                  // Clear selected time if it becomes invalid with new duration
+                  let newTime = formData.appointmentTime;
+                  if (newDuration === 30 && formData.appointmentTime) {
+                    // Find original 24h slot to test
+                    const origSlot = availableSlots.find(s => formatTo12Hour(s) === formData.appointmentTime);
+                    if (origSlot && isSlotBookedForDuration(origSlot, 30)) {
+                      newTime = "";
+                    }
+                  }
+                  setFormData({ ...formData, duration: newDuration, appointmentTime: newTime });
+                }}
+                className="w-5 h-5 accent-primary rounded cursor-pointer"
+              />
+              <label htmlFor="double-slot" className="cursor-pointer flex-1">
+                <p className="text-sm font-bold text-text-primary">
+                  {t('patient.bookAppointmentPage.extendedConsultationTitle')}
+                </p>
+                <p className="text-xs text-text-secondary">
+                  {t('patient.bookAppointmentPage.extendedConsultationDescription')}
+                </p>
+              </label>
             </div>
 
             <div>
@@ -597,14 +716,42 @@ export default function BookAppointmentPage() {
             <h2 className="text-2xl font-bold text-text-primary">{t('patient.bookAppointmentPage.confirmTitle')}</h2>
             <div className="space-y-4 rounded-lg border border-border-light p-6">
               <div className="flex items-start gap-3">
-                <Building2 className="mt-1 h-5 w-5 text-primary" />
+                <div className="mt-1 h-6 w-6 rounded-full border border-primary/20 overflow-hidden bg-primary/5 flex items-center justify-center shrink-0">
+                  {selectedClinic?.photo ? (
+                    <img
+                      src={resolveMediaUrl(selectedClinic.photo)}
+                      alt={formData.clinicName}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Building2 className="h-4 w-4 text-primary" />
+                  )}
+                </div>
                 <div>
                   <p className="text-sm text-text-secondary">{t('patient.bookAppointmentPage.clinicLabel')}</p>
-                  <p className="font-semibold text-text-primary">{formData.clinicName}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-text-primary">{formData.clinicName}</p>
+                    {selectedClinic?.clinicRating?.overall && (
+                      <div className="flex items-center gap-0.5 text-xs text-amber-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded-full" dir="ltr">
+                        <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                        <span>{selectedClinic.clinicRating.overall.toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <User className="mt-1 h-5 w-5 text-primary" />
+                <div className="mt-1 h-6 w-6 rounded-full border border-primary/20 overflow-hidden bg-primary/5 flex items-center justify-center shrink-0">
+                  {selectedDoctor?.userId?.photo || selectedDoctor?.photo ? (
+                    <img
+                      src={resolveMediaUrl(selectedDoctor?.userId?.photo || selectedDoctor?.photo)}
+                      alt={formData.doctorName}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-4 w-4 text-primary" />
+                  )}
+                </div>
                 <div>
                   <p className="text-sm text-text-secondary">{t('patient.bookAppointmentPage.doctorLabel')}</p>
                   <p className="font-semibold text-text-primary">{t('patient.bookAppointmentPage.doctorPrefix')} {formData.doctorName}</p>
@@ -623,12 +770,21 @@ export default function BookAppointmentPage() {
                       year: "numeric",
                     })}
                   </p>
-                  <p className="text-sm text-text-secondary">
+                  <p className="text-sm text-text-secondary" dir="ltr">
                     {formData.appointmentTime} {formData.duration === 30 ? `- ${getEndTimeStr(formData.appointmentTime, 30)} (30 Mins)` : ""}
                   </p>
                 </div>
               </div>
-              <div className="rounded-lg bg-background p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-1 text-primary text-lg font-bold flex items-center justify-center w-5 h-5">₨</div>
+                <div>
+                  <p className="text-sm text-text-secondary">{locale === 'ur' ? 'مشاورتی فیس' : 'Consultation Fee'}</p>
+                  <p className="font-semibold text-text-primary">
+                    {locale === 'ur' ? 'روپے' : 'Rs.'} {formData.duration === 30 ? (selectedDoctor?.consultationFee || 0) * 2 : (selectedDoctor?.consultationFee || 0)} {formData.duration === 30 ? (locale === 'ur' ? ' (ڈبل سلاٹس)' : ' (Double Slots)') : (locale === 'ur' ? ' (سنگل سلاٹ)' : ' (Single Slot)')}
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-lg bg-[#f4f4f5] dark:bg-[#27272a] p-4">
                 <p className="text-sm font-semibold text-text-secondary">{t('patient.bookAppointmentPage.reasonForVisit')}</p>
                 <p className="mt-1 text-text-primary">{formData.reason}</p>
               </div>

@@ -38,8 +38,14 @@ const buildUserResponse = (user) => {
     role: primaryRole,
     roles: user.roles,
     isVerified: user.isVerified,
-    onboardingCompleted: Boolean(user.onboardingCompleted),
+    onboardingCompleted: Boolean(user.onboardingCompleted || user.isOnboardingComplete),
+    isOnboardingComplete: Boolean(user.isOnboardingComplete || user.onboardingCompleted),
+    onboardingStep: user.onboardingStep || 0,
     profileCompleted: Boolean(user.profileCompleted),
+    skippedStep: user.skippedStep,
+    provider: user.authProvider || "local",
+    authProvider: user.authProvider || "local",
+    emailProvider: user.emailProvider || user.authProvider || "local",
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
@@ -59,11 +65,22 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // Check if user already exists in DB
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
 
-    // Block re-registration with a DIFFERENT role (role isolation)
+    // Check if user already exists in DB (case-insensitive check)
+    const existingUser = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") },
+    });
+
+    // Block re-registration or mixing with Google auth
     if (existingUser) {
+      if (existingUser.authProvider === "google" || existingUser.googleId) {
+        return res.status(400).json({
+          success: false,
+          message: "This email is registered using Google login. Please click 'Continue with Google' to log in.",
+        });
+      }
+
       if (existingUser.roles.includes(role)) {
         return res.status(400).json({
           success: false,
@@ -99,7 +116,7 @@ const registerUser = async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
     const userData = {
-      email,
+      email: normalizedEmail,
       password,
       role,
       profileData,
@@ -156,25 +173,28 @@ const verifyEmail = async (req, res) => {
     const resolvedPhoto = profileData?.photo || null;
 
     let user;
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
     if (isNew) {
       user = await User.create({
         name: resolvedName,
         phone: resolvedPhone,
         photo: resolvedPhoto,
-        email,
+        email: normalizedEmail,
         password,
         roles: [role],
         isVerified: true,
       });
     } else {
-      user = await User.findOne({ email });
+      user = await User.findOne({
+        email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") },
+      });
       if (!user) {
         // Handle case where user was expected to exist but doesn't (cache/db out of sync)
         user = await User.create({
           name: resolvedName,
           phone: resolvedPhone,
           photo: resolvedPhoto,
-          email,
+          email: normalizedEmail,
           password,
           roles: [role],
           isVerified: true,
@@ -264,9 +284,25 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") },
+    }).select("+password");
 
-    if (!user || !(await user.matchPassword(password))) {
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    if (user.authProvider === "google" || user.googleId) {
+      return res.status(400).json({
+        success: false,
+        message: "This email is registered using Google login. Please click 'Continue with Google' to log in.",
+      });
+    }
+
+    if (!(await user.matchPassword(password))) {
       return res
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
@@ -391,12 +427,21 @@ const updateUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      // Email is unchangeable for all portals/auth providers
       user.name = req.body.name || user.name;
       user.phone = req.body.phone ?? user.phone;
       user.photo = req.body.photo ?? user.photo;
-      user.email = req.body.email || user.email;
 
-      if (req.body.password) {
+      if (req.body.newPassword) {
+        if (!req.body.currentPassword) {
+          return res.status(400).json({ success: false, message: "Current password is required to change password" });
+        }
+        const isMatch = await user.matchPassword(req.body.currentPassword);
+        if (!isMatch) {
+          return res.status(400).json({ success: false, message: "Incorrect current password" });
+        }
+        user.password = req.body.newPassword;
+      } else if (req.body.password) {
         user.password = req.body.password;
       }
 
@@ -422,7 +467,10 @@ const updateUserProfile = async (req, res) => {
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") },
+    });
 
     if (!user) {
       return res

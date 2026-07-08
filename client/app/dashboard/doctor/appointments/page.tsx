@@ -32,6 +32,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { useTranslations } from "next-intl";
+import PageHeader from "@/components/shared/PageHeader";
 
 const AppointmentTimer = ({ startTime }: { startTime: string }) => {
   const [timeLeft, setTimeLeft] = useState("");
@@ -102,6 +103,11 @@ export default function AppointmentsPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [dismissedLateWarnings, setDismissedLateWarnings] = useState<string[]>([]);
   const [pendingAction, setPendingAction] = useState<{ id: string; status: string } | null>(null);
+  const [followUpModal, setFollowUpModal] = useState<{ open: boolean; id: string } | null>(null);
+  const [shouldScheduleFollowUp, setShouldScheduleFollowUp] = useState(false);
+  const [followUpValue, setFollowUpValue] = useState(1);
+  const [followUpUnit, setFollowUpUnit] = useState<"days" | "weeks" | "months">("days");
+  const [followUpNotes, setFollowUpNotes] = useState("");
 
   const { data: allData, isLoading: allLoading } = useGetAppointmentsQuery({ limit: 100 });
   const { data: detailData, isLoading: isDetailLoading } = useGetAppointmentByIdQuery(selectedId!, {
@@ -252,11 +258,11 @@ export default function AppointmentsPage() {
     });
   }, [appointments, dismissedLateWarnings]);
 
-  const handleStatusUpdate = async (id: string, status: string) => {
+  const handleStatusUpdate = async (id: string, status: string, followUpData?: any) => {
     setPendingAction({ id, status });
     try {
       if (status === "completed") {
-        await completeAppointment({ id }).unwrap();
+        await completeAppointment({ id, ...followUpData }).unwrap();
       } else {
         await updateStatus({ id, status }).unwrap();
       }
@@ -299,16 +305,16 @@ export default function AppointmentsPage() {
 
   return (
     <div className="space-y-10 animate-in">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="lens-page-title">{t('doctor.appointments.title')}</h1>
-          <p className="lens-subtitle">{t('doctor.appointments.subtitle')}</p>
-        </div>
-        <Link href="/dashboard/doctor/appointments/new" className="lens-btn-primary h-12 px-6">
-          <Plus className="h-4 w-4 stroke-[3px]" />
-          <span>{t('doctor.appointments.newAppointment')}</span>
-        </Link>
-      </div>
+      <PageHeader
+        title="Appointments"
+        description={t('doctor.appointments.subtitle')}
+        action={
+          <Link href="/dashboard/doctor/appointments/new" className="lens-btn-primary h-12 px-6">
+            <Plus className="h-4 w-4 stroke-[3px]" />
+            <span>{t('doctor.appointments.newAppointment')}</span>
+          </Link>
+        }
+      />
 
       <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-full w-fit">
         {["all", "yesterday", "today", "tomorrow"].map((f) => (
@@ -438,7 +444,7 @@ export default function AppointmentsPage() {
                         {getStatusLabel(appointment.status)}
                       </span>
 
-                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {appointment.status === "pending" && (
                           <button
                             onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
@@ -469,7 +475,7 @@ export default function AppointmentsPage() {
                         {appointment.status === "in-progress" && (
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => handleStatusUpdate(appointment._id, "completed")}
+                              onClick={() => setFollowUpModal({ open: true, id: appointment._id })}
                               disabled={pendingAction?.id === appointment._id && pendingAction?.status === "completed"}
                               className="lens-btn-primary h-10 px-6 text-xs font-black bg-green-600 hover:bg-green-700 border-none shadow-lg shadow-green-500/20 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                             >
@@ -532,6 +538,125 @@ export default function AppointmentsPage() {
         title={successConfig.title}
         message={successConfig.message}
       />
+
+      {/* Follow Up Modal */}
+      {followUpModal && followUpModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0f172a] border border-black/10 dark:border-white/10 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 relative overflow-hidden">
+            {/* Brand accent pattern */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#00b495]" />
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                {t.raw('nav.navigation') === 'نیویگیشن' ? "اپائنٹمنٹ مکمل کریں" : "Complete Appointment"}
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {t.raw('nav.navigation') === 'نیویگیشن' 
+                  ? "کیا آپ اس اپائنٹمنٹ کو مکمل کرنا چاہتے ہیں؟ آپ مریض کے لیے فالو اپ بھی شیڈول کر سکتے ہیں۔" 
+                  : "Would you like to complete this appointment? You can also schedule a follow-up visit for the patient."}
+              </p>
+            </div>
+
+            {/* Follow-up fields */}
+            <div className="space-y-4 pt-2">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={shouldScheduleFollowUp}
+                  onChange={(e) => setShouldScheduleFollowUp(e.target.checked)}
+                  className="w-5 h-5 rounded border-gray-300 text-[#00b495] focus:ring-[#00b495] cursor-pointer"
+                />
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#00b495] transition-colors">
+                  {t.raw('nav.navigation') === 'نیویگیشن' ? "اگلی اپائنٹمنٹ (فالو اپ) شیڈول کریں" : "Schedule a Follow-Up Visit"}
+                </span>
+              </label>
+
+              {shouldScheduleFollowUp && (
+                <div className="space-y-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50 animate-in slide-in-from-top-4 duration-200">
+                  {/* Value & Unit selectors */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+                      {t.raw('nav.navigation') === 'نیویگیشن' ? "فالو اپ کی مدت" : "Follow-Up Period"}
+                    </span>
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Value picker */}
+                      <select
+                        value={followUpValue}
+                        onChange={(e) => setFollowUpValue(Number(e.target.value))}
+                        className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] text-slate-950 dark:text-white font-semibold text-sm focus:outline-none focus:border-[#00b495] focus:ring-1 focus:ring-[#00b495]"
+                      >
+                        {[...Array(30)].map((_, i) => (
+                          <option key={i + 1} value={i + 1}>
+                            {i + 1}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Unit picker */}
+                      <select
+                        value={followUpUnit}
+                        onChange={(e) => setFollowUpUnit(e.target.value as any)}
+                        className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] text-slate-950 dark:text-white font-semibold text-sm focus:outline-none focus:border-[#00b495] focus:ring-1 focus:ring-[#00b495]"
+                      >
+                        <option value="days">{t.raw('nav.navigation') === 'نیویگیشن' ? "دن" : "Days"}</option>
+                        <option value="weeks">{t.raw('nav.navigation') === 'نیویگیشن' ? "ہفتے" : "Weeks"}</option>
+                        <option value="months">{t.raw('nav.navigation') === 'نیویگیشن' ? "مہینے" : "Months"}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Notes */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+                      {t.raw('nav.navigation') === 'نیویگیشن' ? "فالو اپ کے نوٹس" : "Follow-Up Notes"}
+                    </span>
+                    <textarea
+                      value={followUpNotes}
+                      onChange={(e) => setFollowUpNotes(e.target.value)}
+                      placeholder={t.raw('nav.navigation') === 'نیویگیشن' ? "مثال کے طور پر: براہ کرم تازہ ترین لیب رپورٹس ساتھ لائیں۔" : "e.g., Please bring latest lab reports"}
+                      className="w-full min-h-[80px] p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] text-slate-950 dark:text-white text-sm focus:outline-none focus:border-[#00b495] focus:ring-1 focus:ring-[#00b495] resize-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => {
+                  setFollowUpModal(null);
+                  setShouldScheduleFollowUp(false);
+                  setFollowUpValue(1);
+                  setFollowUpUnit("days");
+                  setFollowUpNotes("");
+                }}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold transition-all"
+              >
+                {t.raw('nav.navigation') === 'نیویگیشن' ? "منسوخ کریں" : "Cancel"}
+              </button>
+              <button
+                onClick={async () => {
+                  const id = followUpModal.id;
+                  const followUpData = shouldScheduleFollowUp 
+                    ? { followUp: { value: followUpValue, unit: followUpUnit, notes: followUpNotes } }
+                    : undefined;
+                  setFollowUpModal(null);
+                  setShouldScheduleFollowUp(false);
+                  setFollowUpValue(1);
+                  setFollowUpUnit("days");
+                  setFollowUpNotes("");
+                  
+                  await handleStatusUpdate(id, "completed", followUpData);
+                }}
+                className="px-6 py-2.5 rounded-xl bg-[#00b495] hover:bg-[#009c81] text-white text-sm font-bold shadow-lg shadow-[#00b495]/20 transition-all"
+              >
+                {t.raw('nav.navigation') === 'نیویگیشن' ? "اپائنٹمنٹ مکمل کریں" : "Complete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

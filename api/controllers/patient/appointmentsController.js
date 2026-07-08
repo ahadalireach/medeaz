@@ -3,7 +3,7 @@ const Patient = require('../../models/Patient');
 const Doctor = require('../../models/Doctor');
 const Clinic = require('../../models/Clinic');
 const User = require('../../models/User');
-const { invalidateAllDoctorScheduleCaches } = require('../../utils/cacheHelpers');
+const { invalidateAllDoctorScheduleCaches, invalidatePatientHealthScoreCache } = require('../../utils/cacheHelpers');
 const asyncHandler = require('../../utils/asyncHandler');
 const ApiError = require('../../utils/ApiError');
 const ApiResponse = require('../../utils/ApiResponse');
@@ -49,12 +49,22 @@ exports.getAppointments = asyncHandler(async (req, res) => {
       }
     },
     {
-      $addFields: {
-        reviewId: { $arrayElemAt: ["$review._id", 0] },
-        reviewEditCount: { $ifNull: [{ $arrayElemAt: ["$review.editCount", 0] }, 0] }
+      $lookup: {
+        from: "clinicreviews",
+        localField: "_id",
+        foreignField: "appointmentId",
+        as: "clinicReview"
       }
     },
-    { $project: { review: 0 } },
+    {
+      $addFields: {
+        reviewId: { $arrayElemAt: ["$review._id", 0] },
+        reviewEditCount: { $ifNull: [{ $arrayElemAt: ["$review.editCount", 0] }, 0] },
+        clinicReviewId: { $arrayElemAt: ["$clinicReview._id", 0] },
+        clinicReviewScore: { $arrayElemAt: ["$clinicReview.overallRating", 0] }
+      }
+    },
+    { $project: { review: 0, clinicReview: 0 } },
     { $sort: { dateTime: -1 } }
   ]);
 
@@ -212,16 +222,33 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
     status: 'reserved'
   });
 
+  let clinicSnapshot = null;
+  const targetClinicId = clinicId || doctor.clinicId || null;
+  if (targetClinicId) {
+    const Clinic = require('../../models/Clinic');
+    const clinicData = await Clinic.findById(targetClinicId).select('name address phone');
+    if (clinicData) {
+      clinicSnapshot = {
+        clinicId: clinicData._id,
+        clinicName: clinicData.name,
+        clinicCity: clinicData.address?.city,
+        clinicPhone: clinicData.phone
+      };
+    }
+  }
+
   if (appointment) {
     appointment.status = 'pending';
-    appointment.clinicId = clinicId || doctor.clinicId || null;
+    appointment.clinicId = targetClinicId;
+    appointment.clinicSnapshot = clinicSnapshot;
     appointment.reason = reason || "Not Mentioned";
     await appointment.save();
   } else {
     appointment = await Appointment.create({
       patientId: patient.userId,
       doctorId: doctorUserId,
-      clinicId: clinicId || doctor.clinicId || null,
+      clinicId: targetClinicId,
+      clinicSnapshot,
       dateTime,
       reason: reason || "Not Mentioned",
       status: 'pending',
@@ -273,6 +300,7 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
   });
 
   await invalidateAllDoctorScheduleCaches(doctorUserId);
+  await invalidatePatientHealthScoreCache(userId);
   const effectiveClinicId = clinicId || doctor.clinicId;
   if (effectiveClinicId) {
     const clinic = await Clinic.findById(effectiveClinicId);
@@ -357,6 +385,7 @@ exports.cancelAppointment = asyncHandler(async (req, res) => {
   }
 
   await invalidateAllDoctorScheduleCaches(appointment.doctorId._id);
+  await invalidatePatientHealthScoreCache(userId);
   io.to(appointment.doctorId._id.toString()).emit('schedule_updated');
 
   res.status(200).json(new ApiResponse(200, populatedAppointment, 'Appointment cancelled successfully'));
@@ -398,15 +427,39 @@ exports.rateAppointment = asyncHandler(async (req, res) => {
  * @access Private (Patient only)
  */
 exports.getClinics = asyncHandler(async (req, res) => {
-  const clinics = await Clinic.find({})
+  const { search } = req.query;
+  const searchStr = (search || '').toString().trim();
+
+  const { getCache, setCache } = require("../../utils/cacheHelpers");
+  const cacheKey = `patient:clinics:${searchStr}`;
+
+  const cachedData = await getCache(cacheKey);
+  if (cachedData) {
+    return res.status(200).json(new ApiResponse(200, cachedData, 'Clinics fetched successfully'));
+  }
+
+  let query = {};
+  if (searchStr !== '') {
+    const sanitizedSearch = searchStr.replace(/[^\w\s]/gi, '').trim();
+    if (sanitizedSearch) {
+      query = {
+        $text: { $search: sanitizedSearch }
+      };
+    }
+  }
+
+  const clinics = await Clinic.find(query)
     .populate({
       path: 'doctors',
-      select: 'userId specialization fullName schedule',
+      select: 'userId specialization fullName schedule consultationFee availabilityStatus',
       populate: {
         path: 'userId',
         select: 'name email photo'
       }
-    });
+    })
+    .lean();
+
+  await setCache(cacheKey, clinics, 300);
 
   res.status(200).json(new ApiResponse(200, clinics, 'Clinics fetched successfully'));
 });
@@ -417,12 +470,27 @@ exports.getClinics = asyncHandler(async (req, res) => {
  * @access Private (Patient only)
  */
 exports.getDoctors = asyncHandler(async (req, res) => {
-  const doctors = await Doctor.find({})
+  const { availableOnly } = req.query;
+  const { getCache, setCache } = require("../../utils/cacheHelpers");
+  const cacheKey = `patient:doctors:${availableOnly === 'true'}`;
+
+  const cachedData = await getCache(cacheKey);
+  if (cachedData) {
+    return res.status(200).json(new ApiResponse(200, cachedData, 'Doctors fetched successfully'));
+  }
+
+  const filter = {};
+  if (availableOnly === 'true') {
+    filter.availabilityStatus = { $in: ['available', null, undefined] };
+  }
+
+  const doctors = await Doctor.find(filter)
     .populate({
       path: 'userId',
       select: 'name email photo'
     })
-    .populate('clinicId', 'name address');
+    .populate('clinicId', 'name address')
+    .lean();
 
   const allDoctors = await Promise.all(doctors.map(async (doc) => {
     const appointmentCount = await Appointment.countDocuments({
@@ -449,6 +517,7 @@ exports.getDoctors = asyncHandler(async (req, res) => {
       email: doc.userId?.email,
       photo: doc.userId?.photo,
       specialization: doc.specialization,
+      availabilityStatus: doc.availabilityStatus || 'available',
       clinicId: doc.clinicId ? {
         _id: doc.clinicId._id,
         name: doc.clinicId.name,
@@ -463,6 +532,8 @@ exports.getDoctors = asyncHandler(async (req, res) => {
       rating: parseFloat(avgRating)
     };
   }));
+
+  await setCache(cacheKey, allDoctors, 300);
 
   res.status(200).json(new ApiResponse(200, allDoctors, 'Doctors fetched successfully'));
 });
@@ -479,6 +550,20 @@ exports.getAvailableSlots = asyncHandler(async (req, res) => {
   }
 
   let doctor = await Doctor.findById(doctorId);
+  if (!doctor) {
+    doctor = await Doctor.findOne({ userId: doctorId });
+  }
+
+  if (doctor && doctor.availabilityStatus && doctor.availabilityStatus !== 'available') {
+    return res.status(200).json(new ApiResponse(200, {
+      available: false,
+      reason: doctor.availabilityStatus,
+      message: doctor.availabilityStatus === 'busy'
+        ? "Doctor is currently busy. Check back later."
+        : "Doctor is on leave. Try another doctor."
+    }, 'Doctor is not available for booking'));
+  }
+
   let doctorUserId = doctor ? doctor.userId : doctorId;
 
   const startOfDay = new Date(date);
@@ -508,7 +593,7 @@ exports.getAvailableSlots = asyncHandler(async (req, res) => {
     }
   });
 
-  res.status(200).json(new ApiResponse(200, { bookedSlots: bookedSlotStrings }, 'Available slots fetched'));
+  res.status(200).json(new ApiResponse(200, { bookedSlots: bookedSlotStrings, available: true }, 'Available slots fetched'));
 });
 
 /**
@@ -588,10 +673,26 @@ exports.reserveSlot = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, existingAppointment, 'Reservation extended for another 10 minutes'));
   }
 
+  let clinicSnapshot = null;
+  const targetClinicId = doctor?.clinicId || null;
+  if (targetClinicId) {
+    const Clinic = require('../../models/Clinic');
+    const clinicData = await Clinic.findById(targetClinicId).select('name address phone');
+    if (clinicData) {
+      clinicSnapshot = {
+        clinicId: clinicData._id,
+        clinicName: clinicData.name,
+        clinicCity: clinicData.address?.city,
+        clinicPhone: clinicData.phone
+      };
+    }
+  }
+
   const reservation = await Appointment.create({
     patientId: patient.userId,
     doctorId: doctorUserId,
-    clinicId: doctor?.clinicId || null,
+    clinicId: targetClinicId,
+    clinicSnapshot,
     dateTime,
     reason: "Not Mentioned",
     status: 'reserved',
@@ -612,6 +713,7 @@ exports.deleteAppointment = asyncHandler(async (req, res) => {
   }
 
   await Appointment.findByIdAndDelete(id);
+  await invalidatePatientHealthScoreCache(userId);
 
   res.status(200).json(new ApiResponse(200, null, 'Appointment deleted successfully'));
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { Header } from "@/components/home/Header";
+import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/home/Footer";
 import { HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
@@ -78,7 +78,7 @@ export default function FAQPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Navbar />
       <main className="flex-1 pt-32 pb-20 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">

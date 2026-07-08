@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Trash2, Loader2, Calendar, User, Banknote } from "lucide-react";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import toast from "react-hot-toast";
+import PageHeader from "@/components/shared/PageHeader";
 
 export default function DoctorRevenuePage() {
   const t = useTranslations();
@@ -55,24 +56,24 @@ export default function DoctorRevenuePage() {
 
   return (
     <div className="space-y-6 pb-10">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t("doctor.revenueHistory.title")}</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("doctor.revenueHistory.subtitle")}</p>
-        </div>
-        <button
-          onClick={onClear}
-          disabled={clearing || !entries.length}
-          className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 disabled:opacity-50 transition-opacity"
-        >
-          {clearing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Trash2 className="h-4 w-4" />
-          )}
-          {clearing ? (t("common.loading") || "Clearing...") : t("doctor.revenueHistory.deleteAll")}
-        </button>
-      </div>
+      <PageHeader
+        title="Revenue & earnings"
+        description={t("doctor.revenueHistory.subtitle")}
+        action={
+          <button
+            onClick={onClear}
+            disabled={clearing || !entries.length}
+            className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 disabled:opacity-50 transition-opacity"
+          >
+            {clearing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+            {clearing ? (t("common.loading") || "Clearing...") : t("doctor.revenueHistory.deleteAll")}
+          </button>
+        }
+      />
 
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1a1a1a] shadow-sm">
         <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t("doctor.revenueHistory.totalEarned")}</p>

@@ -65,6 +65,20 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+    updateOnboarding: builder.mutation({
+      query: (body) => ({
+        url: "/auth/onboarding/complete",
+        method: "PATCH",
+        body,
+      }),
+    }),
+    updateOnboardingProfile: builder.mutation({
+      query: (body) => ({
+        url: "/auth/onboarding/profile-complete",
+        method: "PATCH",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -78,4 +92,6 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useGoogleAuthMutation,
+  useUpdateOnboardingMutation,
+  useUpdateOnboardingProfileMutation,
 } = authApi;

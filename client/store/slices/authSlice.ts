@@ -10,9 +10,15 @@ interface AuthUser {
   profileComplete?: boolean;
   onboardingCompleted?: boolean;
   onboardingComplete?: boolean;
+  isOnboardingComplete?: boolean;
+  onboardingStep?: number;
   name?: string;
   phone?: string;
   photo?: string | null;
+  avatar?: string | null;
+  avatarInitials?: string | null;
+  provider?: "local" | "google";
+  emailProvider?: "local" | "google";
   [key: string]: unknown;
 }
 
@@ -93,7 +99,11 @@ const authSlice = createSlice({
     setOnboardingComplete: {
       reducer: (state, action: PayloadAction<boolean>) => {
         if (state.user) {
-          state.user = { ...state.user, onboardingCompleted: action.payload };
+          state.user = {
+            ...state.user,
+            onboardingCompleted: action.payload,
+            isOnboardingComplete: action.payload,
+          };
           persistUser(state.user);
         }
       },

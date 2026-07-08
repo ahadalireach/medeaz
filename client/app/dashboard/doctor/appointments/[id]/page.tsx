@@ -25,9 +25,6 @@ export default function DoctorAppointmentDetailsPage() {
                     <h1 className="text-2xl font-bold text-text-primary">
                         {t('clinic.appointments.viewAppointment')}
                     </h1>
-                    <p className="text-xs text-text-secondary font-medium uppercase tracking-wider mt-0.5">
-                        ID: {appointmentId}
-                    </p>
                 </div>
             </div>
 

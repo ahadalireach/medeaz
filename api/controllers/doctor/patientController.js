@@ -18,6 +18,14 @@ exports.getPatients = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, search } = req.query;
   const doctorId = req.user._id;
 
+  const cacheKey = `doctor:patients:${doctorId.toString()}:${page}:${limit}:${search || ''}`;
+  const { getCache, setCache } = require('../../utils/cacheHelpers');
+
+  const cachedData = await getCache(cacheKey);
+  if (cachedData) {
+    return res.status(200).json(new ApiResponse(200, cachedData, 'Patients fetched successfully'));
+  }
+
   // Find all unique patient IDs from doctor's appointments, prescriptions, and created patients
   const appointments = await Appointment.find({ doctorId }).distinct('patientId');
   const prescriptions = await Prescription.find({ doctorId }).distinct('patientId');
@@ -70,16 +78,18 @@ exports.getPatients = asyncHandler(async (req, res) => {
     })
   );
 
-  res.status(200).json(
-    new ApiResponse(200, {
-      patients: enrichedPatients,
-      pagination: {
-        total,
-        page: parseInt(page),
-        pages: Math.ceil(total / parseInt(limit))
-      }
-    }, 'Patients fetched successfully')
-  );
+  const responseData = {
+    patients: enrichedPatients,
+    pagination: {
+      total,
+      page: parseInt(page),
+      pages: Math.max(Math.ceil(total / parseInt(limit)), 1)
+    }
+  };
+
+  await setCache(cacheKey, responseData, 300);
+
+  res.status(200).json(new ApiResponse(200, responseData, 'Patients fetched successfully'));
 });
 
 /**
@@ -157,11 +167,19 @@ exports.getPatientById = asyncHandler(async (req, res) => {
  * @access  Private (Doctor only)
  */
 exports.searchPatients = asyncHandler(async (req, res) => {
-  const { query } = req.query;
+  const query = String(req.query.query || '').replace(/[^\w\s@.-]/gi, '').trim();
   const doctorId = req.user._id;
 
   if (!query || query.trim().length < 2) {
     throw new ApiError(400, 'Search query must be at least 2 characters');
+  }
+
+  const cacheKey = `doctor:patients:search:${doctorId.toString()}:${query.trim()}`;
+  const { getCache, setCache } = require('../../utils/cacheHelpers');
+
+  const cachedData = await getCache(cacheKey);
+  if (cachedData) {
+    return res.status(200).json(new ApiResponse(200, cachedData, 'Search results fetched successfully'));
   }
 
   // Find all unique patient IDs from doctor's appointments, prescriptions, and created patients
@@ -174,13 +192,11 @@ exports.searchPatients = asyncHandler(async (req, res) => {
   const patients = await User.find({
     _id: { $in: patientIds },
     roles: 'patient',
-    $or: [
-      { name: { $regex: query, $options: 'i' } },
-      { email: { $regex: query, $options: 'i' } }
-    ]
+    $text: { $search: query }
   })
     .select('name email phone photo')
-    .limit(10);
+    .limit(10)
+    .lean();
 
   const enrichedPatients = await Promise.all(
     patients.map(async (patient) => {
@@ -189,9 +205,9 @@ exports.searchPatients = asyncHandler(async (req, res) => {
             patientId: patient._id, 
             status: 'completed' 
         });
-        const profile = await Patient.findOne({ userId: patient._id });
+        const profile = await Patient.findOne({ userId: patient._id }).lean();
         return { 
-          ...patient.toObject(), 
+          ...patient, 
           totalVisits,
           gender: profile?.gender,
           profilePhoto: profile?.profilePhoto
@@ -199,7 +215,10 @@ exports.searchPatients = asyncHandler(async (req, res) => {
     })
   );
 
-  res.status(200).json(new ApiResponse(200, { patients: enrichedPatients }, 'Search results fetched successfully'));
+  const responseData = { patients: enrichedPatients };
+  await setCache(cacheKey, responseData, 60);
+
+  res.status(200).json(new ApiResponse(200, responseData, 'Search results fetched successfully'));
 });
 
 /**
@@ -374,6 +393,9 @@ exports.createPatient = asyncHandler(async (req, res) => {
     createdBy: req.user._id
   });
 
+  const { invalidatePatientsCache } = require('../../utils/cacheHelpers');
+  await invalidatePatientsCache(null, req.user._id);
+
   res.status(201).json(
     new ApiResponse(201, {
       patient: {
@@ -429,6 +451,8 @@ exports.deletePatient = asyncHandler(async (req, res) => {
   // Delete patient profile and user account
   await Patient.deleteOne({ userId: patientId });
   await User.deleteOne({ _id: patientId });
+
+  await invalidatePatientsCache(null, doctorId);
 
   res.status(200).json(
     new ApiResponse(200, null, 'Patient deleted successfully')

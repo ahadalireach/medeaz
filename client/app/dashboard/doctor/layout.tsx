@@ -95,7 +95,7 @@ export default function DoctorLayout({
           </div>
           <div className="flex-1 flex flex-col print:block relative">
             <div className="print:hidden">
-              <DoctorTopbar title={t('nav.doctorDashboard')} />
+              <DoctorTopbar title={t('nav.doctorPortal')} />
             </div>
             <OnboardingGate role="doctor">
               <main className="flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 print:p-0 print:m-0">

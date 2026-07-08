@@ -1,129 +1,185 @@
 "use client";
 
-import { useState } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import {
-  ArrowRight,
-  ShieldCheck,
-  Pill,
-  FlaskConical,
-  Timer,
-  Stethoscope,
-  Apple,
-} from "lucide-react";
+import { Check } from "lucide-react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import heroImg from "../../public/Hero.png";
 
 export function Hero() {
-  const [query, setQuery] = useState("");
   const { language } = useLanguage();
   const isUrdu = language === "ur";
 
-  const chips = isUrdu
-    ? [
-      { label: "وائس پریسکرپشن", icon: Pill },
-      { label: "پیشنٹ ریکارڈز", icon: FlaskConical },
-      { label: "کلینک اینالیٹکس", icon: Timer },
-      { label: "اپائنٹمنٹ فلو", icon: Stethoscope },
-      { label: "AI اسسٹنٹ", icon: Apple },
-    ]
-    : [
-      { label: "Voice Prescription", icon: Pill },
-      { label: "Patient Records", icon: FlaskConical },
-      { label: "Clinic Analytics", icon: Timer },
-      { label: "Appointment Flow", icon: Stethoscope },
-      { label: "AI Assistant", icon: Apple },
-    ];
+  // ECG Pulse SVG Path (Clean 2-line pulse)
+  const EcgIcon = () => (
+    <svg
+      className="w-4 h-4 text-[#00b495] shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 12h3l3-9 4 18 3-12h5" />
+    </svg>
+  );
+
+  // Waveform mini-bars for top-left floating chip
+  const WaveformIcon = () => (
+    <div className="flex items-end gap-0.5 h-[16px] shrink-0 select-none">
+      <motion.div animate={{ height: [4, 12, 4] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-0.5 bg-[#00b495] rounded-full" />
+      <motion.div animate={{ height: [4, 16, 4] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.2 }} className="w-0.5 bg-[#00b495] rounded-full" />
+      <motion.div animate={{ height: [4, 10, 4] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.4 }} className="w-0.5 bg-[#00b495] rounded-full" />
+    </div>
+  );
 
   return (
-    <section className="relative px-3 sm:px-6 lg:px-10 py-3">
-      <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[22px] sm:rounded-[28px]">
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
+    <section 
+      id="hero" 
+      className="relative min-h-[92vh] pt-28 md:pt-36 pb-16 md:pb-24 px-6 md:px-12 flex items-center justify-center bg-white overflow-hidden"
+    >
+      {/* ── BACKGROUND IMAGE COVER (With responsive focal points to keep the doctor visible) ── */}
+      <Image
+        src={heroImg}
+        alt="MedEaz Hero Background"
+        fill
+        priority
+        quality={100}
+        className="object-cover object-[92%_center] sm:object-[95%_center] md:object-[98%_center] lg:object-right z-0 pointer-events-none"
+      />
+
+      {/* Subtle gradient overlay layer for text contrast on smaller screens */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/35 md:from-white/95 md:via-white/75 md:to-white/20 lg:from-transparent lg:to-transparent z-1 pointer-events-none" />
+
+      <div className="max-w-[1200px] mx-auto w-full relative z-10 flex items-center justify-start" dir="ltr">
+        
+        {/* ── LEFT COLUMN: TEXT BLOCK ── */}
+        <div 
+          className="w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[440px] md:max-w-[520px] lg:max-w-[540px] xl:max-w-[600px] flex flex-col justify-center relative z-20 items-start text-left"
         >
-          <source src="/hero-bg.mp4" type="video/mp4" />
-        </video>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/40" />
-
-        <div className="relative flex flex-col items-center px-4 sm:px-6 py-10 sm:py-14 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-sm px-3 sm:px-4 py-2 text-[12px] sm:text-[13px] font-medium text-primary shadow-[0_1px_0_0_rgba(0,0,0,0.03)]">
-            <ShieldCheck className="h-4 w-4" strokeWidth={2.25} />
-            {isUrdu
-              ? "وائس اینیبلڈ · اردو + انگلش"
-              : "Voice-enabled · Urdu + English"}
-          </div>
-
-          <h1 className="mt-8 sm:mt-10 max-w-4xl font-display text-[clamp(2.1rem,9vw,5.5rem)] leading-[1.04] sm:leading-[1.02] tracking-[-0.02em] text-text-primary">
+          {/* 2. HEADLINE */}
+          <h1
+            className="flex flex-col mb-6 tracking-tight"
+            style={{
+              lineHeight: "1.0",
+              letterSpacing: "-0.04em"
+            }}
+          >
             {isUrdu ? (
-              <>
-                Medeaz کلینکس کو
-                <br className="hidden sm:block" /> کاغذی نظام سے ڈیجیٹل کیئر تک
-                لاتا ہے
-              </>
+              // Urdu Typography with same sizes as English
+              <div
+                className="font-urdu font-black text-[#0a1628] text-[24px] xs:text-[27px] sm:text-[40px] md:text-[52px] lg:text-[72px] leading-[1.25] flex flex-col items-start text-left"
+              >
+                <motion.span
+                  initial={{ y: 24, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.15 }}
+                >
+                  طبی خدمات،
+                </motion.span>
+                <motion.span
+                  initial={{ y: 24, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.27 }}
+                  className="text-[#00b495] mt-1"
+                >
+                  بالآخر باہم مربوط۔
+                </motion.span>
+              </div>
             ) : (
-              <>
-                Medeaz moves clinics <br className="hidden sm:block" />
-                from paper to digital care
-              </>
+              // English Typography (72px, weight 800)
+              <div
+                className="font-extrabold italic text-[#0a1628] text-[24px] xs:text-[27px] sm:text-[40px] md:text-[52px] lg:text-[72px] flex flex-col items-start leading-[1.1]"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                <motion.span
+                  initial={{ y: 24, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.15 }}
+                >
+                  Healthcare,
+                </motion.span>
+                <motion.span
+                  initial={{ y: 24, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.27 }}
+                  className="text-[#00b495]"
+                >
+                  Finally Connected.
+                </motion.span>
+              </div>
             )}
           </h1>
 
-          <p className="mt-8 text-lg font-medium text-text-muted max-w-2xl mx-auto leading-relaxed">
+          {/* 3. SUPPORTING LINE */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className={cn(
+              "text-[15px] sm:text-[17px] text-[#4b5563] leading-[1.6] max-w-full sm:max-w-[420px] mb-8 font-medium text-left",
+              isUrdu ? "font-urdu" : "font-normal"
+            )}
+            style={!isUrdu ? { fontFamily: "'Inter', sans-serif" } : undefined}
+          >
             {isUrdu
-              ? "وائس اینیبلڈ ڈیجیٹل ہیلتھ کیئر پلیٹ فارم۔"
-              : "Voice-enabled digital healthcare platform."}
-          </p>
+              ? "ڈاکٹر آواز سے نسخہ لکھیں۔ مریض سیکنڈوں میں بکنگ کریں۔ کلینکس خود چلیں۔"
+              : "Doctors prescribe by voice. Patients book in seconds. Clinics run themselves."}
+          </motion.p>
 
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="mt-8 sm:mt-10 w-full max-w-2xl"
-            >
-              <label htmlFor="hero-ask" className="sr-only">
-                {isUrdu
-                  ? "Medeaz فیچرز کے بارے میں پوچھیں"
-                  : "Ask Medeaz about features"}
-              </label>
-              <div className="flex items-center gap-2 rounded-2xl sm:rounded-full bg-white/80 backdrop-blur-md pr-1.5 sm:pr-2 pl-4 sm:pl-6 py-1.5 sm:py-2 shadow-[0_6px_30px_-8px_rgba(15,76,92,0.18)] border border-white/40">
-                <input
-                  id="hero-ask"
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={
-                    isUrdu
-                      ? "Medeaz سے پریسکرپشن، ریکارڈز یا اینالیٹکس کے بارے میں پوچھیں..."
-                      : "Ask Medeaz about prescriptions, records, or analytics..."
-                  }
-                  className="flex-1 h-11 sm:h-12 bg-transparent text-sm sm:text-base text-text-primary placeholder:text-text-secondary focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  aria-label="Ask"
-                  className="h-10 w-10 sm:h-11 sm:w-11 flex-none inline-flex items-center justify-center rounded-full bg-primary text-white cursor-pointer transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                >
-                  <ArrowRight className="h-5 w-5" strokeWidth={2} />
-                </button>
-              </div>
-            </form>
+          {/* 4. CTA ROW */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.55 }}
+            className="flex flex-wrap items-center gap-3 mb-8 w-full sm:w-auto justify-start"
+          >
+            <Link href="/register" className="no-focus-ring">
+              <motion.button
+                whileHover={{ scale: 1.03, y: -1, backgroundColor: "#009e82", boxShadow: "0 6px 20px rgba(0,180,149,0.38)" }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 380, damping: 22 }}
+                className="bg-[#00b495] text-white text-[14px] sm:text-[15px] font-semibold px-6 sm:px-7 py-2.5 sm:py-3 rounded-[10px] transition-all duration-200 cursor-pointer no-focus-ring shadow-sm"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                {isUrdu ? "عملی طور پر دیکھیں" : "See It in Action"}
+              </motion.button>
+            </Link>
+          </motion.div>
 
-            <div className="mt-7 sm:mt-8 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-2xl">
-              {chips.map(({ label, icon: Icon }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => setQuery(label)}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/70 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-medium text-text-primary cursor-pointer transition-colors hover:bg-white hover:text-primary border border-white/40"
-                >
-                  <Icon className="h-4 w-4" strokeWidth={2} />
-                  {label}
-                </button>
-              ))}
+          {/* 5. TRUST ROW */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            className={cn(
+              "flex flex-wrap items-center gap-y-1.5 gap-x-2.5 text-[11px] sm:text-[12.5px] text-[#6b7280] font-semibold mt-1 justify-start",
+              isUrdu && "font-urdu"
+            )}
+            style={!isUrdu ? { fontFamily: "'Inter', sans-serif" } : undefined}
+          >
+            <div className="flex items-center gap-1">
+              <span className="text-[#00b495] font-bold text-[12px] sm:text-[13px]">✓</span>
+              <span>{isUrdu ? "ڈاکٹر کی تشخیص" : "Doctor's Diagnosis"}</span>
             </div>
+            <span className="text-gray-300">·</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[#00b495] font-bold text-[12px] sm:text-[13px]">✓</span>
+              <span>{isUrdu ? "آواز سے نسخہ" : "Prescription by Voice"}</span>
+            </div>
+            <span className="text-gray-300">·</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[#00b495] font-bold text-[12px] sm:text-[13px]">✓</span>
+              <span>{isUrdu ? "EN + اردو" : "EN + اردو"}</span>
+            </div>
+          </motion.div>
+
         </div>
+
       </div>
     </section>
   );

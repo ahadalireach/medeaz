@@ -4,7 +4,7 @@ const staffSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: [true, "User ID is required"],
+    required: false,
   },
   clinicId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -13,7 +13,16 @@ const staffSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["receptionist", "nurse", "admin"],
+    enum: [
+      "doctor",
+      "nurse",
+      "lab-technician",
+      "pharmacist",
+      "receptionist",
+      "office-manager",
+      "cleaner",
+      "security-guard",
+    ],
     required: [true, "Role is required"],
   },
   name: {
@@ -31,6 +40,41 @@ const staffSchema = new mongoose.Schema({
   photo: {
     type: String,
   },
+  // Auto-added doctors
+  linkedDoctorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Doctor",
+    required: false,
+  },
+  autoAdded: {
+    type: Boolean,
+    default: false,
+  },
+  // Role-specific fields
+  licenseNumber: {
+    type: String,
+  },
+  specialization: {
+    type: String,
+  },
+  department: {
+    type: String,
+  },
+  labSection: {
+    type: String,
+  },
+  deskNumber: {
+    type: String,
+  },
+  officeLocation: {
+    type: String,
+  },
+  shiftTime: {
+    type: String,
+  },
+  badgeNumber: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -38,3 +82,4 @@ const staffSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Staff", staffSchema);
+

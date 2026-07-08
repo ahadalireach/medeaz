@@ -66,7 +66,6 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
             await markAllReadApi().unwrap();
             dispatch(localMarkAllAsRead());
         } catch (error) {
-            // Keep silent for bulk action to avoid noisy UX.
         }
     };
 
@@ -98,7 +97,13 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
         return match ? match[1] : (notification?.portal || "general");
     };
 
+    const seen = new Set();
     const visibleNotifications = notifications.filter((notification: any) => {
+        const id = notification._id || notification.id;
+        if (id) {
+            if (seen.has(id)) return false;
+            seen.add(id);
+        }
         const portal = getPortalFromNotification(notification);
         return portal === activePortal || portal === "general";
     });
@@ -212,9 +217,9 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
             <div className="flex flex-col -mt-4">
                 <div className="space-y-3">
                     {visibleNotifications.length > 0 ? (
-                        visibleNotifications.map((n: any) => (
+                        visibleNotifications.map((n: any, index: number) => (
                             <div
-                                key={n._id || n.id}
+                                key={n._id || n.id || index}
                                 className={`relative p-5 rounded-3xl border transition-all cursor-pointer group ${!n.read
                                     ? 'bg-white  border-primary/20 shadow-sm'
                                     : 'bg-transparent border-black/5  grayscale-[0.5] opacity-70 hover:opacity-100 hover:grayscale-0'}`}
@@ -229,20 +234,20 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
                                             const localized = resolveNotificationText(n);
                                             return (
                                                 <>
-                                        <div className="flex items-start justify-between gap-2 mb-1">
-                                            <h4 className={`text-sm font-bold truncate ${!n.read ? 'text-text-primary ' : 'text-text-secondary '}`}>
-                                                {localized.title}
-                                            </h4>
-                                        </div>
-                                        <p className="text-[11px] font-medium text-text-secondary leading-normal line-clamp-2">
-                                            {localized.message}
-                                        </p>
-                                        <div className="flex items-center gap-3 mt-3">
-                                            <span className="text-[9px] font-black text-text-secondary uppercase tracking-widest">
-                                                {getTimeAgo(n.createdAt)}
-                                            </span>
-                                            {!n.read && <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
-                                        </div>
+                                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                                        <h4 className={`text-sm font-bold truncate ${!n.read ? 'text-text-primary ' : 'text-text-secondary '}`}>
+                                                            {localized.title}
+                                                        </h4>
+                                                    </div>
+                                                    <p className="text-[11px] font-medium text-text-secondary leading-normal line-clamp-2">
+                                                        {localized.message}
+                                                    </p>
+                                                    <div className="flex items-center gap-3 mt-3">
+                                                        <span className="text-[9px] font-black text-text-secondary uppercase tracking-widest">
+                                                            {getTimeAgo(n.createdAt)}
+                                                        </span>
+                                                        {!n.read && <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
+                                                    </div>
                                                 </>
                                             );
                                         })()}

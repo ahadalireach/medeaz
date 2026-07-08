@@ -6,13 +6,11 @@
    ========================================================================= */
 @theme {
   /* Fonts */
-  --font-sans: var(--font-inter), "Inter Fallback", ui-sans-serif, system-ui,
-    -apple-system, Segoe UI, Roboto, sans-serif;
-  --font-serif: var(--font-fraunces), "Fraunces Fallback", ui-serif, Georgia,
-    Cambria, "Times New Roman", serif;
-  --font-display: var(--font-fraunces), "Fraunces Fallback", ui-serif, Georgia,
-    Cambria, "Times New Roman", serif;
-  --font-urdu: var(--font-baloo-urdu), var(--font-noto-urdu), var(--font-inter), sans-serif;
+  --font-sans: var(--font-figtree), "Figtree Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-plus-jakarta: var(--font-figtree), sans-serif;
+  --font-serif: var(--font-figtree), "Figtree Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-figtree), "Figtree Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-urdu: var(--font-baloo-urdu), var(--font-noto-urdu), var(--font-figtree), sans-serif;
 
   /* Primary — #00b495 brand teal (per README.md) */
   --color-primary: #00b495;
@@ -485,4 +483,51 @@ html[data-lang="ur"] {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Never allow h1/h2 to be uppercase or heavy tracking on portal pages */
+.portal-layout h1, .portal-layout h2 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: #0a1628;
+  letter-spacing: -0.01em;
+}
+
+/* Kill any rogue uppercase heading anywhere in portal */
+.portal-layout h1,
+.portal-layout h2,
+.portal-layout h3 {
+  text-transform: none !important;
+  letter-spacing: -0.01em;
+}
+
+/* Remove URL from print headers */
+@media print {
+  @page {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  body {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
+
+/* Custom thin scrollbar for sidebar navigation */
+.lens-sidebar nav::-webkit-scrollbar {
+  width: 4px;
+}
+.lens-sidebar nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.lens-sidebar nav::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+.lens-sidebar nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+html[lang="ur"] .lens-sidebar nav::-webkit-scrollbar-thumb,
+html[data-lang="ur"] .lens-sidebar nav::-webkit-scrollbar-thumb {
+  background: rgba(0, 180, 149, 0.2);
 }

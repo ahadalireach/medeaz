@@ -2,27 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 
 import { useRegisterMutation } from "@/store/api/authApi";
 import { setCredentials } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/Button";
-import { Eye, EyeOff, CheckCircle2, UserPlus, Stethoscope, Building2, Loader2 } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2, UserPlus, Stethoscope, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useGoogleAuth } from "@/hooks/useGoogleAuth";
-
-function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 48 48" aria-hidden>
-      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-    </svg>
-  );
-}
+import { GoogleAuthButton } from "./GoogleAuthButton";
 
 type Role = "patient" | "doctor" | "clinic_admin";
 
@@ -37,14 +26,30 @@ const ROLES: {
 ];
 
 export function RegisterForm() {
+  const searchParams = useSearchParams();
+  const error = searchParams ? searchParams.get("error") : null;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<Role | null>(null);
-  const { handleGoogleAuth, isLoading: isGoogleLoading } = useGoogleAuth({
-    mode: "register",
-    role: role || undefined,
+  
+  // Initialize role from sessionStorage if available
+  const [role, setRoleState] = useState<Role | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("pendingGoogleRole") as Role | null;
+      if (stored && ["patient", "doctor", "clinic_admin"].includes(stored)) {
+        return stored;
+      }
+    }
+    return null;
   });
+
+  const setRole = (newRole: Role) => {
+    setRoleState(newRole);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("pendingGoogleRole", newRole);
+    }
+  };
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -58,7 +63,6 @@ export function RegisterForm() {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [register, { isLoading }] = useRegisterMutation();
-  const router = useRouter();
   const dispatch = useDispatch();
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -132,6 +136,12 @@ export function RegisterForm() {
   return (
     <>
       <div className="rounded-2xl border border-border-light bg-white/80 p-5 sm:p-6 text-left shadow-sm backdrop-blur-sm">
+        {error === "role_required" && (
+          <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-[13px] text-amber-700 font-medium">
+            ⚠️ Please select your role before signing in with Google.
+          </div>
+        )}
+
         <div className="mb-4 grid grid-cols-3 gap-2">
           {ROLES.map(({ value, label, icon: Icon }) => {
             const selected = role === value;
@@ -154,20 +164,14 @@ export function RegisterForm() {
           })}
         </div>
 
-        <button
-          type="button"
-          className="w-full flex items-center justify-center gap-3 h-12 rounded-lg border border-border-light bg-white text-[15px] font-semibold text-text-primary transition-colors hover:border-primary/50 hover:text-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleGoogleAuth}
-          disabled={!role || isGoogleLoading}
-          title={!role ? "Please select your role first" : ""}
-        >
-          {isGoogleLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-          ) : (
-            <GoogleIcon />
-          )}
-          Continue with Google
-        </button>
+        <div title={!role ? "Please select your role first" : ""}>
+          <GoogleAuthButton mode="signup" disabled={!role} />
+        </div>
+        {!role && (
+          <p className="mt-1.5 text-center text-[12px] text-text-secondary">
+            Select a role above to enable Google sign-up
+          </p>
+        )}
 
         <div className="my-5 flex items-center gap-3 text-[13px] text-text-secondary">
           <span className="h-px flex-1 bg-border-light" />

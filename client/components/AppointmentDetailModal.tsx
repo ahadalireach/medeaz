@@ -239,20 +239,25 @@ export default function AppointmentDetailModal({
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900">{t('doctor.prescriptions.title')}</h3>
                             </div>
-                            {(appointment.prescription || appointment.prescriptionId) && (
-                                <button
-                                    onClick={handleDownloadPDF}
-                                    className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
-                                >
-                                    <DownloadIcon className="h-3.5 w-3.5" />
-                                    {t('common.view')}
-                                </button>
-                            )}
+                            {(() => {
+                                const rx = appointment.prescription || appointment.prescriptionId;
+                                const hasRealPrescription = rx && (rx._id || rx.diagnosis || rx.medicines?.length > 0);
+                                return hasRealPrescription ? (
+                                    <button
+                                        onClick={handleDownloadPDF}
+                                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                                    >
+                                        <DownloadIcon className="h-3.5 w-3.5" />
+                                        {t('common.view')}
+                                    </button>
+                                ) : null;
+                            })()}
                         </div>
 
                         {(() => {
                             const rx = appointment.prescription || appointment.prescriptionId;
-                            if (!rx) {
+                            const hasRealPrescription = rx && (rx._id || rx.diagnosis || rx.medicines?.length > 0);
+                            if (!hasRealPrescription) {
                                 return (
                                     <div className="py-8 flex flex-col items-center justify-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
                                         <FileDescriptionIcon className="h-10 w-10 text-gray-300 mb-3" />

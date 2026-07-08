@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { RegisterForm } from "@/components/auth/RegisterForm";
+import { Suspense } from "react";
 
 export default function RegisterPage() {
   return (
@@ -19,7 +20,9 @@ export default function RegisterPage() {
         Join Medeaz — your all-in-one health platform
       </p>
       <div className="mt-6 w-full">
-        <RegisterForm />
+        <Suspense fallback={<div className="h-60 w-full animate-pulse bg-gray-50 rounded-2xl border border-gray-100" />}>
+          <RegisterForm />
+        </Suspense>
       </div>
     </div>
   );

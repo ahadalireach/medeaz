@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
+const searchRateLimit = require('../middleware/searchRateLimit');
 
 // Import controllers
 const dashboardController = require('../controllers/patient/dashboardController');
@@ -14,6 +15,15 @@ const connectionController = require('../controllers/patient/connectionControlle
 
 // All routes require authentication and patient role
 router.use(protect);
+
+// Allow any authenticated user (including doctors) to search clinics
+router.get('/clinics', searchRateLimit, appointmentsController.getClinics);
+
+// ========== Patient Health Engagement Score Route ==========
+// Access authorized for patient (self), doctor, or clinic admin inside the controller
+const healthScoreController = require('../controllers/patient/healthScoreController');
+router.get('/:id/health-score', healthScoreController.getHealthScore);
+
 router.use(authorize('patient'));
 
 // ========== Connection Routes ==========
@@ -23,6 +33,15 @@ router.put('/connections/requests/:id', connectionController.handleConnectionReq
 // ========== Review Routes ==========
 router.post('/reviews', reviewController.submitReview);
 router.put('/reviews/:id', reviewController.updateReview);
+
+// ========== Clinic Review Routes ==========
+const clinicReviewsController = require('../controllers/patient/clinicReviewsController');
+router.post('/clinic-reviews', clinicReviewsController.submitReview);
+router.get('/clinic-reviews/my', clinicReviewsController.getMyReview);
+router.put('/clinic-reviews/:reviewId', clinicReviewsController.editReview);
+router.delete('/clinic-reviews/:reviewId', clinicReviewsController.deleteReview);
+router.post('/clinic-reviews/:reviewId/helpful', clinicReviewsController.voteReview);
+router.post('/clinic-reviews/:reviewId/flag', clinicReviewsController.flagReview);
 
 // ========== Dashboard Routes ==========
 router.get('/dashboard', dashboardController.getDashboard);
@@ -42,8 +61,7 @@ router.get('/appointments/available-slots', appointmentsController.getAvailableS
 router.put('/appointments/:id/cancel', appointmentsController.cancelAppointment);
 router.delete('/appointments/:id', appointmentsController.deleteAppointment);
 router.put('/appointments/:id/rate', appointmentsController.rateAppointment);
-router.get('/clinics', appointmentsController.getClinics);
-router.get('/doctors', appointmentsController.getDoctors);
+router.get('/doctors', searchRateLimit, appointmentsController.getDoctors);
 
 // ========== Family Routes ==========
 router.get('/family', familyController.getFamilyMembers);
@@ -58,5 +76,10 @@ router.delete('/family/:memberId/records/:recordId', familyController.deleteFami
 router.get('/profile', profileController.getProfile);
 router.put('/profile', profileController.updateProfile);
 router.put('/profile/password', profileController.updatePassword);
+
+// ========== Follow-Up Routes ==========
+const followUpController = require('../controllers/patient/followUpController');
+router.get('/follow-ups', followUpController.getFollowUps);
+router.put('/follow-ups/:id/complete', followUpController.completeFollowUp);
 
 module.exports = router;

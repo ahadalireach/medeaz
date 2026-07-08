@@ -7,12 +7,14 @@ import { togglePatientAssistant } from '@/store/slices/uiSlice';
 import { X, Mic, Send, Loader2, Bot, Volume2, VolumeX, Activity, Calendar, Pill, AlertCircle, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function PatientAssistant() {
   const isOpen = useSelector((state: RootState) => state.ui.patientAssistantOpen);
   const dispatch = useDispatch();
   const t = useTranslations();
+  const locale = useLocale();
+  const isRtl = locale === 'ur';
   
   const [messages, setMessages] = useState<{role: string, content: string}[]>([]);
   const [input, setInput] = useState('');
@@ -131,30 +133,33 @@ export default function PatientAssistant() {
   };
 
   if (!isOpen) return null;
-
+ 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col transform transition-transform duration-300 translate-x-0 print:hidden" dir={document.documentElement.lang === 'ur' ? 'rtl' : 'ltr'}>
+    <div 
+      className={`fixed inset-y-0 ${isRtl ? 'left-0 border-r' : 'right-0 border-l'} w-full sm:w-[400px] bg-white border-gray-200 shadow-2xl z-50 flex flex-col transform transition-transform duration-300 translate-x-0 print:hidden`}
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-[#00b495] text-white">
         <div className="flex items-center gap-2">
           <Bot className="w-5 h-5 text-white" />
-          <h2 className="text-white font-semibold text-lg tracking-wide">Patient Assistant</h2>
+          <h2 className="text-white font-semibold text-lg tracking-wide">{t('assistant.patientTitle')}</h2>
         </div>
         <div className="flex items-center gap-3">
           <button 
             onClick={toggleVoice} 
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition ${voiceEnabled ? 'bg-white/20 text-white' : 'bg-black/10 text-white/70'}`}
-            title="Toggle Voice"
+            title={t('assistant.voiceTitle')}
           >
             {voiceEnabled ? (
               <>
                 <Volume2 className="w-3.5 h-3.5" />
-                <span>Voice ON</span>
+                <span>{t('assistant.voiceOn')}</span>
               </>
             ) : (
               <>
                 <VolumeX className="w-3.5 h-3.5" />
-                <span>Voice OFF</span>
+                <span>{t('assistant.voiceOff')}</span>
               </>
             )}
           </button>
@@ -163,36 +168,36 @@ export default function PatientAssistant() {
           </button>
         </div>
       </div>
-
+ 
       {/* Action Chips */}
-      <div className="p-3 border-b border-gray-100 flex flex-wrap gap-2 bg-gray-50/50" dir={document.documentElement.lang === 'ur' ? 'rtl' : 'ltr'}>
-        <button onClick={() => handleSend('Tell me my complete health timeline.')} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
-          <Activity className="w-3 h-3" /> Health Timeline
+      <div className="p-3 border-b border-gray-100 flex flex-wrap gap-2 bg-gray-50/50">
+        <button onClick={() => handleSend(t('assistant.queries.healthTimeline'))} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
+          <Activity className="w-3 h-3" /> {t('assistant.chips.healthTimeline')}
         </button>
-        <button onClick={() => handleSend('Show me my appointments and missed ones.')} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
-          <Calendar className="w-3 h-3" /> Appointments
+        <button onClick={() => handleSend(t('assistant.queries.appointments'))} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
+          <Calendar className="w-3 h-3" /> {t('assistant.chips.appointments')}
         </button>
-        <button onClick={() => handleSend('What medicines am I taking right now?')} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
-          <Pill className="w-3 h-3" /> Medicines
+        <button onClick={() => handleSend(t('assistant.queries.medicines'))} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
+          <Pill className="w-3 h-3" /> {t('assistant.chips.medicines')}
         </button>
-        <button onClick={() => handleSend('Do I have any follow-ups due?')} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
-          <AlertCircle className="w-3 h-3" /> Follow-ups
+        <button onClick={() => handleSend(t('assistant.queries.followUps'))} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
+          <AlertCircle className="w-3 h-3" /> {t('assistant.chips.followUps')}
         </button>
-        <button onClick={() => handleSend('Give me a summary of my family members health.')} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
-          <Users className="w-3 h-3" /> Family Health
+        <button onClick={() => handleSend(t('assistant.queries.familyHealth'))} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 bg-white border border-gray-200 rounded-full hover:bg-[#00b495] hover:text-white hover:border-[#00b495] shadow-sm transition">
+          <Users className="w-3 h-3" /> {t('assistant.chips.familyHealth')}
         </button>
       </div>
-
+ 
       {/* Chat Area */}
       <div className="flex-1 p-4 overflow-y-auto bg-gray-50/50 space-y-4">
         {messages.length === 0 && (
           <div className="text-center mt-10 text-gray-500">
             <Bot className="w-12 h-12 mx-auto mb-3 text-[#00b495]/40" />
-            <p className="font-medium text-[#00b495]">Your Personal Health Assistant</p>
-            <p className="text-sm mt-2 max-w-[280px] mx-auto text-gray-600">I can explain your medical records, remind you about medicines, and help you track your family's health.</p>
+            <p className="font-medium text-[#00b495]">{t('assistant.patientHelp')}</p>
+            <p className="text-sm mt-2 max-w-[280px] mx-auto text-gray-600">{t('assistant.patientDesc')}</p>
           </div>
         )}
-
+ 
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] rounded-2xl p-4 text-sm ${
@@ -208,18 +213,18 @@ export default function PatientAssistant() {
             </div>
           </div>
         ))}
-
+ 
         {isProcessing && (
           <div className="flex justify-start">
             <div className="bg-white border border-gray-100 shadow-sm rounded-2xl p-4 rounded-bl-none flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin text-[#00b495]" />
-              <span className="text-sm text-gray-500">Thinking...</span>
+              <span className="text-sm text-gray-500">{t('assistant.thinking')}</span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-
+ 
       {/* Input Area */}
       <div className="p-4 bg-white border-t border-gray-100">
         <div className="flex items-center gap-2">
@@ -230,7 +235,7 @@ export default function PatientAssistant() {
                 ? 'bg-red-100 text-red-500 animate-pulse' 
                 : 'bg-[#e6f8f4] text-[#00b495] hover:bg-[#b3e9df]'
             }`}
-            title="Speak (Voice Typing)"
+            title={t('assistant.listenTitle')}
           >
             <Mic className="w-5 h-5" />
           </button>
@@ -240,7 +245,7 @@ export default function PatientAssistant() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type or dictate a question..."
+            placeholder={t('assistant.askPatient')}
             className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-3 text-sm focus:outline-none focus:border-[#00b495] focus:ring-1 focus:ring-[#00b495] transition-all"
           />
           

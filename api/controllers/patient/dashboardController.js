@@ -7,6 +7,7 @@ const Patient = require('../../models/Patient');
 const Doctor = require('../../models/Doctor');
 const Clinic = require('../../models/Clinic');
 const User = require('../../models/User');
+const RevenueEntry = require('../../models/RevenueEntry');
 
 /**
  * Get patient dashboard statistics
@@ -123,17 +124,9 @@ exports.getDashboard = asyncHandler(async (req, res) => {
       populate: { path: 'doctorProfile', select: 'specialization fullName' }
     });
 
-  // Calculate Total Spent from all completed appointments
-  const allCompletedAppointments = await Appointment.find({
-    patientId: userId,
-    status: 'completed'
-  });
-
-  let totalSpentCalculated = 0;
-  for (const app of allCompletedAppointments) {
-    const prescription = await Prescription.findOne({ appointmentId: app._id }).select('consultationFee medicineCost totalCost');
-    totalSpentCalculated += Number(prescription?.totalCost || prescription?.consultationFee || 0) || 0;
-  }
+  // Calculate Total Spent from all RevenueEntry documents
+  const allRevenueEntries = await RevenueEntry.find({ patientUserId: userId });
+  const totalSpentCalculated = allRevenueEntries.reduce((sum, entry) => sum + (entry.totalCost || 0), 0);
 
   // Upcoming appointments (next 3) - Only pending or confirmed
   const upcomingAppointments = await Appointment.find({
@@ -163,24 +156,19 @@ exports.getDashboard = asyncHandler(async (req, res) => {
       populate: { path: 'doctorProfile', select: 'specialization fullName' }
     });
 
-  // Spending Trend (Last 6 months - Newest First)
+  // Spending Trend (Last 6 months - Newest First) from RevenueEntry
   const spendingTrend = [];
   for (let i = 0; i < 6; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const nextM = new Date(d.getFullYear(), d.getMonth() + 1, 1);
     const monthKey = d.toLocaleString('default', { month: 'short' });
 
-    const monthAppointments = await Appointment.find({
-      patientId: userId,
-      status: 'completed',
-      dateTime: { $gte: d, $lt: nextM }
+    const monthEntries = await RevenueEntry.find({
+      patientUserId: userId,
+      occurredAt: { $gte: d, $lt: nextM }
     });
 
-    let monthlySpent = 0;
-    for (const app of monthAppointments) {
-      const prescription = await Prescription.findOne({ appointmentId: app._id }).select('consultationFee medicineCost totalCost');
-      monthlySpent += Number(prescription?.totalCost || prescription?.consultationFee || 0) || 0;
-    }
+    const monthlySpent = monthEntries.reduce((sum, entry) => sum + (entry.totalCost || 0), 0);
 
     spendingTrend.push({
       label: monthKey,

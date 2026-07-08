@@ -1,6 +1,6 @@
 "use client";
 
-import { Header } from "@/components/home/Header";
+import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/home/Footer";
 import { Info, Shield, Award } from "lucide-react";
 import { useLocale } from "next-intl";
@@ -10,8 +10,8 @@ export default function AboutPage() {
   const isUrdu = locale === "ur";
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-1 pt-20">
+      <Navbar />
+      <main className="flex-1 pt-24">
         <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 animate-in mt-12 mb-12">
           <div className="text-center mb-16">
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">

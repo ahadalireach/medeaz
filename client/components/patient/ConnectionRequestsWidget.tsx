@@ -21,8 +21,7 @@ export default function ConnectionRequestsWidget() {
     }
   };
 
-  if (isLoading) return <div className="h-32 bg-white animate-pulse rounded-3xl border border-border-light" />;
-  if (requests.length === 0) return null;
+  if (isLoading || requests.length === 0) return null;
 
   return (
     <div className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
