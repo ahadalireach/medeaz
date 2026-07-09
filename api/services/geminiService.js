@@ -148,6 +148,74 @@ class GeminiService {
     }
   }
 
+  async chatWithSystemPrompt(systemPrompt, message, conversationHistory = []) {
+    try {
+      if (!this.apiKey) throw new Error("Gemini API key not configured");
+
+      const attemptWithModel = async (currentModelId) => {
+        const modelObj = this.genAI.getGenerativeModel({
+          model: currentModelId,
+        });
+        const chat = modelObj.startChat({
+          history: [
+            { role: "user", parts: [{ text: systemPrompt }] },
+            {
+              role: "model",
+              parts: [
+                {
+                  text: "Understood. I am ready to assist with operations for this clinic.",
+                },
+              ],
+            },
+            ...conversationHistory
+              .filter((h) => h.content?.trim())
+              .map((msg) => ({
+                role: msg.role === "user" ? "user" : "model",
+                parts: [{ text: msg.content }],
+              })),
+          ],
+          generationConfig: { maxOutputTokens: 1024, temperature: 0.2 },
+        });
+
+        const result = await chat.sendMessage(message);
+        const response = await result.response;
+        return response.text();
+      };
+
+      // Try current model first
+      try {
+        return await attemptWithModel(this.activeModelId);
+      } catch (error) {
+        const isQuotaIssue =
+          error.message?.includes("429") || error.message?.includes("quota");
+        const isNotFound =
+          error.message?.includes("not found") ||
+          error.message?.includes("404");
+
+        if (isQuotaIssue || isNotFound) {
+          const alternatives = MODEL_CANDIDATES.filter(
+            (m) => m !== this.activeModelId,
+          );
+
+          for (const alt of alternatives) {
+            try {
+              const reply = await attemptWithModel(alt);
+              this.activeModelId = alt;
+              this.model = this.genAI.getGenerativeModel({ model: alt });
+              return reply;
+            } catch (altError) {
+              console.warn(`Alternative ${alt} failed: ${altError.message}`);
+            }
+          }
+        }
+        throw error;
+      }
+    } catch (error) {
+      console.error("Gemini system prompt chat error:", error.message);
+      throw error;
+    }
+  }
+
   async parsePrescription(transcription) {
     try {
       if (!this.apiKey || !this.genAI)
@@ -252,3 +320,5 @@ const geminiServiceInstance = new GeminiService();
 module.exports = geminiServiceInstance;
 module.exports.chatWithGemini = (message, history) =>
   geminiServiceInstance.chat(message, history);
+module.exports.chatWithSystemPrompt = (systemPrompt, message, history) =>
+  geminiServiceInstance.chatWithSystemPrompt(systemPrompt, message, history);

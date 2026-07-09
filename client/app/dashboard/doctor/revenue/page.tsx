@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Trash2, Loader2, Calendar, User, Banknote } from "lucide-react";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import toast from "react-hot-toast";
+import PageHeader from "@/components/shared/PageHeader";
 
 export default function DoctorRevenuePage() {
   const t = useTranslations();
@@ -55,24 +56,24 @@ export default function DoctorRevenuePage() {
 
   return (
     <div className="space-y-6 pb-10">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t("doctor.revenueHistory.title")}</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("doctor.revenueHistory.subtitle")}</p>
-        </div>
-        <button
-          onClick={onClear}
-          disabled={clearing || !entries.length}
-          className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 disabled:opacity-50 transition-opacity"
-        >
-          {clearing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Trash2 className="h-4 w-4" />
-          )}
-          {clearing ? (t("common.loading") || "Clearing...") : t("doctor.revenueHistory.deleteAll")}
-        </button>
-      </div>
+      <PageHeader
+        title="Revenue & earnings"
+        description={t("doctor.revenueHistory.subtitle")}
+        action={
+          <button
+            onClick={onClear}
+            disabled={clearing || !entries.length}
+            className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 disabled:opacity-50 transition-opacity"
+          >
+            {clearing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+            {clearing ? (t("common.loading") || "Clearing...") : t("doctor.revenueHistory.deleteAll")}
+          </button>
+        }
+      />
 
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1a1a1a] shadow-sm">
         <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t("doctor.revenueHistory.totalEarned")}</p>
@@ -81,18 +82,7 @@ export default function DoctorRevenuePage() {
 
       <div className="space-y-4 md:hidden">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="animate-pulse rounded-2xl border border-border-light bg-white p-4 space-y-3">
-              <div className="flex justify-between">
-                <div className="h-4 w-24 rounded bg-surface" />
-                <div className="h-4 w-20 rounded bg-surface" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="h-14 rounded-2xl bg-surface" />
-                <div className="h-14 rounded-2xl bg-surface" />
-              </div>
-            </div>
-          ))
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-[#1a1a1a]">{t("common.loading")}</div>
         ) : entries.length ? entries.map((entry: any) => (
           <div key={entry._id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-[#1a1a1a]">
             <div className="flex items-start justify-between gap-3">
@@ -109,14 +99,14 @@ export default function DoctorRevenuePage() {
               </div>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-gray-50 p-3 dark:bg-white/5">
+              <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.patient")}</p>
                 <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
                   <User className="h-4 w-4 text-primary" />
                   {entry.patientUserId?.name || entry.patientName || t("common.noData")}
                 </p>
               </div>
-              <div className="rounded-2xl bg-gray-50 p-3 dark:bg-white/5">
+              <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.total")}</p>
                 <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
                   <Banknote className="h-4 w-4 text-primary" />
@@ -125,11 +115,11 @@ export default function DoctorRevenuePage() {
               </div>
             </div>
             <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-2xl border border-gray-100 p-3 dark:border-white/10">
+              <div className="rounded-xl border border-gray-100 p-3 dark:border-white/10">
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.consultationFee")}</p>
                 <p className="mt-1 font-semibold text-gray-900 dark:text-white">{Number(entry.consultationFee || 0).toLocaleString()} {t("common.pkr")}</p>
               </div>
-              <div className="rounded-2xl border border-gray-100 p-3 dark:border-white/10">
+              <div className="rounded-xl border border-gray-100 p-3 dark:border-white/10">
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("doctor.revenueHistory.medicineCost")}</p>
                 <p className="mt-1 font-semibold text-gray-900 dark:text-white">{Number(entry.medicineCost || 0).toLocaleString()} {t("common.pkr")}</p>
               </div>
@@ -155,15 +145,7 @@ export default function DoctorRevenuePage() {
           </thead>
           <tbody>
             {isLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <tr key={i} className="animate-pulse border-t border-border-light">
-                  {Array.from({ length: 7 }).map((__, j) => (
-                    <td key={j} className="px-4 py-3">
-                      <div className="h-4 rounded bg-surface" style={{ width: `${60 + (j * 10) % 40}%` }} />
-                    </td>
-                  ))}
-                </tr>
-              ))
+              <tr><td className="px-4 py-6" colSpan={7}>{t("common.loading")}</td></tr>
             ) : entries.length ? entries.map((entry: any) => {
               const isDeleting = deletingIds.has(entry._id);
               return (

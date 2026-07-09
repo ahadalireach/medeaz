@@ -97,55 +97,67 @@ export default function UpcomingAppointmentsWidget({ appointments }: UpcomingApp
       </CardHeader>
       <CardContent>
         {appointments.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
-              <Calendar className="h-5 w-5 text-primary" />
-            </div>
-            <p className="text-sm font-medium text-text-primary mb-1">{t('patient.dashboard.noUpcoming')}</p>
-            <p className="text-xs text-text-secondary mb-4">Your upcoming appointments will appear here</p>
+          <div className="text-center py-8">
+            <p className="mb-4 text-sm text-text-primary">
+              {t('patient.dashboard.noUpcoming')}
+            </p>
             <Link
               href="/dashboard/patient/book-appointment"
-              className="inline-flex items-center rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-hover transition-colors"
+              className="inline-flex items-center rounded-full bg-primary px-6 py-2 text-sm font-black text-white hover:bg-primary/90 transition-all shadow-lens hover:shadow-lens-hover"
             >
               {t('patient.dashboard.bookNow')}
             </Link>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {appointments.slice(0, 3).map((appointment) => (
               <div
                 key={appointment._id}
-                className="rounded-xl bg-gray-50 p-4 hover:bg-gray-100 transition-all"
+                className="group relative rounded-2xl border border-border-light p-5 hover:bg-background :bg-ink-soft/50 transition-all hover:scale-[1.01]"
               >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-text-primary truncate">
+                <div className="mb-3 flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="font-bold text-text-primary">
                       {t('patient.bookAppointmentPage.doctorPrefix')} {getDoctorName(appointment)}
                     </p>
-                    <p className="text-xs text-text-secondary mt-0.5">
+                    <p className="text-sm font-medium text-text-primary">
                       {appointment.doctorId?.doctorProfile?.specialization || t('appointment.doctor')}
                     </p>
                   </div>
-                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getStatusColor(appointment.status)}`}>
+                  <span
+                    className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${getStatusColor(appointment.status)}`}
+                  >
                     {getStatusLabel(appointment.status)}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-text-secondary flex-wrap mt-2">
+                <div className="flex items-center gap-4 text-sm text-text-primary flex-wrap font-medium">
                   <div className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5 text-primary" />
+                    <Calendar className="h-4 w-4 text-primary" />
                     {appointment.dateTime ? formatDate(appointment.dateTime) : "TBD"}
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5 text-primary" />
+                    <Clock className="h-4 w-4 text-primary" />
                     {appointment.dateTime ? formatTime(appointment.dateTime) : "TBD"}
                   </div>
-                  {appointment.clinicId?.name && (
+                </div>
+                {appointment.clinicId?.name && (
+                  <div className="mt-3 space-y-1 text-xs font-bold text-text-primary">
                     <div className="flex items-center gap-1.5">
                       <Building2 className="h-3.5 w-3.5" />
                       {appointment.clinicId.name}
                     </div>
-                  )}
-                </div>
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <Building2 className="h-3.5 w-3.5" />
+                      {appointment.clinicId.address || t('common.noData')}
+                    </div>
+                  </div>
+                )}
+                {!appointment.clinicId?.name && (
+                  <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-text-primary">
+                    <Building2 className="h-3.5 w-3.5" />
+                    {t('appointment.clinic')}
+                  </div>
+                )}
               </div>
             ))}
           </div>

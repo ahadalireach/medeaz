@@ -130,7 +130,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             )}
             <label
               htmlFor="profile-image"
-              className="absolute bottom-0 right-0 h-8 w-8 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-hover transition-all"
+              className="absolute bottom-0 right-0 h-8 w-8 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-hover transition-all shadow-lg"
             >
               <Upload className="h-4 w-4 text-black" />
               <input

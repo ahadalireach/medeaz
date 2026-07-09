@@ -165,7 +165,7 @@ export default function AIAssistantPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col rounded-2xl overflow-hidden border border-black/5 bg-white shadow-sm">
+      <div className="flex-1 flex flex-col rounded-3xl overflow-hidden border border-black/5 bg-white shadow-sm">
         <div 
           ref={scrollAreaRef}
           className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-4 scrollbar-hide"
@@ -176,7 +176,7 @@ export default function AIAssistantPage() {
               msg.role === 'user' ? 'justify-end' : 'justify-start'
             )}>
               {msg.role === 'model' && (
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mr-3 mt-1 shadow-sm">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mr-3 mt-1 shadow-sm">
                   <Bot size={16} className="text-primary" />
                 </div>
               )}
@@ -207,7 +207,7 @@ export default function AIAssistantPage() {
 
           {isLoading && (
             <div className="flex justify-start animate-in">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mr-3 mt-1 shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mr-3 mt-1 shadow-sm">
                 <Bot size={16} className="text-primary" />
               </div>
               <div className="px-5 py-4 rounded-2xl rounded-bl-sm bg-background border border-black/5">
@@ -233,7 +233,7 @@ export default function AIAssistantPage() {
                 rows={1}
                 dir="auto"
                 className={cn(
-                  "w-full resize-none px-4 py-3.5 pr-12 rounded-2xl text-sm bg-white border border-border-light transition-colors max-h-32 overflow-y-auto",
+                  "w-full resize-none px-4 py-3.5 pr-12 rounded-2xl text-sm bg-white border border-black/10 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 max-h-32 overflow-y-auto",
                   isUrduLang && "font-urdu text-base"
                 )}
               />

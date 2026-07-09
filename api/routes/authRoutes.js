@@ -10,8 +10,8 @@ const {
   updateUserProfile,
   forgotPassword,
   resetPassword,
-  googleAuthUser,
 } = require("../controllers/authController");
+const { googleAuth } = require("../controllers/auth/googleAuthController");
 const {
   markComplete,
   markProfileComplete,
@@ -21,7 +21,7 @@ const { protect } = require("../middleware/authMiddleware");
 router.post("/register", registerUser);
 router.post("/verify/:token", verifyEmail);
 router.post("/login", loginUser);
-router.post("/google", googleAuthUser);
+router.post("/google", googleAuth);
 router.post("/logout", protect, logoutUser);
 router.post("/refresh", refreshAccessToken);
 router.post("/forgot-password", forgotPassword);

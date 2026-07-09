@@ -55,25 +55,18 @@ router.get('/doctors', asyncHandler(async (req, res) => {
         matchQuery.specialization = { $regex: specialization, $options: 'i' };
     }
 
-    if (city && city !== "All Cities" && city !== "") {
-        matchQuery.$and = [
-          ...(matchQuery.$and || []),
-          {
-            $or: [
-              { "location.city": { $regex: city, $options: 'i' } },
-              { "clinicDetails.address": { $regex: city, $options: 'i' } },
-              { "clinicDetails.name": { $regex: city, $options: 'i' } }
-            ]
-          }
+    if (city && city !== "All Cities") {
+        matchQuery.$or = [
+            { "location.city": { $regex: city, $options: 'i' } },
+            { "clinicDetails.address": { $regex: city, $options: 'i' } }
         ];
-        delete matchQuery.$or; // prevent conflict
     }
 
-    if (minExperience && parseInt(minExperience) > 0) {
+    if (minExperience) {
         matchQuery.experience = { $gte: parseInt(minExperience) };
     }
 
-    if (minRating && parseFloat(minRating) > 0) {
+    if (minRating) {
         matchQuery.averageRating = { $gte: parseFloat(minRating) };
     }
 
@@ -140,6 +133,25 @@ router.get('/doctors/:id', asyncHandler(async (req, res) => {
  * @route   GET /api/public/doctors/:id/reviews
  * @access  Public
  */
-router.get('/doctors/:id/reviews', reviewController.getPublicDoctorReviews);
+// ========== Public Clinic Reviews Routes ==========
+const publicClinicReviewsController = require('../controllers/patient/clinicReviewsController');
+const Clinic = require('../models/Clinic');
+router.get('/clinic/:clinicId', asyncHandler(async (req, res) => {
+    const clinic = await Clinic.findById(req.params.clinicId)
+        .populate({
+            path: 'doctors',
+            select: 'userId specialization fullName consultationFee availabilityStatus',
+            populate: {
+                path: 'userId',
+                select: 'name email photo'
+            }
+        });
+    if (!clinic) {
+        return res.status(404).json(new ApiResponse(404, null, "Clinic not found"));
+    }
+    res.status(200).json(new ApiResponse(200, clinic, "Clinic profile fetched successfully"));
+}));
+router.get('/clinic/:clinicId/reviews', publicClinicReviewsController.getPublicReviews);
+router.get('/clinic/:clinicId/reviews/summary', publicClinicReviewsController.getPublicReviewsSummary);
 
 module.exports = router;

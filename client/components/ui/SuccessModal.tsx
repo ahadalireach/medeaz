@@ -42,7 +42,7 @@ export function SuccessModal({
           {/* Success Icon with Animation */}
           <div className="relative">
             <div className={`absolute -inset-4 bg-primary/10 rounded-full blur-xl transition-all duration-1000 ${showSparkles ? 'scale-150 opacity-100' : 'scale-100 opacity-0'}`} />
-            <div className="h-24 w-24 bg-primary rounded-2xl flex items-center justify-center text-white rotate-12 hover:rotate-0 transition-transform duration-500 animate-in zoom-in spin-in-12">
+            <div className="h-24 w-24 bg-primary rounded-[2.5rem] flex items-center justify-center text-white shadow-2xl shadow-primary/40 rotate-12 hover:rotate-0 transition-transform duration-500 animate-in zoom-in spin-in-12">
               <CheckCircle2 size={48} strokeWidth={2.5} />
             </div>
             
@@ -68,7 +68,7 @@ export function SuccessModal({
                 if (onAction) onAction();
                 onClose();
               }}
-              className="w-full h-16 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+              className="w-full h-16 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               {actionText}
             </Button>

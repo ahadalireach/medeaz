@@ -5,6 +5,7 @@ import { useDeleteRevenueHistoryRecordMutation, useGetRevenueHistoryQuery, useCl
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import PageHeader from "@/components/shared/PageHeader";
 
 export default function ClinicRevenuePage() {
   const t = useTranslations();
@@ -37,20 +38,20 @@ export default function ClinicRevenuePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary">{t("clinic.revenueHistory.title")}</h1>
-          <p className="mt-1 text-sm text-text-secondary">{t("clinic.revenueHistory.subtitle")}</p>
-        </div>
-        <button
-          onClick={onClear}
-          disabled={clearing || !entries.length}
-          className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 disabled:opacity-50"
-        >
-          <Trash2 className="h-4 w-4" />
-          {t("clinic.revenueHistory.deleteAll")}
-        </button>
-      </div>
+      <PageHeader 
+        title={t("clinic.revenueHistory.title")} 
+        description={t("clinic.revenueHistory.subtitle")} 
+        action={
+          <button
+            onClick={onClear}
+            disabled={clearing || !entries.length}
+            className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 disabled:opacity-50"
+          >
+            <Trash2 className="h-4 w-4" />
+            {t("clinic.revenueHistory.deleteAll")}
+          </button>
+        } 
+      />
 
       <div className="rounded-2xl border border-border-light bg-white p-5">
         <p className="text-sm font-bold text-text-secondary">{t("clinic.revenueHistory.totalEarned")}</p>

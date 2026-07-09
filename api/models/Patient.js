@@ -15,6 +15,7 @@ const patientSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      lowercase: true,
     },
     dob: {
       type: Date,
@@ -27,6 +28,7 @@ const patientSchema = new mongoose.Schema(
       type: String,
     },
     allergies: [String],
+    chronicConditions: [String],
     contact: {
       type: String,
     },
@@ -44,7 +46,14 @@ const patientSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
+
+patientSchema.pre("save", function (next) {
+  if (this.gender) {
+    this.gender = this.gender.toLowerCase().trim();
+  }
+  next();
+});
 
 module.exports = mongoose.model("Patient", patientSchema);

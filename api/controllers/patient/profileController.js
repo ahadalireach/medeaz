@@ -31,7 +31,8 @@ exports.getProfile = asyncHandler(async (req, res) => {
  */
 exports.updateProfile = asyncHandler(async (req, res) => {
   const userId = req.user._id;
-  const { name, dob, gender, bloodGroup, allergies, contact, profilePhoto } = req.body;
+  const { name, dob, gender, bloodGroup, allergies, profilePhoto } = req.body;
+  const inputPhone = req.body.contact || req.body.phone;
 
   const patient = await Patient.findOne({ userId });
 
@@ -41,7 +42,7 @@ exports.updateProfile = asyncHandler(async (req, res) => {
 
   // Normalize gender to lowercase for schema validation
   if (gender) {
-    patient.gender = gender.toLowerCase();
+    patient.gender = gender.toLowerCase().trim();
   }
 
   // Update other fields
@@ -49,12 +50,27 @@ exports.updateProfile = asyncHandler(async (req, res) => {
   patient.dob = dob || patient.dob;
   patient.bloodGroup = bloodGroup || patient.bloodGroup;
   patient.allergies = allergies || patient.allergies;
-  patient.contact = contact || patient.contact;
+  patient.contact = inputPhone || patient.contact;
   patient.profilePhoto = profilePhoto || patient.profilePhoto;
 
-  // Ensure email remains consistent and doesn't trigger "required" errors if Mongoose is being picky
-  if (!patient.email) {
-    const user = await User.findById(userId);
+  // Sync to User collection
+  const user = await User.findById(userId);
+  if (user) {
+    if (name) user.name = name;
+    if (inputPhone) user.phone = inputPhone;
+    if (profilePhoto) user.photo = profilePhoto;
+    
+    // If all essential fields are filled, mark onboarding complete
+    if (patient.name && patient.gender && patient.dob && patient.bloodGroup && patient.contact) {
+      user.onboardingCompleted = true;
+      user.isOnboardingComplete = true;
+      user.onboardingStep = 99;
+      user.profileCompleted = true;
+    }
+    
+    await user.save();
+    
+    // Ensure email remains consistent in profile
     patient.email = user.email;
   }
 

@@ -19,30 +19,24 @@ exports.getOverview = asyncHandler(async (req, res) => {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const todayAppointments = await Appointment.countDocuments({
-    doctorId: { $in: clinic.doctors.map((d) => d.userId) },
-    dateTime: { $gte: today, $lt: tomorrow },
-  });
+  const doctorUserIds = clinic.doctors.map((d) => d.userId).filter(Boolean);
 
-  const todayPatients = await Appointment.distinct("patientId", {
-    doctorId: { $in: clinic.doctors.map((d) => d.userId) },
-    dateTime: { $gte: today, $lt: tomorrow },
-  });
+  const todayQuery = {
+    clinicId: clinicId,
+    deletedByClinic: { $ne: true },
+    $or: [
+      { dateTime: { $gte: today, $lt: tomorrow } },
+      { completedAt: { $gte: today, $lt: tomorrow } }
+    ]
+  };
 
-  // Calculate today's revenue (20% share)
-  const todayCompleted = await Appointment.find({
-    doctorId: { $in: clinic.doctors.map((d) => d.userId) },
-    dateTime: { $gte: today, $lt: tomorrow },
-    status: 'completed'
-  });
+  const todayAppointments = await Appointment.countDocuments(todayQuery);
 
-  // Since we don't store fee on appointment yet, we estimate based on doctor's fee
-  let todayRevenue = 0;
-  for (const app of todayCompleted) {
-    const doctor = clinic.doctors.find(d => d.userId.toString() === app.doctorId.toString());
-    const fee = doctor?.consultationFee || 0;
-    todayRevenue += fee * 0.2; // Clinic gets 20%
-  }
+  const todayPatients = await Appointment.distinct("patientId", todayQuery);
+
+  // Get today's revenue (20% clinic share) directly from the clinic's daily revenue map
+  const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const todayRevenue = clinic.revenue?.daily?.get(todayKey) || 0;
 
   // Get current month revenue from clinic model
   const now = new Date();
@@ -71,10 +65,6 @@ exports.getPatientFlow = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Clinic not found for this user");
   }
 
-  const clinic = await Clinic.findById(clinicId);
-  const doctorProfiles = await Doctor.find({ clinicId: clinicId });
-  const doctorUserIds = doctorProfiles.map(doc => doc.userId);
-
   const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0); // Normalize to start of day
   const endDate = new Date(currentDate);
@@ -84,9 +74,10 @@ exports.getPatientFlow = asyncHandler(async (req, res) => {
   const patientFlow = await Appointment.aggregate([
     {
       $match: {
-        doctorId: { $in: doctorUserIds },
+        clinicId: clinicId,
         dateTime: { $gte: currentDate, $lte: endDate },
-        status: 'completed'
+        status: 'completed',
+        deletedByClinic: { $ne: true }
       },
     },
     {
@@ -238,4 +229,58 @@ exports.getRevenueHistory = asyncHandler(async (req, res) => {
       pages: Math.ceil(total / Number(limit)),
     },
   }, 'Revenue history fetched successfully'));
+});
+
+/**
+ * @desc    Delete a specific revenue history record for clinic
+ * @route   DELETE /api/clinic/analytics/revenue/history/:id
+ * @access  Private (Clinic Admin only)
+ */
+exports.deleteRevenueHistoryRecord = asyncHandler(async (req, res) => {
+  const clinicId = req.user.clinicId;
+  const RevenueEntry = require('../../models/RevenueEntry');
+
+  if (!clinicId) {
+    throw new ApiError(404, "Clinic not found for this user");
+  }
+
+  const record = await RevenueEntry.findOne({
+    _id: req.params.id,
+    clinicId: clinicId,
+  });
+
+  if (!record) {
+    throw new ApiError(404, 'Revenue history record not found');
+  }
+
+  const { reverseRevenueEntry } = require('../../utils/revenue');
+  await reverseRevenueEntry(record);
+  await RevenueEntry.deleteOne({ _id: record._id });
+
+  res.status(200).json(new ApiResponse(200, null, 'Revenue history record deleted successfully'));
+});
+
+/**
+ * @desc    Clear all revenue history records for clinic
+ * @route   DELETE /api/clinic/analytics/revenue/history
+ * @access  Private (Clinic Admin only)
+ */
+exports.clearRevenueHistory = asyncHandler(async (req, res) => {
+  const clinicId = req.user.clinicId;
+  const RevenueEntry = require('../../models/RevenueEntry');
+
+  if (!clinicId) {
+    throw new ApiError(404, "Clinic not found for this user");
+  }
+
+  const records = await RevenueEntry.find({ clinicId: clinicId });
+
+  const { reverseRevenueEntry } = require('../../utils/revenue');
+  for (const record of records) {
+    await reverseRevenueEntry(record);
+  }
+
+  await RevenueEntry.deleteMany({ clinicId: clinicId });
+
+  res.status(200).json(new ApiResponse(200, null, 'Revenue history cleared successfully'));
 });

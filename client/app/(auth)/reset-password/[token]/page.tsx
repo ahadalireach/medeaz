@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MedeazLogo } from "@/components/ui/MedeazLogo";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
@@ -36,7 +36,14 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <MedeazLogo size={56} className="mx-auto mb-6 drop-shadow-[0_6px_16px_rgba(15,76,92,0.25)]" />
+      <Image
+        src="/medeaz.jpeg"
+        alt="Medeaz Logo"
+        width={64}
+        height={64}
+        priority
+        className="mx-auto rounded-lg object-cover shadow-sm mb-6"
+      />
       <h1 className="mt-6 font-display text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.1] tracking-[-0.02em] text-text-primary">
         {isSuccess ? "Password updated" : "Set a new password"}
       </h1>

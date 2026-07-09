@@ -1,24 +1,15 @@
 const axios = require('axios');
 const FormData = require('form-data');
 
-const CHAT_SYSTEM_PROMPT = `You are Medeaz AI — a personal health assistant with full access to this patient's medical history on the Medeaz platform.
-
-You have been provided the patient's complete data including:
-- Their profile (name, blood group, allergies, gender, DOB)
-- All upcoming and past appointments (doctor name, clinic, date, time, status, reason)
-- All prescriptions (diagnosis, medicines with dosage, follow-up dates)
-- Medical records and visit notes
-
-IMPORTANT RULES:
-1. ALWAYS use the provided patient data to answer questions. Never say "I don't have access to your..." — you DO have their data.
-2. When asked about appointments, list them clearly with doctor name, date, time, clinic and status.
-3. When asked about medicines, diagnoses or prescriptions, refer to their actual records.
-4. For general health questions, provide clear, evidence-based guidance.
-5. Never diagnose new conditions — only reference what's in the patient's records.
-6. If there's an emergency, immediately direct to call 1122 (Pakistan).
-7. Reply in the same language the user writes in (Urdu or English). Be warm and conversational.
-8. Format responses clearly with Markdown when listing items.
-9. Do not repeat greetings across conversation turns.`;
+const CHAT_SYSTEM_PROMPT = `You are a helpful medical AI assistant for Medeaz, a healthcare platform.
+You provide general health guidance and information only.
+You never diagnose conditions or replace a doctor's advice.
+Always recommend consulting a doctor for serious concerns.
+If you detect an emergency situation, immediately advise the user to call emergency services.
+Keep responses concise, clear, and in the same language the user writes in (Urdu or English).
+Format responses in Markdown.
+Do not repeat canned intros across turns.
+Adapt your wording and structure to the exact user question so each answer is specific and dynamic.`;
 
 class GroqService {
   constructor() {
@@ -34,7 +25,7 @@ class GroqService {
       let systemPrompt = CHAT_SYSTEM_PROMPT;
       
       if (patientContext) {
-        systemPrompt += `\n\n=== THIS PATIENT'S DATA (use this to answer their questions) ===\n${patientContext}\n=== END OF PATIENT DATA ===`;
+        systemPrompt += `\n\n[PATIENT MEDICAL HISTORY CONTEXT]\n${patientContext}\n\nUse this history to provide personalized health guidance, but still follow all safety rules.`;
       }
       if (preferredLanguage) {
         const normalized = String(preferredLanguage).toLowerCase();
@@ -82,108 +73,6 @@ class GroqService {
 
   async getHealthAdvice(query, patientContext = null, preferredLanguage = null) {
     return this.chat(query, [], patientContext, preferredLanguage);
-  }
-
-  async doctorChat(message, conversationHistory = [], doctorContext = null, preferredLanguage = null) {
-    try {
-      if (!this.apiKey) throw new Error('Groq API key not configured');
-
-      let systemPrompt = `You are Medeaz Clinical AI — a smart assistant for this doctor on the Medeaz platform.
-
-You have full access to this doctor's data including:
-- Their profile (name, specialization, clinic, consultation fee, rating)
-- Today's appointment schedule (patient names, times, reasons, status)
-- All upcoming appointments
-- Recent prescriptions they have issued (patients, diagnoses, medicines)
-
-IMPORTANT RULES:
-1. ALWAYS use the provided doctor data to answer questions about their schedule, patients and prescriptions. Never say "I don't have access" — you DO.
-2. For clinical questions (drugs, diagnosis, protocols), provide evidence-based, practical guidance.
-3. Always clarify you support clinical judgment — not replace it.
-4. Be concise and clinical — doctors are busy.
-5. Format responses in clear Markdown.
-6. Do not repeat canned intros across turns.
-7. Reply in the same language the doctor writes in (Urdu or English).`;
-
-      if (doctorContext) {
-        systemPrompt += `\n\n=== THIS DOCTOR'S DATA (use this to answer their questions) ===\n${doctorContext}\n=== END OF DOCTOR DATA ===`;
-      }
-      if (preferredLanguage) {
-        const lang = String(preferredLanguage).toLowerCase().startsWith('ur') ? 'Urdu' : 'English';
-        systemPrompt += `\n\n[OUTPUT LANGUAGE]\nReply in ${lang} unless the user asks otherwise.`;
-      }
-
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        ...conversationHistory.map(m => ({
-          role: m.role === 'user' ? 'user' : 'assistant',
-          content: m.content,
-        })),
-        { role: 'user', content: message },
-      ];
-
-      const response = await axios.post(
-        this.apiUrl,
-        { model: this.model, messages, temperature: 0.7, max_tokens: 1024, stream: false },
-        { headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' } }
-      );
-
-      return response.data.choices[0].message.content;
-    } catch (error) {
-      console.error('Groq Doctor Chat Error:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.error?.message || 'Failed to process doctor AI request');
-    }
-  }
-
-  async clinicChat(message, conversationHistory = [], clinicContext = null, preferredLanguage = null) {
-    try {
-      if (!this.apiKey) throw new Error('Groq API key not configured');
-
-      let systemPrompt = `You are Medeaz Clinic AI — an intelligent operations assistant for this clinic administrator on the Medeaz platform.
-
-You have full access to this clinic's data including:
-- Clinic profile (name, address, doctors on staff)
-- Today's appointment count and operational stats
-- Monthly and total revenue figures
-- Doctor roster with specializations
-
-IMPORTANT RULES:
-1. ALWAYS use the provided clinic data to answer operational questions. Never say "I don't have access" — you DO.
-2. For questions about appointments, revenue or doctors, reference their actual numbers.
-3. For strategic/operational questions, give practical, actionable advice.
-4. Be concise and structured — admins need clear answers fast.
-5. Format responses in clear Markdown.
-6. Do not repeat canned intros across turns.
-7. Reply in the same language the admin writes in (Urdu or English).`;
-
-      if (clinicContext) {
-        systemPrompt += `\n\n=== THIS CLINIC'S DATA (use this to answer their questions) ===\n${clinicContext}\n=== END OF CLINIC DATA ===`;
-      }
-      if (preferredLanguage) {
-        const lang = String(preferredLanguage).toLowerCase().startsWith('ur') ? 'Urdu' : 'English';
-        systemPrompt += `\n\n[OUTPUT LANGUAGE]\nReply in ${lang} unless the user asks otherwise.`;
-      }
-
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        ...conversationHistory.map(m => ({
-          role: m.role === 'user' ? 'user' : 'assistant',
-          content: m.content,
-        })),
-        { role: 'user', content: message },
-      ];
-
-      const response = await axios.post(
-        this.apiUrl,
-        { model: this.model, messages, temperature: 0.75, max_tokens: 1024, stream: false },
-        { headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' } }
-      );
-
-      return response.data.choices[0].message.content;
-    } catch (error) {
-      console.error('Groq Clinic Chat Error:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.error?.message || 'Failed to process clinic AI request');
-    }
   }
 
   async parsePrescription(transcription) {
@@ -242,6 +131,117 @@ IMPORTANT RULES:
       console.error('Groq Parse Error:', error.response?.data || error.message);
       // Fallback to basic rule-based parsing if needed, but for now we throw
       throw new Error('Failed to parse prescription with Groq');
+    }
+  }
+
+  async clinicOpsChat(systemPrompt, message, conversationHistory = []) {
+    try {
+      if (!this.apiKey) throw new Error('Groq API key not configured');
+
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        })),
+        { role: 'user', content: message }
+      ];
+
+      const response = await axios.post(
+        this.apiUrl,
+        {
+          model: this.model,
+          messages: messages,
+          temperature: 0.5,
+          max_tokens: 1500,
+          stream: false
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return response.data.choices[0].message.content;
+    } catch (error) {
+      console.error('Groq ClinicOps Chat Error:', error.response?.data || error.message);
+      throw new Error('Failed to process ClinicOps AI request with Groq');
+    }
+  }
+
+  async doctorCopilotChat(systemPrompt, message, conversationHistory = []) {
+    try {
+      if (!this.apiKey) throw new Error('Groq API key not configured');
+
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        })),
+        { role: 'user', content: message }
+      ];
+
+      const response = await axios.post(
+        this.apiUrl,
+        {
+          model: this.model,
+          messages: messages,
+          temperature: 0.3,
+          max_tokens: 2000,
+          stream: false
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return response.data.choices[0].message.content;
+    } catch (error) {
+      console.error('Groq Doctor Copilot Chat Error:', error.response?.data || error.message);
+      throw new Error('Failed to process Doctor Copilot AI request with Groq');
+    }
+  }
+
+  async patientAssistantChat(systemPrompt, message, conversationHistory = []) {
+    try {
+      if (!this.apiKey) throw new Error('Groq API key not configured');
+
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        })),
+        { role: 'user', content: message }
+      ];
+
+      const response = await axios.post(
+        this.apiUrl,
+        {
+          model: this.model,
+          messages: messages,
+          temperature: 0.3,
+          max_tokens: 2000,
+          stream: false
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return response.data.choices[0].message.content;
+    } catch (error) {
+      console.error('Groq Patient Assistant Chat Error:', error.response?.data || error.message);
+      throw new Error('Failed to process Patient Assistant AI request with Groq');
     }
   }
 

@@ -17,6 +17,23 @@ const updateRevenue = async (doctorUserId, totalCost, optClinicId = null, patien
         return; // Exit if totalCost is invalid
     }
 
+    // Avoid double counting by reversing existing entries for this appointment or prescription
+    if (meta?.appointmentId) {
+        const existingEntry = await RevenueEntry.findOne({ appointmentId: meta.appointmentId });
+        if (existingEntry) {
+            console.log(`[REVENUE] Found existing revenue entry for appointment ${meta.appointmentId}. Reversing it first.`);
+            await reverseRevenueEntry(existingEntry);
+            await RevenueEntry.deleteOne({ _id: existingEntry._id });
+        }
+    } else if (meta?.prescriptionId) {
+        const existingEntry = await RevenueEntry.findOne({ prescriptionId: meta.prescriptionId });
+        if (existingEntry) {
+            console.log(`[REVENUE] Found existing revenue entry for prescription ${meta.prescriptionId}. Reversing it first.`);
+            await reverseRevenueEntry(existingEntry);
+            await RevenueEntry.deleteOne({ _id: existingEntry._id });
+        }
+    }
+
     let doctor = await Doctor.findById(doctorUserId);
     if (!doctor) {
         doctor = await Doctor.findOne({ userId: doctorUserId });
@@ -130,7 +147,7 @@ const updateRevenue = async (doctorUserId, totalCost, optClinicId = null, patien
     }
 };
 
-const decrementMapValue = (mapObj, key, amount) => {
+function decrementMapValue(mapObj, key, amount) {
     if (!mapObj || !key || !amount) return;
     const current = mapObj.get(key) || 0;
     const next = current - amount;
@@ -139,9 +156,9 @@ const decrementMapValue = (mapObj, key, amount) => {
     } else {
         mapObj.set(key, next);
     }
-};
+}
 
-const reverseRevenueEntry = async (entry) => {
+async function reverseRevenueEntry(entry) {
     if (!entry) return;
 
     const when = new Date(entry.occurredAt || entry.createdAt || new Date());

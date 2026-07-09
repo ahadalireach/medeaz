@@ -51,7 +51,7 @@ export default function AppointmentFilters({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white p-6 rounded-2xl border border-border-light"
+      className="bg-white p-6 rounded-xl border border-border-light"
     >
       <h3 className="text-lg font-bold text-text-primary mb-4">
         Filter Appointments
@@ -68,7 +68,7 @@ export default function AppointmentFilters({
               </label>
               <select
                 {...field}
-                className="h-12 w-full px-4 rounded-lg border border-border-light bg-white text-[15px] text-text-primary focus:outline-none focus:border-primary transition-colors"
+                className="w-full px-4 py-2 border border-border-light rounded-lg bg-white text-text-primary placeholder:text-text-secondary :text-[#78716C] focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="">All Doctors</option>
                 {Array.isArray(doctors) && doctors.map((doctor: any) => (
@@ -91,7 +91,7 @@ export default function AppointmentFilters({
               </label>
               <select
                 {...field}
-                className="h-12 w-full px-4 rounded-lg border border-border-light bg-white text-[15px] text-text-primary focus:outline-none focus:border-primary transition-colors"
+                className="w-full px-4 py-2 border border-border-light rounded-lg bg-white text-text-primary placeholder:text-text-secondary :text-[#78716C] focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>

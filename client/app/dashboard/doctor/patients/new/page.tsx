@@ -7,7 +7,6 @@ import { ArrowLeft, User, Mail, Phone, Calendar, Droplet, MapPin, Sparkles } fro
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
 
 export default function NewPatientPage() {
   const t = useTranslations();
@@ -89,9 +88,11 @@ export default function NewPatientPage() {
       newErrors.email = t('doctor.patients.newPage.validEmailRequired');
     }
 
-    // Phone — REQUIRED, Pakistani format
-    if (!formData.phone.trim() || !validatePkPhone(formData.phone)) {
-      newErrors.phone = PK_PHONE_ERROR;
+    // Phone — REQUIRED
+    if (!formData.phone.trim()) {
+      newErrors.phone = t('doctor.patients.newPage.phoneRequired');
+    } else if (!/^[\d\s\+\-\(\)]{7,15}$/.test(formData.phone.trim())) {
+      newErrors.phone = t('doctor.patients.newPage.validPhoneRequired');
     }
 
     // Date of Birth — REQUIRED
@@ -137,7 +138,7 @@ export default function NewPatientPage() {
           toast.error(t('doctor.patients.newPage.fillRequiredFields'));
           return;
         }
-        const result = await createPatient({ ...formData, phone: normalizePkPhone(formData.phone) }).unwrap();
+        const result = await createPatient(formData).unwrap();
         toast.success(
           t('doctor.patients.newPage.patientCreated', { email: result.data.patient.email }),
           { duration: 6000 }
@@ -155,7 +156,7 @@ export default function NewPatientPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard/doctor/patients"
-          className="h-10 w-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center hover:bg-surface/80 transition-colors"
+          className="h-10 w-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center hover:bg-surface/80 transition-colors"
         >
           <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
         </Link>
@@ -203,7 +204,7 @@ export default function NewPatientPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => set("email", e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border-2 border-slate-100 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-primary bg-slate-50 dark:bg-slate-900 text-lg font-bold"
+                  className="w-full pl-12 pr-4 py-4 border-2 border-slate-100 dark:border-slate-800 rounded-3xl focus:outline-none focus:border-primary bg-slate-50 dark:bg-slate-900 text-lg font-bold"
                   placeholder={t('doctor.patients.newPage.emailPlaceholder')}
                 />
                 {isSearching && (
@@ -214,7 +215,7 @@ export default function NewPatientPage() {
               </div>
 
               {foundPatient && (
-                <div className="mt-6 flex items-center gap-5 p-5 bg-primary/5 rounded-2xl border-2 border-primary/20 animate-in slide-in-from-top-4 duration-500 shadow-sm shadow-primary/5">
+                <div className="mt-6 flex items-center gap-5 p-5 bg-primary/5 rounded-3xl border-2 border-primary/20 animate-in slide-in-from-top-4 duration-500 shadow-sm shadow-primary/5">
                   <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-sm shrink-0">
                     {!imageError && (foundPatient.photo || foundPatient.profilePhoto) ? (
                       <img 
@@ -311,7 +312,7 @@ export default function NewPatientPage() {
                     onChange={(e) => set("phone", e.target.value)}
                     className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:outline-none bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-500 ${errors.phone ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-600 focus:border-primary"
                       }`}
-                    placeholder={PK_PHONE_PLACEHOLDER}
+                    placeholder="+1 234 567 8900"
                   />
                 </div>
                 {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
@@ -422,7 +423,7 @@ export default function NewPatientPage() {
               </div>
 
               {/* Info Box */}
-              <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4">
+              <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   <span className="font-semibold text-primary">{t('doctor.patients.newPage.noteLabel')}</span> {t('doctor.patients.newPage.noteText')}
                 </p>

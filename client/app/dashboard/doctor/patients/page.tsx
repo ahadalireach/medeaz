@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useGetPatientsQuery, useDeletePatientMutation } from "@/store/api/doctorApi";
 import Link from "next/link";
+import PageHeader from "@/components/shared/PageHeader";
 import { Search, User, Calendar as CalendarIcon, Loader, Plus, Trash2, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useStartConversationMutation } from "@/store/api/chatApi";
@@ -11,11 +12,27 @@ import { toast } from "react-hot-toast";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useTranslations } from "next-intl";
 import { showToast } from "@/lib/toast";
+import { HealthScoreGauge } from "@/components/shared/HealthScoreGauge";
+import { useGetHealthScoreQuery } from "@/store/api/patientApi";
+import { useDebounce } from "@/hooks/useDebounce";
+
+const PatientHealthScoreBadge = ({ patientId }: { patientId: string }) => {
+  const { data, isLoading } = useGetHealthScoreQuery(patientId);
+  return (
+    <HealthScoreGauge
+      size="sm"
+      score={data?.data?.score || 0}
+      breakdown={data?.data?.breakdown}
+      isNewPatient={data?.data?.isNewPatient}
+      loading={isLoading}
+    />
+  );
+};
 
 export default function PatientsPage() {
   const t = useTranslations();
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; patientId: string; patientName: string }>({
     isOpen: false,
@@ -27,14 +44,12 @@ export default function PatientsPage() {
   const [startConversation] = useStartConversationMutation();
   const router = useRouter();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [search]);
+  const isSearchInvalid = debouncedSearch.length > 0 && debouncedSearch.trim().length < 2;
 
-  const { data, isLoading, isFetching } = useGetPatientsQuery({ search: debouncedSearch, limit: 100 });
+  const { data, isLoading, isFetching } = useGetPatientsQuery(
+    { search: debouncedSearch, limit: 100 },
+    { skip: isSearchInvalid }
+  );
 
   const patients = data?.data?.patients || [];
 
@@ -85,7 +100,7 @@ export default function PatientsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <>
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteConfirm.isOpen}
@@ -99,21 +114,21 @@ export default function PatientsPage() {
         isLoading={deleting}
       />
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">{t('doctor.patients.title')}</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 text-base sm:text-lg">
-            {t('doctor.patients.subtitle')}
-          </p>
-        </div>
-        <Link
-          href="/dashboard/doctor/patients/new"
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-lg w-full sm:w-auto text-sm sm:text-base"
-        >
-          <Plus className="h-5 w-5 stroke-[2.5px]" />
-          {t('doctor.patients.addPatient')}
-        </Link>
-      </div>
+      <div className="space-y-6 animate-in fade-in duration-500">
+
+      <PageHeader
+        title="Your patients"
+        description={t('doctor.patients.subtitle')}
+        action={
+          <Link
+            href="/dashboard/doctor/patients/new"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-lg w-full sm:w-auto text-sm sm:text-base"
+          >
+            <Plus className="h-5 w-5 stroke-[2.5px]" />
+            {t('doctor.patients.addPatient')}
+          </Link>
+        }
+      />
 
       <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
         <div className="relative">
@@ -127,13 +142,16 @@ export default function PatientsPage() {
           />
           {isFetching && (
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              <Loader className="h-5 w-5 animate-spin text-primary" />
+              <Loader className="h-4 w-4 animate-spin text-[#00b495]" />
             </div>
           )}
         </div>
+        {search.length > 0 && search.trim().length < 2 && (
+          <p className="text-[#9ca3af] text-[12px] font-inter mt-2 ml-2">Type at least 2 characters to search</p>
+        )}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader className="h-12 w-12 animate-spin text-primary" />
@@ -150,14 +168,17 @@ export default function PatientsPage() {
           </div>
         ) : (
           <div className="divide-y divide-border-light">
-            {patients.map((patient: any) => (
-              <div key={patient._id} className="relative group">
+            {patients.map((patient: any, index: number) => (
+              <div
+                key={patient._id}
+                className={`relative group ${index === 0 ? 'rounded-t-2xl' : ''} ${index === patients.length - 1 ? 'rounded-b-2xl' : ''}`}
+              >
                 <Link
                   href={`/dashboard/doctor/patients/${patient._id}`}
-                  className="block p-6 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors pr-28"
+                  className={`block p-4 sm:p-6 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors sm:pr-28 ${index === 0 ? 'rounded-t-2xl' : ''} ${index === patients.length - 1 ? 'rounded-b-2xl' : ''}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                       <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center text-primary border border-border-light shrink-0 overflow-hidden">
                         {patient.photo ? (
                           <img src={patient.photo} alt="" className="h-full w-full object-cover" />
@@ -193,7 +214,8 @@ export default function PatientsPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 text-right pr-20">
+                    <div className="flex flex-col items-start sm:items-end gap-2 text-left sm:text-right sm:pr-20 mt-2 sm:mt-0">
+                      <PatientHealthScoreBadge patientId={patient._id} />
                       {patient.isAdded && patient.visitCount > 0 && (
                         <span className="bg-white border border-primary/20 text-primary font-bold rounded-full text-[10px] sm:text-[11px] px-2.5 py-1 uppercase tracking-wider whitespace-nowrap">
                           {patient.visitCount} {patient.visitCount !== 1 ? t('doctor.patients.visitsPlural') : t('doctor.patients.visits')}
@@ -235,5 +257,6 @@ export default function PatientsPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

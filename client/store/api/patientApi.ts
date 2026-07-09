@@ -14,6 +14,11 @@ export const patientApi = createApi({
     "FamilyRecords",
     "Profile",
     "Connections",
+    "FollowUps",
+    "Doctors",
+    "HealthScore",
+    "ClinicReviews",
+    "ClinicReviewSummary",
   ],
   endpoints: (builder) => ({
     getDashboard: builder.query({
@@ -212,9 +217,15 @@ export const patientApi = createApi({
 
     getClinics: builder.query({
       query: () => "/patient/clinics",
+      keepUnusedDataFor: 30,
     }),
     getDoctors: builder.query({
-      query: () => "/patient/doctors",
+      query: (params) => ({
+        url: "/patient/doctors",
+        params,
+      }),
+      keepUnusedDataFor: 30,
+      providesTags: ["Doctors"],
     }),
 
     // Public Discovery
@@ -223,9 +234,13 @@ export const patientApi = createApi({
         url: "/public/doctors",
         params,
       }),
+      keepUnusedDataFor: 30,
     }),
     getPublicDoctorById: builder.query({
       query: (id) => `/public/doctors/${id}`,
+    }),
+    getPublicClinicById: builder.query({
+      query: (id) => `/public/clinic/${id}`,
     }),
     getPublicDoctorReviews: builder.query({
       query: (id) => `/public/doctors/${id}/reviews`,
@@ -241,6 +256,102 @@ export const patientApi = createApi({
         body: { status },
       }),
       invalidatesTags: ["Connections", "Dashboard", "Appointments"],
+    }),
+    getFollowUps: builder.query({
+      query: (params: { status: "upcoming" | "past" | "all" }) => ({
+        url: "/patient/follow-ups",
+        params,
+      }),
+      providesTags: ["FollowUps"],
+    }),
+    completeFollowUp: builder.mutation({
+      query: (id: string) => ({
+        url: `/patient/follow-ups/${id}/complete`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["FollowUps", "HealthScore"],
+    }),
+    getHealthScore: builder.query({
+      query: (patientId: string) => `/patient/${patientId}/health-score`,
+      providesTags: (result, error, patientId) => [{ type: "HealthScore", id: patientId }],
+    }),
+
+    submitClinicReview: builder.mutation({
+      query: (data: any) => ({
+        url: "/patient/clinic-reviews",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "ClinicReviews", id: arg.clinicId },
+        { type: "ClinicReviewSummary", id: arg.clinicId },
+        "Appointments",
+        "Dashboard",
+      ],
+    }),
+
+    updateClinicReview: builder.mutation({
+      query: ({ id, ...data }: { id: string; [key: string]: any }) => ({
+        url: `/patient/clinic-reviews/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "ClinicReviews", id: arg.clinicId },
+        { type: "ClinicReviewSummary", id: arg.clinicId },
+        "Appointments",
+        "Dashboard",
+      ],
+    }),
+
+    deleteClinicReview: builder.mutation({
+      query: ({ id, clinicId }: { id: string; clinicId: string }) => ({
+        url: `/patient/clinic-reviews/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "ClinicReviews", id: arg.clinicId },
+        { type: "ClinicReviewSummary", id: arg.clinicId },
+        "Appointments",
+        "Dashboard",
+      ],
+    }),
+
+    getMyClinicReview: builder.query({
+      query: (clinicId: string) => `/patient/clinic-reviews/my?clinicId=${clinicId}`,
+      providesTags: ["ClinicReviews"],
+    }),
+
+    getClinicReviews: builder.query({
+      query: ({ clinicId, ...params }: { clinicId: string; [key: string]: any }) => ({
+        url: `/public/clinic/${clinicId}/reviews`,
+        params,
+      }),
+      providesTags: (result, error, { clinicId }) => [{ type: "ClinicReviews", id: clinicId }],
+    }),
+
+    getClinicReviewSummary: builder.query({
+      query: (clinicId: string) => `/public/clinic/${clinicId}/reviews/summary`,
+      providesTags: (result, error, clinicId) => [{ type: "ClinicReviewSummary", id: clinicId }],
+      keepUnusedDataFor: 300, // 5 minutes cache as specified
+    }),
+
+    voteReviewHelpful: builder.mutation({
+      query: ({ reviewId, vote }: { reviewId: string; vote: "helpful" | "not-helpful" }) => ({
+        url: `/patient/clinic-reviews/${reviewId}/helpful`,
+        method: "POST",
+        body: { vote },
+      }),
+      invalidatesTags: ["ClinicReviews"],
+    }),
+
+    flagReview: builder.mutation({
+      query: ({ reviewId, reason }: { reviewId: string; reason: string }) => ({
+        url: `/patient/clinic-reviews/${reviewId}/flag`,
+        method: "POST",
+        body: { reason },
+      }),
+      invalidatesTags: ["ClinicReviews"],
     }),
   }),
 });
@@ -276,7 +387,19 @@ export const {
   useGetDoctorsQuery,
   useGetPublicDoctorsQuery,
   useGetPublicDoctorByIdQuery,
+  useGetPublicClinicByIdQuery,
   useGetPublicDoctorReviewsQuery,
   useGetConnectionRequestsQuery,
   useHandleConnectionRequestMutation,
+  useGetFollowUpsQuery,
+  useCompleteFollowUpMutation,
+  useGetHealthScoreQuery,
+  useSubmitClinicReviewMutation,
+  useUpdateClinicReviewMutation,
+  useDeleteClinicReviewMutation,
+  useGetMyClinicReviewQuery,
+  useGetClinicReviewsQuery,
+  useGetClinicReviewSummaryQuery,
+  useVoteReviewHelpfulMutation,
+  useFlagReviewMutation,
 } = patientApi;

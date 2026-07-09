@@ -6,7 +6,7 @@ export default function AuthLayout({
   return (
     <div
       className="min-h-screen font-sans relative overflow-hidden"
-      style={{ background: "#F9FAFB" }}
+      style={{ background: "#f6f8f8" }}
     >
       {/* Same subtle medical SVG pattern as dashboard */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none select-none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">

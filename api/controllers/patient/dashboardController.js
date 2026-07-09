@@ -7,6 +7,7 @@ const Patient = require('../../models/Patient');
 const Doctor = require('../../models/Doctor');
 const Clinic = require('../../models/Clinic');
 const User = require('../../models/User');
+const RevenueEntry = require('../../models/RevenueEntry');
 
 /**
  * Get patient dashboard statistics
@@ -32,50 +33,50 @@ exports.getDashboard = asyncHandler(async (req, res) => {
   }
 
   const now = new Date();
-
-  // Current week: Mon 00:00 → Sun 23:59
   const startOfThisWeek = new Date(now);
   startOfThisWeek.setHours(0, 0, 0, 0);
-  const dayOfWeek = startOfThisWeek.getDay();
-  startOfThisWeek.setDate(startOfThisWeek.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  startOfThisWeek.setDate(startOfThisWeek.getDate() - 6);
 
-  const endOfThisWeek = new Date(startOfThisWeek);
-  endOfThisWeek.setDate(endOfThisWeek.getDate() + 6);
-  endOfThisWeek.setHours(23, 59, 59, 999);
+  const endOfLastWeek = new Date(startOfThisWeek);
+  endOfLastWeek.setMilliseconds(endOfLastWeek.getMilliseconds() - 1);
 
-  // Last week: Mon → Sun
   const startOfLastWeek = new Date(startOfThisWeek);
   startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
-  const endOfLastWeek = new Date(startOfThisWeek);
-  endOfLastWeek.setMilliseconds(-1);
 
-  // Current month: 1st → last day
   const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-
-  // Last month
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
   const countAppointmentsInRange = async (start, end) => {
     return Appointment.countDocuments({
       patientId: userId,
-      status: { $ne: 'cancelled' },
-      dateTime: { $gte: start, $lte: end },
+      $or: [
+        { dateTime: { $gte: start, $lte: end } },
+        {
+          status: 'completed',
+          completedAt: { $gte: start, $lte: end },
+        },
+      ],
     });
   };
 
-  // Appointments this week (full Mon–Sun, includes upcoming)
-  const appointmentsThisWeek = await countAppointmentsInRange(startOfThisWeek, endOfThisWeek);
+  // Appointments this week (rolling 7 days)
+  const appointmentsThisWeek = await countAppointmentsInRange(startOfThisWeek, now);
 
-  // Appointments last week
+  // Appointments previous rolling 7 days
   const appointmentsLastWeek = await countAppointmentsInRange(startOfLastWeek, endOfLastWeek);
 
-  // Appointments this month (full month, includes upcoming)
-  const appointmentsThisMonth = await countAppointmentsInRange(startOfThisMonth, endOfThisMonth);
+  // Appointments this month
+  const appointmentsThisMonth = await Appointment.countDocuments({
+    patientId: userId,
+    dateTime: { $gte: startOfThisMonth, $lte: now },
+  });
 
   // Appointments last month
-  const appointmentsLastMonth = await countAppointmentsInRange(startOfLastMonth, endOfLastMonth);
+  const appointmentsLastMonth = await Appointment.countDocuments({
+    patientId: userId,
+    dateTime: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+  });
 
   // Total prescriptions
   const totalPrescriptions = await Prescription.countDocuments({
@@ -123,17 +124,9 @@ exports.getDashboard = asyncHandler(async (req, res) => {
       populate: { path: 'doctorProfile', select: 'specialization fullName' }
     });
 
-  // Calculate Total Spent from all completed appointments
-  const allCompletedAppointments = await Appointment.find({
-    patientId: userId,
-    status: 'completed'
-  });
-
-  let totalSpentCalculated = 0;
-  for (const app of allCompletedAppointments) {
-    const prescription = await Prescription.findOne({ appointmentId: app._id }).select('consultationFee medicineCost totalCost');
-    totalSpentCalculated += Number(prescription?.totalCost || prescription?.consultationFee || 0) || 0;
-  }
+  // Calculate Total Spent from all RevenueEntry documents
+  const allRevenueEntries = await RevenueEntry.find({ patientUserId: userId });
+  const totalSpentCalculated = allRevenueEntries.reduce((sum, entry) => sum + (entry.totalCost || 0), 0);
 
   // Upcoming appointments (next 3) - Only pending or confirmed
   const upcomingAppointments = await Appointment.find({
@@ -163,24 +156,19 @@ exports.getDashboard = asyncHandler(async (req, res) => {
       populate: { path: 'doctorProfile', select: 'specialization fullName' }
     });
 
-  // Spending Trend (Last 6 months - Newest First)
+  // Spending Trend (Last 6 months - Newest First) from RevenueEntry
   const spendingTrend = [];
   for (let i = 0; i < 6; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const nextM = new Date(d.getFullYear(), d.getMonth() + 1, 1);
     const monthKey = d.toLocaleString('default', { month: 'short' });
 
-    const monthAppointments = await Appointment.find({
-      patientId: userId,
-      status: 'completed',
-      dateTime: { $gte: d, $lt: nextM }
+    const monthEntries = await RevenueEntry.find({
+      patientUserId: userId,
+      occurredAt: { $gte: d, $lt: nextM }
     });
 
-    let monthlySpent = 0;
-    for (const app of monthAppointments) {
-      const prescription = await Prescription.findOne({ appointmentId: app._id }).select('consultationFee medicineCost totalCost');
-      monthlySpent += Number(prescription?.totalCost || prescription?.consultationFee || 0) || 0;
-    }
+    const monthlySpent = monthEntries.reduce((sum, entry) => sum + (entry.totalCost || 0), 0);
 
     spendingTrend.push({
       label: monthKey,

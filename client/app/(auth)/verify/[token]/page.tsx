@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MedeazLogo } from "@/components/ui/MedeazLogo";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
@@ -51,7 +51,14 @@ export default function VerifyPage() {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <MedeazLogo size={56} className="mx-auto mb-6 drop-shadow-[0_6px_16px_rgba(15,76,92,0.25)]" />
+      <Image
+        src="/medeaz.jpeg"
+        alt="Medeaz Logo"
+        width={64}
+        height={64}
+        priority
+        className="mx-auto rounded-lg object-cover shadow-sm mb-6"
+      />
       <div className="mt-8 w-full rounded-2xl border border-border-light bg-surface-cream/60 p-8">
         {isLoading && (
           <div className="flex flex-col items-center">

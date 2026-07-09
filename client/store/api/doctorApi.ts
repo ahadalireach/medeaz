@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { patientApi } from './patientApi';
+import { clinicApi } from './clinicApi';
 import { expireSession } from '@/lib/authSession';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api',
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
   prepareHeaders: (headers) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
@@ -21,7 +22,10 @@ const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
-  if (result.error && result.error.status === 401) {
+  const requestUrl = typeof args === "string" ? args : (args as FetchArgs).url ?? "";
+  const isAuthRoute = requestUrl.startsWith("/auth/");
+
+  if (result.error && result.error.status === 401 && !isAuthRoute) {
     // Try to get a new token
     const refreshToken = localStorage.getItem('refreshToken');
 
@@ -110,7 +114,7 @@ const baseQueryWithReauth: BaseQueryFn<
 export const doctorApi = createApi({
   reducerPath: 'doctorApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Patients', 'Records', 'Prescriptions', 'Appointments', 'Schedule', 'DoctorAppointmentDetail', 'DoctorProfile'],
+  tagTypes: ['Patients', 'Records', 'Prescriptions', 'Appointments', 'Schedule', 'DoctorAppointmentDetail', 'DoctorProfile', 'ConnectionRequests'],
   endpoints: (builder) => ({
     // Patients
     getPatients: builder.query({
@@ -159,6 +163,7 @@ export const doctorApi = createApi({
         url: '/doctor/patients/search',
         params: { query },
       }),
+      keepUnusedDataFor: 30,
     }),
     findPatientByEmail: builder.query({
       query: (email) => ({
@@ -264,6 +269,10 @@ export const doctorApi = createApi({
       query: () => '/doctor/schedule',
       providesTags: ['Schedule'],
     }),
+    getWeeklySchedule: builder.query({
+      query: (date) => `/doctor/schedule/week?date=${date}`,
+      providesTags: ['Schedule', 'Appointments'],
+    }),
     updateSchedule: builder.mutation({
       query: (body) => ({
         url: '/doctor/schedule',
@@ -312,6 +321,75 @@ export const doctorApi = createApi({
         method: 'DELETE',
       }),
     }),
+    updateAvailability: builder.mutation({
+      query: (body) => ({
+        url: '/doctor/availability',
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['DoctorProfile'],
+    }),
+
+    // Follow-ups
+    createFollowUp: builder.mutation({
+      query: ({ patientId, ...body }) => ({
+        url: `/doctor/patients/${patientId}/follow-ups`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Patients', 'Appointments'],
+    }),
+
+    // Connection Requests
+    getIncomingConnectionRequests: builder.query({
+      query: () => '/doctor/connection-requests',
+      providesTags: ['ConnectionRequests'],
+    }),
+    acceptConnectionRequest: builder.mutation({
+      query: (requestId) => ({
+        url: `/doctor/connection-requests/${requestId}/accept`,
+        method: 'PUT',
+      }),
+      invalidatesTags: ['ConnectionRequests', 'DoctorProfile', 'Schedule', 'Appointments'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(clinicApi.util.invalidateTags(['Doctors', 'ConnectionRequests', 'Overview', 'Staff']));
+        } catch {
+          // Ignore
+        }
+      }
+    }),
+    declineConnectionRequest: builder.mutation({
+      query: (requestId) => ({
+        url: `/doctor/connection-requests/${requestId}/decline`,
+        method: 'PUT',
+      }),
+      invalidatesTags: ['ConnectionRequests'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(clinicApi.util.invalidateTags(['ConnectionRequests']));
+        } catch {
+          // Ignore
+        }
+      }
+    }),
+    leaveClinic: builder.mutation<void, void>({
+      query: () => ({
+        url: '/doctor/clinic',
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['DoctorProfile', 'Schedule', 'Appointments', 'ConnectionRequests'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(clinicApi.util.invalidateTags(['Doctors', 'ConnectionRequests', 'Overview', 'Staff']));
+        } catch {
+          // Ignore
+        }
+      }
+    }),
   }),
 });
 
@@ -338,6 +416,7 @@ export const {
   useCompleteAppointmentMutation,
   useDeleteAppointmentMutation,
   useGetScheduleQuery,
+  useGetWeeklyScheduleQuery,
   useUpdateScheduleMutation,
   useGetDoctorProfileQuery,
   useUpdateDoctorProfileMutation,
@@ -345,5 +424,10 @@ export const {
   useGetRevenueHistoryQuery,
   useDeleteRevenueHistoryRecordMutation,
   useClearRevenueHistoryMutation,
+  useUpdateAvailabilityMutation,
+  useCreateFollowUpMutation,
+  useGetIncomingConnectionRequestsQuery,
+  useAcceptConnectionRequestMutation,
+  useDeclineConnectionRequestMutation,
+  useLeaveClinicMutation,
 } = doctorApi;
-

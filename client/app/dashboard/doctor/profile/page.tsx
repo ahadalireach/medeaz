@@ -4,14 +4,17 @@ import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
     useGetDoctorProfileQuery,
-    useUpdateDoctorProfileMutation
+    useUpdateDoctorProfileMutation,
+    useLeaveClinicMutation
 } from "@/store/api/doctorApi";
 import { useUpdateProfileMutation } from "@/store/api/authApi";
 import {
-    Save,
-    Plus,
-    Upload
+    Building2,
+    LogOut,
+    AlertTriangle
 } from "lucide-react";
+import { format } from "date-fns";
+import { Modal } from "@/components/ui/Modal";
 import {
     UserIcon,
     MapPinIcon,
@@ -37,11 +40,12 @@ import { setCredentials } from "@/store/slices/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useTranslations } from "next-intl";
-import { validatePkPhone, normalizePkPhone, PK_PHONE_PLACEHOLDER, PK_PHONE_ERROR } from "@/lib/phone";
+import PageHeader from "@/components/shared/PageHeader";
+import { resolveMediaUrl } from "@/lib/media";
 
 const profileSchema = z.object({
     name: z.string().min(3, "Full name is required (min 3 chars)"),
-    phone: z.string().refine(validatePkPhone, { message: PK_PHONE_ERROR }),
+    phone: z.string().min(10, "Valid contact number is required"),
     specialization: z.string().min(3, "Please select your specialization"),
     bio: z.string().min(20, "Please provide a bio (at least 20 characters)"),
     experience: z.coerce.number().min(1, "Experience is required"),
@@ -109,7 +113,11 @@ export default function DoctorProfilePage() {
     const [profileImage, setProfileImage] = useState<string>("");
     const [imageFile, setImageFile] = useState<File | null>(null);
 
-    const { register, control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<any>({
+    const [leaveClinic, { isLoading: isLeavingClinic }] = useLeaveClinicMutation();
+    const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+    const [leaveConfirmName, setLeaveConfirmName] = useState("");
+
+    const { register, control, handleSubmit, reset, setValue, formState: { errors } } = useForm<any>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
             name: "",
@@ -183,13 +191,22 @@ export default function DoctorProfilePage() {
 
     const onSubmit = async (formData: any) => {
         try {
-            // 1. Update User Auth Info (Name & Photo)
-            const userFormData = new FormData();
-            userFormData.append("name", formData.name);
-            userFormData.append("phone", formData.phone);
-            if (imageFile) userFormData.append("photo", imageFile);
+            // 1. Update User Auth Info (Name, Phone & Photo) — send JSON, not FormData
+            let photoPayload: string | undefined = undefined;
+            if (imageFile) {
+                // Convert file to base64 data URL so it can travel in JSON
+                photoPayload = await new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result as string);
+                    reader.readAsDataURL(imageFile);
+                });
+            }
 
-            const authResult = await updateUserAuth(userFormData).unwrap();
+            const authResult = await updateUserAuth({
+                name: formData.name,
+                phone: formData.phone,
+                ...(photoPayload ? { photo: photoPayload } : {}),
+            }).unwrap();
 
             // 2. Update Doctor Clinical Info
             await updateDoctorProfile({
@@ -226,30 +243,47 @@ export default function DoctorProfilePage() {
 
     return (
         <div className="max-w-4xl mx-auto pb-20">
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-xl font-bold text-text-primary">{t('doctor.profile.title')}</h1>
-                    <p className="text-sm text-text-secondary mt-0.5">{t('doctor.profile.subtitle')}</p>
-                </div>
-                {profileData?.data?.isVerified && (
-                    <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full border border-primary/20">
-                        <ShieldCheckIcon size={16} />
-                        <span className="text-xs font-bold uppercase tracking-wider">{t('doctor.profile.verified')}</span>
+            <PageHeader
+                title="Your profile"
+                description={t('doctor.profile.subtitle')}
+                action={
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3 sm:gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 bg-slate-50 dark:bg-slate-900/50 p-2 sm:p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <div className="text-center px-3 sm:px-4 border-r border-slate-200 dark:border-slate-700">
+                                <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('clinic.period.month')}</p>
+                                <p className="text-base sm:text-lg font-black text-primary">{(profileData?.data as any)?.stats?.monthlyCompleted || 0}</p>
+                            </div>
+                            <div className="text-center px-3 sm:px-4 border-r border-slate-200 dark:border-slate-700">
+                                <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('clinic.period.week')}</p>
+                                <p className="text-base sm:text-lg font-black text-primary">{(profileData?.data as any)?.stats?.weeklyCompleted || 0}</p>
+                            </div>
+                            <div className="text-center px-3 sm:px-4">
+                                <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('clinic.period.all')}</p>
+                                <p className="text-base sm:text-lg font-black text-primary">{(profileData?.data as any)?.stats?.totalCompleted || 0}</p>
+                            </div>
+                        </div>
+                        {profileData?.data?.isVerified && (
+                            <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full border border-primary/20">
+                                <ShieldCheckIcon size={16} />
+                                <span className="text-xs font-bold uppercase tracking-wider">{t('doctor.profile.verified')}</span>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                }
+            />
 
             <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-8">
                 {/* Visual Identity Section */}
                 <Card className="p-8">
                     <div className="flex flex-col md:flex-row items-center gap-8">
                         <div className="relative group">
-                            <div className="h-32 w-32 rounded-2xl overflow-hidden border-4 border-black/6">
+                            <div className="h-32 w-32 rounded-3xl overflow-hidden border-4 border-slate-100 dark:border-slate-800 shadow-xl transition-all group-hover:scale-105">
                                 {profileImage ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
                                     <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
                                 ) : (
-                                    <div className="h-full w-full bg-gray-100 flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 ">
-                                        <UserIcon size={56} className="text-text-muted" />
+                                    <div className="h-full w-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800">
+                                        <UserIcon size={56} className="text-gray-300 dark:text-gray-600" />
                                     </div>
                                 )}
                             </div>
@@ -261,8 +295,8 @@ export default function DoctorProfilePage() {
 
                         <div className="flex-1 space-y-4 w-full">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Input label={t('doctor.profile.fullName')} placeholder="e.g. Dr. Jane Doe" {...register("name")} />
-                                <Input label={t('doctor.profile.phone')} placeholder={PK_PHONE_PLACEHOLDER} {...register("phone", { setValueAs: normalizePkPhone })} />
+                                <Input label={t('doctor.profile.fullName')} placeholder="e.g. Dr. Jane Doe" {...register("name")} error={errors.name?.message as string} />
+                                <Input label={t('doctor.profile.phone')} placeholder="+92 300 1234567" {...register("phone")} error={errors.phone?.message as string} />
                             </div>
                         </div>
                     </div>
@@ -270,38 +304,43 @@ export default function DoctorProfilePage() {
 
                 {/* Professional Overview */}
                 <Card className="p-8 space-y-6">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                            <LayersIcon size={20} className="text-primary" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                                <LayersIcon size={20} className="text-primary" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.profile.expertise')}</h2>
                         </div>
-                        <h2 className="text-xl font-bold text-text-primary">{t('doctor.profile.expertise')}</h2>
                     </div>
 
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col space-y-1">
-                                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary mb-1">{t('doctor.profile.specialization')}</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">{t('doctor.profile.specialization')}</label>
                                 <select
                                     {...register("specialization")}
-                                    className="lens-input h-11"
+                                    className={`lens-input h-11 ${errors.specialization ? 'border-red-500 focus:border-red-500' : ''}`}
                                 >
                                     <option value="">{t('common.select')}...</option>
                                     {MEDICAL_SPECIALTIES.map(spec => (
                                         <option key={spec} value={spec}>{spec}</option>
                                     ))}
                                 </select>
+                                {errors.specialization && <span className="text-xs text-red-500">{errors.specialization.message as string}</span>}
                             </div>
                             <Input
                                 label={t('doctor.profile.experience')}
                                 type="number"
                                 placeholder="10"
                                 {...register("experience")}
+                                error={errors.experience?.message as string}
                             />
                             <Input
                                 label={t('doctor.profile.consultationFee')}
                                 type="number"
                                 placeholder="2000"
                                 {...register("consultationFee")}
+                                error={errors.consultationFee?.message as string}
                             />
                         </div>
 
@@ -309,10 +348,11 @@ export default function DoctorProfilePage() {
                             <label className="lens-label">{t('doctor.profile.bio')}</label>
                             <textarea
                                 rows={4}
-                                className="lens-input h-auto py-3 resize-none"
+                                className={`lens-input h-auto py-3 resize-none ${errors.bio ? 'border-red-500 focus:border-red-500' : ''}`}
                                 placeholder="Share your professional journey, specialties, and approach to patient care..."
                                 {...register("bio")}
                             ></textarea>
+                            {errors.bio && <span className="text-xs text-red-500 mt-1 block">{errors.bio.message as string}</span>}
                         </div>
                     </div>
                 </Card>
@@ -321,7 +361,7 @@ export default function DoctorProfilePage() {
                 <Card className="p-8 space-y-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
                                 <UserCheckIcon size={20} className="text-primary" />
                             </div>
                             <h2 className="text-xl font-black text-text-primary tracking-tighter">{t('doctor.profile.education')}</h2>
@@ -339,40 +379,41 @@ export default function DoctorProfilePage() {
 
                     <div className="space-y-4">
                         {fields.map((field, index) => (
-                            <div key={field.id} className="flex flex-col md:flex-row gap-4 p-5 bg-gray-50 rounded-2xl border border-black/6 group relative items-end">
+                            <div key={field.id} className="flex flex-col md:flex-row gap-4 p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-black/5 dark:border-white/5 group relative items-end">
                                 <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <Input
                                         label={t('doctor.profile.educationDegree') || "Degree"}
                                         placeholder="e.g. MBBS"
                                         {...register(`education.${index}.degree` as const)}
-                                        className="h-12"
+                                        className="h-12" error={(errors.education as any)?.[index]?.degree?.message as string}
                                     />
                                     <div className="flex flex-col space-y-1 w-full">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-text-secondary mb-1">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">
                                             {t('doctor.profile.educationInstitution') || "Institution"}
                                         </label>
                                         <select
                                             {...register(`education.${index}.institution` as const)}
-                                            className="flex h-12 w-full rounded-2xl border border-black/6 bg-white px-5 py-2 text-base text-text-primary transition-all font-medium focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
+                                            className={`flex h-12 w-full rounded-2xl border bg-white dark:bg-slate-900/50 px-5 py-2 text-base text-slate-900 dark:text-slate-100 transition-all font-medium focus-visible:outline-none ${(errors.education as any)?.[index]?.institution ? 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/10' : 'border-slate-200 dark:border-slate-700/60 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10'}`}
                                         >
                                             <option value="">{t('common.select')}...</option>
                                             {PAKISTANI_MEDICAL_INSTITUTIONS.map(inst => (
                                                 <option key={inst} value={inst}>{inst}</option>
                                             ))}
                                         </select>
+                                        {(errors.education as any)?.[index]?.institution && <span className="text-xs text-red-500 mt-1 block">{(errors.education as any)?.[index]?.institution?.message as string}</span>}
                                     </div>
                                     <Input
                                         label={t('doctor.profile.graduationYear') || "Graduation Year"}
                                         type="number"
                                         placeholder="Year"
                                         {...register(`education.${index}.year` as const)}
-                                        className="h-12"
+                                        className="h-12" error={(errors.education as any)?.[index]?.year?.message as string}
                                     />
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => remove(index)}
-                                    className="p-3 text-red-500 hover:bg-red-50  rounded-xl transition-colors mb-0.5"
+                                    className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors mb-0.5"
                                 >
                                     <TrashIcon size={20} />
                                 </button>
@@ -381,13 +422,70 @@ export default function DoctorProfilePage() {
                     </div>
                 </Card>
 
+                {/* Clinic Affiliation Section */}
+                <Card className="p-8 space-y-6">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                            <Building2 size={20} className="text-primary" />
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Clinic Affiliation</h2>
+                    </div>
+
+                    {(profileData?.data as any)?.clinicId ? (
+                        <div className="border border-[#e5e7eb] rounded-[14px] p-6 relative">
+                            <div className="text-[13px] uppercase text-[#00b495] tracking-wider font-bold mb-4">
+                                Current Clinic
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center border border-border-light overflow-hidden shrink-0">
+                                    {(profileData?.data as any)?.clinicId?.photo ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img
+                                            src={resolveMediaUrl((profileData?.data as any)?.clinicId.photo)}
+                                            alt={(profileData?.data as any)?.clinicId?.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <Building2 className="h-6 w-6 text-text-secondary" />
+                                    )}
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-text-primary">
+                                        {(profileData?.data as any)?.clinicId?.name}
+                                    </h3>
+                                    <p className="text-[13px] text-text-secondary">
+                                        {(profileData?.data as any)?.clinicId?.city}
+                                    </p>
+                                    <p className="text-xs text-text-muted mt-1">
+                                        Member since {(profileData?.data as any)?.statusUpdatedAt ? format(new Date((profileData?.data as any).statusUpdatedAt), 'MMM d, yyyy') : 'Recently'}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsLeaveModalOpen(true)}
+                                className="absolute bottom-6 rtl:left-6 ltr:right-6 border-[1.5px] border-[#fca5a5] text-[#ef4444] rounded-[10px] px-4 py-2 flex items-center gap-2 hover:bg-[#ef44440f] transition-colors font-medium text-[13px]"
+                            >
+                                <LogOut size={14} className="rtl:rotate-180" />
+                                {t('leaveClinic.button') || 'Leave Clinic'}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="p-6 border border-border-light rounded-[14px] bg-slate-50/50 flex flex-col items-center justify-center text-center space-y-2">
+                            <Building2 className="h-8 w-8 text-text-muted mb-2" />
+                            <p className="text-sm font-bold text-text-primary">No clinic affiliation.</p>
+                            <p className="text-xs text-text-secondary">Join a clinic by accepting a connection request.</p>
+                        </div>
+                    )}
+                </Card>
+
                 {/* Clinic Location Section */}
                 <Card className="p-8 space-y-6">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
                             <MapPinIcon size={20} className="text-primary" />
                         </div>
-                        <h2 className="text-xl font-bold text-text-primary">{t('doctor.profile.clinicInfo')}</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.profile.clinicInfo')}</h2>
                     </div>
 
                     <div className="space-y-4">
@@ -399,18 +497,20 @@ export default function DoctorProfilePage() {
                                     const city = e.target.value;
                                     setValue("location.city", city);
                                 }}
-                                className="lens-input h-11"
+                                className={`lens-input h-11 ${(errors.location as any)?.city ? 'border-red-500' : ''}`}
                             >
                                 <option value="">{t('common.select')}...</option>
                                 {PAKISTANI_CITIES.map(city => (
                                     <option key={city} value={city}>{city}</option>
                                 ))}
                             </select>
+                            {(errors.location as any)?.city && <span className="text-xs text-red-500 mt-1 block">{(errors.location as any)?.city?.message as string}</span>}
                         </div>
                         <Input
                             label={t('form.address')}
                             placeholder="e.g. Suite 402, Medical Center, Block 4"
                             {...register("location.address")}
+                            error={(errors.location as any)?.address?.message as string}
                         />
                     </div>
                 </Card >
@@ -418,10 +518,10 @@ export default function DoctorProfilePage() {
                 {/* Availability Section */}
                 < Card className="p-8 space-y-6" >
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
                             <ClockIcon size={20} className="text-primary" />
                         </div>
-                        <h2 className="text-xl font-bold text-text-primary">{t('doctor.dashboard.viewSchedule')}</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('doctor.dashboard.viewSchedule')}</h2>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
@@ -435,9 +535,9 @@ export default function DoctorProfilePage() {
                             const isAvailable = Array.isArray(daySlots) && daySlots.length > 0;
 
                             return (
-                                <div key={day} className={`p-3 rounded-2xl border text-center transition-all ${isAvailable ? 'bg-primary/5 border-primary/20' : 'bg-gray-50 border-black/6 opacity-50'}`}>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{day}</p>
-                                    <p className={`text-[10px] font-black mt-1 ${isAvailable ? 'text-primary' : 'text-text-muted'}`}>
+                                <div key={day} className={`p-3 rounded-2xl border text-center transition-all ${isAvailable ? 'bg-primary/5 border-primary/20' : 'bg-slate-50 dark:bg-slate-900/40 border-black/5 dark:border-white/5 opacity-50'}`}>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{day}</p>
+                                    <p className={`text-[10px] font-black mt-1 ${isAvailable ? 'text-primary' : 'text-gray-400'}`}>
                                         {isAvailable ? `${daySlots.length} Slots` : 'Off'}
                                     </p>
                                 </div>
@@ -473,6 +573,74 @@ export default function DoctorProfilePage() {
                     </Button>
                 </div >
             </form >
+
+            <Modal
+                isOpen={isLeaveModalOpen}
+                onClose={() => {
+                    setIsLeaveModalOpen(false);
+                    setLeaveConfirmName("");
+                }}
+                title=""
+            >
+                <div className="flex flex-col space-y-4">
+                    <div className="flex justify-center">
+                        <AlertTriangle className="h-8 w-8 text-[#f59e0b]" />
+                    </div>
+                    <h2 className="text-xl font-bold text-center text-[#0a1628] dark:text-white">
+                        {t('leaveClinic.title', { clinicName: (profileData?.data as any)?.clinicId?.name }) || `Leave ${(profileData?.data as any)?.clinicId?.name}?`}
+                    </h2>
+                    <div className="space-y-2 text-sm text-[#374151] dark:text-slate-300">
+                        <ul className="list-disc pl-5 space-y-1">
+                            <li>{t('leaveClinic.consequence1') || 'Your schedule will be completely reset'}</li>
+                            <li>{t('leaveClinic.consequence2') || 'All your upcoming appointments at this clinic will be cancelled'}</li>
+                            <li>{t('leaveClinic.consequence3') || 'Patients will be notified automatically'}</li>
+                        </ul>
+                    </div>
+                    <div className="bg-[#fef9c3] border border-[#fde047] rounded-[10px] p-3 text-[13px] text-[#854d0e]">
+                        {t('leaveClinic.warning') || "This cannot be undone. You'll need a new invitation to rejoin."}
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-sm font-semibold text-text-primary">
+                            {t('leaveClinic.typeToConfirm') || 'Type your name to confirm:'}
+                        </label>
+                        <Input
+                            value={leaveConfirmName}
+                            onChange={(e) => setLeaveConfirmName(e.target.value)}
+                            placeholder={userAuth?.name}
+                        />
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                        <Button
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() => {
+                                setIsLeaveModalOpen(false);
+                                setLeaveConfirmName("");
+                            }}
+                        >
+                            {t('common.cancel')}
+                        </Button>
+                        <Button
+                            className={`flex-1 ${leaveConfirmName.toLowerCase() === userAuth?.name?.toLowerCase() ? 'bg-red-500 hover:bg-red-600 border-red-500' : 'opacity-50 cursor-not-allowed'}`}
+                            disabled={leaveConfirmName.toLowerCase() !== userAuth?.name?.toLowerCase() || isLeavingClinic}
+                            onClick={async () => {
+                                try {
+                                    await leaveClinic(undefined).unwrap();
+                                    toast.success(`You've left ${(profileData?.data as any)?.clinicId?.name}. Your schedule has been reset.`);
+                                    setIsLeaveModalOpen(false);
+                                    setLeaveConfirmName("");
+                                } catch (error: any) {
+                                    toast.error(error?.data?.message || "Failed to leave clinic");
+                                }
+                            }}
+                        >
+                            {isLeavingClinic ? t('leaveClinic.leaving') || "Leaving..." : t('leaveClinic.button') || "Leave Clinic"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </div >
     );
 }

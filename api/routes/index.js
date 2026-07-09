@@ -13,6 +13,7 @@ const userRoutes = require('./user');
 router.use('/auth', authRoutes);
 router.use('/doctor', doctorRoutes);
 router.use('/ai', aiRoutes);
+router.use('/opd-queue', require('./clinic/opdQueueRoutes'));
 router.use('/clinic', clinicRoutes);
 router.use('/patient', patientRoutes);
 router.use('/notifications', notificationRoutes);

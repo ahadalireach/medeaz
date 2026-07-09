@@ -3,14 +3,16 @@
 import { useGetPatientProfileQuery } from "@/store/api/clinicApi";
 import { format } from "date-fns";
 import {
-    User, Phone, Mail, MapPin, Calendar, Clock,
-    FileText, Pill, Activity, Printer,
-    ArrowLeft, Download, ExternalLink, UserCircle
+    Phone, Mail, Calendar, Clock,
+    FileText, Activity, Printer,
+    ArrowLeft, Download, ExternalLink
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { HealthScoreGauge } from "@/components/shared/HealthScoreGauge";
+import { useGetHealthScoreQuery } from "@/store/api/patientApi";
 
 export default function PatientProfileView({
     patientId,
@@ -33,12 +35,13 @@ export default function PatientProfileView({
     const appointmentBaseUrl = isDoctor ? '/dashboard/doctor/appointments' : '/dashboard/clinic_admin/appointments';
 
     const { data, isLoading, error } = useGetPatientProfileQuery(patientId);
+    const { data: healthScoreData, isLoading: isScoreLoading } = useGetHealthScoreQuery(patientId);
 
     if (isLoading) {
         return (
             <div className="space-y-6 animate-pulse">
-                <div className="h-64 bg-surface rounded-2xl" />
-                <div className="h-96 bg-surface rounded-2xl" />
+                <div className="h-64 bg-surface rounded-3xl" />
+                <div className="h-96 bg-surface rounded-3xl" />
             </div>
         );
     }
@@ -46,7 +49,7 @@ export default function PatientProfileView({
     const patientData = data?.data;
     if (error || !patientData) {
         return (
-            <div className="text-center py-20 bg-white rounded-2xl border border-border-light">
+            <div className="text-center py-20 bg-white rounded-3xl border border-border-light shadow-sm">
                 <Activity className="mx-auto h-12 w-12 text-text-secondary opacity-50 mb-4" />
                 <p className="text-text-secondary font-bold">Failed to load patient profile.</p>
                 <button onClick={() => router.back()} className="mt-4 text-primary font-bold hover:underline">
@@ -66,7 +69,6 @@ export default function PatientProfileView({
         return `${base}${raw.startsWith("/") ? "" : "/"}${raw}`;
     };
 
-    const patientAppointmentsLink = `/dashboard/clinic_admin/appointments?patientId=${patient._id}`;
 
     return (
         <div className="space-y-6">
@@ -93,12 +95,14 @@ export default function PatientProfileView({
                 </div>
             </div>
 
-            {/* Patient Hero Card */}
-            <div className="bg-white rounded-2xl border border-border-light overflow-hidden group">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Patient Hero Card */}
+            <div className="bg-white rounded-[1.75rem] border border-border-light shadow-sm overflow-hidden group">
                 <div className="bg-white p-5 md:p-6 border-b border-border-light">
                     <div className="flex flex-col md:flex-row items-center gap-5 md:gap-6">
                         <div className="relative">
-                            <div className="h-24 w-24 md:h-28 md:w-28 bg-white rounded-full flex items-center justify-center text-primary ring-6 ring-primary/5 overflow-hidden">
+                            <div className="h-24 w-24 md:h-28 md:w-28 bg-white rounded-full flex items-center justify-center text-primary ring-6 ring-primary/5 shadow-lg overflow-hidden">
                                 {getAvatarSrc() ? (
                                     <img src={getAvatarSrc()} alt={patient.name} className="h-full w-full object-cover" />
                                 ) : (
@@ -124,7 +128,7 @@ export default function PatientProfileView({
                             </div>
                         </div>
                         <div className="flex gap-4">
-                            <div className="bg-primary text-white p-4 rounded-2xl text-center min-w-32">
+                            <div className="bg-primary text-white p-4 rounded-3xl text-center shadow-lg shadow-primary/20 min-w-32">
                                 <p className="text-[10px] font-bold tracking-wider opacity-80 mb-1">{t('patient.profile.totalVisits')}</p>
                                 <p className="text-2xl font-black leading-none">{stats.totalVisits}</p>
                             </div>
@@ -157,7 +161,7 @@ export default function PatientProfileView({
             </div>
 
             {/* History Tabs */}
-            <div className="bg-white rounded-2xl border border-border-light overflow-hidden flex flex-col h-full min-h-125">
+            <div className="bg-white rounded-[1.75rem] border border-border-light shadow-sm overflow-hidden flex flex-col h-full min-h-125">
                 <div className="px-6 pt-6 border-b border-border-light print:hidden">
                     <div className="flex gap-6">
                         {(['appointments', 'records'] as const).map((tab) => (
@@ -181,7 +185,7 @@ export default function PatientProfileView({
                     {activeTab === 'appointments' && (
                         <div className="space-y-4">
                             {(appointments || []).length === 0 ? (
-                                <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-border-light">
+                                <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-border-light">
                                     <Calendar className="mx-auto h-10 w-10 text-text-muted opacity-30 mb-4" />
                                     <p className="text-sm font-bold text-text-muted italic">{t('patient.profile.noHistory')}</p>
                                 </div>
@@ -191,7 +195,7 @@ export default function PatientProfileView({
                                         <div key={app._id} className="group bg-white p-4 md:p-5 rounded-2xl border border-border-light hover:border-primary/30 transition-all">
                                             <div className="flex items-center justify-between gap-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="h-10 w-10 bg-white rounded-2xl flex items-center justify-center text-primary">
+                                                    <div className="h-10 w-10 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm">
                                                         <Clock size={24} />
                                                     </div>
                                                     <div>
@@ -209,7 +213,7 @@ export default function PatientProfileView({
                                                     </span>
                                                     <Link
                                                         href={`${appointmentBaseUrl}/${app._id}`}
-                                                        className="rounded-lg bg-white px-3.5 py-2 text-[10px] font-black  tracking-widest text-primary border border-primary/15 hover:bg-primary/5 transition-all"
+                                                        className="rounded-xl bg-white px-3.5 py-2 text-[10px] font-black  tracking-widest text-primary border border-primary/15 hover:bg-primary/5 transition-all"
                                                     >
                                                         {t('clinic.appointments.viewAppointment')}
                                                     </Link>
@@ -233,7 +237,7 @@ export default function PatientProfileView({
 
                                 if (combinedRecords.length === 0) {
                                     return (
-                                        <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-border-light">
+                                        <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-border-light">
                                             <Activity className="mx-auto h-10 w-10 text-text-primary opacity-30 mb-4" />
                                             <p className="text-sm font-bold text-text-primary italic">{t('patient.profile.noHistory')}</p>
                                         </div>
@@ -246,7 +250,7 @@ export default function PatientProfileView({
                                             <div key={record._id} className="bg-white p-4 md:p-5 rounded-2xl border border-border-light group hover:border-primary/20 transition-all">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="h-10 w-10 bg-white rounded-2xl flex items-center justify-center text-primary">
+                                                        <div className="h-10 w-10 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
                                                             {record.type === 'prescription' ? <FileText size={24} /> : <Activity size={24} />}
                                                         </div>
                                                         <div>
@@ -265,7 +269,7 @@ export default function PatientProfileView({
                                                         <div className="flex items-center gap-2 print:hidden">
                                                             <Link
                                                                 href={`${recordBaseUrl}/${record._id}?type=${record.type === 'prescription' ? 'prescription' : 'record'}`}
-                                                                className="rounded-2xl bg-white px-4 py-2 text-[10px] font-bold tracking-widest text-primary hover:bg-primary/5 border border-primary/15 transition-all active:scale-95"
+                                                                className="rounded-2xl bg-white px-4 py-2 text-[10px] font-bold tracking-widest text-primary hover:bg-primary/5 border border-primary/15 transition-all shadow-sm active:scale-95"
                                                             >
                                                                 <ExternalLink size={16} className="inline-block mr-2" />
                                                                 {t('common.view')}
@@ -273,7 +277,7 @@ export default function PatientProfileView({
                                                             {record.type === 'prescription' && !hideDownload && (
                                                                 <button
                                                                     onClick={() => window.open(`${recordBaseUrl}/${record._id}?print=true&type=prescription`, '_blank')}
-                                                                    className="rounded-2xl bg-white px-4 py-2 text-[10px] font-bold tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95"
+                                                                    className="rounded-2xl bg-white px-4 py-2 text-[10px] font-bold tracking-widest text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95"
                                                                 >
                                                                     <Download size={16} className="inline-block mr-2" />
                                                                     {t('common.download')}
@@ -289,6 +293,17 @@ export default function PatientProfileView({
                             })()}
                         </div>
                     )}
+                </div>
+            </div>
+            </div>
+            <div className="flex justify-center lg:justify-end">
+                    <HealthScoreGauge
+                        size="lg"
+                        score={healthScoreData?.data?.score || 0}
+                        breakdown={healthScoreData?.data?.breakdown}
+                        isNewPatient={healthScoreData?.data?.isNewPatient}
+                        loading={isScoreLoading}
+                    />
                 </div>
             </div>
         </div>

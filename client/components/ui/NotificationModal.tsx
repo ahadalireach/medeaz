@@ -80,10 +80,10 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
                 onClick={onClose}
             />
 
-            <div className="relative w-full max-w-md bg-white rounded-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
                 <div className="p-6 border-b border-black/5 flex items-center justify-between bg-primary/5">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center relative">
+                        <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center relative">
                             <Bell className="text-primary h-5 w-5" />
                             {unreadCount > 0 && (
                                 <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-white" />
@@ -115,12 +115,9 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
 
                 <div className="max-h-[60vh] overflow-y-auto p-4 space-y-3">
                     {notifications.length === 0 ? (
-                        <div className="py-14 flex flex-col items-center justify-center text-center">
-                            <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
-                                <Bell className="h-5 w-5 text-primary" />
-                            </div>
-                            <p className="text-sm font-medium text-text-primary">All caught up</p>
-                            <p className="text-xs text-text-secondary mt-1">No new notifications</p>
+                        <div className="py-20 flex flex-col items-center justify-center text-center opacity-50">
+                            <Bell className="h-12 w-12 text-white/70 mb-4" />
+                            <p className="text-sm font-bold uppercase tracking-widest text-text-secondary">All caught up!</p>
                         </div>
                     ) : (
                         notifications.map((notification: any) => (
@@ -129,14 +126,14 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
                                 onClick={() => !notification.read && handleMarkAsRead(notification._id)}
                                 className={`group p-4 rounded-2xl border transition-all cursor-pointer relative ${notification.read
                                     ? "bg-background/50  border-transparent opacity-80"
-                                    : "bg-white  border-primary/20 border-l-4 border-l-primary"
+                                    : "bg-white  border-primary/20 shadow-sm border-l-4 border-l-primary"
                                     }`}
                             >
                                 {!notification.read && (
                                     <div className="absolute top-4 right-4 h-2 w-2 bg-primary rounded-full" />
                                 )}
                                 <div className="flex gap-4">
-                                    <div className={`h-10 w-10 min-w-10 rounded-lg flex items-center justify-center ${notification.read ? "bg-surface " : "bg-primary/10"
+                                    <div className={`h-10 w-10 min-w-10 rounded-xl flex items-center justify-center ${notification.read ? "bg-surface " : "bg-primary/10"
                                         }`}>
                                         <CheckCircle2 size={18} className={notification.read ? "text-text-secondary" : "text-primary"} />
                                     </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useGetDoctorsQuery, useRemoveDoctorMutation } from "@/store/api/clinicApi";
-import { BarChart2, Trash2, Plus, User } from "lucide-react";
+import { Eye, Trash2, Plus, User } from "lucide-react";
 import TrashIcon from "@/icons/trash-icon";
 import { toast } from "react-hot-toast";
 import { ConfirmModal } from "../ui/ConfirmModal";
@@ -11,6 +11,7 @@ import AddDoctorModal from "./AddDoctorModal";
 import DoctorStatsModal from "./DoctorStatsModal";
 import { useTranslations } from "next-intl";
 import { resolveMediaUrl } from "@/lib/media";
+import AvailabilityBadge from "@/components/shared/AvailabilityBadge";
 
 export default function DoctorList() {
   const [page, setPage] = useState(1);
@@ -45,7 +46,7 @@ export default function DoctorList() {
 
   return (
     <>
-      <div className="bg-white p-6 rounded-2xl border border-border-light">
+      <div className="bg-white p-6 rounded-xl border border-border-light">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-text-primary">
             {t('nav.doctors')}
@@ -72,6 +73,9 @@ export default function DoctorList() {
                 <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('form.email')}
                 </th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-text-primary">
+                  Status
+                </th>
                 <th className="text-center py-3 px-4 text-sm font-semibold text-text-primary">
                   {t('common.actions')}
                 </th>
@@ -85,7 +89,7 @@ export default function DoctorList() {
                 >
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg overflow-hidden border border-black/5 shrink-0 bg-surface flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-xl overflow-hidden border border-black/5 shrink-0 bg-surface flex items-center justify-center">
                         {doctor.userId?.photo ? (
                           <img
                             src={resolveMediaUrl(doctor.userId.photo) || doctor.userId.photo}
@@ -107,6 +111,11 @@ export default function DoctorList() {
                   <td className="py-4 px-4 text-sm text-text-primary">
                     {doctor.userId?.email || "N/A"}
                   </td>
+                  <td className="py-4 px-4 text-sm text-text-primary">
+                    <div className="flex items-center gap-2">
+                      <AvailabilityBadge status={doctor.availabilityStatus || 'available'} />
+                    </div>
+                  </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center justify-center gap-2">
                       <button
@@ -114,9 +123,10 @@ export default function DoctorList() {
                           setSelectedDoctor(doctor);
                           setShowStatsModal(true);
                         }}
-                        className="p-2 hover:bg-surface :bg-text-secondary rounded-lg transition-all"
+                        className="p-2 hover:bg-surface rounded-lg transition-all"
+                        title={t('clinic.doctorPortal.stats') || "View Stats"}
                       >
-                        <BarChart2 className="h-4 w-4 text-text-primary" />
+                        <Eye className="h-4 w-4 text-text-primary" />
                       </button>
                       <button
                         onClick={() => {
@@ -136,12 +146,8 @@ export default function DoctorList() {
         </div>
 
         {doctors.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-14 text-center rounded-2xl bg-gray-50 border border-black/6 mt-2">
-            <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
-              <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.9} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" /></svg>
-            </div>
-            <p className="text-sm font-medium text-text-primary">{t('clinic.staff.noStaff')}</p>
-            <p className="text-xs text-text-secondary mt-1">Add doctors to your clinic to get started</p>
+          <div className="text-center py-12 text-text-primary">
+            {t('clinic.staff.noStaff')}
           </div>
         )}
 

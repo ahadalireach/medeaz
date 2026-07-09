@@ -112,7 +112,7 @@ export default function DoctorDetailsModal({
           <p className="text-text-secondary mt-2">{t("doctorNotFoundDesc")}</p>
           <button
             onClick={onClose}
-            className="mt-6 px-8 py-2 bg-primary text-white font-bold rounded-lg"
+            className="mt-6 px-8 py-2 bg-primary text-white font-bold rounded-xl shadow-lg"
           >
             {ct("close")}
           </button>
@@ -137,7 +137,7 @@ export default function DoctorDetailsModal({
         {/* Header Info */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="relative">
-            <div className="h-32 w-32 rounded-2xl overflow-hidden border-4 border-primary/10 bg-background flex items-center justify-center relative">
+            <div className="h-32 w-32 rounded-3xl overflow-hidden border-4 border-primary/10 shadow-xl bg-background flex items-center justify-center relative">
               <img
                 src={doctorPhoto ? 
                   ((doctorPhoto.startsWith('http') || doctorPhoto.startsWith('data:')) ? doctorPhoto : 
@@ -152,7 +152,7 @@ export default function DoctorDetailsModal({
               />
             </div>
             {doctor.isVerified && (
-              <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-2xl border-4 border-white">
+              <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-2xl shadow-lg border-4 border-white">
                 <ShieldCheck size={16} />
               </div>
             )}
@@ -200,9 +200,9 @@ export default function DoctorDetailsModal({
 
         {/* Practical Info Grid */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-          <div className="p-4 md:p-5 bg-background rounded-2xl border border-black/5 group hover:border-primary/20 transition-all">
+          <div className="p-4 md:p-5 bg-background rounded-3xl border border-black/5 group hover:border-primary/20 transition-all">
             <div className="flex items-center gap-3 mb-2 md:mb-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
                 <MapPin size={18} />
               </div>
               <span className="text-[9px] md:text-[10px] font-black text-text-secondary uppercase tracking-widest">
@@ -216,9 +216,9 @@ export default function DoctorDetailsModal({
             </p>
           </div>
 
-          <div className="p-4 md:p-5 bg-background rounded-2xl border border-black/5 group hover:border-primary/20 transition-all">
+          <div className="p-4 md:p-5 bg-background rounded-3xl border border-black/5 group hover:border-primary/20 transition-all">
             <div className="flex items-center gap-3 mb-2 md:mb-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
                 <DollarSign size={18} />
               </div>
               <span className="text-[9px] md:text-[10px] font-black text-text-secondary uppercase tracking-widest">
@@ -230,9 +230,9 @@ export default function DoctorDetailsModal({
             </p>
           </div>
 
-          <div className="p-4 md:p-5 bg-background rounded-2xl border border-black/5 group hover:border-primary/20 transition-all">
+          <div className="p-4 md:p-5 bg-background rounded-3xl border border-black/5 group hover:border-primary/20 transition-all">
             <div className="flex items-center gap-3 mb-2 md:mb-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
                 <Clock size={18} />
               </div>
               <span className="text-[9px] md:text-[10px] font-black text-text-secondary uppercase tracking-widest">
@@ -244,9 +244,9 @@ export default function DoctorDetailsModal({
             </p>
           </div>
 
-          <div className="p-4 md:p-5 bg-background rounded-2xl border border-black/5 group hover:border-primary/20 transition-all">
+          <div className="p-4 md:p-5 bg-background rounded-3xl border border-black/5 group hover:border-primary/20 transition-all">
             <div className="flex items-center gap-3 mb-2 md:mb-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
                 <GraduationCap size={18} />
               </div>
               <span className="text-[9px] md:text-[10px] font-black text-text-secondary uppercase tracking-widest">
@@ -260,9 +260,9 @@ export default function DoctorDetailsModal({
             </p>
           </div>
 
-          <div className="p-4 md:p-5 bg-background rounded-2xl border border-black/5 group hover:border-primary/20 transition-all">
+          <div className="p-4 md:p-5 bg-background rounded-3xl border border-black/5 group hover:border-primary/20 transition-all">
             <div className="flex items-center gap-3 mb-2 md:mb-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
                 <Globe size={18} />
               </div>
               <span className="text-[9px] md:text-[10px] font-black text-text-secondary uppercase tracking-widest">
@@ -275,9 +275,9 @@ export default function DoctorDetailsModal({
             </p>
           </div>
 
-          <div className="p-4 md:p-5 bg-background rounded-2xl border border-black/5 group hover:border-primary/20 transition-all">
+          <div className="p-4 md:p-5 bg-background rounded-3xl border border-black/5 group hover:border-primary/20 transition-all">
             <div className="flex items-center gap-3 mb-2 md:mb-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
                 <Phone size={18} />
               </div>
               <span className="text-[9px] md:text-[10px] font-black text-text-secondary uppercase tracking-widest">
@@ -294,20 +294,20 @@ export default function DoctorDetailsModal({
         <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-black/5">
           <button
             onClick={handleMessageClick}
-            className="flex-1 h-14 bg-white text-primary border-2 border-primary/20 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 hover:bg-primary hover:text-white hover:border-primary transition-all group"
+            className="flex-1 h-14 bg-white text-primary border-2 border-primary/20 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 hover:bg-primary hover:text-white hover:border-primary transition-all group active:scale-[0.98]"
           >
             <MessageSquare
-              className="h-5 w-5"
+              className="h-5 w-5 group-hover:scale-110 transition-transform"
               strokeWidth={3}
             />
             {t("consultViaChat")}
           </button>
           <Link
             href={`/dashboard/patient/book-appointment?doctorId=${doctor._id}&clinicId=${doctor.clinicId?._id || ""}`}
-            className="flex-1 h-14 bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 hover:bg-primary-hover transition-all group"
+            className="flex-1 h-14 bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-primary/25 hover:bg-primary-hover hover:-translate-y-0.5 transition-all group active:scale-[0.98]"
           >
             <Calendar
-              className="h-5 w-5"
+              className="h-5 w-5 group-hover:scale-110 transition-transform"
               strokeWidth={3}
             />
             {t("getAppointment")}

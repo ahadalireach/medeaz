@@ -19,6 +19,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { useTranslations } from "next-intl";
 import { showToast } from "@/lib/toast";
+import PageHeader from "@/components/shared/PageHeader";
 
 interface FamilyMemberFormData {
   name: string;
@@ -134,16 +135,15 @@ export default function FamilyPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-text-primary">
-          {t('nav.family')}
-        </h1>
-        <Button onClick={() => setShowAddModal(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t('patient.addFamilyMember')}
-        </Button>
-      </div>
+      <PageHeader 
+        title={t('nav.family')} 
+        action={
+          <Button onClick={() => setShowAddModal(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            {t('patient.addFamilyMember')}
+          </Button>
+        } 
+      />
 
       {/* Family Members List */}
       {isLoading ? (
@@ -151,18 +151,18 @@ export default function FamilyPage() {
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="h-40 animate-pulse rounded-2xl border border-border-light bg-white"
+              className="h-40 animate-pulse rounded-xl border border-border-light bg-white"
             />
           ))}
         </div>
       ) : members.length === 0 ? (
-        <div className="rounded-2xl border border-border-light bg-white p-12 text-center">
+        <div className="rounded-xl border border-border-light bg-white p-12 text-center">
           <Users className="mx-auto h-12 w-12 text-text-secondary" />
           <h3 className="mt-4 text-lg font-semibold text-text-primary">
-            {t('patient.family.noMembers')}
+            {t('family.noMembers')}
           </h3>
           <p className="mt-2 text-sm font-bold text-text-secondary">
-            {t('patient.family.addFirstMember')}
+            {t('family.addFirstMember')}
           </p>
           <Button onClick={() => setShowAddModal(true)} className="mt-4">
             {t('patient.addFamilyMember')}
@@ -173,7 +173,7 @@ export default function FamilyPage() {
           {members.map((member: any) => (
             <div
               key={member._id}
-              className="rounded-2xl border border-border-light bg-white p-6 transition-all hover:border-primary"
+              className="rounded-xl border border-border-light bg-white p-6 transition-all hover:border-primary"
             >
               <div className="mb-4 flex items-start justify-between">
                 <div className="flex items-start gap-3">

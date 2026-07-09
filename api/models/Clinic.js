@@ -96,10 +96,23 @@ const clinicSchema = new mongoose.Schema({
       default: new Map()
     }
   },
+  clinicRating: {
+    overall:       { type: Number, default: 0 },
+    cleanliness:   { type: Number, default: 0 },
+    waitTime:      { type: Number, default: 0 },
+    frontDesk:     { type: Number, default: 0 },
+    facility:      { type: Number, default: 0 },
+    accessibility: { type: Number, default: 0 },
+    valueForMoney: { type: Number, default: 0 },
+    totalReviews:  { type: Number, default: 0 },
+    lastComputedAt: { type: Date }
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
+
+clinicSchema.index({ name: 'text', address: 'text' });
 
 module.exports = mongoose.model("Clinic", clinicSchema);

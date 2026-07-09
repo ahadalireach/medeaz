@@ -1,5 +1,6 @@
 const User = require('../../models/User');
 const Patient = require('../../models/Patient');
+const Doctor = require('../../models/Doctor');
 const MedicalRecord = require('../../models/MedicalRecord');
 const Prescription = require('../../models/Prescription');
 const Appointment = require('../../models/Appointment');
@@ -14,11 +15,25 @@ const ApiResponse = require('../../utils/ApiResponse');
  */
 exports.getPatients = asyncHandler(async (req, res) => {
   const clinicId = req.user.clinicId;
-  const { page = 1, limit = 10, search } = req.query;
+  const { page = 1, limit = 10, search, doctorId } = req.query;
 
-  // Find all unique patient IDs from clinic's appointments and created patients
-  const appointments = await Appointment.find({ clinicId }).distinct('patientId');
-  const createdPatients = await Patient.find({ createdBy: req.user._id }).distinct('userId');
+  const cacheKey = `clinic:patients:${clinicId.toString()}:${page}:${limit}:${search || ''}:${doctorId || ''}`;
+  const { getCache, setCache } = require('../../utils/cacheHelpers');
+
+  const cachedData = await getCache(cacheKey);
+  if (cachedData) {
+    return res.status(200).json(new ApiResponse(200, cachedData, 'Patients fetched successfully'));
+  }
+
+  // Find all unique patient IDs from clinic's appointments (optionally filtered by doctorId) and created patients
+  const appointmentFilter = { clinicId, deletedByClinic: { $ne: true } };
+  if (doctorId) {
+    const docProfile = await Doctor.findById(doctorId);
+    const resolvedDoctorUserId = docProfile ? docProfile.userId : doctorId;
+    appointmentFilter.doctorId = resolvedDoctorUserId;
+  }
+  const appointments = await Appointment.find(appointmentFilter).distinct('patientId');
+  const createdPatients = doctorId ? [] : await Patient.find({ createdBy: req.user._id }).distinct('userId');
   
   const patientIds = [...new Set([...appointments, ...createdPatients.map(id => id.toString())])];
 
@@ -49,9 +64,10 @@ exports.getPatients = asyncHandler(async (req, res) => {
       
       // Dynamic visit count: strictly completed appointments in this clinic
       const totalVisits = await Appointment.countDocuments({ 
-        clinicId, 
-        patientId: patient._id, 
-        status: 'completed' 
+         clinicId, 
+         patientId: patient._id, 
+         status: 'completed',
+         deletedByClinic: { $ne: true }
       });
 
       return {
@@ -62,14 +78,18 @@ exports.getPatients = asyncHandler(async (req, res) => {
     })
   );
 
-  res.status(200).json(new ApiResponse(200, {
+  const responseData = {
     patients: enrichedPatients,
     pagination: {
       total,
       page: parseInt(page),
-      pages: Math.ceil(total / parseInt(limit))
+      pages: Math.max(Math.ceil(total / parseInt(limit)), 1)
     }
-  }, 'Patients fetched successfully'));
+  };
+
+  await setCache(cacheKey, responseData, 300);
+
+  res.status(200).json(new ApiResponse(200, responseData, 'Patients fetched successfully'));
 });
 
 /**
@@ -91,7 +111,7 @@ exports.getPatientProfile = asyncHandler(async (req, res) => {
   const patientProfile = await Patient.findOne({ userId: patientId });
 
   // Get clinic-specific appointments and prescriptions
-  const appointments = await Appointment.find({ clinicId, patientId })
+  const appointments = await Appointment.find({ clinicId, patientId, deletedByClinic: { $ne: true } })
     .populate('doctorId', 'name')
     .sort({ dateTime: -1 });
 
@@ -125,46 +145,69 @@ exports.getPatientProfile = asyncHandler(async (req, res) => {
  * @access  Private (Clinic Admin only)
  */
 exports.searchPatients = asyncHandler(async (req, res) => {
-  const rawQuery = String(req.query.q || req.query.query || '').trim();
+  // Input sanitization: basic replacement to remove problematic regex characters if falling back, or just text search
+  const rawQuery = String(req.query.q || req.query.query || '').replace(/[^\w\s@.-]/gi, '').trim();
   const clinicId = req.user.clinicId;
 
   if (rawQuery.length < 2) {
-    return res.status(200).json(new ApiResponse(200, [], 'Search results fetched successfully'));
+    return res.status(200).json(new ApiResponse(200, { patients: [], pagination: { total: 0, page: 1, pages: 1, limit: 12 } }, 'Search results fetched successfully'));
   }
 
-  const appointments = await Appointment.find({ clinicId }).distinct('patientId');
-  const createdPatients = await Patient.find({ createdBy: req.user._id }).distinct('userId');
-  
-  const patientIds = [...new Set([...appointments, ...createdPatients.map(id => id.toString())])];
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 12, 1), 100);
 
-  const patients = await User.find({
-    _id: { $in: patientIds },
+  const cacheKey = `clinic:patients:search:${clinicId.toString()}:${rawQuery}:${page}:${limit}`;
+  const { getCache, setCache } = require('../../utils/cacheHelpers');
+
+  const cachedData = await getCache(cacheKey);
+  if (cachedData) {
+    return res.status(200).json(new ApiResponse(200, cachedData, 'Search results fetched successfully'));
+  }
+
+  const query = {
     roles: 'patient',
-    $or: [
-      { name: { $regex: rawQuery, $options: 'i' } },
-      { email: { $regex: rawQuery, $options: 'i' } },
-      { phone: { $regex: rawQuery, $options: 'i' } }
-    ]
-  }).select('name email phone');
+    $text: { $search: rawQuery }
+  };
+
+  const total = await User.countDocuments(query);
+  const patients = await User.find(query)
+    .select('name email phone photo')
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .lean();
 
   const enrichedPatients = await Promise.all(
     patients.map(async (patient) => {
         const totalVisits = await Appointment.countDocuments({ 
             clinicId, 
             patientId: patient._id, 
-            status: 'completed' 
+            status: 'completed',
+            deletedByClinic: { $ne: true }
         });
-        const profile = await Patient.findOne({ userId: patient._id });
+        const profile = await Patient.findOne({ userId: patient._id }).lean();
         return { 
-          ...patient.toObject(), 
+          ...patient, 
           totalVisits,
+          patientProfile: profile,
           gender: profile?.gender,
           profilePhoto: profile?.profilePhoto
         };
     })
   );
 
-  res.status(200).json(new ApiResponse(200, enrichedPatients, 'Search results fetched successfully'));
+  const responseData = {
+    patients: enrichedPatients,
+    pagination: {
+      total,
+      page,
+      pages: Math.max(Math.ceil(total / limit), 1),
+      limit
+    }
+  };
+
+  await setCache(cacheKey, responseData, 60);
+
+  res.status(200).json(new ApiResponse(200, responseData, 'Search results fetched successfully'));
 });
 
 /**
@@ -201,6 +244,9 @@ exports.createPatient = asyncHandler(async (req, res) => {
     contact: phone,
     createdBy: req.user._id
   });
+
+  const { invalidatePatientsCache } = require('../../utils/cacheHelpers');
+  await invalidatePatientsCache(req.user.clinicId);
 
   res.status(201).json(new ApiResponse(201, { user, profile }, 'Patient created successfully'));
 });

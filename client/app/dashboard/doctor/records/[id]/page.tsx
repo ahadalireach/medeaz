@@ -309,24 +309,9 @@ function RecordDetailContent() {
               {getClinicName() && <p className="inline-flex items-center gap-2"><MapPin className="h-4 w-4" /> {getClinicName()}</p>}
             </div>
           </div>
-          <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm dark:border-gray-700 dark:bg-gray-800">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Doctor</p>
-            <p className="mt-1 font-bold text-gray-900 dark:text-white">{getDoctorName()}</p>
-            <p className="text-gray-600 dark:text-gray-300">{getDoctorPhone() || getDoctorEmail() || "No contact available"}</p>
-          </div>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Doctor Information</p>
-            <div className="mt-3 space-y-2 text-sm">
-              <p className="flex items-center gap-2 font-bold text-gray-900 dark:text-white"><User className="h-4 w-4 text-primary" /> {getDoctorName()}</p>
-              {getDoctorPhone() && <p className="flex items-center gap-2 text-gray-600 dark:text-gray-300"><Phone className="h-4 w-4" /> {getDoctorPhone()}</p>}
-              {getDoctorEmail() && <p className="flex items-center gap-2 text-gray-600 dark:text-gray-300 break-all"><Mail className="h-4 w-4" /> {getDoctorEmail()}</p>}
-              {record?.doctorId?.specialization && <p className="text-gray-600 dark:text-gray-300">Specialization: {record.doctorId.specialization}</p>}
-              {record?.doctorId?.licenseNumber && <p className="text-gray-600 dark:text-gray-300">License: {record.doctorId.licenseNumber}</p>}
-            </div>
-          </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
 
           <div className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Clinic Information</p>
@@ -368,7 +353,7 @@ function RecordDetailContent() {
             </p>
             <div className="mt-4 space-y-3">
               {medicines.map((medicine: any, index: number) => (
-                <div key={index} className="rounded-2xl border border-gray-100 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
+                <div key={index} className="rounded-xl border border-gray-100 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <p className="font-bold text-gray-900 dark:text-white">{index + 1}. {medicine.name}</p>
                     <p className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">{medicine.dosage || "Dosage N/A"}</p>

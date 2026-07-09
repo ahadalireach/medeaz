@@ -22,36 +22,36 @@ export default function DoctorPrescriptionDetailsPage() {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.push("/dashboard/doctor/prescriptions")}
-          className="h-10 w-10 rounded-lg border border-border-light bg-white flex items-center justify-center hover:bg-surface transition-colors"
+          className="h-10 w-10 rounded-xl border border-border-light bg-white flex items-center justify-center hover:bg-surface transition-colors"
           title={t("common.back")}
         >
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">{t("doctor.prescriptions.title")}</h1>
+          <h1 className="text-2xl font-bold text-text-primary">{t("nav.prescriptions")}</h1>
           <p className="text-sm text-text-secondary">{id}</p>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="rounded-2xl border border-border-light bg-white p-10 text-center text-text-secondary">{t("common.loading")}</div>
+        <div className="rounded-3xl border border-border-light bg-white p-10 text-center text-text-secondary">{t("common.loading")}</div>
       ) : error || !prescription ? (
-        <div className="rounded-2xl border border-border-light bg-white p-10 text-center">
-          <p className="text-text-secondary">{t("doctor.prescriptions.notFound")}</p>
+        <div className="rounded-3xl border border-border-light bg-white p-10 text-center">
+          <p className="text-text-secondary">{t("prescription.notFound")}</p>
           <Link href="/dashboard/doctor/prescriptions" className="mt-4 inline-flex text-primary font-semibold hover:underline">
             {t("common.back")}
           </Link>
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="rounded-2xl border border-border-light bg-white p-6 md:p-8 shadow-sm">
+          <div className="rounded-3xl border border-border-light bg-white p-6 md:p-8 shadow-sm">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4">
                 <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                   <FileText className="h-7 w-7" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">{t("doctor.prescriptions.medicalPrescription") || t("doctor.prescriptions.title")}</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">{t("prescription.medicalPrescription")}</p>
                   <h2 className="text-xl md:text-2xl font-black text-text-primary">{prescription.diagnosis || t("common.noData")}</h2>
                 </div>
               </div>
@@ -67,7 +67,7 @@ export default function DoctorPrescriptionDetailsPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-border-light bg-white p-6">
+            <div className="rounded-3xl border border-border-light bg-white p-6">
               <div className="mb-4 flex items-center gap-2 text-primary">
                 <User className="h-5 w-5" />
                 <h3 className="font-bold">{t("prescription.patientInfo")}</h3>
@@ -77,7 +77,7 @@ export default function DoctorPrescriptionDetailsPage() {
               <p className="text-sm text-text-secondary">{prescription.patientId?.phone || t("common.noData")}</p>
             </div>
 
-            <div className="rounded-2xl border border-border-light bg-white p-6">
+            <div className="rounded-3xl border border-border-light bg-white p-6">
               <div className="mb-4 flex items-center gap-2 text-primary">
                 <Calendar className="h-5 w-5" />
                 <h3 className="font-bold">{t("common.date")}</h3>
@@ -87,7 +87,7 @@ export default function DoctorPrescriptionDetailsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border-light bg-white p-6">
+          <div className="rounded-3xl border border-border-light bg-white p-6">
             <div className="mb-4 flex items-center gap-2 text-primary">
               <Pill className="h-5 w-5" />
               <h3 className="font-bold">{t("prescription.prescribedMedicines")}</h3>
@@ -104,19 +104,19 @@ export default function DoctorPrescriptionDetailsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border-light bg-white p-6">
-            <h3 className="mb-4 font-bold text-text-primary">{t("doctor.prescriptions.billingConsultation")}</h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="rounded-3xl border border-border-light bg-white p-6">
+            <h3 className="mb-4 font-bold text-text-primary">{t("prescription.paymentDetails")}</h3>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-2xl bg-surface p-4">
-                <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">{t("doctor.prescriptions.consultationFee")}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">{t("prescription.consultationFee")}</p>
                 <p className="mt-1 text-lg font-black text-text-primary">{Number(prescription.consultationFee || 0).toLocaleString()} {t("common.pkr")}</p>
               </div>
               <div className="rounded-2xl bg-surface p-4">
-                <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">{t("doctor.prescriptions.medicineCost")}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">{t("prescription.medicineCost")}</p>
                 <p className="mt-1 text-lg font-black text-text-primary">{Number(prescription.medicineCost || 0).toLocaleString()} {t("common.pkr")}</p>
               </div>
-              <div className="rounded-2xl bg-primary/10 p-4">
-                <p className="text-xs font-bold uppercase tracking-widest text-primary">{t("doctor.prescriptions.totalBilling")}</p>
+              <div className="rounded-2xl bg-primary/10 p-4 sm:col-span-2 lg:col-span-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-primary">{t("prescription.totalAmount")}</p>
                 <p className="mt-1 text-lg font-black text-primary">{Number(prescription.totalCost || 0).toLocaleString()} {t("common.pkr")}</p>
               </div>
             </div>

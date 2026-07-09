@@ -15,9 +15,9 @@ import { useLanguage } from "@/providers/LanguageProvider";
 type TimelineEntryTone = "teal" | "lavender" | "cream";
 
 const TONE_STYLES: Record<TimelineEntryTone, string> = {
-  teal:     "bg-[#f0faf7] text-primary",
-  lavender: "bg-[#f0faf7] text-primary",
-  cream:    "bg-[#f0faf7] text-primary",
+  teal: "bg-surface text-primary",
+  lavender: "bg-surface-lavender text-primary",
+  cream: "bg-surface-cream text-primary",
 };
 
 export function ImportSection() {
@@ -103,7 +103,7 @@ export function ImportSection() {
   ];
 
   return (
-    <section className="px-4 sm:px-6 lg:px-10 py-20 sm:py-28 bg-[#f8faf9]">
+    <section className="px-4 sm:px-6 lg:px-10 py-20 sm:py-28">
       <div className="mx-auto max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         <div>
           <h2 className="font-display text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] tracking-[-0.02em] text-text-primary max-w-md">
@@ -127,11 +127,11 @@ export function ImportSection() {
         </div>
 
         <div className="relative">
-          <div className="relative aspect-[4/3] rounded-2xl bg-[#f0faf7] overflow-hidden border border-[#d1ece5] p-4 sm:p-6">
+          <div className="relative aspect-[4/3] rounded-[20px] bg-gradient-to-br from-surface via-surface-lavender/60 to-surface-cream overflow-hidden border border-border-light p-4 sm:p-6">
             <div className="absolute inset-0 bg-surface-overlay" />
 
-            <div className="relative h-full rounded-2xl bg-white border border-[#d1ece5] shadow-sm flex flex-col overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-[#d1ece5] bg-[#f0faf7]">
+            <div className="relative h-full rounded-[16px] bg-white border border-border-light shadow-[0_20px_50px_-24px_rgba(15,76,92,0.28)] flex flex-col overflow-hidden">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light bg-gradient-to-r from-primary-bg to-transparent">
                 <div className="h-9 w-9 rounded-full bg-primary text-white flex items-center justify-center text-[12px] font-semibold">
                   {patient.initials}
                 </div>
@@ -160,7 +160,7 @@ export function ImportSection() {
                 ))}
               </div>
 
-              <div className="px-4 py-3 border-t border-[#d1ece5] bg-[#f8faf9] flex items-center justify-between gap-2">
+              <div className="px-4 py-3 border-t border-border-light bg-background/60 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-[10px] sm:text-[11px] font-medium text-text-secondary whitespace-nowrap">
                     {isUrdu ? "سنک:" : "Synced:"}
@@ -208,7 +208,7 @@ function TimelineEntry({
   tone: TimelineEntryTone;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-[#d1ece5] bg-white px-3 py-2">
+    <div className="flex items-center gap-3 rounded-xl border border-border-light/70 bg-white px-3 py-2">
       <div
         className={`h-8 w-8 flex-none rounded-lg ${TONE_STYLES[tone]} flex items-center justify-center`}
       >

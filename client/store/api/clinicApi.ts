@@ -7,7 +7,7 @@ import type {
 import { expireSession } from "@/lib/authSession";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api",
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("accessToken");
     if (token) {
@@ -24,7 +24,10 @@ const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
-  if (result.error && result.error.status === 401) {
+  const requestUrl = typeof args === "string" ? args : (args as FetchArgs).url ?? "";
+  const isAuthRoute = requestUrl.startsWith("/auth/");
+
+  if (result.error && result.error.status === 401 && !isAuthRoute) {
     const refreshToken = localStorage.getItem("refreshToken");
 
     if (refreshToken) {
@@ -37,9 +40,6 @@ const baseQueryWithReauth: BaseQueryFn<
         api,
         extraOptions
       );
-        if (result.error && result.error.status === 401) {
-          expireSession();
-        }
 
       if (refreshResult.data) {
         const data = refreshResult.data as {
@@ -48,17 +48,14 @@ const baseQueryWithReauth: BaseQueryFn<
         };
         localStorage.setItem("accessToken", data.accessToken);
         result = await baseQuery(args, api, extraOptions);
-      } else {
-        localStorage.clear();
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
+        if (result.error && result.error.status === 401) {
+          expireSession();
         }
+      } else {
+        expireSession();
       }
     } else {
-      localStorage.clear();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
+      expireSession();
     }
   }
 
@@ -131,11 +128,27 @@ export const clinicApi = createApi({
     "PatientProfile",
     "ClinicAppointmentDetail",
     "Prescriptions",
+    "OPDQueue",
+    "ConnectionRequests",
+    "Performance",
+    "AdminReviews",
+    "ReviewAnalytics",
   ],
   endpoints: (builder) => ({
     getOverview: builder.query({
       query: () => "/clinic/analytics/overview",
       providesTags: ["Overview"],
+    }),
+    getPerformanceLeaderboard: builder.query({
+      query: (period = "month") => `/clinic/performance?period=${period}`,
+      providesTags: ["Performance"],
+    }),
+    getDoctorPerformanceDetail: builder.query({
+      query: ({ doctorId, period = "month" }) =>
+        `/clinic/performance/${doctorId}?period=${period}`,
+      providesTags: (result, error, arg) => [
+        { type: "Performance", id: arg.doctorId },
+      ],
     }),
     getPatientFlow: builder.query({
       query: () => "/clinic/analytics/patient-flow",
@@ -190,15 +203,43 @@ export const clinicApi = createApi({
       invalidatesTags: ["Doctors", "Overview"],
     }),
     getDoctorStats: builder.query({
-      query: (id) => `/clinic/doctors/${id}/stats`,
-      providesTags: ["DoctorStats"],
+      query: ({ doctorId, period }) => `/clinic/doctors/${doctorId}/stats?period=${period}`,
+      providesTags: (result, error, arg) => [{ type: "DoctorStats", id: arg.doctorId }],
     }),
     searchDoctorByEmail: builder.query({
       query: (email) => ({
         url: "/clinic/doctors/search",
         params: { email },
       }),
-      providesTags: ["Doctors"],
+      keepUnusedDataFor: 30,
+      providesTags: ["Doctors", "ConnectionRequests"],
+    }),
+    sendConnectionRequest: builder.mutation({
+      query: (body) => ({
+        url: "/clinic/connection-requests",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["ConnectionRequests", "Doctors"],
+    }),
+    getSentConnectionRequests: builder.query({
+      query: () => "/clinic/connection-requests",
+      providesTags: ["ConnectionRequests"],
+    }),
+    cancelConnectionRequest: builder.mutation({
+      query: (requestId) => ({
+        url: `/clinic/connection-requests/${requestId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["ConnectionRequests", "Doctors"],
+    }),
+    overrideAvailability: builder.mutation({
+      query: ({ doctorId, status }) => ({
+        url: `/clinic/doctors/${doctorId}/availability`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Doctors"],
     }),
 
     getAppointments: builder.query({
@@ -225,6 +266,14 @@ export const clinicApi = createApi({
       query: (id: string) => ({
         url: `/clinic/appointments/${id}`,
         method: "DELETE",
+      }),
+      invalidatesTags: ["Appointments", "Overview"],
+    }),
+    createAppointment: builder.mutation({
+      query: (body) => ({
+        url: "/clinic/appointments",
+        method: "POST",
+        body,
       }),
       invalidatesTags: ["Appointments", "Overview"],
     }),
@@ -290,6 +339,7 @@ export const clinicApi = createApi({
         url: "/clinic/patients/search",
         params: { q, page, limit },
       }),
+      keepUnusedDataFor: 30,
       providesTags: ["PatientSearch"],
     }),
     getPatientProfile: builder.query({
@@ -311,6 +361,128 @@ export const clinicApi = createApi({
       }),
       invalidatesTags: ["Patients", "Overview"],
     }),
+    getOPDQueue: builder.query({
+      query: (params) => ({
+        url: "/opd-queue",
+        params,
+      }),
+      providesTags: ["OPDQueue"],
+    }),
+    issueToken: builder.mutation({
+      query: (body) => ({
+        url: "/opd-queue",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["OPDQueue"],
+    }),
+    callToken: builder.mutation({
+      query: ({ tokenId }) => ({
+        url: `/opd-queue/${tokenId}/call`,
+        method: "PUT",
+      }),
+      async onQueryStarted({ tokenId, filterParams }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          clinicApi.util.updateQueryData("getOPDQueue" as any, filterParams, (draft: any) => {
+            if (draft && draft.data && draft.data.tokens) {
+              const token = draft.data.tokens.find((t: any) => t._id === tokenId);
+              if (token) {
+                token.status = "called";
+                token.calledAt = new Date().toISOString();
+              }
+            }
+          })
+         );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
+      invalidatesTags: ["OPDQueue"],
+    }),
+    completeToken: builder.mutation({
+      query: ({ tokenId }) => ({
+        url: `/opd-queue/${tokenId}/complete`,
+        method: "PUT",
+      }),
+      async onQueryStarted({ tokenId, filterParams }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          clinicApi.util.updateQueryData("getOPDQueue" as any, filterParams, (draft: any) => {
+            if (draft && draft.data && draft.data.tokens) {
+              const token = draft.data.tokens.find((t: any) => t._id === tokenId);
+              if (token) {
+                token.status = "completed";
+                token.completedAt = new Date().toISOString();
+              }
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
+      invalidatesTags: ["OPDQueue"],
+    }),
+    skipToken: builder.mutation({
+      query: ({ tokenId }) => ({
+        url: `/opd-queue/${tokenId}/skip`,
+        method: "PUT",
+      }),
+      async onQueryStarted({ tokenId, filterParams }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          clinicApi.util.updateQueryData("getOPDQueue" as any, filterParams, (draft: any) => {
+            if (draft && draft.data && draft.data.tokens) {
+              const token = draft.data.tokens.find((t: any) => t._id === tokenId);
+              if (token) {
+                token.status = "skipped";
+              }
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
+      invalidatesTags: ["OPDQueue"],
+    }),
+    getClinicAdminReviews: builder.query({
+      query: (params) => ({
+        url: "/clinic/reviews",
+        params,
+      }),
+      providesTags: ["AdminReviews"],
+    }),
+    respondToReview: builder.mutation({
+      query: ({ reviewId, text }) => ({
+        url: `/clinic/reviews/${reviewId}/respond`,
+        method: "PUT",
+        body: { text },
+      }),
+      invalidatesTags: ["AdminReviews", "ReviewAnalytics"],
+    }),
+    updateReviewStatus: builder.mutation({
+      query: ({ reviewId, status, dismissFlags }) => ({
+        url: `/clinic/reviews/${reviewId}/status`,
+        method: "PUT",
+        body: { status, dismissFlags },
+      }),
+      invalidatesTags: ["AdminReviews", "ReviewAnalytics"],
+    }),
+    getReviewAnalytics: builder.query({
+      query: () => "/clinic/reviews/analytics",
+      providesTags: ["ReviewAnalytics"],
+    }),
+    exportReviews: builder.query<string, void>({
+      query: () => ({
+        url: "/clinic/reviews/export",
+        responseHandler: (response) => response.text(),
+      }),
+    }),
   }),
 });
 
@@ -330,6 +502,7 @@ export const {
   useGetAppointmentByIdQuery,
   useGetPrescriptionsQuery,
   useDeleteAppointmentMutation,
+  useCreateAppointmentMutation,
   useDeletePrescriptionMutation,
   useGetSettingsQuery,
   useSaveSettingsMutation,
@@ -343,4 +516,20 @@ export const {
   useGetPatientProfileQuery,
   useDeleteRecordMutation,
   useCreatePatientMutation,
+  useGetOPDQueueQuery,
+  useIssueTokenMutation,
+  useCallTokenMutation,
+  useCompleteTokenMutation,
+  useSkipTokenMutation,
+  useOverrideAvailabilityMutation,
+  useSendConnectionRequestMutation,
+  useGetSentConnectionRequestsQuery,
+  useCancelConnectionRequestMutation,
+  useGetPerformanceLeaderboardQuery,
+  useGetDoctorPerformanceDetailQuery,
+  useGetClinicAdminReviewsQuery,
+  useRespondToReviewMutation,
+  useUpdateReviewStatusMutation,
+  useGetReviewAnalyticsQuery,
+  useLazyExportReviewsQuery,
 } = clinicApi;

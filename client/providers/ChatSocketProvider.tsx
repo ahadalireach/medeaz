@@ -8,6 +8,8 @@ import { RootState } from '@/store/store';
 import { addNotification } from '@/store/slices/notificationSlice';
 import { patientApi } from '@/store/api/patientApi';
 import { doctorApi } from '@/store/api/doctorApi';
+import toast from 'react-hot-toast';
+import { CalendarPlus } from 'lucide-react';
 
 const ChatSocketContext = createContext<any>(null);
 
@@ -79,6 +81,40 @@ export function ChatSocketProvider({ children }: { children: React.ReactNode }) 
       dispatch(doctorApi.util.invalidateTags(['Patients']));
       
       console.log('Connection request handled:', data);
+    });
+
+    // Real-time follow-up listeners
+    socketRef.current.on('follow_up_assigned', (data: any) => {
+      // Invalidate follow-ups tag so the page list and sidebar badge refresh instantly!
+      // @ts-ignore
+      dispatch(patientApi.util.invalidateTags(['FollowUps']));
+
+      toast(data.message, {
+        duration: 5000,
+        style: {
+          background: '#00b495',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '12px',
+        },
+        icon: <CalendarPlus size={20} className="text-white shrink-0" />,
+      });
+    });
+
+    socketRef.current.on('follow_up_reminder', (data: any) => {
+      // @ts-ignore
+      dispatch(patientApi.util.invalidateTags(['FollowUps']));
+
+      toast(data.message, {
+        duration: 6000,
+        style: {
+          background: '#00b495',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          borderRadius: '12px',
+        },
+        icon: <CalendarPlus size={20} className="text-white shrink-0" />,
+      });
     });
 
     return () => {

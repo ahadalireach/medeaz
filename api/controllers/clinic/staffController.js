@@ -30,22 +30,25 @@ exports.createStaff = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Name, email, and role are required");
   }
 
-  const existingUser = await User.findOne({ email: email.toLowerCase() });
-
-  if (existingUser) {
-    throw new ApiError(400, "Email already in use");
+  if (phone && !/^03\d{9}$/.test(phone)) {
+    throw new ApiError(400, "Invalid Pakistani phone number format (should be 03xxxxxxxxx)");
   }
 
-  const defaultPassword = "staff123";
-  const hashedPassword = await bcrypt.hash(defaultPassword, 12);
+  let user = await User.findOne({ email: email.toLowerCase() });
 
-  const user = await User.create({
-    name,
-    email: email.toLowerCase(),
-    password: hashedPassword,
-    roles: ["clinic_admin"],
-    photo,
-  });
+  // If user doesn't exist, create a staff login account
+  if (!user) {
+    const defaultPassword = "staff123";
+    const hashedPassword = await bcrypt.hash(defaultPassword, 12);
+
+    user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      roles: ["clinic_admin"],
+      photo,
+    });
+  }
 
   const staff = await Staff.create({
     userId: user._id,
@@ -55,6 +58,14 @@ exports.createStaff = asyncHandler(async (req, res) => {
     email: email.toLowerCase(),
     phone,
     photo,
+    licenseNumber: req.body.licenseNumber,
+    specialization: req.body.specialization,
+    department: req.body.department,
+    labSection: req.body.labSection,
+    deskNumber: req.body.deskNumber,
+    officeLocation: req.body.officeLocation,
+    shiftTime: req.body.shiftTime,
+    badgeNumber: req.body.badgeNumber,
   });
 
   const { sendEmail } = require("../../services/emailService");
@@ -67,10 +78,17 @@ exports.createStaff = asyncHandler(async (req, res) => {
       {
         name,
         clinicName: clinic?.name || "the clinic",
-        password: defaultPassword,
+        password: "staff123", // default or generic staff password info
       },
     );
   } catch (e) {}
+
+  try {
+    const { deleteClinicContext } = require("../../services/redisService");
+    await deleteClinicContext(clinicId);
+  } catch (err) {
+    console.error("Cache invalidation error:", err);
+  }
 
   res.status(201).json(new ApiResponse(201, staff, "Staff account created"));
 });
@@ -92,20 +110,44 @@ exports.updateStaff = asyncHandler(async (req, res) => {
 
   if (name) staff.name = name;
   if (email) staff.email = email.toLowerCase();
-  if (phone) staff.phone = phone;
+  if (phone) {
+    if (!/^03\d{9}$/.test(phone)) {
+      throw new ApiError(400, "Invalid Pakistani phone number format (should be 03xxxxxxxxx)");
+    }
+    staff.phone = phone;
+  }
   if (role) staff.role = role;
   if (photo) staff.photo = photo;
+
+  // Update role-specific fields
+  if (req.body.licenseNumber !== undefined) staff.licenseNumber = req.body.licenseNumber;
+  if (req.body.specialization !== undefined) staff.specialization = req.body.specialization;
+  if (req.body.department !== undefined) staff.department = req.body.department;
+  if (req.body.labSection !== undefined) staff.labSection = req.body.labSection;
+  if (req.body.deskNumber !== undefined) staff.deskNumber = req.body.deskNumber;
+  if (req.body.officeLocation !== undefined) staff.officeLocation = req.body.officeLocation;
+  if (req.body.shiftTime !== undefined) staff.shiftTime = req.body.shiftTime;
+  if (req.body.badgeNumber !== undefined) staff.badgeNumber = req.body.badgeNumber;
 
   await staff.save();
 
   // Update corresponding user record
-  const userUpdate = {};
-  if (name) userUpdate.name = name;
-  if (email) userUpdate.email = email.toLowerCase();
-  if (photo) userUpdate.photo = photo;
+  if (staff.userId) {
+    const userUpdate = {};
+    if (name) userUpdate.name = name;
+    if (email) userUpdate.email = email.toLowerCase();
+    if (photo) userUpdate.photo = photo;
 
-  if (Object.keys(userUpdate).length > 0) {
-    await User.findByIdAndUpdate(staff.userId, userUpdate);
+    if (Object.keys(userUpdate).length > 0) {
+      await User.findByIdAndUpdate(staff.userId, userUpdate);
+    }
+  }
+
+  try {
+    const { deleteClinicContext } = require("../../services/redisService");
+    await deleteClinicContext(clinicId);
+  } catch (err) {
+    console.error("Cache invalidation error:", err);
   }
 
   res.status(200).json(new ApiResponse(200, staff, "Staff updated"));
@@ -125,8 +167,21 @@ exports.deleteStaff = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Staff not found");
   }
 
-  await User.findByIdAndDelete(staff.userId);
+  if (staff.userId) {
+    const user = await User.findById(staff.userId);
+    // Do not delete user if they are a doctor
+    if (user && !user.roles.includes("doctor")) {
+      await User.findByIdAndDelete(staff.userId);
+    }
+  }
   await Staff.findByIdAndDelete(id);
+
+  try {
+    const { deleteClinicContext } = require("../../services/redisService");
+    await deleteClinicContext(clinicId);
+  } catch (err) {
+    console.error("Cache invalidation error:", err);
+  }
 
   res.status(200).json(new ApiResponse(200, null, "Staff account removed"));
 });

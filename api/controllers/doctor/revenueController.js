@@ -14,12 +14,8 @@ const { reverseRevenueEntry } = require('../../utils/revenue');
  * @access  Private (Doctor only)
  */
 exports.getRevenue = asyncHandler(async (req, res) => {
-  const doctor = await Doctor.findOne({ userId: req.user._id });
+  const doctor = await Doctor.getOrCreateProfile(req.user._id);
   const { period = "month" } = req.query; // period: day, month, year
-
-  if (!doctor) {
-    throw new ApiError(404, "Doctor profile not found");
-  }
 
   // Guard: revenue may be undefined for old documents created before the field existed
   const revenue = doctor.revenue || { total: 0, monthly: new Map(), daily: new Map() };
@@ -140,7 +136,7 @@ exports.getRevenueByRange = asyncHandler(async (req, res) => {
 
   const Appointment = require('../../models/Appointment');
   const appointments = await Appointment.find(filter);
-  const doctor = await Doctor.findOne({ userId: req.user._id });
+  const doctor = await Doctor.getOrCreateProfile(req.user._id);
 
   const fee = doctor?.consultationFee || 0;
   const totalRevenue = appointments.length * (fee * 0.8);

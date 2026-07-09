@@ -60,7 +60,7 @@ export default function DoctorRevenueChart() {
                     <CardTitle className="text-xl">{t('doctor.revenue.title')}</CardTitle>
                 </div>
 
-                <div className="flex w-full md:w-auto items-center justify-between gap-1 bg-gray-100 p-1 rounded-xl border border-black/6">
+                <div className="flex w-full md:w-auto items-center justify-between gap-2 bg-gray-50 dark:bg-white/5 p-1 rounded-2xl border border-black/5 dark:border-white/10">
                     {[
                         { id: "day", label: t('analytics.week') },
                         { id: "month", label: t('analytics.month') },
@@ -69,9 +69,9 @@ export default function DoctorRevenueChart() {
                         <button
                             key={p.id}
                             onClick={() => setPeriod(p.id as any)}
-                            className={`flex-1 md:flex-none px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${period === p.id
-                                ? "bg-white shadow-sm text-primary"
-                                : "text-text-secondary hover:text-text-primary"
+                            className={`flex-1 md:flex-none px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p.id
+                                ? "bg-white dark:bg-white/10 text-primary shadow-sm"
+                                : "text-text-primary hover:text-gray-600 dark:hover:text-gray-200"
                                 }`}
                         >
                             {p.label}
@@ -82,30 +82,35 @@ export default function DoctorRevenueChart() {
 
             <CardContent>
                 {isLoading ? (
-                    <div className="h-64 bg-surface/30 rounded-2xl animate-pulse"></div>
+                    <div className="h-64 bg-gray-50 dark:bg-white/5 rounded-4xl animate-pulse"></div>
                 ) : (
-                    <div className="h-64 w-full">
+                    <div className="h-70 w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={chartData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 45, bottom: 20 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />
                                 <XAxis
                                     dataKey="label"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: '500' }}
+                                    tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 'bold' }}
                                     interval={period === 'month' ? 4 : (period === 'year' ? 1 : 'preserveStartEnd')}
                                     tickFormatter={(val) => {
-                                        if (period === 'day') return getDayLabel(val);
-                                        if (period === 'month' || period === 'year') return getMonthLabel(val);
+                                        if (period === 'day') {
+                                            return getDayLabel(val);
+                                        }
+                                        if (period === 'month' || period === 'year') {
+                                            return getMonthLabel(val);
+                                        }
                                         return val;
                                     }}
+                                    dy={10}
                                 />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    width={40}
-                                    tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: '500' }}
+                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
                                     tickFormatter={(value) => `${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
+                                    label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10, fontWeight: "bold", offset: 10 }}
                                     domain={[0, (data: any) => Math.max(data.max > 50000 ? data.max : (period === 'day' ? 50000 : (period === 'month' ? 150000 : 500000)))]}
                                 />
                                 <Tooltip

@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCreateAppointmentMutation, useSearchPatientsQuery, useGetScheduleQuery, useGetAppointmentsQuery, useGetPatientByIdQuery } from "@/store/api/doctorApi";
 import { toast } from "react-hot-toast";
-import { ArrowLeft, Calendar, Clock, User, FileText, Loader, Search, Check } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User, FileText, Loader, Search, Check, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function NewAppointmentPage() {
   const t = useTranslations();
@@ -25,7 +26,7 @@ export default function NewAppointmentPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: scheduleData } = useGetScheduleQuery(undefined);
@@ -46,15 +47,8 @@ export default function NewAppointmentPage() {
     setIsOpen(false);
   }, [patientData, patientIdFromQuery]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [search]);
-
   const { data: searchData, isFetching: isSearching } = useSearchPatientsQuery(debouncedSearch, {
-    skip: debouncedSearch.length < 2
+    skip: debouncedSearch.trim().length < 2
   });
 
   const foundPatients = Array.isArray(searchData?.data)
@@ -182,7 +176,7 @@ export default function NewAppointmentPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard/doctor/appointments"
-          className="h-10 w-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center hover:bg-surface/80 transition-colors"
+          className="h-10 w-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center hover:bg-surface/80 transition-colors"
         >
           <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
         </Link>
@@ -215,19 +209,19 @@ export default function NewAppointmentPage() {
                 if (errors.patientId) setErrors({ ...errors, patientId: "" });
               }}
               onFocus={() => setIsOpen(true)}
-              className={`w-full pl-11 pr-4 py-3 border-2 rounded-lg focus:outline-none bg-white text-black transition-all ${
+              className={`w-full pl-11 pr-4 py-3 border-2 rounded-xl focus:outline-none bg-white text-black transition-all ${
                 errors.patientId ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-700 focus:border-primary"
               }`}
             />
             {isSearching && (
               <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                <Loader className="h-4 w-4 animate-spin text-primary" />
+                <Loader2 className="h-4 w-4 animate-spin text-[#00b495]" />
               </div>
             )}
             
             {/* Search Results Dropdown */}
             {isOpen && (search.trim().length >= 2) && (
-              <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl z-50 max-h-80 overflow-y-auto animate-in slide-in-from-top-2 duration-200 divide-y divide-gray-100 dark:divide-gray-700">
+              <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto animate-in slide-in-from-top-2 duration-200 divide-y divide-gray-100 dark:divide-gray-700">
                 {foundPatients.length === 0 ? (
                   <div className="p-8 text-center">
                     <User className="h-8 w-8 mx-auto text-gray-300 mb-2" />
@@ -290,11 +284,15 @@ export default function NewAppointmentPage() {
             )}
           </div>
           
+          {search.length > 0 && search.trim().length < 2 && (
+            <p className="text-[#9ca3af] text-[12px] font-inter mt-2 ml-2">Type at least 2 characters to search</p>
+          )}
+
           {errors.patientId && <p className="text-red-500 text-sm mt-1">{errors.patientId}</p>}
           
           {/* Quick Selected Patient Info */}
           {formData.patientId && !isOpen && (
-             <div className="mt-3 p-3 bg-surface dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600 rounded-lg flex items-center justify-between">
+             <div className="mt-3 p-3 bg-surface dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2">
                    <div className="h-8 w-8 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center">
                       <Check className="h-4 w-4" />
@@ -332,7 +330,7 @@ export default function NewAppointmentPage() {
                   setErrors({ ...errors, appointmentDate: "", slotTime: "" });
                 }
               }}
-              className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none bg-white text-black ${errors.appointmentDate ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-700 focus:border-primary"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none bg-white text-black ${errors.appointmentDate ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-700 focus:border-primary"
                 }`}
             />
             {errors.appointmentDate && <p className="text-red-500 text-sm mt-1">{errors.appointmentDate}</p>}
@@ -349,7 +347,7 @@ export default function NewAppointmentPage() {
                 setFormData({ ...formData, slotTime: e.target.value });
                 if (errors.slotTime) setErrors({ ...errors, slotTime: "" });
               }}
-              className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${errors.slotTime ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-700 focus:border-primary"}`}
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${errors.slotTime ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-700 focus:border-primary"}`}
               disabled={!formData.appointmentDate}
             >
               <option value="">{t('doctor.appointments.newForm.selectSlot')}</option>
@@ -376,7 +374,7 @@ export default function NewAppointmentPage() {
           <select
             value={formData.type}
             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="consultation">{t('doctor.appointments.newForm.types.consultation')}</option>
             <option value="follow-up">{t('doctor.appointments.newForm.types.followUp')}</option>
@@ -398,7 +396,7 @@ export default function NewAppointmentPage() {
               if (errors.reason) setErrors({ ...errors, reason: "" });
             }}
             placeholder={t('doctor.appointments.newForm.reasonPlaceholder')}
-            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none bg-white text-black placeholder:text-gray-500 dark:text-gray-500 ${errors.reason ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-700 focus:border-primary"
+            className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none bg-white text-black placeholder:text-gray-500 dark:text-gray-500 ${errors.reason ? "border-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-700 focus:border-primary"
               }`}
           />
           {errors.reason && <p className="text-red-500 text-sm mt-1">{errors.reason}</p>}
@@ -415,7 +413,7 @@ export default function NewAppointmentPage() {
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             placeholder={t('doctor.appointments.newForm.notesPlaceholder')}
             rows={4}
-            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 resize-none"
+            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 resize-none"
           />
         </div>
 
@@ -423,14 +421,14 @@ export default function NewAppointmentPage() {
         <div className="flex gap-3 pt-4">
           <Link
             href="/dashboard/doctor/appointments"
-            className="flex-1 px-6 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-lg font-semibold text-gray-900 dark:text-gray-100 hover:bg-surface transition-all text-center"
+            className="flex-1 px-6 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-semibold text-gray-900 dark:text-gray-100 hover:bg-surface transition-all text-center"
           >
             {t('common.cancel')}
           </Link>
           <button
             type="submit"
             disabled={creating}
-            className="flex-1 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-hover transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {creating ? (
               <span className="flex items-center justify-center gap-2">

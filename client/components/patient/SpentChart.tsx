@@ -22,28 +22,28 @@ export default function SpentChart({ data }: SpentChartProps) {
   return (
     <Card className="overflow-hidden">
       <CardHeader>
-        <CardTitle>{t('patient.revenue.title')}</CardTitle>
-        <p className="text-[11px] text-text-secondary mt-0.5">
+        <CardTitle className="text-xl">{t('patient.revenue.title')}</CardTitle>
+        <p className="text-[10px] font-bold text-text-primary uppercase tracking-widest mt-1">
           {t('patient.revenue.subtitle')}
         </p>
       </CardHeader>
 
       <CardContent>
-        <div className="h-64 w-full mt-2">
+        <div className="h-[250px] w-full mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={[...data].reverse()} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+            <AreaChart data={[...data].reverse()} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
               <defs>
                 <linearGradient id="colorSpent" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0F4C5C" stopOpacity={0.18}/>
+                  <stop offset="5%" stopColor="#0F4C5C" stopOpacity={0.2}/>
                   <stop offset="95%" stopColor="#0F4C5C" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-              <XAxis
-                dataKey="label"
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#78716C20" />
+              <XAxis 
+                dataKey="label" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: '500' }}
+                tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 'bold' }}
                 interval="preserveStartEnd"
                 tickFormatter={(value) => {
                     const parts = value.split(/[ -]/);
@@ -53,12 +53,12 @@ export default function SpentChart({ data }: SpentChartProps) {
                     return t(`common.months.${monthKey}`) || value;
                 }}
               />
-              <YAxis
+              <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: '500' }}
+                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
                 tickFormatter={(value) => `${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
-                width={40}
+                label={{ value: t('common.pkr'), angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10, fontWeight: "bold", offset: 10 }}
               />
               <Tooltip 
                 contentStyle={{

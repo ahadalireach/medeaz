@@ -128,6 +128,106 @@ exports.createPrescription = asyncHandler(async (req, res) => {
     });
   }
 
+  // Create manual follow-up if requested
+  if (req.body.followUp) {
+    const { value, unit, notes: followUpNotes } = req.body.followUp;
+    if (value && unit) {
+      const dueDate = new Date();
+      const numVal = parseInt(value, 10);
+      if (!isNaN(numVal)) {
+        if (unit === 'days') {
+          dueDate.setDate(dueDate.getDate() + numVal);
+        } else if (unit === 'weeks') {
+          dueDate.setDate(dueDate.getDate() + numVal * 7);
+        } else if (unit === 'months') {
+          dueDate.setMonth(dueDate.getMonth() + numVal);
+        }
+
+        const Patient = require('../../models/Patient');
+        let patientProfile = await Patient.findOne({ userId: patientId });
+        if (!patientProfile) {
+          patientProfile = await Patient.findById(patientId);
+        }
+
+        const doctorProfile = await Doctor.findOne({ userId: doctorId });
+
+        if (patientProfile && doctorProfile) {
+          const FollowUp = require('../../models/FollowUp');
+          await FollowUp.create({
+            patientId: patientProfile._id,
+            doctorId: doctorProfile._id,
+            appointmentId: appointmentId || null,
+            dueDate,
+            notes: followUpNotes || '',
+            status: 'pending',
+          });
+
+          // Create notification for patient about follow-up
+          const { createNotification: createNotificationUtil } = require('../../utils/notification');
+          const ioObj = req.app.get('io');
+          const formattedDate = dueDate.toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "short",
+            day: "numeric",
+            year: "numeric"
+          });
+          const doctorFullName = doctorProfile.fullName || req.user?.name || 'your doctor';
+
+          await createNotificationUtil(ioObj, {
+            recipient: patientId,
+            title: 'New Follow-Up Scheduled',
+            message: `Dr. ${doctorFullName} scheduled a follow-up for ${formattedDate}.`,
+            type: 'follow_up_assigned',
+            link: '/patient/follow-ups',
+            portal: 'patient'
+          });
+
+          if (ioObj) {
+            ioObj.to(patientId.toString()).emit('follow_up_assigned', {
+              type: 'follow_up_assigned',
+              message: `Dr. ${doctorFullName} scheduled a follow-up for ${formattedDate}.`,
+              dueDate
+            });
+          }
+
+          prescription.followUpDate = dueDate;
+          await prescription.save();
+        }
+      }
+    }
+  }
+
+  // If followUpDate was provided directly, make sure a FollowUp document is also created
+  if (!req.body.followUp && followUpDate) {
+    const dueDateObj = new Date(followUpDate);
+    if (!isNaN(dueDateObj.getTime())) {
+      const Patient = require('../../models/Patient');
+      let patientProfile = await Patient.findOne({ userId: patientId });
+      if (!patientProfile) {
+        patientProfile = await Patient.findById(patientId);
+      }
+      const doctorProfile = await Doctor.findOne({ userId: doctorId });
+      if (patientProfile && doctorProfile) {
+        const FollowUp = require('../../models/FollowUp');
+        const existingFollowUp = await FollowUp.findOne({
+          patientId: patientProfile._id,
+          doctorId: doctorProfile._id,
+          dueDate: dueDateObj
+        });
+        if (!existingFollowUp) {
+          await FollowUp.create({
+            patientId: patientProfile._id,
+            doctorId: doctorProfile._id,
+            appointmentId: appointmentId || null,
+            dueDate: dueDateObj,
+            notes: notes || 'Follow-up from prescription',
+            status: 'pending'
+          });
+        }
+      }
+    }
+  }
+
   const io = req.app.get('io');
   const clinic = doctor?.clinicId ? await Clinic.findById(doctor.clinicId).select('adminId') : null;
   const doctorFullName = doctor?.fullName || req.user?.name || 'your doctor';
@@ -149,6 +249,7 @@ exports.createPrescription = asyncHandler(async (req, res) => {
     type: 'success',
     link: '/dashboard/doctor/prescriptions',
     portal: 'doctor',
+    skipSocket: true,
   });
 
   if (clinic?.adminId) {
@@ -160,6 +261,16 @@ exports.createPrescription = asyncHandler(async (req, res) => {
       link: '/dashboard/clinic_admin/appointments',
       portal: 'clinic_admin',
     });
+  }
+
+  // Invalidate Redis caches for doctor's schedule and appointments
+  try {
+    const { invalidateAllDoctorScheduleCaches, invalidateAppointmentsCache } = require('../../utils/cacheHelpers');
+    await invalidateAllDoctorScheduleCaches(doctorId);
+    await invalidateAppointmentsCache(doctor?.clinicId || null, doctorId, patientId);
+    if (io) io.to(doctorId.toString()).emit('schedule_updated');
+  } catch (err) {
+    console.error('Failed to invalidate caches after prescription creation:', err.message);
   }
 
   res.status(201).json(new ApiResponse(201, prescription, 'Prescription created successfully'));
@@ -181,6 +292,36 @@ exports.updatePrescription = asyncHandler(async (req, res) => {
 
   if (!prescription) {
     throw new ApiError(404, 'Prescription not found');
+  }
+
+  if (followUpDate) {
+    const dueDate = new Date(followUpDate);
+    if (!isNaN(dueDate.getTime())) {
+      const Patient = require('../../models/Patient');
+      let patientProfile = await Patient.findOne({ userId: prescription.patientId });
+      if (!patientProfile) {
+        patientProfile = await Patient.findById(prescription.patientId);
+      }
+      const doctorProfile = await Doctor.findOne({ userId: req.user._id });
+      if (patientProfile && doctorProfile) {
+        const FollowUp = require('../../models/FollowUp');
+        const existingFollowUp = await FollowUp.findOne({
+          patientId: patientProfile._id,
+          doctorId: doctorProfile._id,
+          dueDate
+        });
+        if (!existingFollowUp) {
+          await FollowUp.create({
+            patientId: patientProfile._id,
+            doctorId: doctorProfile._id,
+            appointmentId: prescription.appointmentId || null,
+            dueDate,
+            notes: notes || 'Scheduled via Prescription Update',
+            status: 'pending'
+          });
+        }
+      }
+    }
   }
 
   res.status(200).json(new ApiResponse(200, prescription, 'Prescription updated successfully'));

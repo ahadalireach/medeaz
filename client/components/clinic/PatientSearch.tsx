@@ -1,21 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { useLazySearchPatientsQuery, useGetPatientsQuery } from "@/store/api/clinicApi";
+import { useSearchPatientsQuery, useGetPatientsQuery } from "@/store/api/clinicApi";
 import { useRouter } from "next/navigation";
 import { Search as SearchIcon, UserCircle2, RefreshCcw, User } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Button } from "../ui/Button";
 import { useTranslations } from "next-intl";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Loader2 } from "lucide-react";
 
 export default function PatientSearch() {
   const t = useTranslations();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearched, setIsSearched] = useState(false);
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const [page, setPage] = useState(1);
   const limit = 12;
-  const { data: allData, isLoading: allLoading, refetch: refetchAll } = useGetPatientsQuery({ page, limit });
-  const [trigger, { data: searchData, isLoading: isSearching }] = useLazySearchPatientsQuery();
+  
+  const isSearching = debouncedSearch.length > 0;
+  const skipSearch = isSearching && debouncedSearch.trim().length < 2;
+
+  const { data: allData, isLoading: allLoading, refetch: refetchAll } = useGetPatientsQuery({ page, limit }, { skip: isSearching });
+  const { data: searchData, isLoading: searchLoading, isFetching: searchFetching } = useSearchPatientsQuery(
+    { q: debouncedSearch, page, limit },
+    { skip: !isSearching || skipSearch }
+  );
+  
   const router = useRouter();
 
   const getPatientAvatar = (patient: any) => {
@@ -26,88 +36,61 @@ export default function PatientSearch() {
     return `${base}${raw.startsWith("/") ? "" : "/"}${raw}`;
   };
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const query = searchQuery.trim();
-    if (!query) {
-      setIsSearched(false);
-      return;
-    }
-    try {
-      setPage(1);
-      setIsSearched(true);
-      // Pass false to preferCacheValue to force a fresh fetch
-      const result = await trigger({ q: query, page: 1, limit }, false);
-      if (result.error) {
-        toast.error(t('common.error') || "Search failed");
-      }
-    } catch (error: any) {
-      toast.error(t('common.error') || "Search failed");
-    }
-  };
-
   const handleClear = () => {
     setSearchQuery("");
-    setIsSearched(false);
     setPage(1);
-    refetchAll();
   };
 
-  const results = isSearched
+  const results = isSearching && !skipSearch
     ? searchData?.data?.patients || []
     : allData?.data?.patients || [];
-  const pagination = isSearched
+  const pagination = isSearching && !skipSearch
     ? searchData?.data?.pagination
     : allData?.data?.pagination;
-  const isLoading = isSearched ? isSearching : allLoading;
+  const isLoading = (isSearching && !skipSearch) ? (searchLoading || searchFetching) : allLoading;
 
-  const handlePageChange = async (nextPage: number) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
-    if (isSearched && searchQuery.trim()) {
-      try {
-        await trigger({ q: searchQuery.trim(), page: nextPage, limit }).unwrap();
-      } catch {
-        toast.error("Failed to load that page.");
-      }
-    }
   };
 
   return (
     <div className="space-y-6 animate-in">
-      <form
-        onSubmit={handleSearch}
-        className="bg-white p-6 rounded-2xl border border-border-light"
-      >
+      <div className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-primary" />
+            <SearchIcon className="absolute start-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-primary" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('clinic.patientSearch.searchPlaceholder')}
-              className="w-full h-12 pl-12 pr-4 border border-border-light rounded-lg bg-white text-text-primary placeholder:text-text-secondary transition-colors"
+              className="w-full ps-12 pe-4 py-3.5 border border-border-light rounded-2xl bg-white text-text-primary placeholder:text-text-primary focus:ring-2 focus:ring-primary focus:outline-none transition-all"
             />
-            {searchQuery && (
+            {isLoading && (
+              <div className="absolute end-4 top-1/2 -translate-y-1/2">
+                <Loader2 className="h-5 w-5 animate-spin text-[#00b495]" />
+              </div>
+            )}
+            {searchQuery && !isLoading && (
               <button
                 type="button"
                 onClick={handleClear}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
+                className="absolute end-4 top-1/2 transform -translate-y-1/2 text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
               >
                 {t('common.clear')}
               </button>
             )}
           </div>
-          <Button type="submit" disabled={isLoading} className="h-full py-3.5 px-8">
-            {isSearching ? <RefreshCcw className="h-5 w-5 animate-spin" /> : t('common.search')}
-          </Button>
         </div>
-      </form>
+        {searchQuery.length > 0 && searchQuery.trim().length < 2 && (
+          <p className="text-[#9ca3af] text-[12px] font-inter mt-2 ml-2">Type at least 2 characters to search</p>
+        )}
+      </div>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-48 bg-background animate-pulse rounded-2xl border border-border-light" />
+            <div key={i} className="h-48 bg-background animate-pulse rounded-[2rem] border border-border-light" />
           ))}
         </div>
       ) : results.length > 0 ? (
@@ -116,10 +99,10 @@ export default function PatientSearch() {
             {results.map((patient: any) => (
               <div
                 key={patient._id}
-                className="bg-white p-8 rounded-2xl border border-border-light hover:bg-background transition-all group"
+                className="bg-white p-8 rounded-[2rem] border border-border-light shadow-sm hover:shadow-md transition-all group"
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className="h-20 w-20 rounded-2xl overflow-hidden mb-4 transition-all border border-black/5 flex items-center justify-center bg-primary/10">
+                  <div className="h-20 w-20 rounded-3xl overflow-hidden mb-4 transition-all shadow-sm border border-black/5 flex items-center justify-center bg-primary/10">
                     {getPatientAvatar(patient) ? (
                       <img
                         src={getPatientAvatar(patient)}
@@ -155,13 +138,13 @@ export default function PatientSearch() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
                     <button
                       onClick={() => router.push(`/dashboard/clinic_admin/patients/${patient._id}`)}
-                      className="w-full py-3.5 bg-primary text-white rounded-2xl hover:bg-primary-hover transition-all font-black text-[10px] uppercase tracking-widest"
+                      className="w-full py-3.5 bg-primary text-white rounded-2xl hover:bg-primary-hover transition-all font-black text-[10px] uppercase tracking-widest shadow-sm"
                     >
                       {t('clinic.patientSearch.viewProfile')}
                     </button>
                     <button
                       onClick={() => router.push(`/dashboard/clinic_admin/appointments?patientId=${patient._id}`)}
-                      className="w-full py-3.5 bg-white text-primary border border-primary rounded-2xl hover:bg-primary/5 transition-all font-black text-[10px] uppercase tracking-widest"
+                      className="w-full py-3.5 bg-white text-primary border border-primary rounded-2xl hover:bg-primary/5 transition-all font-black text-[10px] uppercase tracking-widest shadow-sm"
                     >
                       {t('clinic.appointments.title')}
                     </button>
@@ -196,12 +179,14 @@ export default function PatientSearch() {
           )}
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl bg-gray-50 border border-black/6">
-          <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
-            <User className="h-5 w-5 text-primary" />
+        <div className="bg-white p-20 rounded-[2.5rem] border border-border-light text-center shadow-sm">
+          <div className="h-20 w-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-6">
+            <User className="h-10 w-10 text-white/70" />
           </div>
-          <p className="text-sm font-medium text-text-primary">{t('clinic.patientSearch.noResults')}</p>
-          <p className="text-xs text-text-secondary mt-1">{t('clinic.patientSearch.adjustSearch')}</p>
+          <h3 className="text-xl font-bold text-text-primary">{t('clinic.patientSearch.noResults')}</h3>
+          <p className="text-text-secondary mt-2">
+            {t('clinic.patientSearch.adjustSearch')}
+          </p>
         </div>
       )}
     </div>

@@ -34,7 +34,7 @@ export default function PatientSettingsPage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="h-10 w-10 rounded-lg border border-border-light bg-white text-text-secondary hover:text-text-primary :text-white flex items-center justify-center"
+          className="h-10 w-10 rounded-xl border border-border-light bg-white text-text-secondary hover:text-text-primary :text-white flex items-center justify-center"
         >
           <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
@@ -49,7 +49,7 @@ export default function PatientSettingsPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-border-light bg-white p-6">
+        <div className="rounded-3xl border border-border-light bg-white p-6">
           <div className="mb-5 flex items-center gap-3">
             <ShieldCheck className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-bold text-text-primary">
@@ -106,7 +106,7 @@ export default function PatientSettingsPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border-light bg-white p-6">
+        <div className="rounded-3xl border border-border-light bg-white p-6">
           <div className="mb-5 flex items-center gap-3">
             <CheckCircle2 className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-bold text-text-primary">

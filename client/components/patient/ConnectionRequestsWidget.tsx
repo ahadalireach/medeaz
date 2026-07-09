@@ -21,11 +21,10 @@ export default function ConnectionRequestsWidget() {
     }
   };
 
-  if (isLoading) return <div className="h-32 bg-white animate-pulse rounded-2xl border border-border-light" />;
-  if (requests.length === 0) return null;
+  if (isLoading || requests.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-2xl border border-border-light p-8 animate-in fade-in slide-in-from-top-4 duration-700">
+    <div className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
       <div className="flex items-center gap-4 mb-8">
         <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center">
           <UserPlus className="h-6 w-6 text-primary" />
@@ -40,11 +39,11 @@ export default function ConnectionRequestsWidget() {
         {requests.map((request: any) => (
           <div 
             key={request._id}
-            className="group relative p-6 bg-background rounded-2xl border border-border-light/50 hover:border-primary/30 transition-all overflow-hidden"
+            className="group relative p-6 bg-background rounded-3xl border border-border-light/50 hover:border-primary/30 transition-all overflow-hidden"
           >
             <div className="flex items-start justify-between">
               <div className="flex gap-4">
-                <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center border border-border-light group-hover:bg-primary transition-colors">
+                <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-border-light group-hover:bg-primary transition-colors">
                   {request.fromRole === 'doctor' ? (
                     <Stethoscope className="h-7 w-7 text-primary group-hover:text-white" />
                   ) : (
@@ -54,7 +53,7 @@ export default function ConnectionRequestsWidget() {
                 <div>
                   <h3 className="font-black text-text-primary text-lg">{request.fromName}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg">
+                    <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md">
                       {request.fromRole}
                     </span>
                     <span className="text-[10px] font-bold text-text-primary uppercase tracking-widest">Wants Access</span>
@@ -66,7 +65,7 @@ export default function ConnectionRequestsWidget() {
                 <button
                   disabled={isProcessing}
                   onClick={() => onHandle(request._id, "approved")}
-                  className="h-10 w-10 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
+                  className="h-10 w-10 bg-primary text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
                   title="Approve"
                 >
                   <Check className="h-5 w-5" />
@@ -74,7 +73,7 @@ export default function ConnectionRequestsWidget() {
                 <button
                   disabled={isProcessing}
                   onClick={() => onHandle(request._id, "rejected")}
-                  className="h-10 w-10 bg-red-500 text-white rounded-lg flex items-center justify-center hover:bg-red-600 transition-colors"
+                  className="h-10 w-10 bg-red-500 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-rose-500/20"
                   title="Reject"
                 >
                   <X className="h-5 w-5" />

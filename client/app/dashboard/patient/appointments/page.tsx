@@ -6,9 +6,11 @@ import Link from "next/link";
 import { Calendar, Clock, User, Building2, MapPin, Plus, X, Star, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { showToast } from "@/lib/toast";
+import PageHeader from "@/components/shared/PageHeader";
+import { ClinicReviewModal } from "@/components/ui/ClinicReviewModal";
 
 interface RatingModalProps {
   isOpen: boolean;
@@ -73,7 +75,7 @@ function RatingModal({ isOpen, onClose, appointmentId, doctorId, reviewId, initi
           placeholder={t('patient.appointments.rating.placeholder')}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="w-full rounded-lg border border-border-light bg-background p-3 text-sm mb-6 h-32 resize-none"
+          className="w-full rounded-xl border-border-light bg-background p-3 text-sm focus:ring-primary focus:border-primary mb-6 h-32"
         />
 
         <div className="flex gap-3">
@@ -124,6 +126,8 @@ const AppointmentTimer = ({ startTime }: { startTime: string }) => {
 
 export default function AppointmentsPage() {
   const t = useTranslations();
+  const locale = useLocale();
+  const isUrdu = locale === "ur";
   const [view, setView] = useState<ViewFilter>("all");
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -135,6 +139,14 @@ export default function AppointmentsPage() {
     initialRating?: number;
     initialComment?: string;
   }>({ isOpen: false, id: "", doctorId: "" });
+
+  const [clinicReviewModal, setClinicReviewModal] = useState<{
+    isOpen: boolean;
+    appointmentId: string;
+    clinicId: string;
+    clinicName: string;
+    reviewId?: string;
+  }>({ isOpen: false, appointmentId: "", clinicId: "", clinicName: "" });
 
   const { data, isLoading } = useGetAppointmentsQuery(["today", "yesterday", "tomorrow"].includes(view) ? "all" : view);
   const [cancelAppointment, { isLoading: isCancelling }] = useCancelAppointmentMutation();
@@ -149,20 +161,14 @@ export default function AppointmentsPage() {
     cancelled: 0,
   };
 
-  // Use local date string (YYYY-MM-DD) to avoid UTC timezone shift issues
-  const localDateStr = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-
   const appointments = (data?.data || [])
     .filter((a: any) => {
       if (["all", "upcoming", "past"].includes(view)) return true;
-      const target = new Date();
-      if (view === "yesterday") target.setDate(target.getDate() - 1);
-      if (view === "tomorrow")  target.setDate(target.getDate() + 1);
-      const targetStr = localDateStr(target);
-      // Compare using local date of the appointment, not UTC
-      const apptLocal = a.dateTime ? localDateStr(new Date(a.dateTime)) : "";
-      return apptLocal === targetStr;
+      const date = new Date();
+      if (view === "yesterday") date.setDate(date.getDate() - 1);
+      if (view === "tomorrow") date.setDate(date.getDate() + 1);
+      const targetDateStr = date.toISOString().split('T')[0];
+      return a.dateTime?.split('T')[0] === targetDateStr;
     })
     .reduce((list: any[], appointment: any) => {
       const slotKey = `${appointment.patientId?._id || appointment.patientId}-${appointment.doctorId?._id || appointment.doctorId}-${String(appointment.dateTime || "")}`;
@@ -196,11 +202,8 @@ export default function AppointmentsPage() {
     return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
   };
 
-  const getDoctorName = (appointment: any) => {
-    const raw = appointment.doctorId?.name || appointment.doctorId?.fullName || "Doctor";
-    // Strip existing "Dr." prefix so the template can add it once
-    return raw.replace(/^Dr\.?\s+/i, "");
-  };
+  const getDoctorName = (appointment: any) =>
+    appointment.doctorId?.userId?.name || appointment.doctorId?.fullName || appointment.doctorId?.name || "Doctor";
 
   const getClinicCity = (appointment: any) => {
     const directCity = appointment.clinicId?.city || appointment.clinic?.city || appointment.clinicCity;
@@ -275,7 +278,7 @@ export default function AppointmentsPage() {
   };
 
   return (
-    <div className="relative isolate -mx-4 min-h-[calc(100vh-8rem)] overflow-hidden bg-[#F9FAFB] sm:-mx-6 lg:-mx-8">
+    <div className="relative isolate -mx-4 min-h-[calc(100vh-8rem)] overflow-hidden bg-[#f6f8f8] sm:-mx-6 lg:-mx-8">
       <svg className="absolute inset-0 w-full h-full pointer-events-none select-none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
         <defs>
           <pattern id="appointments-diag" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
@@ -285,312 +288,385 @@ export default function AppointmentsPage() {
         <rect width="100%" height="100%" fill="url(#appointments-diag)" opacity="0.1" />
       </svg>
       <div className="relative z-10 space-y-6 overflow-x-hidden px-4 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-xl font-bold text-text-primary">
-          {t('nav.appointments')}
-        </h1>
-        <Link href="/dashboard/patient/book-appointment">
-          <Button className="w-full sm:w-auto rounded-xl text-sm font-semibold">
-            <Plus className="mr-2 h-4 w-4" />
-            {t('patient.bookAppointment')}
-          </Button>
-        </Link>
-      </div>
-
-      {/* View Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {(["all", "upcoming", "past", "yesterday", "today", "tomorrow"] as ViewFilter[]).map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setView(filter)}
-            className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors shrink-0 ${
-              view === filter
-                ? "bg-primary text-white"
-                : "bg-white text-text-secondary border border-black/6 hover:text-text-primary hover:border-primary/30"
-            }`}
-          >
-            {filter === "all" ? t('common.all') :
-              filter === "upcoming" ? t('patient.appointments.upcoming') :
-                filter === "past" ? t('patient.appointments.past') :
-                  t(`common.${filter}`)}
-          </button>
-        ))}
-      </div>
-
-      {/* Appointments List */}
-      {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-40 animate-pulse rounded-2xl border border-border-light bg-white"
-            />
-          ))}
-        </div>
-      ) : appointments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl bg-gray-50 border border-black/6">
-          <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3">
-            <Calendar className="h-5 w-5 text-primary" />
-          </div>
-          <p className="text-sm font-medium text-text-primary">{t('appointment.noAppointments')}</p>
-          <p className="text-xs text-text-secondary mt-1">
-            {view === "upcoming"
-              ? t('appointment.noUpcoming')
-              : view === "past"
-                ? t('appointment.noPast')
-                : "Your appointments will appear here"}
-          </p>
-          {view !== "upcoming" && (
-            <Link href="/dashboard/patient/book-appointment" className="mt-5">
-              <Button className="rounded-xl text-sm font-semibold">
+        <PageHeader 
+          title={t('nav.appointments')} 
+          action={
+            <Link href="/dashboard/patient/book-appointment">
+              <Button className="w-full sm:w-auto rounded-2xl font-black tracking-widest text-[10px]">
+                <Plus className="mr-2 h-4 w-4" />
                 {t('patient.bookAppointment')}
               </Button>
             </Link>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6">
-          {appointments.map((appointment: any) => (
-            <div
-              key={appointment._id}
-              className="rounded-2xl border border-border-light bg-white p-5 sm:p-8 transition-all hover:border-primary/20 hover:bg-background group"
+          } 
+        />
+
+        {/* View Filters */}
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {(["all", "upcoming", "past", "yesterday", "today", "tomorrow"] as ViewFilter[]).map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setView(filter)}
+              className={`rounded-2xl px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all shrink-0 ${view === filter
+                ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105"
+                : "bg-white text-text-primary border border-border-light hover:bg-surface active:scale-95"
+                }`}
             >
-              <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                <div className="flex-1">
-                  <div className="flex items-start gap-4 sm:gap-6">
-                    <div className="rounded-2xl bg-slate-100 dark:bg-zinc-800 h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center overflow-hidden shrink-0 border-2 border-black/5">
-                      {appointment.doctorId?.photo ? (
-                        <img
-                          src={appointment.doctorId.photo}
-                          alt="Doctor"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <User className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0 max-w-full">
-                      <div className="mb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                        <div className="min-w-0">
-                          <h3 className="text-xl sm:text-2xl font-black text-text-primary tracking-tight truncate">
-                            {t('common.doctorPrefix')} {getDoctorName(appointment)}
-                          </h3>
-                          <p className="text-[10px] font-semibold text-primary uppercase tracking-widest mt-0.5 sm:mt-1">
-                            {appointment.doctorId?.doctorProfile?.specialization || "General Physician"}
-                          </p>
-                        </div>
-                        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 w-full sm:w-auto">
-                          <span
-                            className={`rounded-xl px-4 py-1.5 text-[10px] font-black uppercase tracking-widest ${getStatusColor(
-                              appointment.status
-                            )}`}
-                          >
-                            {getStatusLabel(appointment.status)}
-                          </span>
-                          {appointment.status === "in-progress" && (
-                            <AppointmentTimer startTime={appointment.updatedAt} />
-                          )}
-                        </div>
+              {filter === "all" ? t('common.all') :
+                filter === "upcoming" ? t('patient.appointments.upcoming') :
+                  filter === "past" ? t('patient.appointments.past') :
+                    t(`common.${filter}`)}
+            </button>
+          ))}
+        </div>
+
+        {/* Appointments List */}
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-40 animate-pulse rounded-3xl border border-border-light bg-white"
+              />
+            ))}
+          </div>
+        ) : appointments.length === 0 ? (
+          <div className="rounded-[2.5rem] border-2 border-dashed border-border-light bg-white p-10 sm:p-20 text-center">
+            <Calendar className="mx-auto h-16 w-16 text-text-primary opacity-20 mb-6" />
+            <h3 className="text-xl font-black text-text-primary uppercase tracking-tight">
+              {t('appointment.noAppointments')}
+            </h3>
+            <p className="mt-2 text-sm font-bold text-text-primary opacity-60">
+              {view === "upcoming"
+                ? t('appointment.noUpcoming')
+                : view === "past"
+                  ? t('appointment.noPast')
+                  : t('appointment.noAppointments')}
+            </p>
+            {view !== "upcoming" && (
+              <Link href="/dashboard/patient/book-appointment">
+                <Button className="mt-8 rounded-2xl font-black uppercase tracking-widest text-[10px] px-8">
+                  {t('patient.bookAppointment')}
+                </Button>
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            {appointments.map((appointment: any) => (
+              <div
+                key={appointment._id}
+                className="rounded-3xl sm:rounded-[2.5rem] border border-border-light bg-white p-5 sm:p-8 transition-all hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 group"
+              >
+                <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-start gap-4 sm:gap-6">
+                      <div className="rounded-2xl sm:rounded-4xl bg-slate-100 dark:bg-zinc-800 h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center overflow-hidden shrink-0 border-2 border-black/5 group-hover:scale-110 transition-transform duration-500">
+                        {appointment.doctorId?.photo ? (
+                          <img
+                            src={appointment.doctorId.photo}
+                            alt="Doctor"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+                        )}
                       </div>
+                      <div className="flex-1 min-w-0 max-w-full">
+                        <div className="mb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <h3 className="text-xl sm:text-2xl font-black text-text-primary tracking-tight truncate">
+                              {t('common.doctorPrefix')} {getDoctorName(appointment)}
+                            </h3>
+                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5 sm:mt-1">
+                              {appointment.doctorId?.doctorProfile?.specialization || t('appointment.doctor')}
+                            </p>
+                          </div>
+                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 w-full sm:w-auto">
+                            <span
+                              className={`rounded-xl px-4 py-1.5 text-[10px] font-black uppercase tracking-widest ${getStatusColor(
+                                appointment.status
+                              )}`}
+                            >
+                              {getStatusLabel(appointment.status)}
+                            </span>
+                            {appointment.status === "in-progress" && (
+                              <AppointmentTimer startTime={appointment.updatedAt} />
+                            )}
+                          </div>
+                        </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mt-6">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-surface flex items-center justify-center text-text-primary">
-                              <Building2 className="h-4 w-4" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mt-6">
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded-xl bg-surface flex items-center justify-center text-text-primary">
+                                <Building2 className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black text-text-primary uppercase tracking-widest opacity-40">{t('appointment.clinic')}</p>
+                                <p className="text-sm font-bold text-text-primary">{getClinicName(appointment)}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-[10px] font-black text-text-primary uppercase tracking-widest opacity-40">{t('appointment.clinic')}</p>
-                              <p className="text-sm font-bold text-text-primary">{getClinicName(appointment)}</p>
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded-xl bg-surface flex items-center justify-center text-text-primary">
+                                <MapPin className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black text-text-primary uppercase tracking-widest opacity-40">{t('form.address')}</p>
+                                <p className="text-sm font-bold text-text-primary line-clamp-1">{getClinicAddress(appointment)}</p>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-surface flex items-center justify-center text-text-primary">
-                              <MapPin className="h-4 w-4" />
+
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded-xl bg-surface flex items-center justify-center text-text-primary">
+                                <Calendar className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black text-text-primary uppercase tracking-widest opacity-40">{t('form.date')}</p>
+                                <p className="text-sm font-bold text-text-primary">{formatDate(appointment.dateTime)}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-[10px] font-black text-text-primary uppercase tracking-widest opacity-40">{t('form.address')}</p>
-                              <p className="text-sm font-bold text-text-primary line-clamp-1">{getClinicAddress(appointment)}</p>
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded-xl bg-surface flex items-center justify-center text-text-primary">
+                                <Clock className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black text-text-primary uppercase tracking-widest opacity-40">{t('form.time')}</p>
+                                <p className="text-sm font-bold text-text-primary">{formatTime(appointment.dateTime)}</p>
+                              </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-surface flex items-center justify-center text-text-primary">
-                              <Calendar className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-black text-text-primary uppercase tracking-widest opacity-40">{t('form.date')}</p>
-                              <p className="text-sm font-bold text-text-primary">{formatDate(appointment.dateTime)}</p>
-                            </div>
+                        {appointment.reason && (
+                          <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-white rounded-2xl sm:rounded-3xl border border-border-light relative overflow-hidden group/reason">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-primary/20" />
+                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1.5 sm:mb-2">
+                              {t('patient.bookAppointmentPage.reasonForVisit')}
+                            </p>
+                            <p className="text-xs sm:text-sm font-bold text-text-primary leading-relaxed">
+                              {appointment.reason}
+                            </p>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-surface flex items-center justify-center text-text-primary">
-                              <Clock className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-black text-text-primary uppercase tracking-widest opacity-40">{t('form.time')}</p>
-                              <p className="text-sm font-bold text-text-primary">{formatTime(appointment.dateTime)}</p>
-                            </div>
-                          </div>
-                        </div>
+                        )}
                       </div>
-
-                      {appointment.reason && (
-                        <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-white rounded-2xl border border-border-light relative overflow-hidden group/reason">
-                          <div className="absolute top-0 left-0 w-1 h-full bg-primary/20" />
-                          <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1.5 sm:mb-2">
-                            {t('patient.bookAppointmentPage.reasonForVisit')}
-                          </p>
-                          <p className="text-xs sm:text-sm font-bold text-text-primary leading-relaxed">
-                            {appointment.reason}
-                          </p>
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-3 pt-2 lg:w-48 lg:shrink-0 w-full max-w-full">
-                  {appointment.status === "completed" && (
-                    <>
-                      {(appointment.patientFeedback?.score || appointment.rating?.score || appointment.reviewId) ? (
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-2 flex-1 h-12 bg-white border border-border-light rounded-2xl px-4">
-                            <Star className="h-4 w-4 fill-primary text-primary" />
-                            <span className="text-sm font-black text-primary">{(appointment.patientFeedback?.score || appointment.rating?.score)} / 5</span>
-                          </div>
-                          {((appointment.reviewEditCount || 0) < 1 || !appointment.reviewId) && (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => {
-                                const docId = appointment.doctorId?._id || appointment.doctorId;
-                                setRatingModal({
-                                  isOpen: true,
-                                  id: appointment._id,
-                                  doctorId: docId,
-                                  reviewId: appointment.reviewId,
-                                  initialRating: appointment.patientFeedback?.score || appointment.rating?.score,
-                                  initialComment: appointment.patientFeedback?.comment || appointment.rating?.feedback
-                                });
-                              }}
-                              className="h-12 w-12 rounded-2xl border-primary/20 text-primary"
-                            >
-                              <Star className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ) : (
-                        <Button
-                          variant="default"
-                          onClick={() => {
-                            const docId = appointment.doctorId?._id || appointment.doctorId;
-                            setRatingModal({ isOpen: true, id: appointment._id, doctorId: docId });
-                          }}
-                          className="h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] bg-primary text-white shadow-lg shadow-primary/20"
-                        >
-                          <Star className="mr-2 h-4 w-4 fill-white" />
-                          {t('patient.appointments.rateExperience')}
-                        </Button>
-                      )}
-                      {appointment.prescriptionId && (
-                        <Link
-                          href={`/dashboard/patient/records/${appointment.prescriptionId._id || appointment.prescriptionId}`}
-                        >
-                          <Button
-                            variant="outline"
-                            className="w-full h-12 rounded-2xl border-primary text-primary hover:bg-primary hover:text-white font-black uppercase tracking-widest text-[10px] transition-all"
-                          >
-                            <FileText className="mr-2 h-4 w-4" />
-                            {t('nav.medicalRecords')}
-                          </Button>
-                        </Link>
-                      )}
-                      <Button
-                        variant="outline"
-                        onClick={() => setDeleteId(appointment._id)}
-                        className="h-12 rounded-2xl text-text-primary hover:text-red-500 hover:bg-red-50 border-border-light font-black uppercase tracking-widest text-[10px]"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t('common.delete')}
-                      </Button>
-                    </>
-                  )}
-
-                  {["cancelled", "reserved", "pending"].includes(appointment.status) && (
-                    <div className="flex flex-col gap-3">
-                      {appointment.status === "pending" && (
-                        confirmCancelId === appointment._id ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => handleCancel(appointment._id)}
-                              disabled={isCancelling}
-                              className="h-12 rounded-2xl text-red-600 border-red-200 hover:bg-red-50 font-black uppercase tracking-widest text-[10px]"
-                            >
-                              {isCancelling ? t('patient.appointments.cancelling') : t('patient.appointments.confirmCancelBtn')}
-                            </Button>
-                            <Button variant="outline" className="h-12 rounded-2xl font-black uppercase tracking-widest text-[10px]" onClick={() => setConfirmCancelId(null)}>
-                              {t('patient.appointments.keepBtn')}
-                            </Button>
+                  <div className="flex flex-col gap-3 pt-2 lg:w-48 lg:shrink-0 w-full max-w-full">
+                    {appointment.status === "completed" && (
+                      <>
+                        {(appointment.patientFeedback?.score || appointment.rating?.score || appointment.reviewId) ? (
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-1 h-12 bg-white border border-border-light rounded-2xl px-4">
+                              <Star className="h-4 w-4 fill-primary text-primary" />
+                              <span className="text-sm font-black text-primary">{(appointment.patientFeedback?.score || appointment.rating?.score)} / 5</span>
+                            </div>
+                            {((appointment.reviewEditCount || 0) < 1 || !appointment.reviewId) && (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => {
+                                  const docId = appointment.doctorId?._id || appointment.doctorId;
+                                  setRatingModal({
+                                    isOpen: true,
+                                    id: appointment._id,
+                                    doctorId: docId,
+                                    reviewId: appointment.reviewId,
+                                    initialRating: appointment.patientFeedback?.score || appointment.rating?.score,
+                                    initialComment: appointment.patientFeedback?.comment || appointment.rating?.feedback
+                                  });
+                                }}
+                                className="h-12 w-12 rounded-2xl border-primary/20 text-primary"
+                              >
+                                <Star className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         ) : (
                           <Button
-                            variant="outline"
-                            onClick={() => setConfirmCancelId(appointment._id)}
-                            className="h-12 rounded-2xl text-red-600 border-red-200 hover:bg-red-50 font-black uppercase tracking-widest text-[10px]"
+                            variant="default"
+                            onClick={() => {
+                              const docId = appointment.doctorId?._id || appointment.doctorId;
+                              setRatingModal({ isOpen: true, id: appointment._id, doctorId: docId });
+                            }}
+                            className="h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] bg-primary text-white shadow-lg shadow-primary/20"
                           >
-                            <X className="mr-2 h-4 w-4" />
-                            {t('common.cancel')}
+                            <Star className="mr-2 h-4 w-4 fill-white" />
+                            {t('patient.appointments.rateExperience')}
                           </Button>
-                        )
-                      )}
-                      <Button
-                        variant="outline"
-                        onClick={() => setDeleteId(appointment._id)}
-                        className="h-12 rounded-2xl text-text-primary hover:text-red-500 hover:bg-red-50 border-border-light font-black uppercase tracking-widest text-[10px]"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t('common.delete')}
-                      </Button>
-                    </div>
-                  )}
+                        )}
+                        {/* Clinic Review Button */}
+                        {(appointment.clinicId || appointment.clinicSnapshot?.clinicId) && (
+                          appointment.clinicReviewId ? (
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between h-12 bg-white border border-border-light rounded-2xl px-4 w-full">
+                                <span className="text-[11px] font-bold text-text-secondary">{t('reviews.yourReview')}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <Star className="h-4 w-4 fill-[#00b495] text-[#00b495]" />
+                                  <span className="text-sm font-black text-[#00b495]">{appointment.clinicReviewScore || 5} / 5</span>
+                                </div>
+                              </div>
+                              <Button
+                                variant="outline"
+                                onClick={() => {
+                                  const cId = appointment.clinicId?._id || appointment.clinicId || appointment.clinicSnapshot?.clinicId;
+                                  const cName = appointment.clinicId?.name || appointment.clinicSnapshot?.clinicName || "Clinic";
+                                  setClinicReviewModal({
+                                    isOpen: true,
+                                    appointmentId: appointment._id,
+                                    clinicId: cId,
+                                    clinicName: cName,
+                                    reviewId: appointment.clinicReviewId
+                                  });
+                                }}
+                                className={`w-full h-12 rounded-2xl border-[#00b495]/20 text-[#00b495] hover:bg-[#00b495]/5 transition-all font-black uppercase flex items-center justify-center gap-1.5 ${
+                                  isUrdu ? "text-[9px] tracking-normal" : "text-[10px] tracking-widest"
+                                }`}
+                              >
+                                <Star className="h-4 w-4 fill-[#00b495] text-[#00b495]" />
+                                <span>{t('reviews.viewClinicReview')}</span>
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="default"
+                              onClick={() => {
+                                const cId = appointment.clinicId?._id || appointment.clinicId || appointment.clinicSnapshot?.clinicId;
+                                const cName = appointment.clinicId?.name || appointment.clinicSnapshot?.clinicName || "Clinic";
+                                setClinicReviewModal({
+                                  isOpen: true,
+                                  appointmentId: appointment._id,
+                                  clinicId: cId,
+                                  clinicName: cName
+                                });
+                              }}
+                              className={`w-full h-12 rounded-2xl font-black uppercase transition-all bg-[#00b495] hover:bg-[#009e82] text-white shadow-lg shadow-[#00b495]/20 flex items-center justify-center gap-1.5 ${
+                                isUrdu ? "text-[9px] tracking-normal" : "text-[10px] tracking-widest"
+                              }`}
+                            >
+                              <Star className="h-4 w-4 fill-white" />
+                              <span>{t('reviews.rateClinic')}</span>
+                            </Button>
+                          )
+                        )}
+                        {appointment.prescriptionId && (
+                          <Link
+                            href={`/dashboard/patient/records/${appointment.prescriptionId._id || appointment.prescriptionId}`}
+                          >
+                            <Button
+                              variant="outline"
+                              className={`w-full h-12 rounded-2xl border-primary text-primary hover:bg-primary hover:text-white font-black uppercase transition-all flex items-center justify-center gap-1.5 ${
+                                isUrdu ? "text-[9px] tracking-normal" : "text-[10px] tracking-widest"
+                              }`}
+                            >
+                              <FileText className="h-4 w-4" />
+                              <span>{t('nav.medicalRecords')}</span>
+                            </Button>
+                          </Link>
+                        )}
+                        <Button
+                          variant="outline"
+                          onClick={() => setDeleteId(appointment._id)}
+                          className={`h-12 rounded-2xl text-text-primary hover:text-red-500 hover:bg-red-50 border-border-light font-black uppercase transition-all flex items-center justify-center gap-1.5 ${
+                            isUrdu ? "text-[9px] tracking-normal" : "text-[10px] tracking-widest"
+                          }`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span>{t('common.delete')}</span>
+                        </Button>
+                      </>
+                    )}
+
+                    {["cancelled", "reserved", "pending"].includes(appointment.status) && (
+                      <div className="flex flex-col gap-3">
+                        {appointment.status === "pending" && (
+                          confirmCancelId === appointment._id ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <Button
+                                variant="outline"
+                                onClick={() => handleCancel(appointment._id)}
+                                disabled={isCancelling}
+                                className="h-12 rounded-2xl text-red-600 border-red-200 hover:bg-red-50 font-black uppercase tracking-widest text-[10px]"
+                              >
+                                {isCancelling ? t('patient.appointments.cancelling') : t('patient.appointments.confirmCancelBtn')}
+                              </Button>
+                              <Button variant="outline" className="h-12 rounded-2xl font-black uppercase tracking-widest text-[10px]" onClick={() => setConfirmCancelId(null)}>
+                                {t('patient.appointments.keepBtn')}
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              onClick={() => setConfirmCancelId(appointment._id)}
+                              className="h-12 rounded-2xl text-red-600 border-red-200 hover:bg-red-50 font-black uppercase tracking-widest text-[10px]"
+                            >
+                              <X className="mr-2 h-4 w-4" />
+                              {t('common.cancel')}
+                            </Button>
+                          )
+                        )}
+                        <Button
+                          variant="outline"
+                          onClick={() => setDeleteId(appointment._id)}
+                          className="h-12 rounded-2xl text-text-primary hover:text-red-500 hover:bg-red-50 border-border-light font-black uppercase tracking-widest text-[10px]"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t('common.delete')}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {ratingModal.isOpen && (
-        <RatingModal
-          isOpen={ratingModal.isOpen}
-          onClose={() => setRatingModal({
-            isOpen: false,
-            id: "",
-            doctorId: "",
-            reviewId: undefined,
-            initialRating: undefined,
-            initialComment: undefined
-          })}
-          appointmentId={ratingModal.id}
-          doctorId={ratingModal.doctorId}
-          reviewId={ratingModal.reviewId}
-          initialRating={ratingModal.initialRating}
-          initialComment={ratingModal.initialComment}
+        {ratingModal.isOpen && (
+          <RatingModal
+            isOpen={ratingModal.isOpen}
+            onClose={() => setRatingModal({
+              isOpen: false,
+              id: "",
+              doctorId: "",
+              reviewId: undefined,
+              initialRating: undefined,
+              initialComment: undefined
+            })}
+            appointmentId={ratingModal.id}
+            doctorId={ratingModal.doctorId}
+            reviewId={ratingModal.reviewId}
+            initialRating={ratingModal.initialRating}
+            initialComment={ratingModal.initialComment}
+          />
+        )}
+
+        {clinicReviewModal.isOpen && (
+          <ClinicReviewModal
+            isOpen={clinicReviewModal.isOpen}
+            onClose={() => setClinicReviewModal({
+              isOpen: false,
+              appointmentId: "",
+              clinicId: "",
+              clinicName: "",
+              reviewId: undefined
+            })}
+            appointmentId={clinicReviewModal.appointmentId}
+            clinicId={clinicReviewModal.clinicId}
+            clinicName={clinicReviewModal.clinicName}
+            reviewId={clinicReviewModal.reviewId}
+          />
+        )}
+
+        <ConfirmationModal
+          isOpen={!!deleteId}
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDelete}
+          title={t('common.delete')}
+          message={t('modal.cannotUndo')}
         />
-      )}
-
-      <ConfirmationModal
-        isOpen={!!deleteId}
-        onClose={() => setDeleteId(null)}
-        onConfirm={handleDelete}
-        title={t('common.delete')}
-        message={t('modal.cannotUndo')}
-      />
       </div>
     </div>
   );

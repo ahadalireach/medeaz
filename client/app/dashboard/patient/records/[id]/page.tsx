@@ -141,14 +141,14 @@ function RecordDetailContent() {
     return (
       <div className="space-y-6">
         <div className="h-8 w-48 animate-pulse rounded bg-surface" />
-        <div className="h-64 animate-pulse rounded-2xl border border-border-light bg-white" />
+        <div className="h-64 animate-pulse rounded-xl border border-border-light bg-white" />
       </div>
     );
   }
 
   if (!prescription) {
     return (
-      <div className="rounded-2xl border border-border-light bg-white p-12 text-center">
+      <div className="rounded-xl border border-border-light bg-white p-12 text-center">
         <FileText className="mx-auto h-12 w-12 text-text-secondary" />
         <h3 className="mt-4 text-lg font-semibold text-text-primary">
           {t.has("prescription.notFound") ? t("prescription.notFound") : "Prescription not found"}
@@ -183,7 +183,7 @@ function RecordDetailContent() {
           <Button
             onClick={handlePrint}
             variant="outline"
-            className="w-full bg-white border-black/10 h-10 sm:h-11 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest transition-all"
+            className="w-full bg-white border-black/10 h-10 sm:h-11 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest sm:hover:scale-105 transition-all"
           >
             <Printer className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
             {t("prescription.printPrescription")}
@@ -192,7 +192,7 @@ function RecordDetailContent() {
       </div>
 
       {/* Prescription Details */}
-      <div ref={printableRef} className="rounded-2xl border border-black/5 bg-white p-4 sm:p-8 lg:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+      <div ref={printableRef} className="rounded-3xl sm:rounded-[2.5rem] border border-black/5 bg-white p-4 sm:p-8 lg:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
         {/* Header Section */}
         <div className="mb-8 border-b border-border-light pb-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">

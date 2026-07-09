@@ -101,16 +101,16 @@ export default function FamilyRecordsPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-4">{[1, 2, 3].map((i) => <div key={i} className="h-28 animate-pulse rounded-2xl border bg-white" />)}</div>
+        <div className="space-y-4">{[1, 2, 3].map((i) => <div key={i} className="h-28 animate-pulse rounded-4xl border bg-white" />)}</div>
       ) : records.length === 0 ? (
-        <div className="rounded-2xl border p-12 text-center bg-white">
+        <div className="rounded-4xl border p-12 text-center bg-white">
           <FileText className="mx-auto h-12 w-12 text-text-primary opacity-20 mb-4" />
           <h3 className="text-lg font-bold text-text-primary">{t("patient.family.noRecordsDesc")}</h3>
         </div>
       ) : (
         <div className="grid gap-4">
           {records.map((r: any) => (
-            <div key={r._id} className="flex items-center justify-between rounded-2xl border bg-white p-6">
+            <div key={r._id} className="flex items-center justify-between rounded-4xl border bg-white p-6">
               <div>
                 <h3 className="text-xl font-black">{recordTitle(r)}</h3>
                 <p className="text-xs uppercase text-primary mt-1">{getDiagnosisLabel(r.diagnosis)}</p>
