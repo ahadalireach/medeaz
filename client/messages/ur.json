@@ -7,12 +7,14 @@
       "accepted": "قبول شدہ",
       "completed": "مکمل",
       "cancelled": "منسوخ",
-      "in-progress": "جاری ہے"
+      "in-progress": "جاری ہے",
+      "no-show": "غیر حاضر"
     },
     "clinic": "کلینک",
     "noAppointments": "کوئی اپائنٹمنٹ نہیں ملی",
     "noUpcoming": "کوئی آنے والی اپائنٹمنٹ نہیں ہے",
-    "noPast": "کوئی پرانی اپائنٹمنٹ نہیں ہے"
+    "noPast": "کوئی پرانی اپائنٹمنٹ نہیں ہے",
+    "doctor": "ڈاکٹر"
   },
   "common": {
     "back": "پیچھے",
@@ -80,8 +82,10 @@
       "accepted": "قبول شدہ",
       "completed": "مکمل",
       "cancelled": "منسوخ",
-      "in-progress": "جاری ہے"
-    }
+      "in-progress": "جاری ہے",
+      "no-show": "غیر حاضر"
+    },
+    "confirm": "تصدیق کریں"
   },
   "schedule": {
     "monday": "پیر",
@@ -109,7 +113,10 @@
     "profilePhoto": "پروفائل فوٹو",
     "changePhoto": "فوٹو تبدیل کریں",
     "date": "تاریخ",
-    "time": "وقت"
+    "time": "وقت",
+    "comment": "تبصرہ",
+    "licenseNo": "لائسنس نمبر",
+    "title": "عنوان"
   },
   "modal": {
     "confirmDelete": "حذف کرنے کی تصدیق کریں",
@@ -121,28 +128,21 @@
     "removePatientTitle": "مریض کو ہٹائیں"
   },
   "toast": {
-    "logoutSuccess": "کامیابی سے لاگ آؤٹ ہو گیا",
-    "appointmentDeleted": "اپائنٹمنٹ کامیابی سے حذف کر دی گئی",
-    "success": "عمل کامیاب رہا",
-    "prescriptionSaved": "نسخہ کامیابی سے محفوظ ہو گیا",
-    "notificationMarkFailed": "نوٹیفکیشن کو پڑھا ہوا نشان زد کرنے میں ناکامی",
-    "settingsSaved": "ترتیبات کامیابی سے محفوظ ہو گئیں",
-    "patientAdded": "مریض کامیابی سے شامل کر دیا گیا",
-    "patientRemoved": "مریض کامیابی سے ہٹا دیا گیا",
+    "familyUpdated": "خاندان کے فرد کی معلومات اپ ڈیٹ ہو گئیں",
     "scheduleSaved": "شیڈول کامیابی سے محفوظ ہو گیا",
     "appointmentBooked": "اپائنٹمنٹ کامیابی سے بک ہو گئی",
-    "appointmentCancelled": "اپائنٹمنٹ کامیابی سے منسوخ کر دی گئی",
-    "slotUnavailable": "یہ ٹائم سلاٹ اب دستیاب نہیں ہے",
-    "familyAdded": "خاندان کا رکن کامیابی سے شامل کر دیا گیا",
-    "familyRemoved": "خاندان کا رکن کامیابی سے ہٹا دیا گیا",
-    "profileUpdated": "پروفائل کامیابی سے اپ ڈیٹ ہو گیا",
-    "passwordChanged": "پاس ورڈ کامیابی سے تبدیل ہو گیا",
-    "doctorAdded": "ڈاکٹر کامیابی سے شامل کر دیا گیا",
+    "connectionRequestApproved": "کنکشن کی درخواست منظور ہو گئی",
+    "connectionRequestFailed": "کنکشن کی درخواست پر کارروائی ناکام رہی",
+    "connectionRequestRejected": "کنکشن کی درخواست مسترد کر دی گئی",
     "doctorRemoved": "ڈاکٹر کامیابی سے ہٹا دیا گیا",
-    "staffCreated": "عملے کا رکن کامیابی سے شامل کر دیا گیا",
+    "error": "کچھ غلط ہو گیا",
+    "logoutSuccess": "کامیابی سے لاگ آؤٹ ہو گیا",
+    "notificationMarkFailed": "نوٹیفکیشن کو پڑھا ہوا نشان زد کرنے میں ناکامی",
+    "notificationsClearFailed": "نوٹیفکیشنز صاف کرنے میں ناکامی",
+    "notificationsCleared": "نوٹیفکیشنز صاف کر دی گئیں",
+    "slotUnavailable": "یہ ٹائم سلاٹ اب دستیاب نہیں ہے",
     "staffRemoved": "عملے کا رکن کامیابی سے ہٹا دیا گیا",
-    "accountCreated": "اکاؤنٹ کامیابی سے بن گیا",
-    "welcomeBack": "خوش آمدید!"
+    "startChatFailed": "چیٹ شروع کرنے میں ناکامی"
   },
   "auth": {
     "continueWithGoogle": "گوگل سے جاری رکھیں",
@@ -245,6 +245,15 @@
     "staff": "عملہ مینجمنٹ",
     "settings": "ترتیبات",
     "notifications": "نوٹیفکیشنز",
+    "performance": "کارکردگی",
+    "reviews": "جائزے",
+    "opdQueue": "او پی ڈی قطار",
+    "requests": "درخواستیں",
+    "followUps": "فالو اپ",
+    "healthTimeline": "صحت ٹائم لائن",
+    "clinicAssistant": "کلینک معاون",
+    "doctorAssistant": "ڈاکٹر معاون",
+    "patientAssistant": "AI معاون",
     "signOut": "سائن آؤٹ"
   },
   "clinic": {
@@ -257,7 +266,10 @@
       "status": "حیثیت",
       "actions": "اقدامات",
       "noAppointments": "کوئی اپائنٹمنٹ نہیں ملی",
-      "viewAppointment": "اپائنٹمنٹ دیکھیں"
+      "viewAppointment": "اپائنٹمنٹ دیکھیں",
+      "createAppointment": "اپائنٹمنٹ بنائیں",
+      "loading": "اپائنٹمنٹ لوڈ ہو رہی ہیں...",
+      "showingForPatient": "{name} کی اپائنٹمنٹ دکھائی جا رہی ہیں"
     },
     "patients": {
       "title": "مریض",
@@ -301,6 +313,26 @@
         "title": "عملے کی معلومات تبدیل کریں",
         "updating": "اپ ڈیٹ ہو رہا ہے...",
         "submit": "تبدیلیاں محفوظ کریں"
+      },
+      "fields": {
+        "badgeNumber": "بیج نمبر",
+        "department": "شعبہ",
+        "deskNumber": "ڈیسک نمبر",
+        "labSection": "لیب سیکشن",
+        "licenseNumber": "لائسنس نمبر",
+        "officeLocation": "دفتر کا مقام",
+        "shiftTime": "شفٹ کا وقت",
+        "specialization": "تخصص"
+      },
+      "roles": {
+        "cleaner": "صفائی کارکن",
+        "doctor": "ڈاکٹر",
+        "lab-technician": "لیب ٹیکنیشن",
+        "nurse": "نرس",
+        "office-manager": "آفس منیجر",
+        "pharmacist": "فارماسسٹ",
+        "receptionist": "استقبالیہ اہلکار",
+        "security-guard": "سیکیورٹی گارڈ"
       }
     },
     "profile": {
@@ -351,7 +383,153 @@
       "consultationFee": "مشاورت فیس",
       "medicineCost": "ادویات کی قیمت",
       "total": "کل",
-      "earned": "حاصل شدہ"
+      "earned": "حاصل شدہ",
+      "cleared": "آمدنی کی تاریخ کامیابی سے صاف ہو گئی",
+      "empty": "کوئی آمدنی کا اندراج نہیں ملا",
+      "recordDeleted": "آمدنی کا ریکارڈ کامیابی سے حذف ہو گیا"
+    },
+    "stats": {
+      "activeSchedule": "فعال شیڈول",
+      "appointmentBreakdown": "اپائنٹمنٹ کی تفصیل",
+      "avgRating": "اوسط درجہ بندی",
+      "avgVisit": "اوسط {amount} روپے / دورہ",
+      "noAppointments": "کوئی اپائنٹمنٹ نہیں",
+      "noPatients": "ابھی تک کوئی مریض نہیں دیکھا گیا۔",
+      "patientsSeen": "دیکھے گئے مریض",
+      "recentPatients": "حالیہ مریض",
+      "returning": "{count} واپس آنے والے مریض",
+      "revenueTrend": "آمدنی کا رجحان (گزشتہ 7 دن)",
+      "title": "ڈاکٹر کے اعداد و شمار",
+      "totalAppointments": "کل اپائنٹمنٹ",
+      "totalRevenue": "کل آمدنی",
+      "viewAllPatients": "تمام مریض دیکھیں"
+    },
+    "period": {
+      "today": "آج",
+      "week": "اس ہفتے",
+      "month": "اس مہینے",
+      "quarter": "اس سہ ماہی",
+      "all": "تمام وقت"
+    },
+    "performance": {
+      "title": "کارکردگی لیڈر بورڈ",
+      "description": "اہم پیمانوں کی بنیاد پر اپنے ڈاکٹروں کی کارکردگی جانچیں اور موازنہ کریں۔",
+      "exportCSV": "CSV ایکسپورٹ کریں",
+      "noData": "اس مدت کے لیے کوئی کارکردگی ڈیٹا دستیاب نہیں۔",
+      "bestDoctor": "بہترین ڈاکٹر",
+      "score": "اسکور",
+      "avgClinicRating": "اوسط کلینک ریٹنگ",
+      "acrossAllDoctors": "تمام ڈاکٹروں کی اوسط",
+      "totalAppointments": "کل اپائنٹمنٹس",
+      "vsLastPeriod": "پچھلی مدت کے مقابلے",
+      "clinicRevenue": "کلینک آمدنی",
+      "podium": "نمایاں کارکردگی",
+      "rank": "درجہ",
+      "leaderboard": "مکمل لیڈر بورڈ",
+      "doctor": "ڈاکٹر",
+      "appointments": "اپائنٹمنٹس",
+      "completion": "تکمیل",
+      "rating": "ریٹنگ",
+      "onTime": "وقت کی پابندی",
+      "revenue": "آمدنی",
+      "actions": "اقدامات",
+      "viewDetails": "تفصیلات دیکھیں",
+      "drawer": {
+        "memberSince": "شمولیت کی تاریخ",
+        "flags": {
+          "title": "انتباہات",
+          "noIssues": "کوئی مسئلہ نہیں ملا۔ بہترین کارکردگی!",
+          "low_completion_rate": "کم شرحِ تکمیل",
+          "low_rating": "کم مریض ریٹنگ",
+          "high_noshow": "غیر حاضری کی زیادہ شرح",
+          "no_followups": "کوئی فالو اپ تفویض نہیں",
+          "late_starts": "اکثر تاخیر سے آغاز"
+        },
+        "signalBreakdown": "اسکور کی تفصیل",
+        "signals": {
+          "A": "شرحِ تکمیل",
+          "B": "مریض ریٹنگ",
+          "C": "وقت کی پابندی",
+          "D": "فالو اپ",
+          "E": "آمدنی میں حصہ"
+        },
+        "statCards": {
+          "completionRate": "شرحِ تکمیل",
+          "onTimeRate": "وقت کی پابندی",
+          "uniquePatients": "منفرد مریض",
+          "revenue": "آمدنی",
+          "avgPerVisit": "فی وزٹ اوسط",
+          "returning": "واپس آنے والے"
+        },
+        "segments": {
+          "completed": "مکمل"
+        },
+        "revenueChart": "آمدنی کا رجحان",
+        "recentReviews": "حالیہ جائزے",
+        "noComment": "کوئی تبصرہ نہیں دیا گیا"
+      }
+    },
+    "createAppointmentModal": {
+      "title": "نئی اپائنٹمنٹ",
+      "subtitle": "چند آسان مراحل میں اپائنٹمنٹ بک کریں۔",
+      "steps": {
+        "patient": "مریض",
+        "doctor": "ڈاکٹر",
+        "details": "تفصیلات"
+      },
+      "buttons": {
+        "back": "واپس",
+        "next": "آگے",
+        "create": "اپائنٹمنٹ بنائیں",
+        "creating": "بن رہی ہے..."
+      },
+      "patientStep": {
+        "title": "مریض منتخب کریں",
+        "searchPlaceholder": "نام یا فون نمبر سے تلاش کریں...",
+        "loading": "مریض تلاش کیے جا رہے ہیں...",
+        "notFound": "کوئی مریض نہیں ملا",
+        "addFirst": "پہلے نیا مریض رجسٹر کریں",
+        "selected": "منتخب: {name}",
+        "dob": "تاریخ پیدائش: {dob}"
+      },
+      "doctorStep": {
+        "title": "ڈاکٹر منتخب کریں",
+        "searchPlaceholder": "نام یا تخصص سے تلاش کریں...",
+        "loading": "ڈاکٹر لوڈ ہو رہے ہیں...",
+        "noDoctors": "کوئی ڈاکٹر نہیں ملا",
+        "onLeave": "چھٹی پر",
+        "selected": "منتخب: {name}",
+        "slotsCount": "آج {slots} سلاٹس دستیاب"
+      },
+      "detailsStep": {
+        "title": "اپائنٹمنٹ کی تفصیلات",
+        "dateLabel": "تاریخ",
+        "timeLabel": "وقت کا سلاٹ",
+        "typeLabel": "قسم",
+        "typeInPerson": "بالمشافہ",
+        "typeOnline": "آن لائن",
+        "typeFollowUp": "فالو اپ",
+        "notesLabel": "نوٹس",
+        "notesPlaceholder": "اس اپائنٹمنٹ کے لیے کوئی نوٹ شامل کریں (اختیاری)...",
+        "charLimit": "{count}/500",
+        "loadingSlots": "دستیاب سلاٹس لوڈ ہو رہے ہیں...",
+        "noSlots": "منتخب کردہ تاریخ کے لیے کوئی سلاٹ دستیاب نہیں۔",
+        "noSlotAvailableToday": "اس دن ڈاکٹر کا کوئی شیڈول نہیں ہے۔",
+        "doctorNotAvailableToday": "ڈاکٹر آج چھٹی پر ہیں۔",
+        "summary": {
+          "title": "خلاصہ",
+          "patient": "مریض",
+          "doctor": "ڈاکٹر",
+          "dateTime": "تاریخ اور وقت",
+          "type": "قسم"
+        }
+      },
+      "messages": {
+        "success": "اپائنٹمنٹ کامیابی سے بن گئی۔",
+        "error": "اپائنٹمنٹ بنانے میں ناکامی۔ دوبارہ کوشش کریں۔",
+        "conflict": "یہ وقت پہلے سے بک ہے۔ براہ کرم دوسرا منتخب کریں۔",
+        "fillRequired": "براہ کرم تمام مطلوبہ خانے پُر کریں۔"
+      }
     }
   },
   "patient": {
@@ -576,8 +754,13 @@
       "availability": {
         "tomorrow": "کل دستیاب ہے",
         "available": "{day} کو دستیاب ہے",
-        "check": "دستیابی چیک کریں"
-      }
+        "check": "دستیابی چیک کریں",
+        "onLeave": "چھٹی پر"
+      },
+      "doctorNotAvailableToday": "ڈاکٹر آج چھٹی پر ہیں۔ براہ کرم کوئی اور تاریخ منتخب کریں۔",
+      "extendedConsultationTitle": "طویل مشاورت (30 منٹ)",
+      "extendedConsultationDescription": "طویل دورے کے لیے دو مسلسل سلاٹس محفوظ کریں۔ مشاورتی فیس دگنی شرح سے وصول کی جائے گی۔",
+      "noSlotAvailableToday": "منتخب کردہ دن ڈاکٹر دستیاب نہیں ہیں۔"
     },
     "appointmentsThisWeek": "اس ہفتے کی اپائنٹمنٹ",
     "appointmentsThisMonth": "اس مہینے کی اپائنٹمنٹ",
@@ -598,7 +781,76 @@
     "followUps": {
       "title": "آنے والے فالو اپس",
       "noFollowUps": "کوئی آنے والا فالو اپ نہیں ہے",
-      "allClear": "فی الحال سب کچھ صاف ہے"
+      "allClear": "فی الحال سب کچھ صاف ہے",
+      "pageTitle": "فالو اپس",
+      "pageDesc": "اپنے آنے والے اور گزشتہ فالو اپ دوروں کو ایک ہی جگہ ٹریک کریں۔",
+      "followUpFor": "فالو اپ برائے",
+      "failedLoad": "فالو اپس لوڈ کرنے میں ناکامی",
+      "errorLoading": "آپ کے فالو اپس لوڈ کرتے وقت کچھ غلط ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔",
+      "retry": "دوبارہ کوشش کریں",
+      "tabs": {
+        "upcoming": "آنے والے",
+        "past": "گزشتہ",
+        "all": "تمام"
+      },
+      "empty": {
+        "upcomingTitle": "کوئی آنے والا فالو اپ نہیں",
+        "upcomingDesc": "آپ کا کوئی طے شدہ فالو اپ دورہ نہیں ہے۔ اپنی صحت کی نگہداشت جاری رکھنے کے لیے اپائنٹمنٹ بک کریں۔",
+        "pastTitle": "کوئی گزشتہ فالو اپ نہیں",
+        "pastDesc": "آپ کے مکمل شدہ اور واجب الادا فالو اپس یہاں دکھائی دیں گے۔",
+        "allTitle": "ابھی تک کوئی فالو اپ نہیں",
+        "allDesc": "آپ کے پاس ابھی تک کوئی فالو اپ نہیں ہے۔ شروع کرنے کے لیے اپائنٹمنٹ بک کریں۔"
+      },
+      "card": {
+        "completed": "مکمل",
+        "overdue": "واجب الادا",
+        "dueToday": "آج واجب",
+        "dueInDay": "{days} دن میں واجب",
+        "dueInDays": "{days} دنوں میں واجب",
+        "dueDateLabel": "واجب الادا تاریخ",
+        "linkedAppointment": "منسلک اپائنٹمنٹ",
+        "linkedAppointmentTitle": "منسلک اپائنٹمنٹ کی تفصیلات",
+        "viewAppointmentDetails": "تفصیلات دیکھیں",
+        "instructions": "ہدایات",
+        "markAsDone": "مکمل کے طور پر نشان زد کریں",
+        "bookAppointment": "اپائنٹمنٹ بک کریں",
+        "originalDoctor": "اصل ڈاکٹر",
+        "originalNotes": "اصل نوٹس",
+        "clinic": "کلینک",
+        "visitType": "دورے کی قسم",
+        "visitOn": "{date} کو دورہ",
+        "reasonForVisit": "دورے کی وجہ",
+        "viewPrescription": "نسخہ دیکھیں"
+      }
+    },
+    "settings": {
+      "title": "ترتیبات",
+      "subtitle": "اپنی کنکشن درخواستوں اور اکاؤنٹ کی ترجیحات کا انتظام کریں۔",
+      "connectionRequests": "کنکشن درخواستیں",
+      "connectionFrom": "کنکشن درخواست",
+      "doctorRequest": "ڈاکٹر کی کنکشن درخواست",
+      "clinicRequest": "کلینک کی کنکشن درخواست",
+      "approve": "منظور کریں",
+      "reject": "مسترد کریں",
+      "noRequests": "کوئی زیر التوا کنکشن درخواست نہیں ہے۔",
+      "profileShortcut": "پروفائل",
+      "profileShortcutDesc": "اپنے پروفائل صفحے سے اپنی ذاتی تفصیلات، طبی معلومات اور پاس ورڈ اپ ڈیٹ کریں۔",
+      "openProfile": "پروفائل کھولیں"
+    },
+    "spentHistory": {
+      "title": "کل اخراجات کی تاریخ",
+      "subtitle": "اپائنٹمنٹس اور نسخوں پر اپنے سابقہ اخراجات دیکھیں۔",
+      "totalSpent": "کل اخراجات",
+      "table": {
+        "date": "تاریخ",
+        "doctor": "ڈاکٹر",
+        "clinic": "کلینک",
+        "type": "قسم",
+        "amount": "رقم",
+        "noData": "کوئی اخراجات کا ریکارڈ نہیں ملا۔",
+        "unknownDoctor": "نامعلوم ڈاکٹر",
+        "privateClinic": "پرائیویٹ کلینک"
+      }
     }
   },
   "doctor": {
@@ -697,7 +949,10 @@
       "billingConsultation": "بلنگ اور مشاورت",
       "consultationFee": "مشاورت فیس",
       "medicineCost": "ادویات کی قیمت (اختیاری)",
-      "totalBilling": "کل بل"
+      "totalBilling": "کل بل",
+      "table": {
+        "medicines": "ادویات"
+      }
     },
     "appointments": {
       "title": "اپائنٹمنٹ",
@@ -806,7 +1061,8 @@
     "timeLabel": "وقت",
     "analytics": {
       "patientFlow": "مریضوں کا بہاؤ"
-    }
+    },
+    "followUp": "فالو اپ"
   },
   "notifications": {
     "notification": {
@@ -818,10 +1074,252 @@
         "title": "ریویو اپ ڈیٹ ہو گیا",
         "body": "{patientName} نے اپنا ریویو {rating} ستاروں تک اپ ڈیٹ کر دیا ہے۔"
       }
-    }
+    },
+    "connectionRequest": {
+      "title": "نئی کنکشن درخواست",
+      "body": "{clinicName} آپ کو اپنے کلینک میں شامل کرنا چاہتا ہے۔"
+    },
+    "doctorAddedToClinic": {
+      "title": "کلینک میں شامل کر دیا گیا",
+      "body": "آپ کو {clinicName} میں شامل کر دیا گیا ہے۔"
+    },
+    "doctorLeft": {
+      "title": "ڈاکٹر نے کلینک چھوڑ دیا",
+      "body": "ڈاکٹر {doctorName} نے آپ کا کلینک چھوڑ دیا ہے۔"
+    },
+    "appointmentCancelled": {
+      "title": "اپائنٹمنٹ منسوخ",
+      "body": "ڈاکٹر {doctorName} کے ساتھ {date} کو آپ کی اپائنٹمنٹ منسوخ کر دی گئی ہے۔"
+    },
+    "requestAccepted": {
+      "title": "درخواست قبول کر لی گئی",
+      "body": "ڈاکٹر {doctorName} نے آپ کی کنکشن درخواست قبول کر لی ہے۔"
+    },
+    "requestDeclined": {
+      "title": "درخواست مسترد کر دی گئی",
+      "body": "ڈاکٹر {doctorName} نے آپ کی کنکشن درخواست مسترد کر دی ہے۔"
+    },
+    "clinic_review_response_title": "آپ کے جائزے کا جواب",
+    "clinic_review_response_body": "{clinicName} نے آپ کے جائزے کا جواب دیا ہے۔",
+    "review_removed_title": "جائزہ ہٹا دیا گیا",
+    "review_removed_body": "{clinicName} کے لیے آپ کا جائزہ ہٹا دیا گیا ہے۔",
+    "new_clinic_review_title": "نیا جائزہ موصول ہوا",
+    "new_clinic_review_body": "{patientName} نے {rating} ستارہ جائزہ دیا۔",
+    "review_flagged_title": "جائزہ فلیگ کر دیا گیا",
+    "review_flagged_body": "ایک جائزے کو {count} بار فلیگ کیا گیا ہے۔",
+    "appointmentTomorrow": "کل اپائنٹمنٹ ہے",
+    "appointmentTomorrowBody": "آپ کی ڈاکٹر {doctorName} کے ساتھ {clinicName} میں {time} پر اپائنٹمنٹ ہے۔",
+    "appointmentSoon": "آنے والی اپائنٹمنٹ",
+    "appointmentSoonBody": "ڈاکٹر {doctorName} کے ساتھ {clinicName} میں آپ کی اپائنٹمنٹ {time} پر ہے۔",
+    "doctorApptTomorrow": "کل اپائنٹمنٹ ہے",
+    "doctorApptTomorrowBody": "آپ کی {patientName} کے ساتھ {clinicName} میں {time} پر اپائنٹمنٹ ہے۔",
+    "doctorApptSoon": "آنے والی اپائنٹمنٹ",
+    "doctorApptSoonBody": "{patientName} کے ساتھ {clinicName} میں آپ کی اپائنٹمنٹ {time} پر ہے۔"
   },
-  "toast": {
-    "familyUpdated": "خاندان کے فرد کی معلومات اپ ڈیٹ ہو گئیں",
-    "scheduleSaved": "شیڈول کامیابی سے محفوظ ہو گیا"
+  "assistant": {
+    "analyzing": "تجزیہ ہو رہا ہے...",
+    "askClinic": "کلینک آپریشنز کے بارے میں پوچھیں...",
+    "askDoctor": "اپنے کلینیکل کو پائلٹ سے پوچھیں...",
+    "askPatient": "اپنی صحت کے بارے میں پوچھیں...",
+    "chips": {
+      "appointments": "اپائنٹمنٹس",
+      "clinicSummary": "کلینک کا خلاصہ",
+      "doctorWorkload": "ڈاکٹرز کا بوجھ",
+      "draftPrescription": "نسخہ تیار کریں",
+      "familyHealth": "خاندانی صحت",
+      "followUpAlerts": "فالو اپ الرٹس",
+      "followUps": "فالو اپس",
+      "healthTimeline": "صحت کی ٹائم لائن",
+      "medicines": "ادویات",
+      "opdQueue": "او پی ڈی قطار",
+      "revenueAnalytics": "آمدنی کا تجزیہ",
+      "summarizePatient": "مریض کا خلاصہ",
+      "todaysLoad": "آج کا بوجھ"
+    },
+    "clinicAnalyst": "کلینک آپریشنز تجزیہ کار",
+    "clinicDesc": "مجھ سے اپنی او پی ڈی قطار، ڈاکٹرز کے بوجھ، آمدنی اور روزمرہ آپریشنز کے بارے میں پوچھیں۔",
+    "clinicTitle": "کلینک آپس اسسٹنٹ",
+    "copilotThinking": "کو پائلٹ سوچ رہا ہے...",
+    "dictateTitle": "بول کر لکھوائیں",
+    "doctorCopilot": "ڈاکٹر کو پائلٹ",
+    "doctorDesc": "مخصوص مدد کے لیے مریض منتخب کریں، یا اپنے شیڈول، نسخوں اور فالو اپس کے بارے میں پوچھیں۔",
+    "doctorTitle": "ڈاکٹر کو پائلٹ",
+    "globalContext": "عمومی تناظر (تمام مریض)",
+    "listenTitle": "بولیں",
+    "live": "لائیو: ",
+    "noPhone": "فون نمبر نہیں",
+    "patientDesc": "مجھ سے اپنی اپائنٹمنٹس، ادویات، فالو اپس اور صحت کے ریکارڈ کے بارے میں پوچھیں۔",
+    "patientFocus": "مریض فوکس موڈ",
+    "patientHelp": "میں آپ کی کیا مدد کر سکتا ہوں؟",
+    "patientTitle": "ہیلتھ اسسٹنٹ",
+    "queries": {
+      "appointments": "میری آنے والی اپائنٹمنٹس کون سی ہیں؟",
+      "clinicSummary": "مجھے آج کے کلینک آپریشنز کا خلاصہ دیں۔",
+      "doctorWorkload": "مجھے ہر ڈاکٹر کا موجودہ بوجھ دکھائیں۔",
+      "draftPrescription": "اس مریض کے لیے نسخہ تیار کرنے میں میری مدد کریں۔",
+      "familyHealth": "مجھے اپنے خاندان کی صحت کا مجموعی جائزہ دکھائیں۔",
+      "followUpAlerts": "کن مریضوں کو فالو اپ الرٹس کی ضرورت ہے؟",
+      "followUps": "کیا میری کوئی آنے والی فالو اپ ہے؟",
+      "healthTimeline": "مجھے میری صحت کی ٹائم لائن دکھائیں۔",
+      "medicines": "میری موجودہ ادویات کون سی ہیں؟",
+      "opdQueue": "اس وقت او پی ڈی قطار کی صورتحال کیا ہے؟",
+      "revenueAnalytics": "مجھے آج کی آمدنی کا تجزیہ دکھائیں۔",
+      "summarizePatient": "اس مریض کی طبی تاریخ کا خلاصہ بتائیں۔",
+      "todaysLoad": "آج میرا شیڈول کیسا ہے؟"
+    },
+    "thinking": "سوچ رہا ہے...",
+    "voiceOff": "آواز بند",
+    "voiceOn": "آواز آن",
+    "voiceTitle": "آواز کے جوابات آن/آف کریں"
+  },
+  "opdQueue": {
+    "actions": "اعمال",
+    "allTokens": "تمام ٹوکن",
+    "assignedDoctor": "تفویض کردہ ڈاکٹر",
+    "assignedTo": "تفویض کردہ بنام",
+    "call": "بلائیں",
+    "callNextToken": "اگلا ٹوکن بلائیں",
+    "called": "بلایا گیا",
+    "chooseDoctor": "ڈاکٹر منتخب کریں",
+    "complete": "مکمل کریں",
+    "completed": "مکمل",
+    "issueToken": "ٹوکن جاری کریں",
+    "issueTokenBtn": "ٹوکن جاری کریں",
+    "issuedAt": "جاری کرنے کا وقت",
+    "issuingToken": "جاری ہو رہا ہے...",
+    "launchDisplay": "ڈسپلے کھولیں",
+    "loadingQueue": "قطار لوڈ ہو رہی ہے...",
+    "noTokensFound": "کوئی ٹوکن نہیں ملا",
+    "noTokensMatching": "اس فلٹر سے مماثل ابھی کوئی ٹوکن نہیں ہے۔",
+    "patientName": "مریض کا نام",
+    "queueManagement": "قطار کا انتظام",
+    "queueSubtitle": "حقیقی وقت میں ٹوکن بلائیں، مکمل کریں یا چھوڑیں",
+    "recall": "دوبارہ بلائیں",
+    "selectDoctor": "ڈاکٹر منتخب کریں",
+    "selectDoctorErr": "براہ کرم ڈاکٹر منتخب کریں",
+    "skip": "چھوڑیں",
+    "skipped": "چھوڑ دیا گیا",
+    "status": "حالت",
+    "subtitle": "آج کی او پی ڈی ٹوکن قطار کا انتظام کریں",
+    "title": "او پی ڈی قطار",
+    "todayQueueAnalytics": "آج کی قطار کے اعداد و شمار",
+    "tokenHash": "ٹوکن #",
+    "tokenIssuedSuccess": "ٹوکن کامیابی سے جاری ہو گیا",
+    "totalIssued": "کل جاری شدہ",
+    "waiting": "انتظار میں",
+    "waitingTvLink": "ٹی وی لنک کاپی کریں"
+  },
+  "connectionRequests": {
+    "accept": "قبول کریں",
+    "acceptedStatus": "قبول شدہ",
+    "decline": "مسترد کریں",
+    "declinedStatus": "مسترد شدہ",
+    "pendingStatus": "زیر التوا",
+    "inClinic": "کلینک میں شامل",
+    "noAddress": "کوئی پتہ فراہم نہیں کیا گیا",
+    "noReps": "آپ کے پاس کوئی {status} کلینک درخواست نہیں ہے۔",
+    "noRequests": "کوئی {status} درخواست نہیں",
+    "pendingLabel": "زیر التوا ({count})",
+    "responded": "جواب دیا گیا",
+    "searchHelp": "جب کوئی کلینک آپ کو کنکشن کی درخواست بھیجے گا تو وہ یہاں ظاہر ہوگی۔",
+    "sent": "بھیجا گیا",
+    "subtitle": "کلینک کنکشن کی درخواستوں کا انتظام کریں",
+    "title": "کنکشن کی درخواستیں",
+    "wantsToAdd": "آپ کو اپنے کلینک میں شامل کرنا چاہتا ہے",
+    "youAccepted": "آپ نے یہ درخواست قبول کی",
+    "youDeclined": "آپ نے یہ درخواست مسترد کی"
+  },
+  "leaveClinic": {
+    "button": "کلینک چھوڑیں",
+    "consequence1": "آپ کا شیڈول مکمل طور پر ری سیٹ ہو جائے گا",
+    "consequence2": "اس کلینک میں آپ کی تمام آئندہ اپائنٹمنٹس منسوخ ہو جائیں گی",
+    "consequence3": "مریضوں کو خودکار طور پر مطلع کر دیا جائے گا",
+    "leaving": "چھوڑا جا رہا ہے...",
+    "title": "{clinicName} چھوڑیں؟",
+    "typeToConfirm": "تصدیق کے لیے اپنا نام لکھیں:",
+    "warning": "اسے واپس نہیں کیا جا سکتا۔ دوبارہ شامل ہونے کے لیے آپ کو نئی دعوت درکار ہوگی۔"
+  },
+  "family": {
+    "noMembers": "ابھی تک کوئی فیملی ممبر نہیں",
+    "addFirstMember": "ان کے طبی ریکارڈز کا انتظام کرنے کے لیے اپنا پہلا فیملی ممبر شامل کریں۔"
+  },
+  "patients": {
+    "addPatient": "مریض شامل کریں"
+  },
+  "clinicAdminReviews": {
+    "activeFlags": "فعال فلیگز",
+    "activeOnly": "صرف فعال",
+    "allReviews": "تمام جائزے",
+    "averageRating": "اوسط درجہ بندی",
+    "basedOn": "{count} جائزوں پر مبنی",
+    "categoryAverages": "زمروں کی اوسط",
+    "confirmedVisits": "تصدیق شدہ دورے",
+    "description": "اپنے کلینک کے مریضوں کے جائزوں کی نگرانی کریں، جواب دیں اور ان کا جائزہ لیں۔",
+    "dismissFlag": "فلیگ مسترد کریں",
+    "editResponse": "جواب میں ترمیم کریں",
+    "exportCsv": "CSV برآمد کریں",
+    "filters": "فلٹرز",
+    "flaggedForReview": "جائزے کے لیے فلیگ کیا گیا",
+    "flaggedOnly": "صرف فلیگ شدہ",
+    "hiddenOnly": "صرف پوشیدہ",
+    "hideReview": "جائزہ چھپائیں",
+    "highestRated": "سب سے زیادہ درجہ بند",
+    "lowestRated": "سب سے کم درجہ بند",
+    "mostRecent": "تازہ ترین",
+    "noReviewsDesc": "منتخب کردہ فلٹرز سے مماثل ابھی کوئی جائزہ موجود نہیں ہے۔",
+    "noReviewsFound": "کوئی جائزہ نہیں ملا",
+    "patientInteractions": "مریضوں سے روابط",
+    "reason": "وجہ:",
+    "reportedOn": "{date} کو رپورٹ کیا گیا",
+    "requiresReview": "جائزے کی ضرورت ہے",
+    "respond": "جواب دیں",
+    "responseRate": "جواب کی شرح",
+    "sortBy": "ترتیب دیں",
+    "status": "حیثیت",
+    "submitResponse": "جواب جمع کریں",
+    "title": "جائزے اور نگرانی",
+    "unhideReview": "جائزہ ظاہر کریں",
+    "verifiedVisitBadge": "تصدیق شدہ دورہ",
+    "verifiedVisitsPercent": "تصدیق شدہ دورے",
+    "writeResponse": "اپنا جواب لکھیں...",
+    "yourResponse": "آپ کا جواب"
+  },
+  "reviews": {
+    "add": "شامل کریں",
+    "addPhotos": "تصاویر شامل کریں (زیادہ سے زیادہ 3)",
+    "categories": {
+      "cleanliness": "صفائی",
+      "waitTime": "انتظار کا وقت",
+      "frontDesk": "استقبالیہ",
+      "facility": "سہولت",
+      "accessibility": "رسائی",
+      "valueForMoney": "قیمت کے مطابق معیار"
+    },
+    "commentPlaceholder": "اپنے تجربے کی تفصیلات شیئر کریں...",
+    "confirmDelete": "کیا آپ واقعی یہ جائزہ حذف کرنا چاہتے ہیں؟",
+    "editWindow": "اس جائزے میں ترمیم کی مدت ختم ہو چکی ہے۔",
+    "flagReasons": {
+      "fake": "جعلی جائزہ (کبھی دورہ نہیں کیا / بدنیتی پر مبنی)",
+      "offensive": "توہین آمیز یا نامناسب مواد",
+      "spam": "اسپام یا تشہیری مواد",
+      "other": "دیگر / عمومی خلاف ورزی"
+    },
+    "maxPhotosError": "زیادہ سے زیادہ 3 تصاویر کی اجازت ہے",
+    "overall": "مجموعی",
+    "pasteUrl": "تصویر کا URL پیسٹ کریں...",
+    "patientPreview": "مریض کا پیش نظارہ",
+    "preview": "پیش نظارہ",
+    "rateClinic": "کلینک کی درجہ بندی کریں",
+    "reviewLanguage": "جائزے کی زبان",
+    "step": "مرحلہ {step} از {total}",
+    "submitReview": "جائزہ جمع کریں",
+    "submitSuccess": "جائزہ کامیابی سے جمع ہو گیا",
+    "submitting": "جمع ہو رہا ہے...",
+    "titlePlaceholder": "اپنے تجربے کا خلاصہ لکھیں...",
+    "verifiedVisit": "تصدیق شدہ دورہ",
+    "viewClinicReview": "کلینک کا جائزہ دیکھیں",
+    "writeReview": "جائزہ لکھیں",
+    "yourExperience": "{clinic} میں آپ کا تجربہ کیسا رہا؟",
+    "yourReview": "آپ کا کلینک جائزہ"
   }
 }

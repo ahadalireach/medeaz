@@ -7,12 +7,14 @@
       "accepted": "Accepted",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "in-progress": "In Progress"
+      "in-progress": "In Progress",
+      "no-show": "No Show"
     },
     "clinic": "Clinic",
     "noAppointments": "No appointments found",
     "noUpcoming": "No upcoming appointments",
-    "noPast": "No past appointments"
+    "noPast": "No past appointments",
+    "doctor": "Doctor"
   },
   "common": {
     "back": "Back",
@@ -81,8 +83,10 @@
       "accepted": "Accepted",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "in-progress": "In Progress"
-    }
+      "in-progress": "In Progress",
+      "no-show": "No Show"
+    },
+    "confirm": "Confirm"
   },
   "schedule": {
     "monday": "Monday",
@@ -110,7 +114,10 @@
     "profilePhoto": "Profile Photo",
     "changePhoto": "Change Photo",
     "date": "Date",
-    "time": "Time"
+    "time": "Time",
+    "comment": "Comment",
+    "licenseNo": "License No.",
+    "title": "Title"
   },
   "modal": {
     "confirmDelete": "Confirm Delete",
@@ -122,28 +129,21 @@
     "removePatientTitle": "Remove Patient"
   },
   "toast": {
-    "logoutSuccess": "Logged out successfully",
-    "appointmentDeleted": "Appointment deleted successfully",
-    "success": "Operation successful",
-    "prescriptionSaved": "Prescription saved successfully",
-    "notificationMarkFailed": "Failed to mark notification as read",
-    "settingsSaved": "Settings saved successfully",
-    "patientAdded": "Patient added successfully",
-    "patientRemoved": "Patient removed successfully",
+    "familyUpdated": "Family member updated",
     "scheduleSaved": "Schedule saved successfully",
     "appointmentBooked": "Appointment booked successfully",
-    "appointmentCancelled": "Appointment cancelled successfully",
-    "slotUnavailable": "This time slot is no longer available",
-    "familyAdded": "Family member added successfully",
-    "familyRemoved": "Family member removed successfully",
-    "profileUpdated": "Profile updated successfully",
-    "passwordChanged": "Password changed successfully",
-    "doctorAdded": "Doctor added successfully",
+    "connectionRequestApproved": "Connection request approved",
+    "connectionRequestFailed": "Failed to process connection request",
+    "connectionRequestRejected": "Connection request rejected",
     "doctorRemoved": "Doctor removed successfully",
-    "staffCreated": "Staff member added successfully",
+    "error": "Something went wrong",
+    "logoutSuccess": "Logged out successfully",
+    "notificationMarkFailed": "Failed to mark notification as read",
+    "notificationsClearFailed": "Failed to clear notifications",
+    "notificationsCleared": "Notifications cleared",
+    "slotUnavailable": "This time slot is no longer available",
     "staffRemoved": "Staff member removed successfully",
-    "accountCreated": "Account created successfully",
-    "welcomeBack": "Welcome back!"
+    "startChatFailed": "Failed to start chat"
   },
   "auth": {
     "continueWithGoogle": "Continue with Google",
@@ -246,6 +246,15 @@
     "staff": "Staff Management",
     "settings": "Settings",
     "notifications": "Notifications",
+    "performance": "Performance",
+    "reviews": "Reviews",
+    "opdQueue": "OPD Queue",
+    "requests": "Requests",
+    "followUps": "Follow-ups",
+    "healthTimeline": "Health Timeline",
+    "clinicAssistant": "Clinic Assistant",
+    "doctorAssistant": "Doctor Assistant",
+    "patientAssistant": "AI Assistant",
     "signOut": "Sign Out"
   },
   "clinic": {
@@ -258,7 +267,10 @@
       "status": "Status",
       "actions": "Actions",
       "noAppointments": "No appointments found",
-      "viewAppointment": "View Appointment"
+      "viewAppointment": "View Appointment",
+      "createAppointment": "Create Appointment",
+      "loading": "Loading appointments...",
+      "showingForPatient": "Showing appointments for {name}"
     },
     "patients": {
       "title": "Patients",
@@ -303,6 +315,26 @@
         "title": "Edit Staff Member",
         "updating": "Updating...",
         "submit": "Save Changes"
+      },
+      "fields": {
+        "badgeNumber": "Badge Number",
+        "department": "Department",
+        "deskNumber": "Desk Number",
+        "labSection": "Lab Section",
+        "licenseNumber": "License Number",
+        "officeLocation": "Office Location",
+        "shiftTime": "Shift Time",
+        "specialization": "Specialization"
+      },
+      "roles": {
+        "cleaner": "Cleaner",
+        "doctor": "Doctor",
+        "lab-technician": "Lab Technician",
+        "nurse": "Nurse",
+        "office-manager": "Office Manager",
+        "pharmacist": "Pharmacist",
+        "receptionist": "Receptionist",
+        "security-guard": "Security Guard"
       }
     },
     "profile": {
@@ -353,7 +385,153 @@
       "consultationFee": "Consultation Fee",
       "medicineCost": "Medicine Cost",
       "total": "Total",
-      "earned": "Earned"
+      "earned": "Earned",
+      "cleared": "Revenue history cleared successfully",
+      "empty": "No revenue records found",
+      "recordDeleted": "Revenue record deleted successfully"
+    },
+    "stats": {
+      "activeSchedule": "Active Schedule",
+      "appointmentBreakdown": "Appointment Breakdown",
+      "avgRating": "Avg Rating",
+      "avgVisit": "Avg PKR {amount} / visit",
+      "noAppointments": "No Appointments",
+      "noPatients": "No patients seen yet.",
+      "patientsSeen": "Patients Seen",
+      "recentPatients": "Recent Patients",
+      "returning": "{count} returning patients",
+      "revenueTrend": "Revenue Trend (Last 7 Days)",
+      "title": "Doctor Stats",
+      "totalAppointments": "Total Appointments",
+      "totalRevenue": "Total Revenue",
+      "viewAllPatients": "View All Patients"
+    },
+    "period": {
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "quarter": "This Quarter",
+      "all": "All Time"
+    },
+    "performance": {
+      "title": "Performance Leaderboard",
+      "description": "Track and compare your doctors' performance across key metrics.",
+      "exportCSV": "Export CSV",
+      "noData": "No performance data available for this period.",
+      "bestDoctor": "Top Doctor",
+      "score": "Score",
+      "avgClinicRating": "Avg Clinic Rating",
+      "acrossAllDoctors": "Across all doctors",
+      "totalAppointments": "Total Appointments",
+      "vsLastPeriod": "vs last period",
+      "clinicRevenue": "Clinic Revenue",
+      "podium": "Top Performers",
+      "rank": "Rank",
+      "leaderboard": "Full Leaderboard",
+      "doctor": "Doctor",
+      "appointments": "Appointments",
+      "completion": "Completion",
+      "rating": "Rating",
+      "onTime": "On-Time",
+      "revenue": "Revenue",
+      "actions": "Actions",
+      "viewDetails": "View Details",
+      "drawer": {
+        "memberSince": "Member since",
+        "flags": {
+          "title": "Alerts",
+          "noIssues": "No issues detected. Great work!",
+          "low_completion_rate": "Low completion rate",
+          "low_rating": "Low patient rating",
+          "high_noshow": "High no-show rate",
+          "no_followups": "No follow-ups assigned",
+          "late_starts": "Frequent late starts"
+        },
+        "signalBreakdown": "Score Breakdown",
+        "signals": {
+          "A": "Completion Rate",
+          "B": "Patient Rating",
+          "C": "On-Time Rate",
+          "D": "Follow-Ups",
+          "E": "Revenue Contribution"
+        },
+        "statCards": {
+          "completionRate": "Completion Rate",
+          "onTimeRate": "On-Time Rate",
+          "uniquePatients": "Unique Patients",
+          "revenue": "Revenue",
+          "avgPerVisit": "Avg per visit",
+          "returning": "Returning"
+        },
+        "segments": {
+          "completed": "Completed"
+        },
+        "revenueChart": "Revenue Trend",
+        "recentReviews": "Recent Reviews",
+        "noComment": "No comment provided"
+      }
+    },
+    "createAppointmentModal": {
+      "title": "New Appointment",
+      "subtitle": "Book an appointment in a few simple steps.",
+      "steps": {
+        "patient": "Patient",
+        "doctor": "Doctor",
+        "details": "Details"
+      },
+      "buttons": {
+        "back": "Back",
+        "next": "Next",
+        "create": "Create Appointment",
+        "creating": "Creating..."
+      },
+      "patientStep": {
+        "title": "Select Patient",
+        "searchPlaceholder": "Search by name or phone number...",
+        "loading": "Searching patients...",
+        "notFound": "No patients found",
+        "addFirst": "Register a new patient first",
+        "selected": "Selected: {name}",
+        "dob": "Date of birth: {dob}"
+      },
+      "doctorStep": {
+        "title": "Select Doctor",
+        "searchPlaceholder": "Search by name or specialization...",
+        "loading": "Loading doctors...",
+        "noDoctors": "No doctors found",
+        "onLeave": "On Leave",
+        "selected": "Selected: {name}",
+        "slotsCount": "{slots} slots available today"
+      },
+      "detailsStep": {
+        "title": "Appointment Details",
+        "dateLabel": "Date",
+        "timeLabel": "Time Slot",
+        "typeLabel": "Type",
+        "typeInPerson": "In-Person",
+        "typeOnline": "Online",
+        "typeFollowUp": "Follow-Up",
+        "notesLabel": "Notes",
+        "notesPlaceholder": "Add any notes for this appointment (optional)...",
+        "charLimit": "{count}/500",
+        "loadingSlots": "Loading available slots...",
+        "noSlots": "No slots available for the selected date.",
+        "noSlotAvailableToday": "The doctor is not scheduled on this day.",
+        "doctorNotAvailableToday": "The doctor is on leave today.",
+        "summary": {
+          "title": "Summary",
+          "patient": "Patient",
+          "doctor": "Doctor",
+          "dateTime": "Date & Time",
+          "type": "Type"
+        }
+      },
+      "messages": {
+        "success": "Appointment created successfully.",
+        "error": "Failed to create appointment. Please try again.",
+        "conflict": "This time slot is already booked. Please choose another.",
+        "fillRequired": "Please fill in all required fields."
+      }
     }
   },
   "patient": {
@@ -576,8 +754,13 @@
       "availability": {
         "tomorrow": "Available tomorrow",
         "available": "Available on {day}",
-        "check": "Check Availability"
-      }
+        "check": "Check Availability",
+        "onLeave": "On Leave"
+      },
+      "doctorNotAvailableToday": "The doctor is on leave today. Please choose another date.",
+      "extendedConsultationTitle": "Extended Consultation (30 min)",
+      "extendedConsultationDescription": "Reserve two back-to-back slots for a longer visit. The consultation fee is charged at the double rate.",
+      "noSlotAvailableToday": "The doctor is not available on the selected day."
     },
     "appointmentsThisWeek": "Appointments this week",
     "appointmentsThisMonth": "Appointments this month",
@@ -598,7 +781,76 @@
     "followUps": {
       "title": "Upcoming Follow-ups",
       "noFollowUps": "No upcoming follow-ups",
-      "allClear": "Everything is clear for now"
+      "allClear": "Everything is clear for now",
+      "pageTitle": "Follow-ups",
+      "pageDesc": "Track your upcoming and past follow-up visits in one place.",
+      "followUpFor": "Follow-up for",
+      "failedLoad": "Failed to load follow-ups",
+      "errorLoading": "Something went wrong while loading your follow-ups. Please try again.",
+      "retry": "Try Again",
+      "tabs": {
+        "upcoming": "Upcoming",
+        "past": "Past",
+        "all": "All"
+      },
+      "empty": {
+        "upcomingTitle": "No Upcoming Follow-ups",
+        "upcomingDesc": "You have no scheduled follow-up visits. Book an appointment to stay on top of your care.",
+        "pastTitle": "No Past Follow-ups",
+        "pastDesc": "Your completed and overdue follow-ups will appear here.",
+        "allTitle": "No Follow-ups Yet",
+        "allDesc": "You don't have any follow-ups yet. Book an appointment to get started."
+      },
+      "card": {
+        "completed": "Completed",
+        "overdue": "Overdue",
+        "dueToday": "Due Today",
+        "dueInDay": "Due in {days} day",
+        "dueInDays": "Due in {days} days",
+        "dueDateLabel": "Due Date",
+        "linkedAppointment": "Linked Appointment",
+        "linkedAppointmentTitle": "Linked Appointment Details",
+        "viewAppointmentDetails": "View Details",
+        "instructions": "Instructions",
+        "markAsDone": "Mark as Done",
+        "bookAppointment": "Book Appointment",
+        "originalDoctor": "Original Doctor",
+        "originalNotes": "Original Notes",
+        "clinic": "Clinic",
+        "visitType": "Visit Type",
+        "visitOn": "Visit on {date}",
+        "reasonForVisit": "Reason for Visit",
+        "viewPrescription": "View Prescription"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Manage your connection requests and account preferences.",
+      "connectionRequests": "Connection Requests",
+      "connectionFrom": "Connection Request",
+      "doctorRequest": "Doctor connection request",
+      "clinicRequest": "Clinic connection request",
+      "approve": "Approve",
+      "reject": "Reject",
+      "noRequests": "No pending connection requests.",
+      "profileShortcut": "Profile",
+      "profileShortcutDesc": "Update your personal details, medical information, and password from your profile page.",
+      "openProfile": "Open Profile"
+    },
+    "spentHistory": {
+      "title": "Total Spent History",
+      "subtitle": "View your historical spending on appointments and prescriptions.",
+      "totalSpent": "Total Spent",
+      "table": {
+        "date": "Date",
+        "doctor": "Doctor",
+        "clinic": "Clinic",
+        "type": "Type",
+        "amount": "Amount",
+        "noData": "No spending records found.",
+        "unknownDoctor": "Unknown Doctor",
+        "privateClinic": "Private Clinic"
+      }
     }
   },
   "doctor": {
@@ -697,7 +949,10 @@
       "billingConsultation": "Billing & Consultation",
       "consultationFee": "Consultation Fee",
       "medicineCost": "Medicine Cost (Optional)",
-      "totalBilling": "Total Billing"
+      "totalBilling": "Total Billing",
+      "table": {
+        "medicines": "Medicines"
+      }
     },
     "appointments": {
       "title": "Appointments",
@@ -806,7 +1061,8 @@
     "timeLabel": "Time",
     "analytics": {
       "patientFlow": "Patient Flow"
-    }
+    },
+    "followUp": "Follow-up"
   },
   "notifications": {
     "notification": {
@@ -818,10 +1074,252 @@
         "title": "Review Updated",
         "body": "{patientName} has updated their review to {rating} stars."
       }
-    }
+    },
+    "connectionRequest": {
+      "title": "New Connection Request",
+      "body": "{clinicName} wants to add you to their clinic."
+    },
+    "doctorAddedToClinic": {
+      "title": "Added to Clinic",
+      "body": "You have been added to {clinicName}."
+    },
+    "doctorLeft": {
+      "title": "Doctor Left Clinic",
+      "body": "Dr. {doctorName} has left your clinic."
+    },
+    "appointmentCancelled": {
+      "title": "Appointment Cancelled",
+      "body": "Your appointment with Dr. {doctorName} on {date} has been cancelled."
+    },
+    "requestAccepted": {
+      "title": "Request Accepted",
+      "body": "Dr. {doctorName} has accepted your connection request."
+    },
+    "requestDeclined": {
+      "title": "Request Declined",
+      "body": "Dr. {doctorName} has declined your connection request."
+    },
+    "clinic_review_response_title": "Response to Your Review",
+    "clinic_review_response_body": "{clinicName} has responded to your review.",
+    "review_removed_title": "Review Removed",
+    "review_removed_body": "Your review for {clinicName} has been removed.",
+    "new_clinic_review_title": "New Review Received",
+    "new_clinic_review_body": "{patientName} left a {rating}-star review.",
+    "review_flagged_title": "Review Flagged",
+    "review_flagged_body": "A review has been flagged {count} time(s).",
+    "appointmentTomorrow": "Appointment Tomorrow",
+    "appointmentTomorrowBody": "You have an appointment with Dr. {doctorName} at {clinicName} on {time}.",
+    "appointmentSoon": "Upcoming Appointment",
+    "appointmentSoonBody": "Your appointment with Dr. {doctorName} at {clinicName} is at {time}.",
+    "doctorApptTomorrow": "Appointment Tomorrow",
+    "doctorApptTomorrowBody": "You have an appointment with {patientName} at {clinicName} on {time}.",
+    "doctorApptSoon": "Upcoming Appointment",
+    "doctorApptSoonBody": "Your appointment with {patientName} at {clinicName} is at {time}."
   },
-  "toast": {
-    "familyUpdated": "Family member updated",
-    "scheduleSaved": "Schedule saved successfully"
+  "assistant": {
+    "analyzing": "Analyzing...",
+    "askClinic": "Ask about clinic operations...",
+    "askDoctor": "Ask your clinical copilot...",
+    "askPatient": "Ask about your health...",
+    "chips": {
+      "appointments": "Appointments",
+      "clinicSummary": "Clinic Summary",
+      "doctorWorkload": "Doctor Workload",
+      "draftPrescription": "Draft Prescription",
+      "familyHealth": "Family Health",
+      "followUpAlerts": "Follow-up Alerts",
+      "followUps": "Follow-ups",
+      "healthTimeline": "Health Timeline",
+      "medicines": "Medicines",
+      "opdQueue": "OPD Queue",
+      "revenueAnalytics": "Revenue Analytics",
+      "summarizePatient": "Summarize Patient",
+      "todaysLoad": "Today's Load"
+    },
+    "clinicAnalyst": "Clinic Operations Analyst",
+    "clinicDesc": "Ask me about your OPD queue, doctor workload, revenue, and daily operations.",
+    "clinicTitle": "Clinic Ops Assistant",
+    "copilotThinking": "Copilot is thinking...",
+    "dictateTitle": "Dictate",
+    "doctorCopilot": "Doctor Copilot",
+    "doctorDesc": "Select a patient for focused help, or ask about your schedule, prescriptions, and follow-ups.",
+    "doctorTitle": "Doctor Copilot",
+    "globalContext": "Global Context (All Patients)",
+    "listenTitle": "Speak",
+    "live": "Live: ",
+    "noPhone": "No phone",
+    "patientDesc": "Ask me about your appointments, medicines, follow-ups, and health records.",
+    "patientFocus": "Patient Focus Mode",
+    "patientHelp": "How can I help you?",
+    "patientTitle": "Health Assistant",
+    "queries": {
+      "appointments": "What are my upcoming appointments?",
+      "clinicSummary": "Give me a summary of today's clinic operations.",
+      "doctorWorkload": "Show me the current workload for each doctor.",
+      "draftPrescription": "Help me draft a prescription for this patient.",
+      "familyHealth": "Show me my family's health overview.",
+      "followUpAlerts": "Which patients need follow-up alerts?",
+      "followUps": "Do I have any upcoming follow-ups?",
+      "healthTimeline": "Show me my health timeline.",
+      "medicines": "What are my current medicines?",
+      "opdQueue": "What is the status of the OPD queue right now?",
+      "revenueAnalytics": "Show me today's revenue analytics.",
+      "summarizePatient": "Summarize this patient's medical history.",
+      "todaysLoad": "What does my schedule look like today?"
+    },
+    "thinking": "Thinking...",
+    "voiceOff": "Voice Off",
+    "voiceOn": "Voice On",
+    "voiceTitle": "Toggle voice responses"
+  },
+  "opdQueue": {
+    "actions": "Actions",
+    "allTokens": "All Tokens",
+    "assignedDoctor": "Assigned Doctor",
+    "assignedTo": "Assigned to",
+    "call": "Call",
+    "callNextToken": "Call Next Token",
+    "called": "Called",
+    "chooseDoctor": "Choose a doctor",
+    "complete": "Complete",
+    "completed": "Completed",
+    "issueToken": "Issue Token",
+    "issueTokenBtn": "Issue Token",
+    "issuedAt": "Issued At",
+    "issuingToken": "Issuing...",
+    "launchDisplay": "Launch Display",
+    "loadingQueue": "Loading queue...",
+    "noTokensFound": "No tokens found",
+    "noTokensMatching": "There are no tokens matching this filter yet.",
+    "patientName": "Patient Name",
+    "queueManagement": "Queue Management",
+    "queueSubtitle": "Call, complete, or skip tokens in real time",
+    "recall": "Recall",
+    "selectDoctor": "Select Doctor",
+    "selectDoctorErr": "Please select a doctor",
+    "skip": "Skip",
+    "skipped": "Skipped",
+    "status": "Status",
+    "subtitle": "Manage today's OPD token queue",
+    "title": "OPD Queue",
+    "todayQueueAnalytics": "Today's Queue Analytics",
+    "tokenHash": "Token #",
+    "tokenIssuedSuccess": "Token Issued Successfully",
+    "totalIssued": "Total Issued",
+    "waiting": "Waiting",
+    "waitingTvLink": "Copy TV Link"
+  },
+  "connectionRequests": {
+    "accept": "Accept",
+    "acceptedStatus": "Accepted",
+    "decline": "Decline",
+    "declinedStatus": "Declined",
+    "pendingStatus": "Pending",
+    "inClinic": "In Clinic",
+    "noAddress": "No address provided",
+    "noReps": "You have no {status} clinic requests.",
+    "noRequests": "No {status} requests",
+    "pendingLabel": "Pending ({count})",
+    "responded": "Responded",
+    "searchHelp": "When a clinic sends you a connection request, it will appear here.",
+    "sent": "Sent",
+    "subtitle": "Manage clinic connection requests",
+    "title": "Connection Requests",
+    "wantsToAdd": "wants to add you to their clinic",
+    "youAccepted": "You accepted this request",
+    "youDeclined": "You declined this request"
+  },
+  "leaveClinic": {
+    "button": "Leave Clinic",
+    "consequence1": "Your schedule will be completely reset",
+    "consequence2": "All your upcoming appointments at this clinic will be cancelled",
+    "consequence3": "Patients will be notified automatically",
+    "leaving": "Leaving...",
+    "title": "Leave {clinicName}?",
+    "typeToConfirm": "Type your name to confirm:",
+    "warning": "This cannot be undone. You'll need a new invitation to rejoin."
+  },
+  "family": {
+    "noMembers": "No Family Members Yet",
+    "addFirstMember": "Add your first family member to manage their health records."
+  },
+  "patients": {
+    "addPatient": "Add Patient"
+  },
+  "clinicAdminReviews": {
+    "activeFlags": "Active Flags",
+    "activeOnly": "Active Only",
+    "allReviews": "All Reviews",
+    "averageRating": "Average Rating",
+    "basedOn": "Based on {count} reviews",
+    "categoryAverages": "Category Averages",
+    "confirmedVisits": "Confirmed Visits",
+    "description": "Monitor, respond to, and moderate patient reviews for your clinic.",
+    "dismissFlag": "Dismiss Flag",
+    "editResponse": "Edit Response",
+    "exportCsv": "Export CSV",
+    "filters": "Filters",
+    "flaggedForReview": "Flagged for Review",
+    "flaggedOnly": "Flagged Only",
+    "hiddenOnly": "Hidden Only",
+    "hideReview": "Hide Review",
+    "highestRated": "Highest Rated",
+    "lowestRated": "Lowest Rated",
+    "mostRecent": "Most Recent",
+    "noReviewsDesc": "There are no reviews matching the selected filters yet.",
+    "noReviewsFound": "No Reviews Found",
+    "patientInteractions": "Patient Interactions",
+    "reason": "Reason:",
+    "reportedOn": "reported on {date}",
+    "requiresReview": "Requires Review",
+    "respond": "Respond",
+    "responseRate": "Response Rate",
+    "sortBy": "Sort By",
+    "status": "Status",
+    "submitResponse": "Submit Response",
+    "title": "Reviews & Moderation",
+    "unhideReview": "Unhide Review",
+    "verifiedVisitBadge": "Verified Visit",
+    "verifiedVisitsPercent": "Verified Visits",
+    "writeResponse": "Write your response...",
+    "yourResponse": "Your Response"
+  },
+  "reviews": {
+    "add": "Add",
+    "addPhotos": "Add Photos (Max 3)",
+    "categories": {
+      "cleanliness": "Cleanliness",
+      "waitTime": "Wait Time",
+      "frontDesk": "Front Desk",
+      "facility": "Facility",
+      "accessibility": "Accessibility",
+      "valueForMoney": "Value for Money"
+    },
+    "commentPlaceholder": "Share details of your experience...",
+    "confirmDelete": "Are you sure you want to delete this review?",
+    "editWindow": "The editing window for this review has closed.",
+    "flagReasons": {
+      "fake": "Fake Review (never visited / malicious)",
+      "offensive": "Offensive or inappropriate content",
+      "spam": "Spam or promotional material",
+      "other": "Other / generic violation"
+    },
+    "maxPhotosError": "Maximum 3 photos allowed",
+    "overall": "Overall",
+    "pasteUrl": "Paste Image URL...",
+    "patientPreview": "Patient Preview",
+    "preview": "Preview",
+    "rateClinic": "Rate Clinic",
+    "reviewLanguage": "Review Language",
+    "step": "Step {step} of {total}",
+    "submitReview": "Submit Review",
+    "submitSuccess": "Review submitted successfully",
+    "submitting": "Submitting...",
+    "titlePlaceholder": "Summarize your experience...",
+    "verifiedVisit": "Verified Visit",
+    "viewClinicReview": "View Clinic Review",
+    "writeReview": "Write a Review",
+    "yourExperience": "How was your experience at {clinic}?",
+    "yourReview": "Your Clinic Review"
   }
 }
