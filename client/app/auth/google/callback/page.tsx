@@ -13,12 +13,17 @@ export default function GoogleCallbackPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const syncAttempted = useRef(false);
+  const notified = useRef(false);
 
   useEffect(() => {
     if (status === "loading") return;
 
     if (status === "unauthenticated") {
-      toast.error("Google authentication session not found. Please log in again.");
+      if (notified.current) return;
+      notified.current = true;
+      toast.error("Google authentication session not found. Please log in again.", {
+        id: "google-auth-session",
+      });
       router.replace("/login");
       return;
     }

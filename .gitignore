@@ -28,6 +28,9 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+*.mermaid
+*.svg
+*.png
 
 # Testing & Scratch Files
 scratch/

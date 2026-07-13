@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 
@@ -24,34 +23,17 @@ function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
 
 export function GoogleAuthButton({ mode, disabled }: Props) {
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   async function handleGoogleAuth() {
     setIsLoading(true);
-    const toastId = toast.loading(
-      mode === "signup" ? "Connecting to Google..." : "Signing in..."
-    );
-
     try {
-      // Trigger NextAuth Google OAuth. redirect: false lets us handle transition manually.
-      const result = await signIn("google", {
-        redirect: false,
-        callbackUrl: "/auth/google/callback",
-      });
-
-      if (result?.error) {
-        toast.error("Google authentication failed. Please try again.", { id: toastId });
-        setIsLoading(false);
-        return;
-      }
-
-      toast.success("Authenticated with Google! Syncing profile...", { id: toastId });
-      
-      // Since redirect is false, we manually route to the callback page to sync with our backend
-      router.push("/auth/google/callback");
+      // Full-page OAuth redirect to Google, returning to our callback page.
+      // On success the browser navigates away, so no success toast is shown
+      // here — the callback page handles syncing and messaging.
+      await signIn("google", { callbackUrl: "/auth/google/callback" });
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong during Google sign-in.", { id: toastId });
+      toast.error("Something went wrong during Google sign-in.");
       setIsLoading(false);
     }
   }
