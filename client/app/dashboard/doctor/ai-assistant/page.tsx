@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Send, Bot, Loader2, Mic, Square, Trash2, Stethoscope } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useChatWithDoctorAIMutation } from '@/store/api/aiApi';
+import { useChatWithAIMutation } from '@/store/api/aiApi';
 import { cn } from '@/lib/utils';
 
 type Message = {
@@ -33,7 +33,7 @@ export default function DoctorAIAssistantPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const transcriptRef = useRef('');
-  const [chatWithDoctorAI, { isLoading }] = useChatWithDoctorAIMutation();
+  const [chatWithDoctorAI, { isLoading }] = useChatWithAIMutation();
 
   useEffect(() => {
     const saved = localStorage.getItem('medeaz_lang') || 'en';
