@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
@@ -33,16 +33,17 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   
-  // Initialize role from sessionStorage if available
-  const [role, setRoleState] = useState<Role | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("pendingGoogleRole") as Role | null;
-      if (stored && ["patient", "doctor", "clinic_admin"].includes(stored)) {
-        return stored;
-      }
+  // Start null so SSR and first client render match, then hydrate from
+  // sessionStorage after mount to avoid a hydration mismatch that would
+  // otherwise leave the form hidden until a re-render (e.g. tab switch).
+  const [role, setRoleState] = useState<Role | null>(null);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("pendingGoogleRole") as Role | null;
+    if (stored && ["patient", "doctor", "clinic_admin"].includes(stored)) {
+      setRoleState(stored);
     }
-    return null;
-  });
+  }, []);
 
   const setRole = (newRole: Role) => {
     setRoleState(newRole);
@@ -272,8 +273,7 @@ export function RegisterForm() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
-            className="block h-12 w-full rounded-lg px-4 text-[15px] transition-colors focus:outline-none"
-              style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.2)', color: '#1c1917' }}
+              className="block h-12 w-full rounded-lg border border-border-light bg-white px-4 text-[15px] text-text-primary placeholder:text-text-secondary transition-colors focus:outline-none focus:border-primary"
             />
           )}
 
