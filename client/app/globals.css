@@ -63,6 +63,19 @@
   /* Semantic */
   --color-danger: #dc2626;
   --color-warning: #b4581d;
+
+  /* Corner radius — unified to 22px across the app. Every named token maps
+     to the same value so cards, sections, buttons, inputs, badges, etc. stay
+     consistent. `rounded-full` (pills/avatars) and `rounded-none` are static
+     utilities in Tailwind v4 and are unaffected. */
+  --radius-xs: 22px;
+  --radius-sm: 22px;
+  --radius-md: 22px;
+  --radius-lg: 22px;
+  --radius-xl: 22px;
+  --radius-2xl: 22px;
+  --radius-3xl: 22px;
+  --radius-4xl: 22px;
 }
 
 /* =========================================================================
@@ -129,7 +142,7 @@ input[type="time"],
 input[type="datetime-local"],
 textarea,
 select {
-  border-radius: 8px;
+  border-radius: 22px;
   font-family: var(--font-sans);
 }
 
@@ -181,7 +194,7 @@ a { cursor: pointer; }
   align-items: center;
   gap: 0.625rem;
   padding: 0.55rem 0.75rem;
-  border-radius: 8px;
+  border-radius: 22px;
   font-family: var(--font-sans);
   font-size: 13.5px;
   font-weight: 500;
@@ -253,7 +266,7 @@ a { cursor: pointer; }
    ========================================================================= */
 .lens-card {
   background: var(--color-card-bg);
-  border-radius: 1rem;
+  border-radius: 22px;
   border: 1px solid var(--color-card-border);
   box-shadow: 0 1px 8px -2px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0,0,0,0.04);
   padding: 1.25rem;
@@ -280,7 +293,7 @@ a { cursor: pointer; }
   font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 700;
-  border-radius: 0.625rem;
+  border-radius: 22px;
   border: none;
   box-shadow: 0 2px 8px -2px rgba(0, 180, 149, 0.4);
   cursor: pointer;
@@ -306,7 +319,7 @@ a { cursor: pointer; }
   justify-content: center;
   height: 2.25rem;
   width: 2.25rem;
-  border-radius: 0.5rem;
+  border-radius: 22px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: transparent;
   color: var(--color-text-secondary);
@@ -331,7 +344,7 @@ a { cursor: pointer; }
   color: var(--color-text-primary);
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
+  border-radius: 22px;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }

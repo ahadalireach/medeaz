@@ -179,7 +179,7 @@ function PillarCard({ icon: Icon, title, description, stack, tone }: Pillar) {
 
   return (
     <article
-      className={`relative overflow-hidden rounded-[20px] border border-border-light ${styles.panel} p-5 sm:p-6 flex flex-col gap-4 min-h-[240px] sm:min-h-[260px]`}
+      className={`relative overflow-hidden rounded-xl border border-border-light ${styles.panel} p-5 sm:p-6 flex flex-col gap-4 min-h-[240px] sm:min-h-[260px]`}
     >
       <div
         className={`${styles.iconBg} h-11 w-11 rounded-xl border border-border-light/70 flex items-center justify-center shadow-[0_4px_14px_-8px_rgba(15,76,92,0.2)]`}

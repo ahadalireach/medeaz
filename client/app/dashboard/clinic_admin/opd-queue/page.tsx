@@ -355,7 +355,7 @@ export default function OPDQueuePage() {
                         type="checkbox"
                         checked={forceAssign}
                         onChange={(e) => setForceAssign(e.target.checked)}
-                        className="rounded border-slate-300 text-[#00b495] focus:ring-[#00b495] w-3.5 h-3.5 cursor-pointer"
+                        className="rounded-lg border-slate-300 text-[#00b495] focus:ring-[#00b495] w-3.5 h-3.5 cursor-pointer"
                       />
                       <span>{isUrdu ? "زبردستی اوور رائڈ کریں" : "Force Override"}</span>
                     </label>

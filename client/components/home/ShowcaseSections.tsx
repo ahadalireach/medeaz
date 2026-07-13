@@ -152,7 +152,7 @@ export function ShowcaseSections() {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               whileHover={{ y: -4 }}
-              className="w-full lg:w-[60%] bg-gradient-to-br from-[#0d3b35] to-[#00b495] rounded-[24px] p-8 md:p-12 text-white relative overflow-hidden shadow-lg group transition-all duration-300"
+              className="w-full lg:w-[60%] bg-gradient-to-br from-[#0d3b35] to-[#00b495] rounded-xl p-8 md:p-12 text-white relative overflow-hidden shadow-lg group transition-all duration-300"
             >
               {/* Custom SVG Stethoscope Icon */}
               <div className="mb-6 opacity-90 text-white">
@@ -217,7 +217,7 @@ export function ShowcaseSections() {
                 borderColor: "#00b495", 
                 boxShadow: "0 8px 24px rgba(0,180,149,0.12)" 
               }}
-              className="w-full lg:w-[40%] bg-white border border-[#e5e7eb] rounded-[24px] overflow-hidden group transition-all duration-300 flex flex-col justify-between"
+              className="w-full lg:w-[40%] bg-white border border-[#e5e7eb] rounded-xl overflow-hidden group transition-all duration-300 flex flex-col justify-between"
             >
               {/* Photo section */}
               <div className="relative w-full h-[200px] overflow-hidden">
@@ -273,7 +273,7 @@ export function ShowcaseSections() {
             onMouseEnter={() => setAdminHovered(true)}
             onMouseLeave={() => setAdminHovered(false)}
             whileHover={{ y: -4 }}
-            className="w-full bg-[#f8fafc] rounded-[24px] p-8 md:p-12 border border-[#e5e7eb]/80 shadow-sm transition-all duration-300"
+            className="w-full bg-[#f8fafc] rounded-xl p-8 md:p-12 border border-[#e5e7eb]/80 shadow-sm transition-all duration-300"
           >
             <div className={cn("flex flex-col lg:flex-row gap-12 items-center", isUrdu && "lg:flex-row-reverse")}>
               
@@ -427,7 +427,7 @@ export function ShowcaseSections() {
           <div className="w-full lg:w-[50%] flex items-center justify-center">
             
             <div 
-              className="w-full max-w-[480px] bg-[#0f2e26] rounded-[28px] p-8 md:p-10 relative overflow-hidden flex flex-col justify-between min-h-[380px] shadow-2xl border border-white/[0.03]" 
+              className="w-full max-w-[480px] bg-[#0f2e26] rounded-xl p-8 md:p-10 relative overflow-hidden flex flex-col justify-between min-h-[380px] shadow-2xl border border-white/[0.03]" 
               style={{ 
                 boxShadow: "inset 0 0 60px rgba(0,180,149,0.05)" 
               }}
@@ -570,7 +570,7 @@ export function ShowcaseSections() {
               <motion.button
                 whileHover={{ scale: 1.03, backgroundColor: "rgba(0,180,149,0.15)", borderColor: "#00b495" }}
                 whileTap={{ scale: 0.97 }}
-                className="border-[1.5px] border-white/25 text-white text-[14px] font-semibold px-7 py-3 rounded-[12px] transition-all duration-200 cursor-pointer no-focus-ring"
+                className="border-[1.5px] border-white/25 text-white text-[14px] font-semibold px-7 py-3 rounded-xl transition-all duration-200 cursor-pointer no-focus-ring"
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 {isUrdu ? "طریقہ کار دیکھیں" : "See How It Works"} →
@@ -626,7 +626,7 @@ export function ShowcaseSections() {
             transition={{ duration: 0.6 }}
             className="flex-1 w-full relative group"
           >
-            <div className="aspect-[4/3] rounded-[24px] overflow-hidden border border-black/[0.04] shadow-2xl relative">
+            <div className="aspect-[4/3] rounded-xl overflow-hidden border border-black/[0.04] shadow-2xl relative">
               <Image 
                 src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80" 
                 alt="AI Clinical Assistant co-pilot" 
@@ -646,7 +646,7 @@ export function ShowcaseSections() {
             transition={{ duration: 0.6 }}
             className="flex-1 w-full relative group"
           >
-            <div className="aspect-[4/3] rounded-[24px] overflow-hidden border border-black/[0.04] shadow-2xl relative">
+            <div className="aspect-[4/3] rounded-xl overflow-hidden border border-black/[0.04] shadow-2xl relative">
               <Image 
                 src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80" 
                 alt="Smart Queue management interface" 
@@ -746,7 +746,7 @@ export function ShowcaseSections() {
                 : "Patients use the web or WhatsApp to book, reschedule, or cancel. Reminders go out automatically."
             }
             visual={
-              <div className="bg-white border border-gray-200/80 rounded-[20px] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] w-full max-w-[380px] relative select-none">
+              <div className="bg-white border border-gray-200/80 rounded-xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] w-full max-w-[380px] relative select-none">
                 <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
                   <span className="text-[13px] font-bold text-[#0f1f2e]">{isUrdu ? "اپائنٹمنٹ کی بکنگ" : "Appointment Booking"}</span>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
@@ -785,7 +785,7 @@ export function ShowcaseSections() {
                 : "MedEaz pulls up the patient's history, last prescriptions, and vitals before the doctor says a word."
             }
             visual={
-              <div className="bg-white border border-gray-200/80 rounded-[20px] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] w-full max-w-[380px] relative select-none">
+              <div className="bg-white border border-gray-200/80 rounded-xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] w-full max-w-[380px] relative select-none">
                 <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
                   <div>
                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Active Patient</span>
@@ -823,7 +823,7 @@ export function ShowcaseSections() {
                 : "The doctor dictates. AI transcribes and structures the prescription in real time — no typing required."
             }
             visual={
-              <div className="bg-[#0f2e26] rounded-[20px] p-6 shadow-[0_12px_32px_rgba(0,180,149,0.1)] w-full max-w-[380px] relative select-none border border-white/[0.04]">
+              <div className="bg-[#0f2e26] rounded-xl p-6 shadow-[0_12px_32px_rgba(0,180,149,0.1)] w-full max-w-[380px] relative select-none border border-white/[0.04]">
                 <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
                   <span className="text-[12px] text-teal-200 font-bold uppercase tracking-wider">{isUrdu ? "آڈیو ان پٹ" : "Voice Capture"}</span>
                   <div className="flex items-center gap-1.5">
@@ -865,7 +865,7 @@ export function ShowcaseSections() {
                 : "E-prescription, visit summary, and follow-up reminder — delivered via SMS, email, or in-app, in the patient's preferred language."
             }
             visual={
-              <div className="bg-gray-950 border border-white/10 rounded-[24px] p-4 shadow-[0_15px_35px_rgba(0,0,0,0.4)] w-full max-w-[300px] relative select-none text-white overflow-hidden">
+              <div className="bg-gray-950 border border-white/10 rounded-xl p-4 shadow-[0_15px_35px_rgba(0,0,0,0.4)] w-full max-w-[300px] relative select-none text-white overflow-hidden">
                 {/* Phone top bar */}
                 <div className="flex justify-between items-center text-[10px] text-gray-400 mb-3 px-1">
                   <span>10:32 AM</span>

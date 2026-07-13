@@ -181,7 +181,7 @@ export default function ClinicalCopilot() {
                       <p className="font-semibold text-sm mb-2">Summary: <span className="font-normal">{actionPlan.summary}</span></p>
                       
                       {actionPlan.actionPayload && (
-                        <div className="mt-3 text-xs bg-white/60 dark:bg-black/20 p-2 rounded">
+                        <div className="mt-3 text-xs bg-white/60 dark:bg-black/20 p-2 rounded-lg">
                           <pre className="overflow-x-auto whitespace-pre-wrap">
                             {JSON.stringify(actionPlan.actionPayload, null, 2)}
                           </pre>

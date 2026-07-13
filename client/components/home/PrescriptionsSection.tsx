@@ -77,7 +77,7 @@ function PrescriptionCard({
         : "bg-surface-lavender";
 
   return (
-    <div className="rounded-[18px] border border-border-light overflow-hidden bg-white">
+    <div className="rounded-xl border border-border-light overflow-hidden bg-white">
       <div className={`relative ${bg} px-6 pt-8 pb-10`}>
         <div className="inline-flex items-center gap-1.5 rounded-md bg-white/80 backdrop-blur-sm px-2.5 py-1 text-[12px] font-medium text-primary">
           {icon}

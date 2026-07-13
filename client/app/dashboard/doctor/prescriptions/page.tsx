@@ -294,7 +294,7 @@ function PrescriptionsContent() {
         {/* Prescriptions List */}
         <div className="grid grid-cols-1 gap-4">
           {filteredPrescriptions.length === 0 ? (
-            <div className="text-center py-20 bg-card-custom border-card-custom rounded-[2.5rem]">
+            <div className="text-center py-20 bg-card-custom border-card-custom rounded-xl">
               <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/30">
                 <FileText className="h-10 w-10 text-primary" />
               </div>

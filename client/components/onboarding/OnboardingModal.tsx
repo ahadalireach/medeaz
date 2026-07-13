@@ -599,7 +599,7 @@ export default function OnboardingModal({ role, locale, onClose, forceOpenStep }
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 15 }}
         transition={{ duration: 0.28, ease: "easeOut" }}
-        className="relative bg-white w-full h-full md:h-auto md:max-h-[85vh] md:max-w-[780px] md:rounded-[20px] shadow-2xl flex flex-col md:flex-row overflow-hidden z-10"
+        className="relative bg-white w-full h-full md:h-auto md:max-h-[85vh] md:max-w-[780px] md:rounded-xl shadow-2xl flex flex-col md:flex-row overflow-hidden z-10"
       >
         {/* Left Column (Desktop Step Indicator Sidebar) */}
         <div className="hidden md:flex shrink-0">

@@ -70,7 +70,7 @@ export default function DoctorStats({
                 const card = (
                     <div
                         key={stat.label}
-                        className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-[2rem] transition-all hover:border-primary/30 group shadow-sm flex items-center justify-between min-h-[100px] sm:min-h-[120px] relative"
+                        className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-xl transition-all hover:border-primary/30 group shadow-sm flex items-center justify-between min-h-[100px] sm:min-h-[120px] relative"
                     >
                         <div className="flex flex-col justify-center min-w-0 flex-1">
                             <p className="text-[12px] sm:text-[14px] font-bold text-text-primary dark:text-text-primary tracking-widest mb-1">

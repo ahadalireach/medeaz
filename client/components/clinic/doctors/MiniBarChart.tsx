@@ -20,7 +20,7 @@ export default function MiniBarChart({ data, color, unit }: MiniBarChartProps) {
           return (
             <div key={index} className="flex-1 flex flex-col items-center group relative h-full justify-end">
               {/* Tooltip */}
-              <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-[11px] font-bold px-2 py-1 rounded shadow-md whitespace-nowrap z-20 pointer-events-none">
+              <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-[11px] font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap z-20 pointer-events-none">
                 {unit} {item.value.toLocaleString()}
               </div>
 
@@ -34,7 +34,7 @@ export default function MiniBarChart({ data, color, unit }: MiniBarChartProps) {
                   ease: [0.22, 1, 0.36, 1]
                 }}
                 style={{ backgroundColor: color }}
-                className="w-full rounded-t hover:opacity-85 transition-opacity cursor-pointer"
+                className="w-full rounded-t-lg hover:opacity-85 transition-opacity cursor-pointer"
               />
             </div>
           );

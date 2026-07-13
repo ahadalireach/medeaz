@@ -432,7 +432,7 @@ export default function DoctorProfilePage() {
                     </div>
 
                     {(profileData?.data as any)?.clinicId ? (
-                        <div className="border border-[#e5e7eb] rounded-[14px] p-6 relative">
+                        <div className="border border-[#e5e7eb] rounded-xl p-6 relative">
                             <div className="text-[13px] uppercase text-[#00b495] tracking-wider font-bold mb-4">
                                 Current Clinic
                             </div>
@@ -464,14 +464,14 @@ export default function DoctorProfilePage() {
                             <button
                                 type="button"
                                 onClick={() => setIsLeaveModalOpen(true)}
-                                className="absolute bottom-6 rtl:left-6 ltr:right-6 border-[1.5px] border-[#fca5a5] text-[#ef4444] rounded-[10px] px-4 py-2 flex items-center gap-2 hover:bg-[#ef44440f] transition-colors font-medium text-[13px]"
+                                className="absolute bottom-6 rtl:left-6 ltr:right-6 border-[1.5px] border-[#fca5a5] text-[#ef4444] rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-[#ef44440f] transition-colors font-medium text-[13px]"
                             >
                                 <LogOut size={14} className="rtl:rotate-180" />
                                 {t('leaveClinic.button') || 'Leave Clinic'}
                             </button>
                         </div>
                     ) : (
-                        <div className="p-6 border border-border-light rounded-[14px] bg-slate-50/50 flex flex-col items-center justify-center text-center space-y-2">
+                        <div className="p-6 border border-border-light rounded-xl bg-slate-50/50 flex flex-col items-center justify-center text-center space-y-2">
                             <Building2 className="h-8 w-8 text-text-muted mb-2" />
                             <p className="text-sm font-bold text-text-primary">No clinic affiliation.</p>
                             <p className="text-xs text-text-secondary">Join a clinic by accepting a connection request.</p>
@@ -596,7 +596,7 @@ export default function DoctorProfilePage() {
                             <li>{t('leaveClinic.consequence3') || 'Patients will be notified automatically'}</li>
                         </ul>
                     </div>
-                    <div className="bg-[#fef9c3] border border-[#fde047] rounded-[10px] p-3 text-[13px] text-[#854d0e]">
+                    <div className="bg-[#fef9c3] border border-[#fde047] rounded-xl p-3 text-[13px] text-[#854d0e]">
                         {t('leaveClinic.warning') || "This cannot be undone. You'll need a new invitation to rejoin."}
                     </div>
 

@@ -75,7 +75,7 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
 
   return (
     <>
-      <div className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm">
+      <div className="bg-white p-6 rounded-xl border border-border-light shadow-sm">
         <h2 className="text-xl font-black text-text-primary mb-6">{t('clinic.appointments.title')}</h2>
 
         <div className="overflow-x-auto">
@@ -145,7 +145,7 @@ export default function AppointmentTable({ filters }: AppointmentTableProps) {
         </div>
 
         {appointments.length === 0 && (
-          <div className="text-center py-20 bg-background rounded-[2.5rem] mt-4 border-2 border-dashed border-border-light">
+          <div className="text-center py-20 bg-background rounded-xl mt-4 border-2 border-dashed border-border-light">
             <Calendar className="mx-auto h-12 w-12 text-white/70 mb-4 opacity-50" />
             <p className="text-text-primary font-bold tracking-tight">{t('clinic.appointments.noAppointments')}</p>
           </div>

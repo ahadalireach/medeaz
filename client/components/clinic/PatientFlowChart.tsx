@@ -20,7 +20,7 @@ export default function PatientFlowChart() {
 
   if (isLoading) {
     return (
-      <div className="h-80 bg-surface rounded-[2.5rem] animate-pulse"></div>
+      <div className="h-80 bg-surface rounded-xl animate-pulse"></div>
     );
   }
 
@@ -73,7 +73,7 @@ export default function PatientFlowChart() {
                 contentStyle={{
                   backgroundColor: "#1C1917",
                   border: "none",
-                  borderRadius: "16px",
+                  borderRadius: "22px",
                   boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                 }}
                 itemStyle={{ color: "#FFFFFF", fontWeight: 'bold', fontSize: '12px' }}

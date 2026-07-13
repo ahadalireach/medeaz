@@ -94,7 +94,7 @@ function PatientsListContent() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-48 bg-gray-50 dark:bg-white/5 animate-pulse rounded-[2rem] border border-black/5 dark:border-white/5" />
+            <div key={i} className="h-48 bg-gray-50 dark:bg-white/5 animate-pulse rounded-xl border border-black/5 dark:border-white/5" />
           ))}
         </div>
       ) : patients.length > 0 ? (
@@ -103,7 +103,7 @@ function PatientsListContent() {
             {patients.map((patient: any) => (
               <div
                 key={patient._id}
-                className="bg-white dark:bg-[#18181b] p-6 rounded-[2rem] border border-black/5 dark:border-white/10 shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+                className="bg-white dark:bg-[#18181b] p-6 rounded-xl border border-black/5 dark:border-white/10 shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
               >
                 <div className="flex items-center justify-between gap-4 mb-4">
                   <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -188,7 +188,7 @@ function PatientsListContent() {
           )}
         </>
       ) : (
-        <div className="bg-white dark:bg-[#18181b] p-16 rounded-[2rem] border border-black/5 dark:border-white/10 text-center shadow-xs">
+        <div className="bg-white dark:bg-[#18181b] p-16 rounded-xl border border-black/5 dark:border-white/10 text-center shadow-xs">
           <div className="h-16 w-16 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="h-8 w-8 text-gray-400" />
           </div>
@@ -216,7 +216,7 @@ export default function PatientsPage() {
           <div className="h-12 w-48 bg-gray-50 dark:bg-white/5 animate-pulse rounded-xl" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-48 bg-gray-50 dark:bg-white/5 animate-pulse rounded-[2rem] border border-black/5 dark:border-white/5" />
+              <div key={i} className="h-48 bg-gray-50 dark:bg-white/5 animate-pulse rounded-xl border border-black/5 dark:border-white/5" />
             ))}
           </div>
         </div>

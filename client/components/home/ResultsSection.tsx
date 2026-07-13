@@ -133,7 +133,7 @@ function ResultCard({
   const patternId = `result-grid-${tone}`;
 
   return (
-    <article className="relative overflow-hidden rounded-[20px] sm:rounded-[24px] border border-border-light bg-white min-h-[150px] sm:min-h-[170px]">
+    <article className="relative overflow-hidden rounded-xl sm:rounded-xl border border-border-light bg-white min-h-[150px] sm:min-h-[170px]">
       <svg
         viewBox="0 0 150 110"
         className="absolute left-0 top-0 w-[104px] h-[80px] sm:w-[140px] sm:h-[108px] lg:w-[160px] lg:h-[122px]"

@@ -140,7 +140,7 @@ export const HealthScoreGauge: React.FC<HealthScoreGaugeProps> = ({
           style={{ width: size === "sm" ? 40 : 120, height: size === "sm" ? 40 : 120 }}
           className="rounded-full border-4 border-gray-200 border-t-[#00b495] animate-spin"
         />
-        {size === "lg" && <div className="h-4 w-24 bg-gray-200 rounded mt-3" />}
+        {size === "lg" && <div className="h-4 w-24 bg-gray-200 rounded-lg mt-3" />}
       </div>
     );
   }
@@ -257,7 +257,7 @@ export const HealthScoreGauge: React.FC<HealthScoreGaugeProps> = ({
 
   // Large Widget (Detail / Dashboard View)
   return (
-    <div className="flex flex-col items-center bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[2.2rem] p-6 sm:p-7 shadow-sm w-full max-w-sm">
+    <div className="flex flex-col items-center bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-xl p-6 sm:p-7 shadow-sm w-full max-w-sm">
       {/* Header section with generous spacing */}
       <div className="flex items-center space-x-2 self-start mb-6 border-b border-slate-100 dark:border-slate-800/60 pb-3 w-full">
         <span className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-250">

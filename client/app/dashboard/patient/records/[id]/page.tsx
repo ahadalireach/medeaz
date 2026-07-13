@@ -140,7 +140,7 @@ function RecordDetailContent() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-surface" />
+        <div className="h-8 w-48 animate-pulse rounded-lg bg-surface" />
         <div className="h-64 animate-pulse rounded-xl border border-border-light bg-white" />
       </div>
     );
@@ -192,7 +192,7 @@ function RecordDetailContent() {
       </div>
 
       {/* Prescription Details */}
-      <div ref={printableRef} className="rounded-3xl sm:rounded-[2.5rem] border border-black/5 bg-white p-4 sm:p-8 lg:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+      <div ref={printableRef} className="rounded-3xl sm:rounded-xl border border-black/5 bg-white p-4 sm:p-8 lg:p-12 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
         {/* Header Section */}
         <div className="mb-8 border-b border-border-light pb-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">

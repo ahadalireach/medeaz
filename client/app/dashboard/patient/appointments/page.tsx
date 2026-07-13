@@ -330,7 +330,7 @@ export default function AppointmentsPage() {
             ))}
           </div>
         ) : appointments.length === 0 ? (
-          <div className="rounded-[2.5rem] border-2 border-dashed border-border-light bg-white p-10 sm:p-20 text-center">
+          <div className="rounded-xl border-2 border-dashed border-border-light bg-white p-10 sm:p-20 text-center">
             <Calendar className="mx-auto h-16 w-16 text-text-primary opacity-20 mb-6" />
             <h3 className="text-xl font-black text-text-primary uppercase tracking-tight">
               {t('appointment.noAppointments')}
@@ -355,7 +355,7 @@ export default function AppointmentsPage() {
             {appointments.map((appointment: any) => (
               <div
                 key={appointment._id}
-                className="rounded-3xl sm:rounded-[2.5rem] border border-border-light bg-white p-5 sm:p-8 transition-all hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 group"
+                className="rounded-3xl sm:rounded-xl border border-border-light bg-white p-5 sm:p-8 transition-all hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 group"
               >
                 <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex-1">

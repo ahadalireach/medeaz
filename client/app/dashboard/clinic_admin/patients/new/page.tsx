@@ -158,7 +158,7 @@ export default function NewPatientPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm"
+        className="bg-white rounded-xl border border-border-light p-8 shadow-sm"
       >
         <div className="space-y-8">
           {activeTab === "link" ? (
@@ -187,7 +187,7 @@ export default function NewPatientPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="md:col-span-2 flex flex-col items-center pb-6">
                 <div className="relative group">
-                  <div className="h-32 w-32 rounded-[2rem] overflow-hidden border-2 border-dashed border-border-light bg-background/50 flex items-center justify-center transition-all group-hover:border-primary/50">
+                  <div className="h-32 w-32 rounded-xl overflow-hidden border-2 border-dashed border-border-light bg-background/50 flex items-center justify-center transition-all group-hover:border-primary/50">
                     {formData.photo ? (
                       <img
                         src={formData.photo}

@@ -202,7 +202,7 @@ export default function ClinicSteps({ step, formData, onChange, errors, locale }
                     type="checkbox"
                     checked={!isClosed}
                     onChange={(e) => handleHourChange(day.key, "closed", !e.target.checked)}
-                    className="w-4.5 h-4.5 text-[#00b495] border-slate-300 rounded focus:ring-[#00b495]"
+                    className="w-4.5 h-4.5 text-[#00b495] border-slate-300 rounded-lg focus:ring-[#00b495]"
                   />
                   <span className="text-sm font-bold text-slate-800 capitalize w-20">{day.key}</span>
                 </div>

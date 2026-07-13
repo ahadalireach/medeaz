@@ -208,7 +208,7 @@ export default function PublicDisplayBoard() {
               {isUrdu ? "ابھی معائنہ جاری ہے" : "NOW SERVING"}
             </p>
  
-            <div className="bg-white border border-slate-200 rounded-[36px] p-8 md:p-12 shadow-md relative overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-xl p-8 md:p-12 shadow-md relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-tr from-[#00b495]/5 via-transparent to-transparent pointer-events-none" />
               
               <AnimatePresence mode="wait">

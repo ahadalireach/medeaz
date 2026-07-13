@@ -282,7 +282,7 @@ export function RegisterForm() {
               type="checkbox"
               checked={agreedTos}
               onChange={(e) => setAgreedTos(e.target.checked)}
-              className="mt-0.5 h-4 w-4 flex-none rounded border border-border cursor-pointer"
+              className="mt-0.5 h-4 w-4 flex-none rounded-lg border border-border cursor-pointer"
             />
             <span>
               I have read and acknowledge the{" "}
@@ -303,7 +303,7 @@ export function RegisterForm() {
               type="checkbox"
               checked={agreedHie}
               onChange={(e) => setAgreedHie(e.target.checked)}
-              className="mt-0.5 h-4 w-4 flex-none rounded border border-border cursor-pointer"
+              className="mt-0.5 h-4 w-4 flex-none rounded-lg border border-border cursor-pointer"
             />
             <span>
               I have read and agree to the{" "}

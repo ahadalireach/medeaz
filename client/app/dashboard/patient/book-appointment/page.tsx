@@ -408,7 +408,7 @@ export default function BookAppointmentPage() {
       </div>
 
       {/* Progress Steps */}
-      <div className="rounded-[2rem] border border-black/5 bg-white p-4 sm:p-8 shadow-sm">
+      <div className="rounded-xl border border-black/5 bg-white p-4 sm:p-8 shadow-sm">
         <div className="relative flex items-center justify-between w-full">
           {/* Connecting line background */}
           <div className="absolute left-0 top-[20px] sm:top-[24px] w-full h-1 bg-surface -z-10 rounded-full" />
@@ -683,7 +683,7 @@ export default function BookAppointmentPage() {
                   }
                   setFormData({ ...formData, duration: newDuration, appointmentTime: newTime });
                 }}
-                className="w-5 h-5 accent-primary rounded cursor-pointer"
+                className="w-5 h-5 accent-primary rounded-lg cursor-pointer"
               />
               <label htmlFor="double-slot" className="cursor-pointer flex-1">
                 <p className="text-sm font-bold text-text-primary">

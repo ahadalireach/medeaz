@@ -82,7 +82,7 @@ function UploadModal({ isOpen, onClose }: UploadModalProps) {
     <div className="fixed inset-0 z-50 m-0 p-4" style={{ zIndex: 10000 }} aria-modal="true" role="dialog">
       <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" onClick={onClose} />
       <div className="relative flex min-h-full items-center justify-center">
-        <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-7 w-full max-w-md border border-black/5 animate-in zoom-in-95 duration-300 relative overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-7 w-full max-w-md border border-black/5 animate-in zoom-in-95 duration-300 relative overflow-hidden flex flex-col max-h-[85vh]">
         <div className="flex items-center justify-between mb-8 shrink-0">
           <div>
             <h3 className="text-2xl font-black text-text-primary tracking-tight">{t('patient.records.uploadTitle')}</h3>
@@ -269,11 +269,11 @@ export default function RecordsPage() {
         {isLoading || isFetching ? (
           <div className="grid grid-cols-1 gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-40 animate-pulse rounded-[2.5rem] bg-surface" />
+              <div key={i} className="h-40 animate-pulse rounded-xl bg-surface" />
             ))}
           </div>
         ) : filteredRecords.length === 0 ? (
-          <div className="p-20 bg-white rounded-[3rem] border border-dashed border-border-light text-center">
+          <div className="p-20 bg-white rounded-xl border border-dashed border-border-light text-center">
             <div className="h-20 w-20 bg-background rounded-full flex items-center justify-center mx-auto mb-6">
               <FileText className="text-white/70" size={40} />
             </div>
@@ -288,7 +288,7 @@ export default function RecordsPage() {
               <Link
                 key={record._id}
                 href={`/dashboard/patient/records/${record._id}`}
-                className="group p-1 bg-white rounded-[2.5rem] border border-black/5 shadow-sm hover:border-primary/50 transition-all"
+                className="group p-1 bg-white rounded-xl border border-black/5 shadow-sm hover:border-primary/50 transition-all"
               >
                 <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                   <div className="flex items-center gap-6">

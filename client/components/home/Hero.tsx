@@ -143,7 +143,7 @@ export function Hero() {
                 whileHover={{ scale: 1.03, y: -1, backgroundColor: "#009e82", boxShadow: "0 6px 20px rgba(0,180,149,0.38)" }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 380, damping: 22 }}
-                className="bg-[#00b495] text-white text-[14px] sm:text-[15px] font-semibold px-6 sm:px-7 py-2.5 sm:py-3 rounded-[10px] transition-all duration-200 cursor-pointer no-focus-ring shadow-sm"
+                className="bg-[#00b495] text-white text-[14px] sm:text-[15px] font-semibold px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl transition-all duration-200 cursor-pointer no-focus-ring shadow-sm"
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 {isUrdu ? "عملی طور پر دیکھیں" : "See It in Action"}

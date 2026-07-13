@@ -229,7 +229,7 @@ export default function PatientSteps({ step, formData, onChange, errors, locale 
                 .map((a: string) => (
                   <span
                     key={a}
-                    className="inline-flex items-center space-x-1 px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-600 capitalize"
+                    className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-600 capitalize"
                   >
                     <span>{a}</span>
                     <button type="button" onClick={() => handleAllergyToggle(a)}>
@@ -295,7 +295,7 @@ export default function PatientSteps({ step, formData, onChange, errors, locale 
                 .map((c: string) => (
                   <span
                     key={c}
-                    className="inline-flex items-center space-x-1 px-2 py-0.5 rounded bg-red-50 border border-red-200 text-[10px] font-bold text-red-600 capitalize"
+                    className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-red-50 border border-red-200 text-[10px] font-bold text-red-600 capitalize"
                   >
                     <span>{c}</span>
                     <button type="button" onClick={() => handleConditionToggle(c)}>
@@ -345,7 +345,7 @@ export default function PatientSteps({ step, formData, onChange, errors, locale 
               type="checkbox"
               checked={showPasswordFields}
               onChange={(e) => onChange({ changePassword: e.target.checked })}
-              className="w-4.5 h-4.5 text-[#00b495] border-slate-300 rounded focus:ring-[#00b495]"
+              className="w-4.5 h-4.5 text-[#00b495] border-slate-300 rounded-lg focus:ring-[#00b495]"
             />
           </div>
 
@@ -417,7 +417,7 @@ export default function PatientSteps({ step, formData, onChange, errors, locale 
                   }`}
                 >
                   <div
-                    className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                    className={`w-4 h-4 rounded-lg border flex items-center justify-center shrink-0 ${
                       isSelected ? "bg-[#00b495] border-[#00b495] text-white" : "border-slate-300"
                     }`}
                   >

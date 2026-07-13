@@ -55,7 +55,7 @@ export default function PatientSearch() {
 
   return (
     <div className="space-y-6 animate-in">
-      <div className="bg-white p-6 rounded-[2rem] border border-border-light shadow-sm">
+      <div className="bg-white p-6 rounded-xl border border-border-light shadow-sm">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
             <SearchIcon className="absolute start-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-primary" />
@@ -90,7 +90,7 @@ export default function PatientSearch() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-48 bg-background animate-pulse rounded-[2rem] border border-border-light" />
+            <div key={i} className="h-48 bg-background animate-pulse rounded-xl border border-border-light" />
           ))}
         </div>
       ) : results.length > 0 ? (
@@ -99,7 +99,7 @@ export default function PatientSearch() {
             {results.map((patient: any) => (
               <div
                 key={patient._id}
-                className="bg-white p-8 rounded-[2rem] border border-border-light shadow-sm hover:shadow-md transition-all group"
+                className="bg-white p-8 rounded-xl border border-border-light shadow-sm hover:shadow-md transition-all group"
               >
                 <div className="flex flex-col items-center text-center">
                   <div className="h-20 w-20 rounded-3xl overflow-hidden mb-4 transition-all shadow-sm border border-black/5 flex items-center justify-center bg-primary/10">
@@ -179,7 +179,7 @@ export default function PatientSearch() {
           )}
         </>
       ) : (
-        <div className="bg-white p-20 rounded-[2.5rem] border border-border-light text-center shadow-sm">
+        <div className="bg-white p-20 rounded-xl border border-border-light text-center shadow-sm">
           <div className="h-20 w-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-6">
             <User className="h-10 w-10 text-white/70" />
           </div>

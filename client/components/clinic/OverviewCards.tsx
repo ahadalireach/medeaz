@@ -54,8 +54,8 @@ export default function OverviewCards() {
           <div key={i} className="p-4 sm:p-5 bg-card-custom border-card-custom rounded-4xl animate-pulse min-h-30">
             <div className="flex items-center justify-between">
               <div className="space-y-2 flex-1">
-                <div className="h-3 bg-surface rounded w-24" />
-                <div className="h-6 bg-surface rounded w-16" />
+                <div className="h-3 bg-surface rounded-lg w-24" />
+                <div className="h-6 bg-surface rounded-lg w-16" />
               </div>
               <div className="h-10 w-10 bg-surface rounded-xl ml-3" />
             </div>

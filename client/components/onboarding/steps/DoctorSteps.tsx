@@ -580,7 +580,7 @@ export default function DoctorSteps({ step, formData, onChange, errors, locale }
                   }`}
                 >
                   <div
-                    className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${
+                    className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 ${
                       isSelected ? "bg-[#00b495] border-[#00b495] text-white" : "border-slate-300"
                     }`}
                   >

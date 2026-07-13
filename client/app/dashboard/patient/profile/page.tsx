@@ -131,7 +131,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-surface" />
+        <div className="h-8 w-48 animate-pulse rounded-lg bg-surface" />
         <div className="h-96 animate-pulse rounded-xl border border-border-light bg-white" />
       </div>
     );
@@ -184,7 +184,7 @@ export default function ProfilePage() {
               )}
 
               <label htmlFor="photo-upload" className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                <span className="text-white text-xs font-semibold px-2 py-1 bg-black/60 rounded border border-white/20 uppercase tracking-widest">
+                <span className="text-white text-xs font-semibold px-2 py-1 bg-black/60 rounded-lg border border-white/20 uppercase tracking-widest">
                   Update
                 </span>
               </label>

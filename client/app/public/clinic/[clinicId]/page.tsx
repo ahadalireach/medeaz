@@ -479,7 +479,7 @@ export default function PublicClinicProfilePage({ params }: { params: Promise<{ 
                             </span>
                           )}
                           {rev.language === "ur" && (
-                            <span className="p-1 bg-slate-100 rounded text-slate-500">
+                            <span className="p-1 bg-slate-100 rounded-lg text-slate-500">
                               <Languages className="h-3 w-3" />
                             </span>
                           )}

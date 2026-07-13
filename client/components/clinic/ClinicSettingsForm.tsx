@@ -274,7 +274,7 @@ export default function ClinicSettingsForm() {
                           type="checkbox"
                           checked={field.value}
                           onChange={field.onChange}
-                          className="h-4 w-4 text-primary rounded border-border-light focus:ring-primary cursor-pointer"
+                          className="h-4 w-4 text-primary rounded-lg border-border-light focus:ring-primary cursor-pointer"
                         />
                         <span className="text-xs font-semibold text-text-secondary">
                           {t('settings.closed')}

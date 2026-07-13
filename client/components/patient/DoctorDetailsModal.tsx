@@ -80,8 +80,8 @@ export default function DoctorDetailsModal({
           <div className="flex items-center gap-6">
             <div className="h-24 w-24 bg-surface rounded-2xl" />
             <div className="flex-1 space-y-3">
-              <div className="h-6 bg-surface rounded w-1/3" />
-              <div className="h-4 bg-surface rounded w-1/4" />
+              <div className="h-6 bg-surface rounded-lg w-1/3" />
+              <div className="h-4 bg-surface rounded-lg w-1/4" />
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

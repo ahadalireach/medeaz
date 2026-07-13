@@ -214,7 +214,7 @@ export default function StaffList() {
                           )}
                         </span>
                         {member.autoAdded && (
-                          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded w-fit mt-0.5">
+                          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-lg w-fit mt-0.5">
                             Auto Added
                           </span>
                         )}

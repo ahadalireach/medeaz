@@ -213,7 +213,7 @@ export default function NotificationProvider({
               <div
                 className={`${
                   t.visible ? "animate-enter" : "animate-leave"
-                } max-w-md w-full bg-slate-950 border-2 border-[#00b495] shadow-[0_10px_30px_rgba(0,180,149,0.25)] rounded-[24px] pointer-events-auto flex flex-col overflow-hidden`}
+                } max-w-md w-full bg-slate-950 border-2 border-[#00b495] shadow-[0_10px_30px_rgba(0,180,149,0.25)] rounded-xl pointer-events-auto flex flex-col overflow-hidden`}
               >
                 <div className="p-5 flex items-start gap-4">
                   <div className="shrink-0 pt-0.5">

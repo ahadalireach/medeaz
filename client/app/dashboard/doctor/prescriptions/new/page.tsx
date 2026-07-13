@@ -401,7 +401,7 @@ function NewPrescriptionInner() {
                 type="checkbox"
                 checked={shouldScheduleFollowUp}
                 onChange={(e) => setShouldScheduleFollowUp(e.target.checked)}
-                className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                className="w-5 h-5 rounded-lg border-slate-300 text-primary focus:ring-primary cursor-pointer"
               />
               <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors">
                 {t.raw('nav.navigation') === 'نیویگیشن' ? "اگلی اپائنٹمنٹ (فالو اپ) شیڈول کریں" : "Schedule a Follow-Up Visit"}

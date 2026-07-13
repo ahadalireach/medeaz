@@ -182,7 +182,7 @@ export default function ClinicAIAssistantPage() {
                     : 'rounded-bl-sm bg-gray-50 border border-black/6 text-text-primary',
               )}>
                 {msg.role === 'model' ? (
-                  <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:font-semibold prose-headings:text-text-primary prose-strong:text-primary prose-code:text-primary prose-code:bg-primary/5 prose-code:px-1 prose-code:rounded">
+                  <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:font-semibold prose-headings:text-text-primary prose-strong:text-primary prose-code:text-primary prose-code:bg-primary/5 prose-code:px-1 prose-code:rounded-lg">
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : msg.content}

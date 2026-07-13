@@ -188,14 +188,14 @@ export default function ConnectionRequestsPage() {
                     <button
                       disabled={isAccepting || isDeclining}
                       onClick={() => handleDecline(request)}
-                      className="flex-1 md:flex-none px-5 py-2.5 rounded-[10px] border-[1.5px] border-[#e5e7eb] text-[#374151] text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50 cursor-pointer"
+                      className="flex-1 md:flex-none px-5 py-2.5 rounded-xl border-[1.5px] border-[#e5e7eb] text-[#374151] text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       {t("decline")}
                     </button>
                     <button
                       disabled={isAccepting || isDeclining}
                       onClick={() => handleAccept(request)}
-                      className="flex-1 md:flex-none px-5 py-2.5 rounded-[10px] bg-[#00b495] text-white text-sm font-semibold hover:bg-[#009b80] transition-colors disabled:opacity-50 shadow-sm shadow-emerald-500/20 cursor-pointer"
+                      className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-[#00b495] text-white text-sm font-semibold hover:bg-[#009b80] transition-colors disabled:opacity-50 shadow-sm shadow-emerald-500/20 cursor-pointer"
                     >
                       {t("accept")}
                     </button>

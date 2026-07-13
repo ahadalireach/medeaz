@@ -265,7 +265,7 @@ export default function ClinicReviewsModerationPage() {
               ))}
             </div>
           ) : reviews.length === 0 ? (
-            <div className="bg-white rounded-[2.5rem] border border-border-light p-12 text-center">
+            <div className="bg-white rounded-xl border border-border-light p-12 text-center">
               <Inbox className="h-16 w-16 text-text-primary opacity-20 mx-auto mb-4" />
               <h3 className="text-xl font-black text-text-primary uppercase tracking-tight">{t("noReviewsFound")}</h3>
               <p className="text-sm text-text-secondary mt-1">{t("noReviewsDesc")}</p>

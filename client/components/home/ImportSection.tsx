@@ -127,10 +127,10 @@ export function ImportSection() {
         </div>
 
         <div className="relative">
-          <div className="relative aspect-[4/3] rounded-[20px] bg-gradient-to-br from-surface via-surface-lavender/60 to-surface-cream overflow-hidden border border-border-light p-4 sm:p-6">
+          <div className="relative aspect-[4/3] rounded-xl bg-gradient-to-br from-surface via-surface-lavender/60 to-surface-cream overflow-hidden border border-border-light p-4 sm:p-6">
             <div className="absolute inset-0 bg-surface-overlay" />
 
-            <div className="relative h-full rounded-[16px] bg-white border border-border-light shadow-[0_20px_50px_-24px_rgba(15,76,92,0.28)] flex flex-col overflow-hidden">
+            <div className="relative h-full rounded-xl bg-white border border-border-light shadow-[0_20px_50px_-24px_rgba(15,76,92,0.28)] flex flex-col overflow-hidden">
               <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light bg-gradient-to-r from-primary-bg to-transparent">
                 <div className="h-9 w-9 rounded-full bg-primary text-white flex items-center justify-center text-[12px] font-semibold">
                   {patient.initials}

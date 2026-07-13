@@ -180,7 +180,7 @@ export default function DoctorDashboard() {
                           <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[10px] text-gray-500 dark:text-gray-400">
                             <span className="font-bold">{new Date(appointment.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             <span>•</span>
-                            <span className={`font-bold px-2 py-0.5 rounded text-[8px] uppercase tracking-wider ${
+                            <span className={`font-bold px-2 py-0.5 rounded-lg text-[8px] uppercase tracking-wider ${
                               appointment.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' :
                               appointment.status === 'cancelled' ? 'bg-rose-500/10 text-rose-500' :
                               appointment.status === 'in-progress' ? 'bg-blue-500/10 text-blue-500' :

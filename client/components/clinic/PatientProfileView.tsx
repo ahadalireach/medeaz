@@ -98,7 +98,7 @@ export default function PatientProfileView({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 <div className="lg:col-span-2 space-y-6">
                     {/* Patient Hero Card */}
-            <div className="bg-white rounded-[1.75rem] border border-border-light shadow-sm overflow-hidden group">
+            <div className="bg-white rounded-xl border border-border-light shadow-sm overflow-hidden group">
                 <div className="bg-white p-5 md:p-6 border-b border-border-light">
                     <div className="flex flex-col md:flex-row items-center gap-5 md:gap-6">
                         <div className="relative">
@@ -161,7 +161,7 @@ export default function PatientProfileView({
             </div>
 
             {/* History Tabs */}
-            <div className="bg-white rounded-[1.75rem] border border-border-light shadow-sm overflow-hidden flex flex-col h-full min-h-125">
+            <div className="bg-white rounded-xl border border-border-light shadow-sm overflow-hidden flex flex-col h-full min-h-125">
                 <div className="px-6 pt-6 border-b border-border-light print:hidden">
                     <div className="flex gap-6">
                         {(['appointments', 'records'] as const).map((tab) => (

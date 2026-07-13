@@ -24,7 +24,7 @@ export default function ConnectionRequestsWidget() {
   if (isLoading || requests.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-border-light p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
+    <div className="bg-white rounded-xl border border-border-light p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
       <div className="flex items-center gap-4 mb-8">
         <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center">
           <UserPlus className="h-6 w-6 text-primary" />

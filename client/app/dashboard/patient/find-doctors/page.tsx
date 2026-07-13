@@ -86,7 +86,7 @@ export default function FindDoctorsPage() {
 
             {/* Sidebar Filters */}
             <aside className="w-full lg:w-80 flex-shrink-0 space-y-6">
-                <div className="bg-white rounded-[2rem] p-6 shadow-lens border border-black/5 sticky top-24">
+                <div className="bg-white rounded-xl p-6 shadow-lens border border-black/5 sticky top-24">
                     <div className="flex items-center gap-2 mb-6 text-text-primary">
                         <Filter size={20} className="text-primary" />
                         <h2 className="text-xl font-bold tracking-tight">{t('patient.findDoctors.filters')}</h2>
@@ -200,11 +200,11 @@ export default function FindDoctorsPage() {
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                         {[1, 2, 3, 4].map(n => (
-                            <div key={n} className="h-64 rounded-[2rem] bg-surface animate-pulse" />
+                            <div key={n} className="h-64 rounded-xl bg-surface animate-pulse" />
                         ))}
                     </div>
                 ) : filteredDoctors.length === 0 ? (
-                    <div className="py-20 text-center bg-white rounded-[2.5rem] border border-black/5 shadow-lens">
+                    <div className="py-20 text-center bg-white rounded-xl border border-black/5 shadow-lens">
                         <div className="h-20 w-20 mx-auto bg-background rounded-full flex items-center justify-center mb-6">
                             <Search className="h-10 w-10 text-text-secondary" />
                         </div>
@@ -222,7 +222,7 @@ export default function FindDoctorsPage() {
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8">
                         {filteredDoctors.map((doc: any) => (
-                            <div key={doc._id} className="group relative bg-white rounded-[2rem] p-6 border border-black/5 shadow-lens hover:border-primary/20 transition-all duration-300">
+                            <div key={doc._id} className="group relative bg-white rounded-xl p-6 border border-black/5 shadow-lens hover:border-primary/20 transition-all duration-300">
 
                                 <div className="flex gap-5">
                                     <div className="relative">

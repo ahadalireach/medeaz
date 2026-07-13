@@ -74,7 +74,7 @@ export function BentoSections() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
            <motion.div 
              whileHover={{ y: -5 }}
-             className="rounded-[2rem] bg-ink text-white p-10 relative overflow-hidden group shadow-2xl"
+             className="rounded-xl bg-ink text-white p-10 relative overflow-hidden group shadow-2xl"
            >
              <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
              <div className="absolute top-0 right-0 w-64 h-64 bg-brand/20 blur-[100px] rounded-full"></div>
@@ -88,7 +88,7 @@ export function BentoSections() {
 
            <motion.div 
              whileHover={{ y: -5 }}
-             className="rounded-[2rem] bg-gradient-to-br from-surface-lavender to-white border border-accent-purple/20 p-10 relative overflow-hidden group shadow-xl shadow-accent-purple/5"
+             className="rounded-xl bg-gradient-to-br from-surface-lavender to-white border border-accent-purple/20 p-10 relative overflow-hidden group shadow-xl shadow-accent-purple/5"
            >
              <div className="relative z-10 h-full flex flex-col">
                <span className="px-3 py-1 bg-white rounded-full text-xs font-bold tracking-wider uppercase mb-6 inline-block w-max text-accent-purple-strong shadow-sm border border-border/50">Management</span>
@@ -110,7 +110,7 @@ export function BentoSections() {
 
 function PortalCard({ title, desc, icon, color, iconBg, textColor = "text-white", descColor = "text-white/80" }: any) {
   return (
-    <motion.div whileHover={{ y: -5 }} className={`p-8 rounded-[2rem] flex flex-col ${color}`}>
+    <motion.div whileHover={{ y: -5 }} className={`p-8 rounded-xl flex flex-col ${color}`}>
       <div className={`h-14 w-14 rounded-2xl flex items-center justify-center mb-6 ${iconBg}`}>
         {icon}
       </div>
@@ -122,7 +122,7 @@ function PortalCard({ title, desc, icon, color, iconBg, textColor = "text-white"
 
 function FeatureCard({ title, desc, icon, bg, colSpan }: any) {
   return (
-    <motion.div whileHover={{ scale: 1.02 }} className={`p-8 rounded-[2rem] border border-border/50 shadow-lg flex flex-col group hover:shadow-xl transition-all ${bg} ${colSpan}`}>
+    <motion.div whileHover={{ scale: 1.02 }} className={`p-8 rounded-xl border border-border/50 shadow-lg flex flex-col group hover:shadow-xl transition-all ${bg} ${colSpan}`}>
       <div className="h-12 w-12 rounded-xl bg-surface flex items-center justify-center mb-6 border border-border/50 group-hover:bg-white transition-colors">
         {icon}
       </div>

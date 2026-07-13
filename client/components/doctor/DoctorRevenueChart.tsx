@@ -118,7 +118,7 @@ export default function DoctorRevenueChart() {
                                     contentStyle={{
                                         backgroundColor: "#18181b",
                                         border: "none",
-                                        borderRadius: "16px",
+                                        borderRadius: "22px",
                                         boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                                     }}
                                     itemStyle={{ color: "#FFFFFF", fontWeight: 'bold', fontSize: '12px' }}

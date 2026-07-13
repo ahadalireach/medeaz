@@ -159,8 +159,8 @@ export default function FamilyRecordsPage() {
             <h2 className="text-xl font-black">{recordTitle(selectedRecord)}</h2>
             <p className="text-sm">{getDiagnosisLabel(selectedRecord.diagnosis)}</p>
             <div className="flex gap-2">
-              <div className="rounded border p-2"><User /> {getDoctorName(selectedRecord)}</div>
-              <div className="rounded border p-2"><Building2 /> {getClinicName(selectedRecord)}</div>
+              <div className="rounded-lg border p-2"><User /> {getDoctorName(selectedRecord)}</div>
+              <div className="rounded-lg border p-2"><Building2 /> {getClinicName(selectedRecord)}</div>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => { setRecordToDelete(selectedRecord); setIsDetailOpen(false); setIsDeleteOpen(true); }}>{familyText("patient.family.deleteRecord", "Delete Record")}</Button>

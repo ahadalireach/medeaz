@@ -264,7 +264,7 @@ export default function NotificationPanel({ isOpen, onClose }: { isOpen: boolean
                         ))
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                            <div className="h-20 w-20 bg-background rounded-[2.5rem] flex items-center justify-center mb-6 border border-dashed border-border-light">
+                            <div className="h-20 w-20 bg-background rounded-xl flex items-center justify-center mb-6 border border-dashed border-border-light">
                                 <FilledBellIcon className="h-6 w-6" />
                             </div>
                             <h4 className="text-xl font-black text-text-primary uppercase tracking-tight">{t('topbar.noNotifications').toUpperCase()}</h4>

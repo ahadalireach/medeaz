@@ -411,7 +411,7 @@ export default function SchedulePage() {
                               <div className="flex items-center justify-between mt-1 text-[11px] sm:text-xs text-white/90 font-bold min-w-0">
                                 <span className="truncate">{app.startTime} - {app.endTime}</span>
                                 {heightMultiplier > 2 && (
-                                  <span className="capitalize px-1.5 py-0.5 rounded bg-white/25 text-[9px] truncate">
+                                  <span className="capitalize px-1.5 py-0.5 rounded-lg bg-white/25 text-[9px] truncate">
                                     {app.appointmentType === 'follow-up' ? (locale === 'ur' ? 'فالو اپ' : 'Follow-up') : (locale === 'ur' ? 'مشاورت' : 'Consultation')}
                                   </span>
                                 )}

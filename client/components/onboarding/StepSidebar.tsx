@@ -19,7 +19,7 @@ export default function StepSidebar({ steps, currentStep, locale }: StepSidebarP
   const isUrdu = locale === "ur";
 
   return (
-    <div className="w-[220px] bg-[#f8fafc] border-r border-[#e5e7eb] rounded-l-[20px] p-8 flex flex-col shrink-0 select-none">
+    <div className="w-[220px] bg-[#f8fafc] border-r border-[#e5e7eb] rounded-l-xl p-8 flex flex-col shrink-0 select-none">
       {/* Logo & Header */}
       <div className="flex items-center space-x-2 mb-10">
         <div className="w-8 h-8 rounded-lg bg-[#00b495] flex items-center justify-center font-black text-white text-base shadow-md shadow-teal-500/10">

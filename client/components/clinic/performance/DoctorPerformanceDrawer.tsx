@@ -183,14 +183,14 @@ export default function DoctorPerformanceDrawer({
                 <div className="space-y-1 flex-1">
                   <h2 className="text-xl font-bold tracking-tight !text-white">
                     {isLoading ? (
-                      <span className="inline-block h-6 w-36 animate-pulse bg-white/20 rounded mt-1" />
+                      <span className="inline-block h-6 w-36 animate-pulse bg-white/20 rounded-lg mt-1" />
                     ) : (
                       `${t("common.doctorPrefix")} ${doctor?.name || ""}`
                     )}
                   </h2>
                   <p className="text-sm text-white/70 font-medium">
                     {isLoading ? (
-                      <span className="inline-block h-4 w-24 animate-pulse bg-white/20 rounded mt-1" />
+                      <span className="inline-block h-4 w-24 animate-pulse bg-white/20 rounded-lg mt-1" />
                     ) : (
                       doctor?.specialization || ""
                     )}
@@ -475,7 +475,7 @@ export default function DoctorPerformanceDrawer({
                               contentStyle={{
                                 backgroundColor: "#0f4c5c",
                                 border: "none",
-                                borderRadius: "12px",
+                                borderRadius: "22px",
                                 padding: "8px 12px",
                               }}
                               labelStyle={{

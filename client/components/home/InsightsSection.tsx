@@ -123,7 +123,7 @@ export function InsightsSection() {
             {cards.map((card) => (
               <article
                 key={card.title}
-                className={`relative overflow-hidden rounded-[22px] ${card.gradient} px-6 sm:px-8 py-8 sm:py-10 flex flex-col items-center text-center min-h-[340px] sm:min-h-[380px]`}
+                className={`relative overflow-hidden rounded-xl ${card.gradient} px-6 sm:px-8 py-8 sm:py-10 flex flex-col items-center text-center min-h-[340px] sm:min-h-[380px]`}
               >
                 <div
                   aria-hidden
