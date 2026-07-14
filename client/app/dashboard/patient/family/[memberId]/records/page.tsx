@@ -13,6 +13,14 @@ import { toast } from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+import { resolveMediaUrl } from "@/lib/media";
+
+const isImageUrl = (url = "") =>
+  /^data:image\//i.test(url) || /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(url);
+const isPdfUrl = (url = "") =>
+  /^data:application\/pdf/i.test(url) || /\.pdf(\?|$)/i.test(url);
+const resolveAttachmentUrl = (url = "") =>
+  !url || url.startsWith("data:") || url.startsWith("http") ? url : resolveMediaUrl(url);
 
 export default function FamilyRecordsPage() {
   const params = useParams();
@@ -141,10 +149,14 @@ export default function FamilyRecordsPage() {
             <option value="prescription">{familyText("patient.family.prescription", "Prescription")}</option>
             <option value="other">{familyText("patient.family.other", "Other")}</option>
           </select>
-          <label className="flex flex-col items-center gap-2 p-4 border rounded-2xl cursor-pointer">
-            <Upload />
-            <span>{formData.fileUrl ? t("patient.family.attachmentSelected") : t("patient.family.uploadAttachment")}</span>
-            <input type="file" className="hidden" onChange={handleFileChange} />
+          <label className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border-light bg-surface/50 p-4 cursor-pointer hover:border-primary/50 transition-colors">
+            {formData.fileUrl && isImageUrl(formData.fileUrl) ? (
+              <img src={formData.fileUrl} alt="preview" className="max-h-40 w-full rounded-xl object-contain bg-black/[0.03]" />
+            ) : (
+              <Upload className="h-8 w-8 text-primary" />
+            )}
+            <span className="text-sm text-text-secondary">{formData.fileUrl ? t("patient.family.attachmentSelected") : t("patient.family.uploadAttachment")}</span>
+            <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileChange} />
           </label>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t("common.cancel")}</Button>
@@ -153,21 +165,61 @@ export default function FamilyRecordsPage() {
         </form>
       </Modal>
 
-      <Modal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} title={selectedRecord ? recordTitle(selectedRecord) : t("patient.family.recordDetails")}>
-        {selectedRecord && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-black">{recordTitle(selectedRecord)}</h2>
-            <p className="text-sm">{getDiagnosisLabel(selectedRecord.diagnosis)}</p>
-            <div className="flex gap-2">
-              <div className="rounded-lg border p-2"><User /> {getDoctorName(selectedRecord)}</div>
-              <div className="rounded-lg border p-2"><Building2 /> {getClinicName(selectedRecord)}</div>
+      <Modal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} title={selectedRecord ? recordTitle(selectedRecord) : t("patient.family.recordDetails")} size="lg">
+        {selectedRecord && (() => {
+          const att = selectedRecord.attachments?.[0] || null;
+          const rawUrl = att?.fileUrl || "";
+          const url = resolveAttachmentUrl(rawUrl);
+          return (
+            <div className="space-y-5">
+              {/* Attachment preview */}
+              <div className="overflow-hidden rounded-2xl border border-border-light bg-surface">
+                {url && isImageUrl(rawUrl) ? (
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="group block">
+                    <img
+                      src={url}
+                      alt={recordTitle(selectedRecord)}
+                      className="max-h-[440px] w-full bg-black/[0.03] object-contain transition-opacity group-hover:opacity-95"
+                    />
+                  </a>
+                ) : url && isPdfUrl(rawUrl) ? (
+                  <iframe src={url} title={recordTitle(selectedRecord)} className="h-[440px] w-full" />
+                ) : url ? (
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-3 py-14 text-center hover:bg-primary/5 transition-colors">
+                    <FileText className="h-12 w-12 text-primary" />
+                    <span className="text-sm font-semibold text-primary">{familyText("patient.family.openFile", "Open file")}</span>
+                  </a>
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-3 py-14 text-center text-text-secondary">
+                    <FileText className="h-12 w-12 opacity-30" />
+                    <span className="text-sm">{familyText("patient.family.noPreview", "No preview available")}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Metadata */}
+              <div className="space-y-3">
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">
+                  {getDiagnosisLabel(selectedRecord.diagnosis)}
+                </span>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <div className="flex items-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm"><User className="h-4 w-4 shrink-0 text-primary" /><span className="truncate">{getDoctorName(selectedRecord)}</span></div>
+                  <div className="flex items-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm"><Building2 className="h-4 w-4 shrink-0 text-primary" /><span className="truncate">{getClinicName(selectedRecord)}</span></div>
+                  <div className="flex items-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm"><Calendar className="h-4 w-4 shrink-0 text-primary" /><span className="truncate">{formatDate(selectedRecord.visitDate || selectedRecord.createdAt)}</span></div>
+                </div>
+                {selectedRecord.notes && (
+                  <p className="rounded-xl bg-surface px-4 py-3 text-sm text-text-primary">{selectedRecord.notes}</p>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-2 pt-1">
+                <Button variant="outline" onClick={() => { setRecordToDelete(selectedRecord); setIsDetailOpen(false); setIsDeleteOpen(true); }}>{familyText("patient.family.deleteRecord", "Delete Record")}</Button>
+                <Button onClick={() => setIsDetailOpen(false)}>{t("common.close")}</Button>
+              </div>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => { setRecordToDelete(selectedRecord); setIsDetailOpen(false); setIsDeleteOpen(true); }}>{familyText("patient.family.deleteRecord", "Delete Record")}</Button>
-              <Button onClick={() => setIsDetailOpen(false)}>{t("common.close")}</Button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </Modal>
 
       <ConfirmationModal isOpen={isDeleteOpen} onClose={() => { if (!isDeleting) setIsDeleteOpen(false); }} onConfirm={doDelete} title={familyText("patient.family.deleteRecord", "Delete Record")} message={familyText("patient.family.confirmDelete", "Are you sure you want to delete this record?")} confirmText={t("common.delete")} cancelText={t("common.cancel")} variant="danger" confirmLoading={isDeleting} closeOnConfirm={false} />

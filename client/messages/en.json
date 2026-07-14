@@ -618,7 +618,9 @@
       "bloodGroupPlaceholder": "e.g. A+, B-, O+",
       "allergiesPlaceholder": "Allergies, e.g. Peanuts, Penicillin",
       "noMembers": "No family members yet",
-      "addFirstMember": "Add your first family member to manage their health records"
+      "addFirstMember": "Add your first family member to manage their health records",
+      "openFile": "Open file",
+      "noPreview": "No preview available"
     },
     "profile": {
       "title": "Patient Profile",
