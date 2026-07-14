@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Make the `dark:` variant class-based instead of Tailwind v4's default
+   media-based (prefers-color-scheme). Without this, stray `dark:` utilities
+   activate on any device set to OS dark mode, clashing with our light-only
+   design tokens. Now `dark:` only applies under a `.dark` ancestor — which the
+   app never sets — so the UI stays consistently light everywhere. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* =========================================================================
    Design tokens — Medeaz Light Design System
    Brand: cream/white background, white sidebar, teal accents
