@@ -101,7 +101,7 @@ export function LoginForm() {
           ))}
         </div>
 
-        <GoogleAuthButton mode="login" />
+        <GoogleAuthButton mode="login" role={role} />
 
         <div className="my-5 flex items-center gap-3 text-[13px] text-text-secondary">
           <span className="h-px flex-1 bg-border-light" />

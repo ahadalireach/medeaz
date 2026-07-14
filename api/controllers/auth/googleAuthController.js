@@ -55,13 +55,20 @@ async function googleAuth(req, res) {
     if (mappedRole === "clinic") mappedRole = "clinic_admin";
 
     if (user) {
-      // === EXISTING USER — LOGIN FLOW ===
-      
-      // If user registered with local auth but same email:
-      if (user.authProvider === "local" || !user.googleId) {
-        return res.status(400).json({
-          error: "This email is registered using password login. Please log in with your email and password."
-        });
+      // === EXISTING USER — LOGIN (with automatic account linking) ===
+      // Google has already verified this email, so it is safe to attach the
+      // Google identity to a pre-existing account (e.g. one originally created
+      // with an email/password) and sign the user in. From this point on the
+      // email is a Google account — the password-login path already directs
+      // such users to "Continue with Google".
+      if (!user.googleId) {
+        user.googleId = googleId;
+      }
+      if (user.authProvider !== "google") {
+        // Set both fields: the model's pre-save hook syncs provider <-> authProvider
+        // and would otherwise revert authProvider back to the old provider value.
+        user.authProvider = "google";
+        user.provider = "google";
       }
 
       // Refresh avatar if Google has one and user has none

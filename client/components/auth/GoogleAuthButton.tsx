@@ -8,6 +8,8 @@ import { Loader2 } from "lucide-react";
 interface Props {
   mode: "login" | "signup";
   disabled?: boolean;
+  /** Selected role — persisted so the callback page can complete signup with it. */
+  role?: string;
 }
 
 function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
@@ -21,12 +23,17 @@ function GoogleIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-export function GoogleAuthButton({ mode, disabled }: Props) {
+export function GoogleAuthButton({ mode, disabled, role }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleGoogleAuth() {
     setIsLoading(true);
     try {
+      // Persist the selected role so the callback page can complete signup
+      // with the correct role (ignored by the backend for existing accounts).
+      if (role) {
+        sessionStorage.setItem("pendingGoogleRole", role);
+      }
       // Full-page OAuth redirect to Google, returning to our callback page.
       // On success the browser navigates away, so no success toast is shown
       // here — the callback page handles syncing and messaging.

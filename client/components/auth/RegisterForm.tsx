@@ -166,7 +166,7 @@ export function RegisterForm() {
         </div>
 
         <div title={!role ? "Please select your role first" : ""}>
-          <GoogleAuthButton mode="signup" disabled={!role} />
+          <GoogleAuthButton mode="signup" disabled={!role} role={role ?? undefined} />
         </div>
         {!role && (
           <p className="mt-1.5 text-center text-[12px] text-text-secondary">
