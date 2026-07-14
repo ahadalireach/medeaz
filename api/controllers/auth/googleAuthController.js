@@ -81,6 +81,21 @@ async function googleAuth(req, res) {
         user.name = name;
       }
 
+      // Repair legacy/invalid role values (e.g. "user" from an older schema)
+      // so the linking save() doesn't fail enum validation on the whole doc.
+      const VALID_ROLES = ["doctor", "clinic_admin", "patient"];
+      if (Array.isArray(user.roles)) {
+        user.roles = user.roles.filter((r) => VALID_ROLES.includes(r));
+      }
+      if (!VALID_ROLES.includes(user.role)) {
+        user.role =
+          (user.roles && user.roles[0]) ||
+          (VALID_ROLES.includes(mappedRole) ? mappedRole : "patient");
+      }
+      if (!user.roles || user.roles.length === 0) {
+        user.roles = [user.role];
+      }
+
       await user.save();
 
     } else {
