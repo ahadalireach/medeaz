@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useGetDoctorPerformanceDetailQuery } from "@/store/api/clinicApi";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
@@ -74,6 +75,7 @@ export default function DoctorPerformanceDrawer({
   const flags = detail?.flags || [];
   const score = detail?.score || 0;
   const label = detail?.label || "Average";
+  const scoreLabelKey = `clinic.performance.labels.${label.replace(/\s+/g, "")}`;
 
   // Format date safely
   const formatJoinDate = (dateStr: string) => {
@@ -134,9 +136,11 @@ export default function DoctorPerformanceDrawer({
       : { x: "100%", y: 0 },
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 overflow-hidden print:hidden" style={{ direction: isRtl ? "rtl" : "ltr" }}>
+      <div className="fixed inset-0 z-[9999] overflow-hidden print:hidden" style={{ direction: isRtl ? "rtl" : "ltr" }}>
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -267,7 +271,7 @@ export default function DoctorPerformanceDrawer({
                         </div>
                       </div>
                       <h4 className={`text-sm font-black mt-3 ${colors.text} uppercase tracking-wider`}>
-                        {t(`clinic.performance.labels.${label.replace(/\s+/g, "")}`) || label}
+                        {t.has(scoreLabelKey) ? t(scoreLabelKey) : label}
                       </h4>
                     </div>
 
@@ -289,7 +293,7 @@ export default function DoctorPerformanceDrawer({
                                 key={flag}
                                 className="text-xs text-red-600 bg-red-50/50 border border-red-100 rounded-lg p-2 font-medium"
                               >
-                                • {t(`clinic.performance.drawer.flags.${flag}`) || flag}
+                                • {t.has(`clinic.performance.drawer.flags.${flag}`) ? t(`clinic.performance.drawer.flags.${flag}`) : flag}
                               </div>
                             ))
                           )}
@@ -575,6 +579,7 @@ export default function DoctorPerformanceDrawer({
           </motion.div>
         </div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

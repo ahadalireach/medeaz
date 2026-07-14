@@ -467,6 +467,13 @@
         "revenueChart": "آمدنی کا رجحان",
         "recentReviews": "حالیہ جائزے",
         "noComment": "کوئی تبصرہ نہیں دیا گیا"
+      },
+      "labels": {
+        "Exceptional": "غیر معمولی",
+        "Strong": "مضبوط",
+        "Good": "اچھا",
+        "Average": "اوسط",
+        "NeedsReview": "نظرثانی درکار"
       }
     },
     "createAppointmentModal": {

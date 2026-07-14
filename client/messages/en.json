@@ -469,6 +469,13 @@
         "revenueChart": "Revenue Trend",
         "recentReviews": "Recent Reviews",
         "noComment": "No comment provided"
+      },
+      "labels": {
+        "Exceptional": "Exceptional",
+        "Strong": "Strong",
+        "Good": "Good",
+        "Average": "Average",
+        "NeedsReview": "Needs Review"
       }
     },
     "createAppointmentModal": {
