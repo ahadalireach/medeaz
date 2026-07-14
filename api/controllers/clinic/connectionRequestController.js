@@ -47,7 +47,7 @@ exports.sendRequest = asyncHandler(async (req, res) => {
 
   // 7. Socket emit to doctor
   if (global.io) {
-    global.io.to(doctor.userId._id.toString()).emit('clinic_connection_request', {
+    global.io?.to(doctor.userId._id.toString())?.emit('clinic_connection_request', {
       requestId: request._id,
       clinicName: clinic.name,
       clinicLogo: clinic.photo || null,

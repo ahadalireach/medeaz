@@ -130,7 +130,7 @@ exports.issueToken = asyncHandler(async (req, res) => {
 
   const io = req.app.get("io");
   if (io) {
-    io.to(`opd_${clinicId}`).emit("opd_token_issued", {
+    io?.to(`opd_${clinicId}`)?.emit("opd_token_issued", {
       tokenId: token._id,
       tokenNumber: token.tokenNumber,
       patientName: token.patientName,
@@ -230,7 +230,7 @@ exports.callToken = asyncHandler(async (req, res) => {
   // Emit socket event to clinic room
   const io = req.app.get("io");
   if (io) {
-    io.to(`opd_${token.clinicId}`).emit("opd_token_called", {
+    io?.to(`opd_${token.clinicId}`)?.emit("opd_token_called", {
       tokenId: token._id,
       tokenNumber: token.tokenNumber,
       patientName: token.patientName,
@@ -283,7 +283,7 @@ exports.completeToken = asyncHandler(async (req, res) => {
 
   const io = req.app.get("io");
   if (io) {
-    io.to(`opd_${token.clinicId}`).emit("opd_token_completed", {
+    io?.to(`opd_${token.clinicId}`)?.emit("opd_token_completed", {
       tokenId: token._id,
       tokenNumber: token.tokenNumber,
       doctorId: token.doctorId,
@@ -317,7 +317,7 @@ exports.skipToken = asyncHandler(async (req, res) => {
 
   const io = req.app.get("io");
   if (io) {
-    io.to(`opd_${token.clinicId}`).emit("opd_token_skipped", {
+    io?.to(`opd_${token.clinicId}`)?.emit("opd_token_skipped", {
       tokenId: token._id,
       tokenNumber: token.tokenNumber,
       doctorId: token.doctorId

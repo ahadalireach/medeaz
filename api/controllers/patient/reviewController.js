@@ -100,7 +100,7 @@ exports.submitReview = asyncHandler(async (req, res) => {
     // 7. Emit Socket Event
     const io = req.app.get("io");
     if (io) {
-        io.to(doctorId.toString()).emit("notification", notification);
+        io?.to(doctorId.toString())?.emit("notification", notification);
     }
 
     res.status(201).json(new ApiResponse(201, review, "Review submitted successfully"));
@@ -213,7 +213,7 @@ exports.updateReview = asyncHandler(async (req, res) => {
     // 6. Emit Socket Event
     const io = req.app.get("io");
     if (io) {
-        io.to(review.doctorId.toString()).emit("notification", notification);
+        io?.to(review.doctorId.toString())?.emit("notification", notification);
     }
 
     res.status(200).json(new ApiResponse(200, review, "Review updated successfully"));

@@ -302,7 +302,7 @@ exports.createAppointment = asyncHandler(async (req, res) => {
       });
 
       if (io) {
-        io.to(patientId.toString()).emit('follow_up_assigned', {
+        io?.to(patientId.toString())?.emit('follow_up_assigned', {
           type: 'follow_up_assigned',
           message: `Dr. ${doctorFullName} scheduled a follow-up for ${formattedDate}.`,
           dueDate: appointmentDate
@@ -315,7 +315,7 @@ exports.createAppointment = asyncHandler(async (req, res) => {
   await invalidatePatientHealthScoreCache(patientId);
   await invalidateAppointmentsCache(doctor.clinicId || null, doctorId, patientId);
   const io = req.app.get('io');
-  if (io) io.to(doctorId.toString()).emit('schedule_updated');
+  if (io) io?.to(doctorId.toString())?.emit('schedule_updated');
 
   const populatedAppointment = await Appointment.findById(appointment._id)
     .populate('patientId', 'name email phone photo')
@@ -541,7 +541,7 @@ exports.updateAppointmentStatus = asyncHandler(async (req, res) => {
   await invalidateAllDoctorScheduleCaches(req.user._id);
   await invalidatePatientHealthScoreCache(appointment.patientId);
   const io = req.app.get('io');
-  if (io) io.to(req.user._id.toString()).emit('schedule_updated');
+  if (io) io?.to(req.user._id.toString())?.emit('schedule_updated');
 
   if (appointment.status === 'completed') {
     await createPrescriptionForCompletedAppointment({
@@ -763,7 +763,7 @@ exports.deleteAppointment = asyncHandler(async (req, res) => {
   await invalidateAllDoctorScheduleCaches(doctorId);
   await invalidatePatientHealthScoreCache(appointment.patientId);
   const io = req.app.get('io');
-  if (io) io.to(doctorId.toString()).emit('schedule_updated');
+  if (io) io?.to(doctorId.toString())?.emit('schedule_updated');
 
   res.status(200).json(
     new ApiResponse(200, null, 'Appointment deleted successfully')

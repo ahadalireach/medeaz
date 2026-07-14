@@ -318,7 +318,7 @@ exports.bookAppointment = asyncHandler(async (req, res) => {
     }
   }
 
-  io.to(doctorUserId.toString()).emit('schedule_updated');
+  io?.to(doctorUserId.toString())?.emit('schedule_updated');
 
   res.status(201).json(new ApiResponse(201, populatedAppointment, 'Appointment booked successfully'));
 });
@@ -386,7 +386,7 @@ exports.cancelAppointment = asyncHandler(async (req, res) => {
 
   await invalidateAllDoctorScheduleCaches(appointment.doctorId._id);
   await invalidatePatientHealthScoreCache(userId);
-  io.to(appointment.doctorId._id.toString()).emit('schedule_updated');
+  io?.to(appointment.doctorId._id.toString())?.emit('schedule_updated');
 
   res.status(200).json(new ApiResponse(200, populatedAppointment, 'Appointment cancelled successfully'));
 });

@@ -87,7 +87,7 @@ const markRead = async (req, res) => {
   // Notify via socket so the sender gets the "blue tick" instantly
   const io = req.app.get('io');
   if (io) {
-    io.to(conversationId).emit('messages_read', { conversationId, readerId: id.toString() });
+    io?.to(conversationId)?.emit('messages_read', { conversationId, readerId: id.toString() });
   }
 
   res.json({ success: true });
@@ -116,7 +116,7 @@ const deleteMessage = async (req, res) => {
   // Notify via socket
   const io = req.app.get('io');
   if (io) {
-    io.to(message.conversationId.toString()).emit('message_deleted', { 
+    io?.to(message.conversationId.toString())?.emit('message_deleted', { 
       messageId: message._id,
       conversationId: message.conversationId 
     });
@@ -148,7 +148,7 @@ const deleteConversation = async (req, res) => {
   if (io) {
     const participants = [conversation.doctorId.toString(), conversation.patientId.toString()];
     participants.forEach(pId => {
-      io.to(pId).emit('conversation_deleted', { conversationId });
+      io?.to(pId)?.emit('conversation_deleted', { conversationId });
     });
   }
 

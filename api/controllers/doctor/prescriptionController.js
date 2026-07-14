@@ -183,7 +183,7 @@ exports.createPrescription = asyncHandler(async (req, res) => {
           });
 
           if (ioObj) {
-            ioObj.to(patientId.toString()).emit('follow_up_assigned', {
+            ioObj?.to(patientId.toString())?.emit('follow_up_assigned', {
               type: 'follow_up_assigned',
               message: `Dr. ${doctorFullName} scheduled a follow-up for ${formattedDate}.`,
               dueDate
@@ -268,7 +268,7 @@ exports.createPrescription = asyncHandler(async (req, res) => {
     const { invalidateAllDoctorScheduleCaches, invalidateAppointmentsCache } = require('../../utils/cacheHelpers');
     await invalidateAllDoctorScheduleCaches(doctorId);
     await invalidateAppointmentsCache(doctor?.clinicId || null, doctorId, patientId);
-    if (io) io.to(doctorId.toString()).emit('schedule_updated');
+    if (io) io?.to(doctorId.toString())?.emit('schedule_updated');
   } catch (err) {
     console.error('Failed to invalidate caches after prescription creation:', err.message);
   }

@@ -68,7 +68,7 @@ exports.createFollowUp = asyncHandler(async (req, res) => {
   });
 
   if (io) {
-    io.to(patientProfile.userId.toString()).emit("follow_up_assigned", {
+    io?.to(patientProfile.userId.toString())?.emit("follow_up_assigned", {
       type: "follow_up_assigned",
       message: `Dr. ${req.user.name} scheduled a follow-up for ${formattedDate}.`,
       dueDate: dueDateObj

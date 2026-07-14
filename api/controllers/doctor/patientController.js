@@ -315,7 +315,7 @@ exports.createPatient = asyncHandler(async (req, res) => {
     // Emit socket event to the patient
     const io = req.app.get('io');
     if (io) {
-      io.to(existingUser._id.toString()).emit('new_connection_request', newRequest);
+      io?.to(existingUser._id.toString())?.emit('new_connection_request', newRequest);
     }
 
     return res.status(200).json(new ApiResponse(200, { 

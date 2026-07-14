@@ -71,7 +71,7 @@ async function sendNotification(userId, payload) {
 
   const io = getIO();
   if (io) {
-    io.to(targetUserId).emit("notification", {
+    io?.to(targetUserId)?.emit("notification", {
       _id: notification._id,
       userId: targetUserId,
       type,

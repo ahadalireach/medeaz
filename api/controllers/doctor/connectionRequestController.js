@@ -99,7 +99,7 @@ exports.acceptRequest = asyncHandler(async (req, res) => {
       });
 
       if (global.io) {
-        global.io.to(clinic.adminId.toString()).emit('doctor_accepted_request', {
+        global.io?.to(clinic.adminId.toString())?.emit('doctor_accepted_request', {
           doctorId: doctor._id,
           name: user.name
         });

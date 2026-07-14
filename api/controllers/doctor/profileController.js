@@ -186,7 +186,7 @@ exports.updateAvailability = asyncHandler(async (req, res) => {
     // Emit socket event globally
     const io = req.app.get("io");
     if (io) {
-        io.emit('doctor_availability_changed', {
+        io?.emit('doctor_availability_changed', {
             doctorId: doctor._id,
             status,
             updatedBy: 'doctor'

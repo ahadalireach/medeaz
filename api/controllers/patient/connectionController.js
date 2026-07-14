@@ -59,7 +59,7 @@ exports.handleConnectionRequest = asyncHandler(async (req, res) => {
   // Emit socket event to the requester
   const io = req.app.get('io');
   if (io) {
-    io.to(request.fromId.toString()).emit('connection_request_handled', {
+    io?.to(request.fromId.toString())?.emit('connection_request_handled', {
       requestId: request._id,
       status: status,
       patientName: req.user.name

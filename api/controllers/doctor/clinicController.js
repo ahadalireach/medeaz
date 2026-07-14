@@ -102,7 +102,7 @@ exports.leaveClinic = asyncHandler(async (req, res) => {
         });
 
         if (global.io) {
-          global.io.to(clinic.adminId.toString()).emit('doctor_left_clinic', {
+          global.io?.to(clinic.adminId.toString())?.emit('doctor_left_clinic', {
             doctorId: doctor._id, name: req.user.name
           });
         }
