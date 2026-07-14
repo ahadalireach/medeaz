@@ -49,11 +49,12 @@ const patientSchema = new mongoose.Schema(
   }
 );
 
-patientSchema.pre("save", function (next) {
+// Mongoose 9 removed callback-style middleware — hooks must be sync/async
+// with no `next` argument (see User.js / Message.js).
+patientSchema.pre("save", function () {
   if (this.gender) {
     this.gender = this.gender.toLowerCase().trim();
   }
-  next();
 });
 
 module.exports = mongoose.model("Patient", patientSchema);
