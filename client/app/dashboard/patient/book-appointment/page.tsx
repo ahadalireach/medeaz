@@ -231,6 +231,27 @@ export default function BookAppointmentPage() {
 
   const availableSlots = getAvailableSlots();
 
+  // Base slot interval (minutes) inferred from the doctor's schedule.
+  // Extended consultation combines two consecutive slots into a 30-minute
+  // visit, so it is only offered when the base slot is 15 minutes — not for
+  // 20-minute (or any other) slot lengths.
+  const slotIntervalMinutes = (() => {
+    if (!availableSlots || availableSlots.length < 2) return null;
+    const toMin = (s: string) => {
+      const [h, m] = s.split(":").map(Number);
+      return h * 60 + m;
+    };
+    return Math.abs(toMin(availableSlots[1]) - toMin(availableSlots[0]));
+  })();
+  const extendedConsultationAvailable = slotIntervalMinutes === 15;
+
+  // If the selected doctor's slots aren't 15 min, clear any stale extended selection.
+  useEffect(() => {
+    if (!extendedConsultationAvailable && formData.duration === 30) {
+      setFormData((p) => ({ ...p, duration: 15 }));
+    }
+  }, [extendedConsultationAvailable]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const { data: bookedData, isFetching: fetchingSlots } = useGetAvailableSlotsQuery(
     { doctorId: formData.doctorId, date: formData.appointmentDate },
     { skip: !formData.doctorId || !formData.appointmentDate }
@@ -665,6 +686,7 @@ export default function BookAppointmentPage() {
               </div>
             </div>
 
+            {extendedConsultationAvailable && (
             <div className="flex items-center gap-3 bg-surface p-4 rounded-xl border border-black/5 mt-4">
               <input
                 type="checkbox"
@@ -694,6 +716,7 @@ export default function BookAppointmentPage() {
                 </p>
               </label>
             </div>
+            )}
 
             <div>
               <label className="mb-2 block text-sm font-semibold text-text-primary">

@@ -42,6 +42,7 @@ import * as z from "zod";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/shared/PageHeader";
 import { resolveMediaUrl } from "@/lib/media";
+import { fileToResizedDataUrl } from "@/lib/image";
 
 const profileSchema = z.object({
     name: z.string().min(3, "Full name is required (min 3 chars)"),
@@ -164,17 +165,19 @@ export default function DoctorProfilePage() {
         }
     }, [profileData, reset]);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                toast.error("Image size must be less than 5MB");
-                return;
-            }
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => setProfileImage(reader.result as string);
-            reader.readAsDataURL(file);
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image size must be less than 5MB");
+            return;
+        }
+        setImageFile(file);
+        try {
+            // Downscale before upload to stay under the serverless body limit.
+            setProfileImage(await fileToResizedDataUrl(file));
+        } catch {
+            toast.error("Failed to process image");
         }
     };
 

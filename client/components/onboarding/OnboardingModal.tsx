@@ -640,7 +640,7 @@ export default function OnboardingModal({ role, locale, onClose, forceOpenStep }
                     ? "Provide basic profile credentials to customize your experience."
                     : currentStep === 2
                     ? "Declare allergy records to ensure safer medical prescriptions."
-                    : "Setup notification preferences and account parameters.")}
+                    : "Set up your account security and parameters.")}
               </p>
             </div>
 

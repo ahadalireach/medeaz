@@ -102,7 +102,13 @@ exports.updatePassword = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'User not found');
   }
 
-  // Verify current password
+  // Google-only accounts have no stored password — bcrypt.compare would throw
+  // "Illegal arguments: string, undefined". Surface a clear message instead.
+  if (!user.password) {
+    throw new ApiError(400, 'This account uses Google sign-in, so there is no password to change.');
+  }
+
+  // Verify current password against the hash stored in the database
   const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
 
   if (!isPasswordMatch) {

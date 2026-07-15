@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { setCredentials } from "@/store/slices/authSlice";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/shared/PageHeader";
+import { fileToResizedDataUrl } from "@/lib/image";
 
 interface ProfileFormData {
   name: string;
@@ -195,35 +196,32 @@ export default function ProfilePage() {
                 className="hidden"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = async (event) => {
-                      const base64Str = event.target?.result as string;
-                      try {
-                        const promise = updateProfile({
-                          name: profile.name, // required fields
-                          profilePhoto: base64Str
-                        }).unwrap();
+                  if (!file) return;
+                  try {
+                    // Downscale before upload so the base64 payload stays well
+                    // under the serverless request-body limit.
+                    const base64Str = await fileToResizedDataUrl(file);
+                    const promise = updateProfile({
+                      name: profile.name, // required fields
+                      profilePhoto: base64Str
+                    }).unwrap();
 
-                        const result = await toast.promise(promise, {
-                          loading: "Uploading avatar...",
-                          success: "Avatar updated perfectly!",
-                          error: "Failed to upload avatar"
-                        });
+                    const result = await toast.promise(promise, {
+                      loading: "Uploading avatar...",
+                      success: "Avatar updated perfectly!",
+                      error: "Failed to upload avatar"
+                    });
 
-                        // Update Redux state immediately
-                        const accessToken = localStorage.getItem("accessToken");
-                        if (result?.data) {
-                          dispatch(setCredentials({
-                            user: result.data,
-                            accessToken: accessToken || ""
-                          }));
-                          localStorage.setItem("user", JSON.stringify(result.data));
-                        }
-                      } catch (err) { }
-                    };
-                    reader.readAsDataURL(file);
-                  }
+                    // Update Redux state immediately
+                    const accessToken = localStorage.getItem("accessToken");
+                    if (result?.data) {
+                      dispatch(setCredentials({
+                        user: result.data,
+                        accessToken: accessToken || ""
+                      }));
+                      localStorage.setItem("user", JSON.stringify(result.data));
+                    }
+                  } catch (err) { }
                 }}
               />
             </div>

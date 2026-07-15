@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, X, ShieldAlert, HeartPulse, User, Check, ChevronDown } from "lucide-react";
+import { Plus, X, ShieldAlert, HeartPulse, User, ChevronDown } from "lucide-react";
 
 interface PatientStepsProps {
   step: number;
@@ -76,12 +76,6 @@ export default function PatientSteps({ step, formData, onChange, errors, locale 
     }
     onChange({ chronicConditions: list });
     setCustomCondition("");
-  };
-
-  const handleNotifPreferenceToggle = (prefKey: string) => {
-    const currentNotif = { ...(formData.notifications || { email: true, whatsapp: false, sms: false }) };
-    currentNotif[prefKey] = !currentNotif[prefKey];
-    onChange({ notifications: currentNotif });
   };
 
   if (step === 1) {
@@ -312,7 +306,6 @@ export default function PatientSteps({ step, formData, onChange, errors, locale 
 
   if (step === 3) {
     const showPasswordFields = formData.changePassword;
-    const notifs = formData.notifications || { email: true, whatsapp: false, sms: false };
 
     return (
       <div className="space-y-4.5 animate-fadeIn max-h-[370px] overflow-y-auto pr-1">
@@ -396,39 +389,6 @@ export default function PatientSteps({ step, formData, onChange, errors, locale 
           )}
         </div>
 
-        {/* Notification preferences */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-            {isUrdu ? "اطلاعات کی ترجیحات" : "Notification Preferences"}
-          </label>
-          <div className="grid grid-cols-3 gap-2.5">
-            {[
-              { key: "email", label: "Email" },
-              { key: "whatsapp", label: "WhatsApp" },
-              { key: "sms", label: "SMS" },
-            ].map((pref) => {
-              const isSelected = notifs[pref.key];
-              return (
-                <div
-                  key={pref.key}
-                  onClick={() => handleNotifPreferenceToggle(pref.key)}
-                  className={`cursor-pointer p-2.5 rounded-xl border transition-all flex items-center justify-center space-x-1.5 ${
-                    isSelected ? "border-[#00b495] bg-teal-50/15" : "border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  <div
-                    className={`w-4 h-4 rounded-lg border flex items-center justify-center shrink-0 ${
-                      isSelected ? "bg-[#00b495] border-[#00b495] text-white" : "border-slate-300"
-                    }`}
-                  >
-                    {isSelected && <Check className="w-3 h-3" />}
-                  </div>
-                  <span className="text-xs font-bold text-slate-800">{pref.label}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
       </div>
     );
   }
