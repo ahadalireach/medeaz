@@ -5,13 +5,16 @@ const clinicSchema = new mongoose.Schema({
     type: String,
     required: [true, "Clinic name is required"],
   },
+  // Optional at the model level so auto-created clinics (e.g. Google signup)
+  // can be created without an address; the admin sets it during onboarding /
+  // profile, where the form enforces it. The UI hides an empty address.
   address: {
     type: String,
-    required: [true, "Address is required"],
+    default: "",
   },
   phone: {
     type: String,
-    required: [true, "Phone number is required"],
+    default: "",
   },
   email: {
     type: String,
