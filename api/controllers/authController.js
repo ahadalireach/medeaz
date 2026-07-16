@@ -84,16 +84,12 @@ const registerUser = async (req, res) => {
       if (existingUser.roles.includes(role)) {
         return res.status(400).json({
           success: false,
-          message: "An account with this role already exists for this email.",
+          message: "An account with this role already exists for this email. Please log in with this role.",
         });
       }
-      // User exists but with a different role — not allowed
-      return res.status(400).json({
-        success: false,
-        message:
-          `This email is already registered as ${existingUser.roles.join("/")}. ` +
-          "Please use a different email or log in with your existing role.",
-      });
+      // Different role on a local (password) account is allowed: one email can
+      // hold multiple roles. Fall through to send a verification email —
+      // verifyEmail appends the new role and creates its profile.
     }
 
     // For clinic admins, prevent duplicate clinic names
@@ -120,7 +116,9 @@ const registerUser = async (req, res) => {
       password,
       role,
       profileData,
-      isNew: true,
+      // false when adding a role to an existing account — verifyEmail then
+      // appends the role instead of creating a new user.
+      isNew: !existingUser,
     };
 
     await storePendingUser(verificationToken, userData);

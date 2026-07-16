@@ -53,6 +53,10 @@ async function googleAuth(req, res) {
     let isNewUser = false;
     let mappedRole = role;
     if (mappedRole === "clinic") mappedRole = "clinic_admin";
+    const VALID_ROLES = ["doctor", "clinic_admin", "patient"];
+    // The role the user is signing in AS this session — determines which
+    // portal they land in. Defaults to the selected role.
+    let activeRole = VALID_ROLES.includes(mappedRole) ? mappedRole : null;
 
     if (user) {
       // === EXISTING USER — LOGIN (with automatic account linking) ===
@@ -83,18 +87,27 @@ async function googleAuth(req, res) {
 
       // Repair legacy/invalid role values (e.g. "user" from an older schema)
       // so the linking save() doesn't fail enum validation on the whole doc.
-      const VALID_ROLES = ["doctor", "clinic_admin", "patient"];
       if (Array.isArray(user.roles)) {
         user.roles = user.roles.filter((r) => VALID_ROLES.includes(r));
       }
       if (!VALID_ROLES.includes(user.role)) {
-        user.role =
-          (user.roles && user.roles[0]) ||
-          (VALID_ROLES.includes(mappedRole) ? mappedRole : "patient");
+        user.role = (user.roles && user.roles[0]) || activeRole || "patient";
       }
       if (!user.roles || user.roles.length === 0) {
         user.roles = [user.role];
       }
+
+      // Multi-role: if the user is signing in with a role they don't have yet,
+      // add it and create that role's profile — so ONE email can act as any of
+      // the three roles. The selected role becomes the active session role and
+      // decides which portal they land in.
+      if (activeRole && !user.roles.includes(activeRole)) {
+        user.roles.push(activeRole);
+        await createRoleProfile(user._id, activeRole, user.name, user.email, user.avatar);
+      }
+
+      // If no valid role was selected, fall back to the account's primary role.
+      if (!activeRole) activeRole = user.role || user.roles[0];
 
       await user.save();
 
@@ -162,7 +175,7 @@ async function googleAuth(req, res) {
         _id:                  user._id,
         name:                 user.name,
         email:                user.email,
-        role:                 user.role  || user.roles[0],
+        role:                 activeRole || user.role || user.roles[0],  // ← active session role decides the portal
         roles:                user.roles,               // ← required by dashboard layouts
         photo:                user.photo  || user.avatar || null,
         avatar:               user.avatar || user.photo || null,
@@ -196,6 +209,7 @@ function generateInitials(name) {
 async function createRoleProfile(userId, role, name, email, avatar) {
   switch (role) {
     case "doctor":
+      if (await Doctor.findOne({ userId })) break;
       await Doctor.create({
         userId,
         fullName: name || "Doctor",
@@ -211,6 +225,7 @@ async function createRoleProfile(userId, role, name, email, avatar) {
       });
       break;
     case "patient":
+      if (await Patient.findOne({ userId })) break;
       await Patient.create({
         userId,
         name: name || "Patient",
@@ -223,7 +238,8 @@ async function createRoleProfile(userId, role, name, email, avatar) {
       break;
     case "clinic_admin":
     case "clinic":
-      await Clinic.create({ 
+      if (await Clinic.findOne({ adminId: userId })) break;
+      await Clinic.create({
         adminId: userId,
         name: name || "My Clinic",
         address: "Placeholder Address",
