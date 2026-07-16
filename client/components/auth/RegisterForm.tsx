@@ -33,10 +33,11 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   
-  // Start null so SSR and first client render match, then hydrate from
-  // sessionStorage after mount to avoid a hydration mismatch that would
-  // otherwise leave the form hidden until a re-render (e.g. tab switch).
-  const [role, setRoleState] = useState<Role | null>(null);
+  // Default to "patient" so the form and Google sign-up are visible/usable
+  // on first load. A constant default is SSR-safe (server and client render
+  // the same); a previously selected role is restored from sessionStorage
+  // after mount.
+  const [role, setRoleState] = useState<Role | null>("patient");
 
   useEffect(() => {
     const stored = sessionStorage.getItem("pendingGoogleRole") as Role | null;
