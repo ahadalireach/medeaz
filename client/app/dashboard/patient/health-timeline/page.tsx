@@ -36,6 +36,13 @@ export default function HealthTimelinePage() {
 
   const isUrduLang = locale === 'ur';
 
+  const statCards = [
+    { value: stats.total, label: isUrduLang ? 'کل اپائنٹمنٹس' : 'Total Visits', Icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-50' },
+    { value: stats.completed, label: isUrduLang ? 'مکمل شدہ' : 'Completed', Icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
+    { value: stats.upcoming, label: isUrduLang ? 'آنے والی' : 'Upcoming', Icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { value: stats.missed, label: isUrduLang ? 'منسوخ شدہ' : 'Missed', Icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' },
+  ];
+
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
@@ -45,69 +52,44 @@ export default function HealthTimelinePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500" dir={isUrduLang ? 'rtl' : 'ltr'}>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 animate-in fade-in slide-in-from-bottom-4 duration-500" dir={isUrduLang ? 'rtl' : 'ltr'}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* Left Column: Timeline Content */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-text-primary flex items-center gap-3">
-              <div className="p-2.5 bg-primary/10 rounded-2xl text-primary">
-                <HeartPulse size={28} />
-              </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-text-primary flex items-center gap-3">
+              <span className="inline-flex p-2.5 bg-primary/10 rounded-2xl text-primary shrink-0">
+                <HeartPulse size={24} />
+              </span>
               {isUrduLang ? 'ہیلتھ ٹائم لائن' : 'Health Timeline'}
             </h1>
-            <p className="text-text-secondary mt-2 text-sm leading-relaxed max-w-2xl">
-              {isUrduLang 
+            <p className="text-text-secondary mt-2.5 text-[13px] sm:text-sm leading-relaxed max-w-2xl">
+              {isUrduLang
                 ? 'آپ کے تمام دورے، اپائنٹمنٹ، اور طبی تاریخ کی مکمل ٹائم لائن۔'
                 : 'A comprehensive timeline of all your visits, appointments, and medical history.'}
             </p>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-            <div className="bg-white p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-black/5 shadow-sm flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center flex-shrink-0">
-                <Calendar size={12} />
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+            {statCards.map(({ value, label, Icon, color, bg }) => (
+              <div key={label} className="bg-white p-3.5 sm:p-4 rounded-2xl border border-black/5 shadow-sm flex items-center gap-3 min-w-0">
+                <span className={cn("w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0", bg, color)}>
+                  <Icon size={17} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-2xl font-black text-text-primary leading-none">{value}</p>
+                  <p className="text-[10px] sm:text-[11px] font-semibold text-text-secondary uppercase tracking-wide mt-1.5 truncate">{label}</p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-base sm:text-xl font-bold text-text-primary leading-none">{stats.total}</p>
-                <p className="text-[9px] sm:text-xs font-semibold text-text-secondary uppercase tracking-wider truncate">{isUrduLang ? 'کل اپائنٹمنٹس' : 'Total Visits'}</p>
-              </div>
-            </div>
-            <div className="bg-white p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-black/5 shadow-sm flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-green-50 text-green-500 flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 size={12} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-base sm:text-xl font-bold text-text-primary leading-none">{stats.completed}</p>
-                <p className="text-[9px] sm:text-xs font-semibold text-text-secondary uppercase tracking-wider truncate">{isUrduLang ? 'مکمل شدہ' : 'Completed'}</p>
-              </div>
-            </div>
-            <div className="bg-white p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-black/5 shadow-sm flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center flex-shrink-0">
-                <Clock size={12} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-base sm:text-xl font-bold text-text-primary leading-none">{stats.upcoming}</p>
-                <p className="text-[9px] sm:text-xs font-semibold text-text-secondary uppercase tracking-wider truncate">{isUrduLang ? 'آنے والی' : 'Upcoming'}</p>
-              </div>
-            </div>
-            <div className="bg-white p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-black/5 shadow-sm flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center flex-shrink-0">
-                <XCircle size={12} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-base sm:text-xl font-bold text-text-primary leading-none">{stats.missed}</p>
-                <p className="text-[9px] sm:text-xs font-semibold text-text-secondary uppercase tracking-wider truncate">{isUrduLang ? 'منسوخ شدہ' : 'Missed'}</p>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Timeline */}
-          <div className="bg-white rounded-3xl border border-black/5 shadow-sm p-6 sm:p-10">
-            <h2 className="text-lg font-bold text-text-primary mb-8 flex items-center gap-2">
-              <Stethoscope size={20} className="text-primary" />
+          <div className="bg-white rounded-3xl border border-black/5 shadow-sm p-5 sm:p-7">
+            <h2 className="text-base sm:text-lg font-bold text-text-primary mb-6 flex items-center gap-2.5">
+              <Stethoscope size={19} className="text-primary shrink-0" />
               {isUrduLang ? 'آپ کی ہسٹری' : 'Your History'}
             </h2>
 
