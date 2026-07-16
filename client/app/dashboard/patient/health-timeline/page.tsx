@@ -3,13 +3,14 @@
 import { useState, useMemo } from 'react';
 import { useGetAppointmentsQuery, useGetHealthScoreQuery } from '@/store/api/patientApi';
 import { useSelector } from 'react-redux';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Calendar, CheckCircle2, XCircle, Clock, HeartPulse, Stethoscope, FileText, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { HealthScoreGauge } from '@/components/shared/HealthScoreGauge';
 
 export default function HealthTimelinePage() {
   const t = useTranslations();
+  const locale = useLocale();
   const { data: appointmentsResponse, isLoading } = useGetAppointmentsQuery('all');
   const user = useSelector((state: any) => state.auth.user);
   const { data: healthScoreData, isLoading: isScoreLoading } = useGetHealthScoreQuery(user?._id, {
@@ -33,7 +34,7 @@ export default function HealthTimelinePage() {
     return { total, completed, missed, upcoming };
   }, [appointments]);
 
-  const isUrduLang = document.documentElement.lang === 'ur';
+  const isUrduLang = locale === 'ur';
 
   if (isLoading) {
     return (
@@ -119,15 +120,16 @@ export default function HealthTimelinePage() {
                 <p className="text-sm text-text-secondary mt-1">{isUrduLang ? 'آپ کی اپائنٹمنٹس کی ٹائم لائن یہاں ظاہر ہوگی۔' : 'Your appointment timeline will appear here.'}</p>
               </div>
             ) : (
-              <div className="relative space-y-8 before:absolute before:inset-0 before:ml-[1.4rem] rtl:before:mr-[1.4rem] rtl:before:ml-0 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
+              <div className="space-y-0">
                 {sortedAppointments.map((apt: any, idx: number) => {
                   const isPast = new Date(apt.dateTime) < new Date();
                   const isCompleted = apt.status === 'completed';
                   const isMissed = ['cancelled', 'no-show'].includes(apt.status);
-                  
+                  const isLast = idx === sortedAppointments.length - 1;
+
                   let Icon = Calendar;
-                  let iconColor = "text-primary bg-primary-bg";
-                  
+                  let iconColor = "text-primary bg-primary/10";
+
                   if (isCompleted) {
                     Icon = CheckCircle2;
                     iconColor = "text-green-600 bg-green-50";
@@ -140,21 +142,29 @@ export default function HealthTimelinePage() {
                   }
 
                   return (
-                    <div key={apt._id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                      <div className={cn(
-                        "flex items-center justify-center w-12 h-12 rounded-full border-4 border-white shrink-0 shadow-sm md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2",
-                        iconColor
-                      )}>
-                        <Icon size={20} />
+                    <div key={apt._id} className="relative flex gap-4 sm:gap-5">
+                      {/* Node + connecting line */}
+                      <div className="flex flex-col items-center">
+                        <div className={cn(
+                          "flex items-center justify-center w-11 h-11 rounded-full border-4 border-white shrink-0 shadow-sm ring-1 ring-black/5",
+                          iconColor
+                        )}>
+                          <Icon size={18} />
+                        </div>
+                        {!isLast && <div className="w-0.5 flex-1 bg-border/70 my-1 rounded-full" />}
                       </div>
 
-                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] p-5 rounded-2xl bg-white border border-black/5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all">
-                        <div className="flex items-center justify-between mb-3">
+                      {/* Card */}
+                      <div className={cn(
+                        "flex-1 min-w-0 p-4 sm:p-5 rounded-2xl bg-white border border-black/5 shadow-sm hover:shadow-md hover:border-primary/20 transition-all",
+                        isLast ? "mb-0" : "mb-6"
+                      )}>
+                        <div className="flex items-center justify-between gap-2 mb-3">
                           <span className="text-sm font-bold text-primary">
                             {new Date(apt.dateTime).toLocaleDateString(isUrduLang ? 'ur-PK' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </span>
                           <span className={cn(
-                            "text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full",
+                            "text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full whitespace-nowrap",
                             isCompleted ? "bg-green-100 text-green-700" :
                             isMissed ? "bg-red-100 text-red-700" :
                             "bg-orange-100 text-orange-700"
@@ -172,9 +182,9 @@ export default function HealthTimelinePage() {
                               </div>
                             )}
                           </div>
-                          <div>
-                            <h3 className="font-bold text-text-primary text-base leading-tight">Dr. {apt.doctorId?.name || 'Unknown'}</h3>
-                            <p className="text-sm text-text-secondary mt-0.5 flex items-center gap-1.5">
+                          <div className="min-w-0">
+                            <h3 className="font-bold text-text-primary text-base leading-tight truncate">Dr. {apt.doctorId?.name || 'Unknown'}</h3>
+                            <p className="text-sm text-text-secondary mt-0.5 truncate">
                               {apt.clinicId?.name || t('appointment.clinic')}
                             </p>
                           </div>
