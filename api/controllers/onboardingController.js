@@ -142,7 +142,7 @@ exports.markProfileComplete = asyncHandler(async (req, res) => {
         clinicType,
         registrationNumber,
         phone: inputPhone || user.phone || '0000000000',
-        address: address || 'Please update clinic address',
+        address: address || '',
         addressLine2,
         city,
         photo: photo || user.photo,

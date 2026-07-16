@@ -27,7 +27,7 @@ const attachClinicId = async (req, res, next) => {
         adminId: req.user._id,
         name: `${req.user.name || "My"} Clinic`,
         email: req.user.email,
-        address: "Please update clinic address",
+        address: "",
         phone: req.user.phone || "0000000000",
         doctors: [],
         staff: [],

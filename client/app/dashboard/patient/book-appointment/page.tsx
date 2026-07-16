@@ -85,7 +85,11 @@ export default function BookAppointmentPage() {
   const [prefill, setPrefill] = useState<{ clinicId: string; doctorId: string }>({ clinicId: "", doctorId: "" });
   const [prefillApplied, setPrefillApplied] = useState(false);
 
-  const clinics = clinicsData?.data || [];
+  // Only clinics that actually have doctors are bookable — this also hides
+  // empty placeholder/test clinics from the booking flow.
+  const clinics = (clinicsData?.data || []).filter(
+    (c: any) => Array.isArray(c.doctors) && c.doctors.length > 0
+  );
 
   const [formData, setFormData] = useState({
     doctorId: "",
@@ -538,7 +542,7 @@ export default function BookAppointmentPage() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-text-primary">{clinic.name}</h3>
-                        {clinic.address && (
+                        {clinic.address && !/placeholder|please update/i.test(clinic.address) && (
                           <p className="text-sm text-text-secondary">{clinic.address}</p>
                         )}
                         <div className="flex flex-wrap items-center gap-3 mt-2">

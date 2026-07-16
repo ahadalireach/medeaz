@@ -242,7 +242,7 @@ async function createRoleProfile(userId, role, name, email, avatar) {
       await Clinic.create({
         adminId: userId,
         name: name || "My Clinic",
-        address: "Placeholder Address",
+        address: "",
         phone: "000-000-0000",
         email: email,
         photo: avatar || null,
