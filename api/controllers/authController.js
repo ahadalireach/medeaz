@@ -476,6 +476,15 @@ const forgotPassword = async (req, res) => {
         .json({ success: false, message: "No account found with this email" });
     }
 
+    // Google-linked accounts have no usable password (login routes them to
+    // Google), so a reset email would be a dead end. Direct them to Google.
+    if (user.authProvider === "google" || user.googleId) {
+      return res.status(400).json({
+        success: false,
+        message: "This email is registered using Google login. Please click 'Continue with Google' to sign in.",
+      });
+    }
+
     const resetToken = crypto.randomBytes(32).toString("hex");
     await storeResetToken(resetToken, user._id);
 
